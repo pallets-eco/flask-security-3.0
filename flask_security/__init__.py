@@ -49,6 +49,12 @@ LOGIN_VIEW_KEY = 'login_view'
 POST_LOGIN_VIEW_KEY = 'post_login_view'
 POST_LOGOUT_VIEW_KEY = 'post_logout_view'
 
+DEBUG_LOGIN = 'User %s logged in. Redirecting to: %s'
+ERROR_LOGIN = 'Unsuccessful authentication attempt: %s. Redirecting to: %s'
+DEBUG_LOGOUT = 'User logged out, redirecting to: %s'
+FLASH_INACTIVE = 'Inactive user'
+FLASH_PERMISSIONS = 'You do not have permission to view this resource.'
+
 default_config = {
     URL_PREFIX_KEY:            None,
     PASSWORD_HASH_KEY:         'plaintext',
@@ -118,8 +124,8 @@ def roles_required(*args):
             logger.debug('Identity does not provide all of the '
                          'following roles: %s' % [r for r in roles])
             
-            c = current_app.config[AUTH_CONFIG_KEY]
-            return redirect(c[LOGIN_VIEW_KEY])
+            flash(FLASH_PERMISSIONS, 'error')
+            return redirect(request.referrer)
         return decorated_view
     return wrapper
 
@@ -136,8 +142,8 @@ def roles_accepted(*args):
             logger.debug('Identity does not provide at least one of '
                          'the following roles: %s' % [r for r in roles])
             
-            c = current_app.config[AUTH_CONFIG_KEY]
-            return redirect(c[LOGIN_VIEW_KEY])
+            flash(FLASH_PERMISSIONS, 'error')
+            return redirect(request.referrer)
         return decorated_view
     return wrapper
 
@@ -216,12 +222,6 @@ class Security(object):
                 identity.provides.add(RoleNeed(role.name))
             
             identity.user = current_user
-        
-        DEBUG_LOGIN = 'User %s logged in. Redirecting to: %s'
-        ERROR_LOGIN = 'Unsuccessful authentication attempt: %s. ' \
-                      'Redirecting to: %s'
-        DEBUG_LOGOUT = 'User logged out, redirecting to: %s'
-        FLASH_INACTIVE = 'Inactive user'
         
         @login_manager.user_loader
         def load_user(user_id):
