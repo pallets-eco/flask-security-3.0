@@ -125,7 +125,12 @@ def roles_required(*args):
                          'following roles: %s' % [r for r in roles])
             
             flash(FLASH_PERMISSIONS, 'error')
-            return redirect(request.referrer)
+            
+            if current_user.is_authenticated():
+                return redirect(request.referrer)
+            
+            c = current_app.config[AUTH_CONFIG_KEY]
+            return redirect(c[LOGIN_VIEW_KEY])
         return decorated_view
     return wrapper
 
@@ -143,7 +148,12 @@ def roles_accepted(*args):
                          'the following roles: %s' % [r for r in roles])
             
             flash(FLASH_PERMISSIONS, 'error')
-            return redirect(request.referrer)
+            
+            if current_user.is_authenticated():
+                return redirect(request.referrer)
+            
+            c = current_app.config[AUTH_CONFIG_KEY]
+            return redirect(c[LOGIN_VIEW_KEY])
         return decorated_view
     return wrapper
 
