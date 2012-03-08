@@ -4,7 +4,7 @@ from flask.ext.login import UserMixin
 from flask.ext.security.datastore import UserDatastore
     
 class SQLAlchemyUserDatastore(UserDatastore):
-    """SQLAlchemy user service"""
+    """SQLAlchemy datastore"""
     
     def __init__(self, db):
         self.db = db
@@ -90,12 +90,14 @@ class SQLAlchemyUserDatastore(UserDatastore):
         name = kwargs.get('name')
         description = kwargs.get('description', None)
         
-        if security.Role.query.filter_by(name=name).first() is None:
+        role = security.Role.query.filter_by(name=name).first()
+        
+        if role is None:
             role = security.Role(name=name, description=description)
             self.db.session.add(role)
+            if commit: self.db.session.commit()
             
-        if commit: self.db.session.commit()
-        return role
+        return role 
     
     def create_user(self, commit=True, **kwargs):
         kwargs = self._prepare_create_args(kwargs)
