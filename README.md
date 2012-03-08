@@ -17,9 +17,24 @@ That being said, you can still hook into things such as the Flask-Login and Flas
 
 ## Getting Started
 
-The best place to get started is to look at the example application(s) and corresponding tests. The example apps are currently used to test Flask-Security as well so they are solid examples of most, if not all, features. Configuration options are illustrated in the tests as well.
+First, install Flask-Security:
 
-Essentially, the only thing you need to do on your own is setup a login form/view. Again, refer to the example app to see how easily this is done.
+    $ mkvirtualenv app-name
+    $ pip install https://github.com/mattupstate/flask-security/tarball/master
+    
+Then install your datastore requirement. 
+
+SQLAlchemy:
+
+    $ pip install Flask-SQLAlchemy
+    
+MongoEngine:
+
+    $ pip install https://github.com/sbook/flask-mongoengine/tarball/master
+
+Beyond this, the best place to get started at the moment is to look at the example application(s) and corresponding tests. The example apps are currently used to test Flask-Security as well so they are solid examples of most, if not all, features. Configuration options are illustrated in the tests as well.
+
+Essentially, the only thing you need to do on your own to have a working app is setup a login view. Again, refer to the example app to see how easily this is done.
 
 However, the following are some hypothetical examples to give you a sense of how Flask-Security works:
 
