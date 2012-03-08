@@ -1,0 +1,10 @@
+{% include "_messages.html" %}
+{% include "_nav.html" %}
+<form action="{{ url_for('auth.authenticate') }}" method="POST" name="login_form">
+  {{ form.hidden_tag() }}
+  {{ form.username.label }} {{ form.username }}<br/>
+  {{ form.password.label }} {{ form.password }}<br/>
+  {{ form.remember.label }} {{ form.remember }}<br/>
+  {{ form.submit }}
+</form>
+<p>{{ content }}</p>
