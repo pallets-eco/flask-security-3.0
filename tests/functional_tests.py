@@ -1,19 +1,22 @@
 import unittest
 from example import app
 
-class SecurityTests(unittest.TestCase):
+class SecurityTest(unittest.TestCase):
     
     AUTH_CONFIG = None
     
     def setUp(self):
-        super(SecurityTests, self).setUp()
+        super(SecurityTest, self).setUp()
         
-        self.app = app.create_app(self.AUTH_CONFIG or None)
+        self.app = self._create_app(self.AUTH_CONFIG or None)
         self.app.debug = False
         self.app.config['TESTING'] = True
         
         self.client = self.app.test_client()
         
+    def _create_app(self, auth_config):
+        return app.create_sqlalchemy_app(auth_config)
+    
     def _get(self, route, content_type=None, follow_redirects=None):
         return self.client.get(route, follow_redirects=follow_redirects,
                 content_type=content_type or 'text/html')
@@ -22,6 +25,7 @@ class SecurityTests(unittest.TestCase):
         return self.client.post(route, data=data, 
                 follow_redirects=follow_redirects,
                 content_type=content_type or 'text/html')
+        
     
     def authenticate(self, username, password, endpoint=None):
         data = dict(username=username, password=password)
@@ -31,7 +35,7 @@ class SecurityTests(unittest.TestCase):
     def logout(self, endpoint=None):
         return self._get(endpoint or '/logout', follow_redirects=True)
 
-class DefaultSecurityTests(SecurityTests):
+class DefaultSecurityTests(SecurityTest):
     
     def test_login_view(self):
         r = self._get('/login')
@@ -97,7 +101,7 @@ class DefaultSecurityTests(SecurityTests):
         self.assertIn('Login Page', r.data)
 
 
-class ConfiguredSecurityTests(SecurityTests):    
+class ConfiguredSecurityTests(SecurityTest):    
     
     AUTH_CONFIG = {
         'password_hash': 'bcrypt',
@@ -121,3 +125,9 @@ class ConfiguredSecurityTests(SecurityTests):
         self.authenticate("matt", "password", endpoint="/custom_auth")
         r = self.logout(endpoint="/custom_logout")
         assert 'Post Logout' in r.data
+
+        
+class MongoEngineSecurityTests(DefaultSecurityTests):
+    
+    def _create_app(self, auth_config):
+        return app.create_mongoengine_app(auth_config)        

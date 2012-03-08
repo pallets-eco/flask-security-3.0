@@ -14,13 +14,14 @@ from __future__ import absolute_import
 import sys
 
 from datetime import datetime
+from types import StringType
 
 from flask import (current_app, Blueprint, flash, redirect, request, 
     session, _request_ctx_stack, url_for, abort, g)
 
-from flask.ext.login import (AnonymousUser as AnonymousUserBase, UserMixin, 
-    LoginManager, login_required, login_user, logout_user, 
-    current_user, user_logged_in, user_logged_out)
+from flask.ext.login import (AnonymousUser as AnonymousUserBase, 
+    UserMixin as BaseUserMixin, LoginManager, login_required, login_user, 
+    logout_user, current_user, user_logged_in, user_logged_out)
 
 from flask.ext.principal import (Identity, Principal, RoleNeed, UserNeed,
     Permission, AnonymousIdentity, identity_changed, identity_loaded)
@@ -140,6 +141,28 @@ def roles_accepted(*args):
         return decorated_view
     return wrapper
 
+class RoleMixin(object):
+    def __eq__(self, other):
+        return self.name == other.name
+    
+    def __ne__(self, other):
+        return self.name != other.name
+        
+    def __str__(self):
+        return '<Role name=%s, description=%s>' % (self.name, self.description)
+
+class UserMixin(BaseUserMixin):
+    def is_active(self):
+        return self.active
+    
+    def has_role(self, role):
+        if type(role) is StringType:
+            role = Role(name=role)
+        return role in self.roles
+    
+    def __str__(self):
+        ctx = (str(self.id), self.username, self.email)
+        return '<User id=%s, username=%s, email=%s>' % ctx
 
 class AnonymousUser(AnonymousUserBase):
     def __init__(self):

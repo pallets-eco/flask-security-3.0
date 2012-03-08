@@ -1,6 +1,5 @@
-from types import StringType
 from flask.ext import security
-from flask.ext.login import UserMixin
+from flask.ext.security import UserMixin, RoleMixin
 from flask.ext.security.datastore import UserDatastore
     
 class SQLAlchemyUserDatastore(UserDatastore):
@@ -13,7 +12,7 @@ class SQLAlchemyUserDatastore(UserDatastore):
             db.Column('user_id', db.Integer(), db.ForeignKey('role.id')),
             db.Column('role_id', db.Integer(), db.ForeignKey('user.id')))
         
-        class Role(db.Model):
+        class Role(db.Model, RoleMixin):
             id = db.Column(db.Integer(), primary_key=True)
             name = db.Column(db.String(80), unique=True)
             description = db.Column(db.String(255))
@@ -21,15 +20,6 @@ class SQLAlchemyUserDatastore(UserDatastore):
             def __init__(self, name=None, description=None):
                 self.name = name
                 self.description = description
-            
-            def __eq__(self, other):
-                return self.name == other.name
-            
-            def __ne__(self, other):
-                return self.name != other.name
-                
-            def __str__(self):
-                return '<Role name=%s, description=%s>' % (self.name, self.description)
               
         class User(db.Model, UserMixin):
             id = db.Column(db.Integer, primary_key=True)
@@ -53,17 +43,6 @@ class SQLAlchemyUserDatastore(UserDatastore):
                 self.roles = roles or []
                 self.created_at = created_at
                 self.modified_at = modified_at
-                
-            def is_active(self):
-                return self.active
-            
-            def has_role(self, role):
-                if type(role) is StringType:
-                    role = security.Role(name=role)
-                return role in self.roles
-            
-            def __str__(self):
-                return '<User id=%(id)s, email=%(email)s>' % self.__dict__
             
         security.User = User
         security.Role = Role
