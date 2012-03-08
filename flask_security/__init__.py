@@ -118,19 +118,18 @@ def roles_required(*args):
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
-            if current_user.is_authenticated() and perm.can():
+            if not current_user.is_authenticated():
+                c = current_app.config[AUTH_CONFIG_KEY]
+                return redirect(c[LOGIN_VIEW_KEY])
+            
+            if perm.can():
                 return fn(*args, **kwargs)
             
             logger.debug('Identity does not provide all of the '
                          'following roles: %s' % [r for r in roles])
             
             flash(FLASH_PERMISSIONS, 'error')
-            
-            if current_user.is_authenticated():
-                return redirect(request.referrer)
-            
-            c = current_app.config[AUTH_CONFIG_KEY]
-            return redirect(c[LOGIN_VIEW_KEY])
+            return redirect(request.referrer or '/')
         return decorated_view
     return wrapper
 
@@ -140,20 +139,19 @@ def roles_accepted(*args):
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
+            if not current_user.is_authenticated():
+                c = current_app.config[AUTH_CONFIG_KEY]
+                return redirect(c[LOGIN_VIEW_KEY])
+            
             for perm in perms:
-                if current_user.is_authenticated() and perm.can():
+                if perm.can():
                     return fn(*args, **kwargs)
                 
             logger.debug('Identity does not provide at least one of '
                          'the following roles: %s' % [r for r in roles])
             
             flash(FLASH_PERMISSIONS, 'error')
-            
-            if current_user.is_authenticated():
-                return redirect(request.referrer)
-            
-            c = current_app.config[AUTH_CONFIG_KEY]
-            return redirect(c[LOGIN_VIEW_KEY])
+            return redirect(request.referrer or '/')
         return decorated_view
     return wrapper
 

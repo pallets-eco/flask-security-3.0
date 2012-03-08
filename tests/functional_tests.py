@@ -87,7 +87,7 @@ class DefaultSecurityTests(SecurityTest):
     def test_invalid_admin_role(self):
         self.authenticate("joe", "password")
         r = self._get("/admin", follow_redirects=True)
-        assert 'Login Page' in r.data
+        assert 'Home Page' in r.data
         
     def test_roles_accepted(self):
         for user in ("matt", "joe"):
@@ -98,7 +98,7 @@ class DefaultSecurityTests(SecurityTest):
             
         self.authenticate("jill", "password")
         r = self._get("/admin_or_editor", follow_redirects=True)
-        self.assertIn('Login Page', r.data)
+        self.assertIn('Home Page', r.data)
 
 
 class ConfiguredSecurityTests(SecurityTest):    
