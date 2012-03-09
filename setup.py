@@ -22,7 +22,7 @@ setup(
     author_email='matt@nobien.net',
     description='Simple security for Flask apps',
     long_description=__doc__,
-    packages=['flask_security'],
+    packages=['flask_security','flask_security.datastore'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
