@@ -49,9 +49,9 @@ class SQLAlchemyUserDatastore(UserDatastore):
             
         return User, Role
     
-    def _save_model(self, model, commit=True):
+    def _save_model(self, model):
         self.db.session.add(model)
-        if commit: self.db.session.commit()
+        self.db.session.commit()
         return model
     
     def _do_with_id(self, id):
@@ -63,20 +63,4 @@ class SQLAlchemyUserDatastore(UserDatastore):
     
     def _do_find_role(self, role):
         return security.Role.query.filter_by(name=role).first()
-    
-    def create_role(self, commit=True, **kwargs):
-        role = security.Role(**self._prepare_create_role_args(kwargs))
-        return self._save_model(role, commit)
-    
-    def create_user(self, commit=True, **kwargs):
-        user = security.User(**self._prepare_create_user_args(kwargs))
-        return self._save_model(user, commit)
-    
-    def add_role_to_user(self, user, role, commit=True):
-        user = self._do_add_role(user, role)
-        return self._save_model(user, commit)
-    
-    def remove_role_from_user(self, user, role, commit=True):
-        user = self._do_remove_role(user, role)
-        return self._save_model(user, commit)
     

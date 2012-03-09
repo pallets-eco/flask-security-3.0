@@ -100,3 +100,15 @@ If you don't want to checkout the example quite yet, here are some hypothetical 
     {% if current_user.has_role('admin') %}
     <a href="{{ url_for('admin.index') }}">Admin Panel</a>
     {$ endif %}
+    
+## Flask-Script Commands
+
+Flask-Security comes packed with a few Flask-Script commands. They are:
+
+* `flask.ext.security.script.CreateUserCommand`
+* `flask.ext.security.script.AddRoleCommand`
+* `flask.ext.security.script.RemoveRoleCommand`
+* `flask.ext.security.script.DeactivateUserCommand`
+* `flask.ext.security.script.ActivateUserCommand`
+
+Register these on your script manager for pure convenience.

@@ -8,12 +8,14 @@ sys.path.insert(0, os.getcwd())
 from example import app
 from flask.ext.script import Manager
 from flask.ext.security.script import (CreateUserCommand , AddRoleCommand,
-                                       RemoveRoleCommand)
+        RemoveRoleCommand, ActivateUserCommand, DeactivateUserCommand)
 
 manager = Manager(app.create_sqlalchemy_app())
 manager.add_command('create_user', CreateUserCommand())
 manager.add_command('add_role', AddRoleCommand())
 manager.add_command('remove_role', RemoveRoleCommand())
+manager.add_command('deactivate_user', DeactivateUserCommand())
+manager.add_command('activate_user', ActivateUserCommand())
 
 if __name__ == "__main__":
     manager.run()

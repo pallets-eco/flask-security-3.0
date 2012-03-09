@@ -7,6 +7,7 @@ from flask.ext.security import (UserCreationError, UserNotFoundError,
 def pprint(obj):
     print json.dumps(obj, sort_keys=True, indent=4)
 
+
 class CreateUserCommand(Command):
     """Create a user"""
     
@@ -33,38 +34,45 @@ class CreateUserCommand(Command):
         kwargs['password'] = '****'
         pprint(kwargs)
 
-        
-class AddRoleCommand(Command):
-    """Add a role to a user"""
-    
+
+class _RoleCommand(Command):  
     option_list = (
         Option('-u', '--user', dest='user_identifier'),
         Option('-r', '--role', dest='role_name'),
     )
+
+
+class AddRoleCommand(_RoleCommand):
+    """Add a role to a user"""
     
     def run(self, user_identifier, role_name):
         user_datastore.add_role_to_user(user_identifier, role_name)
         print "Role '%s' added to user '%s' successfully" % (role_name, user_identifier)
-        
-class RemoveRoleCommand(Command):
+
+
+class RemoveRoleCommand(_RoleCommand):
     """Add a role to a user"""
-    
-    option_list = (
-        Option('-u', '--user', dest='user_identifier'),
-        Option('-r', '--role', dest='role_name'),
-    )
     
     def run(self, user_identifier, role_name):
         user_datastore.remove_role_from_user(user_identifier, role_name)
         print "Role '%s' removed from user '%s' successfully" % (role_name, user_identifier)
-        
-            
-class DeactiveUserCommand(Command):
-    """Deactive a user"""
-        
+
+    
+class _ToggleActiveCommand(Command):
     option_list = (
         Option('-u', '--user', dest='user_identifier'),
     )
     
+class DeactivateUserCommand(_ToggleActiveCommand):
+    """Deactive a user"""
+    
     def run(self, user_identifier):
-        user_datastore.deactive_user(user_identifier)
+        user_datastore.deactivate_user(user_identifier)
+        print "User '%s' has been deactivated" % user_identifier
+        
+class ActivateUserCommand(_ToggleActiveCommand):
+    """Deactive a user"""
+    
+    def run(self, user_identifier):
+        user_datastore.activate_user(user_identifier)
+        print "User '%s' has been activated" % user_identifier

@@ -25,6 +25,10 @@ class MongoEngineUserDatastore(UserDatastore):
             modified_at = db.DateTimeField()
             
         return User, Role
+    
+    def _save_model(self, model):
+        model.save()
+        return model
         
     def _do_with_id(self, id):
         try: return security.User.objects.get(id=id)
@@ -37,17 +41,3 @@ class MongoEngineUserDatastore(UserDatastore):
     def _do_find_role(self, role):
         return security.Role.objects(name=role).first()
     
-    def create_role(self, **kwargs):
-        role = security.Role(**self._prepare_create_role_args(kwargs))
-        role.save()
-        return role
-    
-    def create_user(self, **kwargs):
-        user = security.User(**self._prepare_create_user_args(kwargs))
-        user.save()
-        return user
-    
-    def add_role(self, user, role):
-        user = self._do_add_role(user, role)
-        user.save()
-        return user

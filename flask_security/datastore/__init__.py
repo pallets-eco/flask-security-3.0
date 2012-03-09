@@ -6,6 +6,10 @@ class UserDatastore(object):
     """Abstracted user datastore. Always extend this and implement
     missing methods"""
     
+    def _save_model(self, model, **kwargs):
+        raise NotImplementedError(
+            "User datastore does not implement _save_model method")
+    
     def _do_with_id(self, id):
         raise NotImplementedError(
             "User datastore does not implement _do_with_id method")
@@ -29,6 +33,20 @@ class UserDatastore(object):
         if role in user.roles:
             user.roles.remove(role)
         return user
+    
+    def _do_toggle_active(self, user, active=None):
+        user = self.find_user(user)
+        if active is None:
+            user.active = not user.active
+        elif active != user.active:
+            user.active = active
+        return user
+    
+    def _do_deactive_user(self, user):
+        return self._do_toggle_active(user, False)
+    
+    def _do_active_user(self, user):
+        return self._do_toggle_active(user, True)
     
     def _prepare_role_modify_args(self, user, role):
         if isinstance(user, security.User):
@@ -92,18 +110,22 @@ class UserDatastore(object):
         if role: return role
         raise security.RoleNotFoundError()
     
-    def create_role(self, **kwargs):
-        raise NotImplementedError(
-            "User datastore does not implement create_role method")
-        
-    def create_user(self, **kwargs):
-        raise NotImplementedError(
-            "User datastore does not implement create_user method")
-        
+    def create_role(self, commit=True, **kwargs):
+        role = security.Role(**self._prepare_create_role_args(kwargs))
+        return self._save_model(role)
+    
+    def create_user(self, commit=True, **kwargs):
+        user = security.User(**self._prepare_create_user_args(kwargs))
+        return self._save_model(user)
+    
     def add_role_to_user(self, user, role):
-        raise NotImplementedError(
-            "User datastore does not implement add_role_to_user method")
-        
-    def remove_role_from_user(self, user, role):
-        raise NotImplementedError(
-            "User datastore does not implement remove_role_from_user method")
+        return self._save_model(self._do_add_role(user, role))
+    
+    def remove_role_from_user(self, user, role, commit=True):
+        return self._save_model(self._do_remove_role(user, role))
+    
+    def deactivate_user(self, user):
+        return self._save_model(self._do_deactive_user(user))
+    
+    def activate_user(self, user, commit=True):
+        return self._save_model(self._do_active_user(user))
