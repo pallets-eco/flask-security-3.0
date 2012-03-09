@@ -8,6 +8,9 @@ class SQLAlchemyUserDatastore(UserDatastore):
     def __init__(self, db):
         self.db = db
         
+    def get_models(self):
+        db = self.db
+        
         roles_users = db.Table('roles_users',
             db.Column('user_id', db.Integer(), db.ForeignKey('role.id')),
             db.Column('role_id', db.Integer(), db.ForeignKey('user.id')))
@@ -44,51 +47,36 @@ class SQLAlchemyUserDatastore(UserDatastore):
                 self.created_at = created_at
                 self.modified_at = modified_at
             
-        security.User = User
-        security.Role = Role
-        
-        db.create_all()
-        
-    def with_id(self, id):
-        user = security.User.query.get(id)
-        if user: return user
-        raise security.UserIdNotFoundError()
+        return User, Role
     
-    def find(self, user_identifier):
-        user = security.User.query.filter_by(username=user_identifier).first()
-        if user: return user
-        user = security.User.query.filter_by(email=user_identifier).first()
-        if user: return user
-        raise security.UserNotFoundError()
+    def _save_model(self, model, commit=True):
+        self.db.session.add(model)
+        if commit: self.db.session.commit()
+        return model
+    
+    def _do_with_id(self, id):
+        return security.User.query.get(id)
+    
+    def _do_find_user(self, user):
+        return security.User.query.filter_by(username=user).first() or \
+               security.User.query.filter_by(email=user).first()
+    
+    def _do_find_role(self, role):
+        return security.Role.query.filter_by(name=role).first()
     
     def create_role(self, commit=True, **kwargs):
-        if not kwargs.has_key('name'):
-            raise TypeError("create_role() did not receive "
-                            "keyword argument 'name'")
-        
-        name = kwargs.get('name')
-        description = kwargs.get('description', None)
-        
-        role = security.Role.query.filter_by(name=name).first()
-        
-        if role is None:
-            role = security.Role(name=name, description=description)
-            self.db.session.add(role)
-            if commit: self.db.session.commit()
-            
-        return role 
+        role = security.Role(**self._prepare_create_role_args(kwargs))
+        return self._save_model(role, commit)
     
     def create_user(self, commit=True, **kwargs):
-        kwargs = self._prepare_create_args(kwargs)
-        
-        roles = kwargs.get('roles', [])
-        user_roles = []
-        for role in roles:
-            user_roles.append(self.create_role(name=role, commit=False))
-        
-        kwargs['roles'] = user_roles
-        user = security.User(**kwargs)
-        self.db.session.add(user)
-        
-        if commit: self.db.session.commit()
-        return user
+        user = security.User(**self._prepare_create_user_args(kwargs))
+        return self._save_model(user, commit)
+    
+    def add_role_to_user(self, user, role, commit=True):
+        user = self._do_add_role(user, role)
+        return self._save_model(user, commit)
+    
+    def remove_role_from_user(self, user, role, commit=True):
+        user = self._do_remove_role(user, role)
+        return self._save_model(user, commit)
+    

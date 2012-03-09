@@ -16,21 +16,21 @@ from flask.ext.security import (Security, LoginForm, user_datastore,
 from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
 from flask.ext.security.datastore.mongoengine import MongoEngineUserDatastore
 
+def create_roles():
+    for role in ('admin', 'editor', 'author'):
+        user_datastore.create_role(name=role)
+        
 def create_users():
-    user_datastore.create_user(username='matt', email='matt@lp.com', 
-                               password='password',
-                               roles=['admin'])
-    
-    user_datastore.create_user(username='joe', email='joe@lp.com', 
-                               password='password',
-                               roles=['editor'])
-    
-    user_datastore.create_user(username='jill', email='jill@lp.com', 
-                               password='password',
-                               roles=['author'])
-    
-    user_datastore.create_user(username='tiya', email='tiya@lp.com', 
-                               password='password', active=False)
+    for u in  (('matt','matt@lp.com','password',['admin'],True),
+               ('joe','joe@lp.com','password',['editor'],True),
+               ('jill','jill@lp.com','password',['author'],True),
+               ('tiya','tiya@lp.com','password',[],False)):
+        user_datastore.create_user(username=u[0], email=u[1], password=u[2], 
+                                   roles=u[3], active=u[4])
+
+def populate_data():
+    create_roles()
+    create_users()
     
 def create_app(auth_config):
     app = Flask(__name__)
@@ -81,15 +81,16 @@ def create_app(auth_config):
 
 def create_sqlalchemy_app(auth_config=None):
     app = create_app(auth_config)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/flask_security_example.sqlite'
     
     db = SQLAlchemy(app)
     Security(app, SQLAlchemyUserDatastore(db))
     
     @app.before_first_request
     def before_first_request():
+        db.drop_all()
         db.create_all()
-        create_users()
+        populate_data()
         
     return app
 
@@ -107,7 +108,7 @@ def create_mongoengine_app(auth_config=None):
         from flask.ext.security import User, Role
         User.drop_collection()
         Role.drop_collection()
-        create_users()
+        populate_data()
         
     return app
 

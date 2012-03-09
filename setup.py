@@ -8,21 +8,24 @@ Links
 `````
 
 * `development version
-  <https://github.com/mattupstate/flask-security/raw/master#egg=Flask-Security-dev>`_
+  <https://github.com/mattupstate/flask-security/raw/develop#egg=Flask-Security-dev>`_
 
 """
 from setuptools import setup
 
 setup(
     name='Flask-Security',
-    version='1.0.0',
+    version='1.1.0-dev',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matthew Wright',
     author_email='matt@nobien.net',
     description='Simple security for Flask apps',
     long_description=__doc__,
-    packages=['flask_security','flask_security.datastore'],
+    packages=[
+        'flask_security',
+        'flask_security.datastore'
+    ],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
@@ -36,7 +39,12 @@ setup(
     test_suite='nose.collector',
     tests_require=[
         'nose',
+        'Flask-SQLAlchemy',
+        'Flask-MongoEngine',
         'py-bcrypt'
+    ],
+    dependency_links=[
+        'http://github.com/sbook/flask-mongoengine/tarball/master#egg=Flask-MongoEngine-0.1.3-dev'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

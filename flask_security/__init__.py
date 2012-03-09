@@ -81,6 +81,11 @@ class UserNotFoundError(Exception):
     their identifier, often username or email, and the user is not found.
     """
     
+class RoleNotFoundError(Exception):
+    """Raised by a user datastore when there is an attempt to find a role and
+    the role cannot be found.
+    """
+    
 class UserIdNotFoundError(Exception):
     """Raised by a user datastore when there is an attempt to find a user by 
     ID and the user is not found.
@@ -91,9 +96,15 @@ class UserDatastoreError(Exception):
     """
     
 class UserCreationError(Exception):
-    """Raise when an error occurs during user create
+    """Raise when an error occurs when creating a user
     """
     
+class RoleCreationError(Exception):
+    """Raise when an error occurs when creating a role
+    """
+    
+
+     
 #: App logger for convenience
 logger = LocalProxy(lambda: current_app.logger)
 
@@ -222,6 +233,9 @@ class Security(object):
         app.auth_provider = Provider(Form)
         app.principal = Principal(app)
         
+        from flask.ext import security as s
+        s.User, s.Role = datastore.get_models()
+        
         setattr(app, config[USER_DATASTORE_KEY], datastore)
         
         @identity_loaded.connect_via(app)
@@ -319,7 +333,7 @@ class AuthenticationProvider(object):
         
     def do_authenticate(self, user_identifier, password):
         try:
-            user = user_datastore.find(user_identifier)
+            user = user_datastore.find_user(user_identifier)
         except AttributeError, e:
             self.auth_error("Could not find user service: %s" % e)
         except UserNotFoundError, e:
