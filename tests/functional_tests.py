@@ -104,13 +104,13 @@ class DefaultSecurityTests(SecurityTest):
 class ConfiguredSecurityTests(SecurityTest):    
     
     AUTH_CONFIG = {
-        'password_hash': 'bcrypt',
-        'user_datastore_name': 'custom_datastore_name',
-        'auth_url': '/custom_auth',
-        'logout_url': '/custom_logout',
-        'login_view': '/custom_login',
-        'post_login_view': '/post_login',
-        'post_logout_view': '/post_logout'
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+        'SECURITY_USER_DATASTORE': 'custom_datastore_name',
+        'SECURITY_AUTH_URL': '/custom_auth',
+        'SECURITY_LOGOUT_URL': '/custom_logout',
+        'SECURITY_LOGIN_VIEW': '/custom_login',
+        'SECURITY_POST_LOGIN': '/post_login',
+        'SECURITY_POST_LOGOUT': '/post_logout'
     }
     
     def test_login_view(self):

@@ -36,7 +36,10 @@ def create_app(auth_config):
     app = Flask(__name__)
     app.debug = True
     app.config['SECRET_KEY'] = 'secret'
-    app.config['AUTH'] = auth_config or {}
+    
+    if auth_config:
+        for key, value in auth_config.items():
+            app.config[key] = value
     
     @app.route('/')
     def index():

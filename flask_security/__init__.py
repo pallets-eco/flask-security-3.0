@@ -36,18 +36,16 @@ from werkzeug.local import LocalProxy
 
 User, Role = None, None
 
-AUTH_CONFIG_KEY = 'AUTH'
-URL_PREFIX_KEY = 'url_prefix'
-USER_MODEL_ENGINE_KEY = 'user_model_engine'
-AUTH_PROVIDER_KEY = 'auth_provider'
-PASSWORD_HASH_KEY = 'password_hash'
-USER_DATASTORE_NAME_KEY = 'user_datastore_name'
-LOGIN_FORM_KEY = 'login_form'
-AUTH_URL_KEY = 'auth_url'
-LOGOUT_URL_KEY = 'logout_url'
-LOGIN_VIEW_KEY = 'login_view'
-POST_LOGIN_VIEW_KEY = 'post_login_view'
-POST_LOGOUT_VIEW_KEY = 'post_logout_view'
+URL_PREFIX_KEY =     'SECURITY_URL_PREFIX'
+AUTH_PROVIDER_KEY =  'SECURITY_AUTH_PROVIDER'
+PASSWORD_HASH_KEY =  'SECURITY_PASSWORD_HASH'
+USER_DATASTORE_KEY = 'SECURITY_USER_DATASTORE'
+LOGIN_FORM_KEY =     'SECURITY_LOGIN_FORM'
+AUTH_URL_KEY =       'SECURITY_AUTH_URL'
+LOGOUT_URL_KEY =     'SECURITY_LOGOUT_URL'
+LOGIN_VIEW_KEY =     'SECURITY_LOGIN_VIEW'
+POST_LOGIN_KEY =     'SECURITY_POST_LOGIN'
+POST_LOGOUT_KEY =    'SECURITY_POST_LOGOUT'
 
 DEBUG_LOGIN = 'User %s logged in. Redirecting to: %s'
 ERROR_LOGIN = 'Unsuccessful authentication attempt: %s. Redirecting to: %s'
@@ -56,16 +54,16 @@ FLASH_INACTIVE = 'Inactive user'
 FLASH_PERMISSIONS = 'You do not have permission to view this resource.'
 
 default_config = {
-    URL_PREFIX_KEY:            None,
-    PASSWORD_HASH_KEY:         'plaintext',
-    USER_DATASTORE_NAME_KEY:   'user_datastore',
-    AUTH_PROVIDER_KEY:         'flask.ext.security.AuthenticationProvider',
-    LOGIN_FORM_KEY:            'flask.ext.security.LoginForm',
-    AUTH_URL_KEY:              '/auth',
-    LOGOUT_URL_KEY:            '/logout',
-    LOGIN_VIEW_KEY:            '/login',
-    POST_LOGIN_VIEW_KEY:       '/',
-    POST_LOGOUT_VIEW_KEY:      '/',
+    URL_PREFIX_KEY:     None,
+    PASSWORD_HASH_KEY:  'plaintext',
+    USER_DATASTORE_KEY: 'user_datastore',
+    AUTH_PROVIDER_KEY:  'flask.ext.security.AuthenticationProvider',
+    LOGIN_FORM_KEY:     'flask.ext.security.LoginForm',
+    AUTH_URL_KEY:       '/auth',
+    LOGOUT_URL_KEY:     '/logout',
+    LOGIN_VIEW_KEY:     '/login',
+    POST_LOGIN_KEY:     '/',
+    POST_LOGOUT_KEY:    '/',
 }
 
 class BadCredentialsError(Exception):
@@ -110,7 +108,7 @@ pwd_context = LocalProxy(lambda: current_app.pwd_context)
 
 # User service
 user_datastore = LocalProxy(lambda: getattr(current_app, 
-    current_app.config[AUTH_CONFIG_KEY][USER_DATASTORE_NAME_KEY]))
+    current_app.config[USER_DATASTORE_KEY]))
 
 def roles_required(*args):
     roles = args
@@ -119,8 +117,7 @@ def roles_required(*args):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
-                c = current_app.config[AUTH_CONFIG_KEY]
-                return redirect(c[LOGIN_VIEW_KEY])
+                return redirect(current_app.config[LOGIN_VIEW_KEY])
             
             if perm.can():
                 return fn(*args, **kwargs)
@@ -140,8 +137,7 @@ def roles_accepted(*args):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
-                c = current_app.config[AUTH_CONFIG_KEY]
-                return redirect(c[LOGIN_VIEW_KEY])
+                return redirect(current_app.config[LOGIN_VIEW_KEY])
             
             for perm in perms:
                 if perm.can():
@@ -198,11 +194,18 @@ class Security(object):
         """
         if app is None or datastore is None: return
         
-        blueprint = Blueprint(AUTH_CONFIG_KEY.lower(), __name__)
+        blueprint = Blueprint('auth', __name__)
         
-        config = default_config.copy()
-        config.update(app.config.get(AUTH_CONFIG_KEY, {}))
-        app.config[AUTH_CONFIG_KEY] = config
+        configured = {}
+        
+        for key, value in default_config.items():
+            configured[key] = app.config.get(key, value)
+        
+        app.config.update(configured)
+        config = app.config
+        #config = default_config.copy()
+        #config.update(app.config.get(AUTH_CONFIG_KEY, {}))
+        #app.config[AUTH_CONFIG_KEY] = config
         
         # setup the login manager extension
         login_manager = LoginManager()
@@ -219,7 +222,7 @@ class Security(object):
         app.auth_provider = Provider(Form)
         app.principal = Principal(app)
         
-        setattr(app, config[USER_DATASTORE_NAME_KEY], datastore)
+        setattr(app, config[USER_DATASTORE_KEY], datastore)
         
         @identity_loaded.connect_via(app)
         def on_identity_loaded(sender, identity):
@@ -270,7 +273,7 @@ class Security(object):
             identity_changed.send(app, identity=AnonymousIdentity())
             logout_user()
             
-            redirect_url = find_redirect(POST_LOGOUT_VIEW_KEY, config)
+            redirect_url = find_redirect(POST_LOGOUT_KEY)
             logger.debug(DEBUG_LOGOUT % redirect_url)
             return redirect(redirect_url)
         
@@ -361,14 +364,13 @@ def get_url(value):
 def get_post_login_redirect():
     return (get_url(request.args.get('next')) or 
             get_url(request.form.get('next')) or 
-            find_redirect(POST_LOGIN_VIEW_KEY, 
-                          current_app.config[AUTH_CONFIG_KEY]))
+            find_redirect(POST_LOGIN_KEY))
     
-def find_redirect(key, config):
+def find_redirect(key):
     # Look in the session first, and if not there go to the config, and
     # if its not there either just go to the root url
     result = (get_url(session.get(key.lower(), None)) or 
-              get_url(config[key.lower()] or None) or '/')
+              get_url(current_app.config[key] or None) or '/')
     # Try and delete the session value if it was used
     try: del session[key.lower()]
     except: pass
