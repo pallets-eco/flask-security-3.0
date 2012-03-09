@@ -32,11 +32,32 @@ MongoEngine:
 
     $ pip install https://github.com/sbook/flask-mongoengine/tarball/master
 
-Beyond this, the best place to get started at the moment is to look at the example application(s) and corresponding tests. The example apps are currently used to test Flask-Security as well so they are solid examples of most, if not all, features. Configuration options are illustrated in the tests as well.
+Beyond this, the best place to get started at the moment is to look at the example application(s) and corresponding tests. The example apps are currently used to test Flask-Security as well so they are solid examples of most, if not all, features. Configuration options are illustrated in the tests as well. To run the example run do the following:
 
-Essentially, the only thing you need to do on your own to have a working app is setup a login view. Again, refer to the example app to see how easily this is done.
+    $ mkvirtualenv flask-security
+    $ git clone git://github.com/mattupstate/flask-security.git
+    $ cd flask-security
+    $ pip install Flask Flask-Login Flask-Principal Flask-SQLALchemy passlib
+    $ pip install https://github.com/sbook/flask-mongoengine/tarball/master
+    $ python example/app.py
 
-However, the following are some hypothetical examples to give you a sense of how Flask-Security works:
+## Code Examples
+
+If you don't want to checkout the example quite yet, here are some hypothetical examples to give you a sense of how Flask-Security works:
+
+### Setup SQLAlchemy
+
+	from flask import Flask
+	from flask.ext.security import Security
+    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyDatastore
+    from flask.ext.sqlalchemy import SQLAlchemy
+    
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'something'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    
+    db = SQLALchemy(app)
+    Security(app, SQLAlchemyDatastore(db))
 
 ### Require a logged in user:
     
