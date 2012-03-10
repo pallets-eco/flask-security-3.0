@@ -112,3 +112,9 @@ Flask-Security comes packed with a few Flask-Script commands. They are:
 * `flask.ext.security.script.ActivateUserCommand`
 
 Register these on your script manager for pure convenience.
+
+## Contributing
+
+Feel free to fork and contribute. If you decided to do so, just be sure to include relevant tests that you feel are necessary. To run the tests, please provide instructions for any requirements. For instance, if you write a new datastore implementation, please provide instructions on how best to setup a connection when testing.
+
+If you plan on running all the provided tests you'll need a local installation of MongoDB running on the standard port 27017 without username/password protection.

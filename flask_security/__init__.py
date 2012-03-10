@@ -177,7 +177,7 @@ class UserMixin(BaseUserMixin):
         return self.active
     
     def has_role(self, role):
-        if type(role) is StringType:
+        if not isinstance(role, Role):
             role = Role(name=role)
         return role in self.roles
     
@@ -188,7 +188,7 @@ class UserMixin(BaseUserMixin):
 class AnonymousUser(AnonymousUserBase):
     def __init__(self):
         super(AnonymousUser, self).__init__()
-        self.roles = [] # TODO: Make this immutable
+        self.roles = [] # TODO: Make this immutable?
         
     def has_role(self, *args):
         return False
