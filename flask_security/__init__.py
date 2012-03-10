@@ -34,6 +34,7 @@ from passlib.context import CryptContext
 from werkzeug.utils import import_string
 from werkzeug.local import LocalProxy
 
+
 User, Role = None, None
 
 URL_PREFIX_KEY =     'SECURITY_URL_PREFIX'
@@ -65,6 +66,7 @@ default_config = {
     POST_LOGIN_KEY:     '/',
     POST_LOGOUT_KEY:    '/',
 }
+
 
 class BadCredentialsError(Exception):
     """Raised when an authentication attempt fails due to an error with the
@@ -103,8 +105,7 @@ class RoleCreationError(Exception):
     """Raise when an error occurs when creating a role
     """
     
-
-     
+         
 #: App logger for convenience
 logger = LocalProxy(lambda: current_app.logger)
 
@@ -141,6 +142,7 @@ def roles_required(*args):
         return decorated_view
     return wrapper
 
+
 def roles_accepted(*args):
     roles = args
     perms = [Permission(RoleNeed(role)) for role in roles]
@@ -162,6 +164,7 @@ def roles_accepted(*args):
         return decorated_view
     return wrapper
 
+
 class RoleMixin(object):
     def __eq__(self, other):
         return self.name == other.name
@@ -171,6 +174,7 @@ class RoleMixin(object):
         
     def __str__(self):
         return '<Role name=%s, description=%s>' % (self.name, self.description)
+
 
 class UserMixin(BaseUserMixin):
     def is_active(self):
@@ -185,6 +189,7 @@ class UserMixin(BaseUserMixin):
         ctx = (str(self.id), self.username, self.email)
         return '<User id=%s, username=%s, email=%s>' % ctx
 
+
 class AnonymousUser(AnonymousUserBase):
     def __init__(self):
         super(AnonymousUser, self).__init__()
@@ -192,6 +197,7 @@ class AnonymousUser(AnonymousUserBase):
         
     def has_role(self, *args):
         return False
+
 
 class Security(object):
     def __init__(self, app=None, datastore=None):
@@ -293,11 +299,10 @@ class Security(object):
         
         app.register_blueprint(blueprint, url_prefix=config[URL_PREFIX_KEY])
         
-"""
-Here are some forms, useing the WTForm extension for Flask because, well, its 
-nice to have a form library when building web apps
-"""
+        
 class LoginForm(Form):
+    """Default login form"""
+    
     username = TextField("Username or Email", 
         validators=[Required(message="Username not provided")])
     password = PasswordField("Password", 
@@ -310,11 +315,10 @@ class LoginForm(Form):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.next.data = request.args.get('next', None)
     
-"""
-Here we have the default authentication provider. It requires a user service in 
-order to retrieve users and handle authentication.
-"""
+
 class AuthenticationProvider(object):
+    """Default authentication provider"""
+    
     def __init__(self, login_form_class=None):
         self.login_form_class = login_form_class or LoginForm
         
@@ -354,6 +358,7 @@ class AuthenticationProvider(object):
         logger.error(msg)
         raise AuthenticationError(msg)
 
+
 def get_class_by_name(clazz):
     parts = clazz.split('.')
     module = ".".join(parts[:-1])
@@ -374,12 +379,12 @@ def get_url(value):
     # try building the url or assume its a url already
     try: return url_for(value)
     except: return value
-    
+
 def get_post_login_redirect():
     return (get_url(request.args.get('next')) or 
             get_url(request.form.get('next')) or 
             find_redirect(POST_LOGIN_KEY))
-    
+
 def find_redirect(key):
     # Look in the session first, and if not there go to the config, and
     # if its not there either just go to the root url
