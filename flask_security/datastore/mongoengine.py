@@ -14,7 +14,8 @@ from flask.ext.security import UserMixin, RoleMixin
 from flask.ext.security.datastore import UserDatastore
     
 class MongoEngineUserDatastore(UserDatastore):
-    """A MongoEngine datastore implementation for Flask-Security. Example: 
+    """A MongoEngine datastore implementation for Flask-Security. 
+    Example usage:: 
     
         from flask import Flask
         from flask.ext.mongoengine import MongoEngine
@@ -26,7 +27,7 @@ class MongoEngineUserDatastore(UserDatastore):
         app.config['MONGODB_DB'] = 'flask_security_example'
         app.config['MONGODB_HOST'] = 'localhost'
         app.config['MONGODB_PORT'] = 27017
-    
+        
         db = MongoEngine(app)
         Security(app, MongoEngineUserDatastore(db))
     """

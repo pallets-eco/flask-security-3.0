@@ -14,7 +14,8 @@ from flask.ext.security import UserMixin, RoleMixin
 from flask.ext.security.datastore import UserDatastore
     
 class SQLAlchemyUserDatastore(UserDatastore):
-    """A SQLAlchemy datastore implementation for Flask-Security. Example: 
+    """A SQLAlchemy datastore implementation for Flask-Security. 
+    Example usage:: 
     
         from flask import Flask
         from flask.ext.security import Security
@@ -24,7 +25,7 @@ class SQLAlchemyUserDatastore(UserDatastore):
         app = Flask(__name__)
         app.config['SECRET_KEY'] = 'secret'
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/flask_security_example.sqlite'
-    
+        
         db = SQLAlchemy(app)
         Security(app, SQLAlchemyUserDatastore(db))
     """
