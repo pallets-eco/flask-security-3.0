@@ -126,6 +126,13 @@ The corresponding view would look like such::
     def admin():
         return render_template('admin/index.html')
         
+And lastly, maybe you only want to show something in a template if a user has a 
+specific role::
+
+    {% if current_user.has_role('admin') %}
+      <a href="{{ url_for('admin.index') }}">Admin Panel</a>
+    {$ endif %}
+        
 
 API
 ___
