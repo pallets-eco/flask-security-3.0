@@ -16,7 +16,8 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath('_themes'))
+sys.path.append(os.path.abspath('..'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -89,17 +90,20 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'default'
+# The theme to use for HTML and HTML Help pages.  Major themes that come with
+# Sphinx are currently 'default' and 'sphinxdoc'.
+html_theme = 'flask_small'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'github_fork': 'mattupstate/flask-security', 
+    'index_logo': False
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = ['_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -287,3 +291,20 @@ epub_copyright = u'2012, Matt Wright'
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+pygments_style = 'flask_theme_support.FlaskyStyle'
+
+# fall back if theme is not there
+try:
+    __import__('flask_theme_support')
+except ImportError, e:
+    print '-' * 74
+    print 'Warning: Flask themes unavailable.  Building with default theme'
+    print 'If you want the Flask themes, run this command and build again:'
+    print
+    print '  git submodule update --init'
+    print '-' * 74
+
+    pygments_style = 'tango'
+    html_theme = 'default'
+    html_theme_options = {}
