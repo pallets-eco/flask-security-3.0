@@ -49,6 +49,7 @@ LOGOUT_URL_KEY =     'SECURITY_LOGOUT_URL'
 LOGIN_VIEW_KEY =     'SECURITY_LOGIN_VIEW'
 POST_LOGIN_KEY =     'SECURITY_POST_LOGIN'
 POST_LOGOUT_KEY =    'SECURITY_POST_LOGOUT'
+FLASH_MESSAGES_KEY = 'SECURITY_FLASH_MESSAGES'
 
 DEBUG_LOGIN = 'User %s logged in. Redirecting to: %s'
 ERROR_LOGIN = 'Unsuccessful authentication attempt: %s. Redirecting to: %s'
@@ -59,6 +60,7 @@ FLASH_PERMISSIONS = 'You do not have permission to view this resource.'
 #: Default Flask-Security configuration
 default_config = {
     URL_PREFIX_KEY:     None,
+    FLASH_MESSAGES_KEY: True,
     PASSWORD_HASH_KEY:  'plaintext',
     USER_DATASTORE_KEY: 'user_datastore',
     AUTH_PROVIDER_KEY:  'flask.ext.security.AuthenticationProvider',
@@ -153,7 +155,7 @@ def roles_required(*args):
             logger.debug('Identity does not provide all of the '
                          'following roles: %s' % [r for r in roles])
             
-            flash(FLASH_PERMISSIONS, 'error')
+            do_flash(FLASH_PERMISSIONS, 'error')
             return redirect(request.referrer or '/')
         return decorated_view
     return wrapper
@@ -188,7 +190,7 @@ def roles_accepted(*args):
             logger.debug('Identity does not provide at least one of '
                          'the following roles: %s' % [r for r in roles])
             
-            flash(FLASH_PERMISSIONS, 'error')
+            do_flash(FLASH_PERMISSIONS, 'error')
             return redirect(request.referrer or '/')
         return decorated_view
     return wrapper
@@ -319,7 +321,7 @@ class Security(object):
                 
             except BadCredentialsError, e:
                 message = '%s' % e
-                flash(message, 'error')
+                do_flash(message, 'error')
                 redirect_url = request.referrer or login_manager.login_view
                 logger.error(ERROR_LOGIN % (message, redirect_url))
                 return redirect(redirect_url)
@@ -418,6 +420,10 @@ class AuthenticationProvider(object):
         :param msg: An authentication error message"""
         logger.error(msg)
         raise AuthenticationError(msg)
+
+def do_flash(message, category):
+    if current_app.config[FLASH_MESSAGES_KEY]:
+        flash(message, category)
 
 
 def get_class_by_name(clazz):
