@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """
     flask.ext.security
-    ~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~
 
-    Flask-Security is a Flask extension module that aims to add quick and
-    simple security via Flask-Login and Flask-Principal.
+    Flask-Security is a Flask extension that aims to add quick and simple 
+    security via Flask-Login, Flask-Principal, Flask-WTF, and passlib.
 
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
-from __future__ import absolute_import
 
 import sys
 
@@ -34,8 +33,11 @@ from passlib.context import CryptContext
 from werkzeug.utils import import_string
 from werkzeug.local import LocalProxy
 
+#: User model
+User = None
 
-User, Role = None, None
+#: Role model
+Role = None
 
 URL_PREFIX_KEY =     'SECURITY_URL_PREFIX'
 AUTH_PROVIDER_KEY =  'SECURITY_AUTH_PROVIDER'
@@ -54,6 +56,7 @@ DEBUG_LOGOUT = 'User logged out, redirecting to: %s'
 FLASH_INACTIVE = 'Inactive user'
 FLASH_PERMISSIONS = 'You do not have permission to view this resource.'
 
+#: Default Flask-Security configuration
 default_config = {
     URL_PREFIX_KEY:     None,
     PASSWORD_HASH_KEY:  'plaintext',
@@ -94,15 +97,15 @@ class UserIdNotFoundError(Exception):
     """
      
 class UserDatastoreError(Exception):
-    """Raise when a user datastore experiences an unexpected error
+    """Raised when a user datastore experiences an unexpected error
     """
     
 class UserCreationError(Exception):
-    """Raise when an error occurs when creating a user
+    """Raised when an error occurs when creating a user
     """
     
 class RoleCreationError(Exception):
-    """Raise when an error occurs when creating a role
+    """Raised when an error occurs when creating a role
     """
     
          
@@ -118,11 +121,24 @@ login_manager = LocalProxy(lambda: current_app.login_manager)
 #: Password encyption context
 pwd_context = LocalProxy(lambda: current_app.pwd_context)
 
-# User service
+#: User datastore
 user_datastore = LocalProxy(lambda: getattr(current_app, 
     current_app.config[USER_DATASTORE_KEY]))
 
 def roles_required(*args):
+    """View decorator which specifies that a user must have all the specified
+    roles. Example::
+        
+        @app.route('/dashboard')
+        @roles_required('admin', 'editor')
+        def dashboard():
+            return 'Dashboard'
+            
+    The current user must have both the `admin` role and `editor` role in order
+    to view the page.
+    
+    :param args: The required roles. 
+    """
     roles = args
     perm = Permission(*[RoleNeed(role) for role in roles])
     def wrapper(fn):
@@ -144,6 +160,19 @@ def roles_required(*args):
 
 
 def roles_accepted(*args):
+    """View decorator which specifies that a user must have at least one of the 
+    specified roles. Example::
+        
+        @app.route('/create_post')
+        @roles_accepted('editor', 'author')
+        def create_post():
+            return 'Create Post'
+            
+    The current user must have either the `editor` role or `author` role in 
+    order to view the page.
+    
+    :param args: The possible roles. 
+    """
     roles = args
     perms = [Permission(RoleNeed(role)) for role in roles]
     def wrapper(fn):
@@ -166,6 +195,7 @@ def roles_accepted(*args):
 
 
 class RoleMixin(object):
+    """Mixin for `Role` model definitions"""
     def __eq__(self, other):
         return self.name == other.name
     
@@ -177,10 +207,16 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
+    """Mixin for `User` model definitions"""
+    
     def is_active(self):
+        """Returns `True` if the user is active.""" 
         return self.active
     
     def has_role(self, role):
+        """Returns `True` if the user identifies with the specified role.
+        
+        :param role: A role name or `Role` instance"""
         if not isinstance(role, Role):
             role = Role(name=role)
         return role in self.roles
@@ -196,18 +232,25 @@ class AnonymousUser(AnonymousUserBase):
         self.roles = [] # TODO: Make this immutable?
         
     def has_role(self, *args):
+        """Returns `False`"""
         return False
 
 
 class Security(object):
+    """The :class:`Security` class initializes the Flask-Security extension.
+    
+    :param app: The application.
+    :param datastore: An instance of a user datastore.
+    """
     def __init__(self, app=None, datastore=None):
         self.init_app(app, datastore)
     
     def init_app(self, app, datastore):
-        """Initialize the application
-        
-        :param app: An instance of an application
-        :param datastore: An instance of a datastore for your users
+        """Initializes the Flask-Security extension for the specified 
+        application and datastore implentation.
+    
+        :param app: The application.
+        :param datastore: An instance of a user datastore.
         """
         if app is None or datastore is None: return
         
@@ -220,9 +263,6 @@ class Security(object):
         
         app.config.update(configured)
         config = app.config
-        #config = default_config.copy()
-        #config.update(app.config.get(AUTH_CONFIG_KEY, {}))
-        #app.config[AUTH_CONFIG_KEY] = config
         
         # setup the login manager extension
         login_manager = LoginManager()
@@ -301,7 +341,7 @@ class Security(object):
         
         
 class LoginForm(Form):
-    """Default login form"""
+    """The default login form"""
     
     username = TextField("Username or Email", 
         validators=[Required(message="Username not provided")])
@@ -317,16 +357,27 @@ class LoginForm(Form):
     
 
 class AuthenticationProvider(object):
-    """Default authentication provider"""
+    """The default authentication provider implementation.
+    
+    :param login_form_class: The login form class to use when authenticating a
+                             user
+    """
     
     def __init__(self, login_form_class=None):
         self.login_form_class = login_form_class or LoginForm
         
     def login_form(self, formdata=None):
+        """Returns an instance of the login form with the provided form.
+        
+        :param formdata: The incoming form data"""
         return self.login_form_class(formdata)
     
     def authenticate(self, form):
-        # first some basic validation
+        """Processes an authentication request and returns a user instance if
+        authentication is successful.
+        
+        :param form: An instance of a populated login form
+        """
         if not form.validate():
             if form.username.errors:
                 raise BadCredentialsError(form.username.errors[0])
@@ -336,6 +387,13 @@ class AuthenticationProvider(object):
         return self.do_authenticate(form.username.data, form.password.data)
         
     def do_authenticate(self, user_identifier, password):
+        """Returns the authenticated user if authentication is successfull. If
+        authentication fails an appropriate error is raised
+        
+        :param user_identifier: The user's identifier, either an email address
+                                or username
+        :param password: The user's unencrypted password
+        """
         try:
             user = user_datastore.find_user(user_identifier)
         except AttributeError, e:
@@ -355,11 +413,15 @@ class AuthenticationProvider(object):
         raise BadCredentialsError("Password does not match")
     
     def auth_error(self, msg):
+        """Sends an error log message and raises an authentication error.
+        
+        :param msg: An authentication error message"""
         logger.error(msg)
         raise AuthenticationError(msg)
 
 
 def get_class_by_name(clazz):
+    """Get a reference to a class by its string representation."""
     parts = clazz.split('.')
     module = ".".join(parts[:-1])
     m = __import__( module )
@@ -368,6 +430,7 @@ def get_class_by_name(clazz):
     return m
 
 def get_class_from_config(key, config):
+    """Get a reference to a class by its configuration key name."""
     try:
         return get_class_by_name(config[key])
     except Exception, e:
@@ -375,22 +438,27 @@ def get_class_from_config(key, config):
             "Could not get class '%s' for Auth setting '%s' >> %s" %  
             (config[key], key, e)) 
 
-def get_url(value):
-    # try building the url or assume its a url already
-    try: return url_for(value)
-    except: return value
+def get_url(endpoint_or_url):
+    """Returns a URL if a valid endpoint is found. Otherwise, returns the 
+    provided value."""
+    try: 
+        return url_for(endpoint_or_url)
+    except: 
+        return endpoint_or_url
 
 def get_post_login_redirect():
+    """Returns the URL to redirect to after a user logs in successfully"""
     return (get_url(request.args.get('next')) or 
             get_url(request.form.get('next')) or 
             find_redirect(POST_LOGIN_KEY))
 
 def find_redirect(key):
-    # Look in the session first, and if not there go to the config, and
-    # if its not there either just go to the root url
-    result = (get_url(session.get(key.lower(), None)) or 
-              get_url(current_app.config[key] or None) or '/')
-    # Try and delete the session value if it was used
-    try: del session[key.lower()]
-    except: pass
+    """Returns the URL to redirect to after a user logs in successfully"""
+    result = (get_url(session.pop(key.lower(), None)) or 
+              get_url(current_app.config[key.upper()] or None) or '/')
+    
+    try: 
+        del session[key.lower()]
+    except: 
+        pass
     return result

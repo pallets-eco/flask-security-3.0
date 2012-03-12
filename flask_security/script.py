@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    flask.ext.security.script
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module contains commands for use with the Flask-Script extension
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+"""
+
 import json
 import re
 from flask.ext.script import Command, Option
