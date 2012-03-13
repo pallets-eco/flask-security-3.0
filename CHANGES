@@ -1,0 +1,17 @@
+Flask-Security Changelog
+========================
+
+Here you can see the full list of changes between each Flask-Security release.
+
+Version 1.2.0
+-------------
+
+Released March 12th, 2012
+
+- Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to a 
+  boolean value to specify if Flask-Security should flash messages or not.
+  
+Version 1.1.0
+-------------
+
+Initial release

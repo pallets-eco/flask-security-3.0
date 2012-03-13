@@ -1,13 +1,35 @@
+# -*- coding: utf-8 -*-
+"""
+    flask.ext.security.datastore.sqlalchemy
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module contains a Flask-Security SQLAlchemy datastore implementation
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+"""
+
 from flask.ext import security
 from flask.ext.security import UserMixin, RoleMixin
 from flask.ext.security.datastore import UserDatastore
     
 class SQLAlchemyUserDatastore(UserDatastore):
-    """SQLAlchemy datastore"""
+    """A SQLAlchemy datastore implementation for Flask-Security. 
+    Example usage:: 
     
-    def __init__(self, db):
-        self.db = db
+        from flask import Flask
+        from flask.ext.security import Security
+        from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
+        from flask.ext.sqlalchemy import SQLAlchemy
         
+        app = Flask(__name__)
+        app.config['SECRET_KEY'] = 'secret'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/flask_security_example.sqlite'
+        
+        db = SQLAlchemy(app)
+        Security(app, SQLAlchemyUserDatastore(db))
+    """
+    
     def get_models(self):
         db = self.db
         
@@ -16,6 +38,8 @@ class SQLAlchemyUserDatastore(UserDatastore):
             db.Column('role_id', db.Integer(), db.ForeignKey('user.id')))
         
         class Role(db.Model, RoleMixin):
+            """SQLAlchemy Role model"""
+            
             id = db.Column(db.Integer(), primary_key=True)
             name = db.Column(db.String(80), unique=True)
             description = db.Column(db.String(255))
@@ -25,6 +49,8 @@ class SQLAlchemyUserDatastore(UserDatastore):
                 self.description = description
               
         class User(db.Model, UserMixin):
+            """SQLAlchemy User model"""
+            
             id = db.Column(db.Integer, primary_key=True)
             username = db.Column(db.String(255), unique=True)
             email = db.Column(db.String(255), unique=True)

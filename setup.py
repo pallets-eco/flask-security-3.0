@@ -2,7 +2,8 @@
 Flask-Security
 --------------
 
-Simple security for Flask apps
+Flask-Security is a Flask extension that aims to add quick and simple security 
+via Flask-Login, Flask-Principal, Flask-WTF, and passlib.
 
 Links
 `````
@@ -15,7 +16,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Security',
-    version='1.1.0',
+    version='1.2.0',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matthew Wright',
