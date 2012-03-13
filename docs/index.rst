@@ -22,8 +22,9 @@ you'll be using on your own. Additionally, you may need to install an encryption
 library such as `py-bcrypt <http://www.mindrot.org/projects/py-bcrypt/>`_ (if 
 you plan to use bcrypt) for your desired encryption method.
 
+
 Overview
---------
+========
 
 Flask-Security does a few things that Flask-Login and Flask-Principal don't 
 provide out of the box. They are:
@@ -36,6 +37,7 @@ provide out of the box. They are:
 
 That being said, you can still hook into things such as the Flask-Login and 
 Flask-Principal signals if need be.
+
 
 Installation
 ------------
@@ -54,6 +56,7 @@ Then install your datastore requirement.
 **MongoEngine**::
 
     $ pip install https://github.com/sbook/flask-mongoengine/tarball/master
+
 
 Getting Started
 ---------------
@@ -133,39 +136,65 @@ specific role::
       <a href="{{ url_for('admin.index') }}">Admin Panel</a>
     {$ endif %}
         
+
 Configuration Values
 --------------------
 
-* `SECURITY_URL_PREFIX`: Specifies the URL prefix for the Security blueprint
-* `SECURITY_AUTH_PROVIDER`: Specifies the class to use as the authentication 
-  provider. Such as `flask.ext.security.AuthenticationProvider`
-* `SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.: 
+* :attr:`SECURITY_URL_PREFIX`: Specifies the URL prefix for the Security 
+  blueprint
+* :attr:`SECURITY_AUTH_PROVIDER`: Specifies the class to use as the 
+  authentication provider. Such as `flask.ext.security.AuthenticationProvider`
+* :attr:`SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.: 
   plaintext, bcrypt, etc
-* `SECURITY_USER_DATASTORE`: Specifies the property name to use for the user 
-  datastore on the application instance
-* `SECURITY_LOGIN_FORM`: Specifies the form class to use when processing an 
-  authentication request
-* `SECURITY_AUTH_URL`: Specifies the URL to process authentication requests 
-* `SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request
-* `SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when authentication is
-  required
-* `SECURITY_POST_LOGIN`: Specifies the URL to redirect to after a user is 
+* :attr:`SECURITY_USER_DATASTORE`: Specifies the property name to use for the 
+  user datastore on the application instance
+* :attr:`SECURITY_LOGIN_FORM`: Specifies the form class to use when processing 
+  an authentication request
+* :attr:`SECURITY_AUTH_URL`: Specifies the URL to to handle authentication 
+* :attr:`SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request
+* :attr:`SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when 
+  authentication is required
+* :attr:`SECURITY_POST_LOGIN`: Specifies the URL to redirect to after a user is 
   authenticated
-* `SECURITY_POST_LOGOUT`: Specifies the URL to redirect to after a user logs out
-* `SECURITY_FLASH_MESSAGES`: Specifies wether or not to flash messages during
-  authentication request
+* :attr:`SECURITY_POST_LOGOUT`: Specifies the URL to redirect to after a user 
+  logs out
+* :attr:`SECURITY_FLASH_MESSAGES`: Specifies wether or not to flash messages 
+  during authentication request
 
 API
-___
+===
+
 .. autoclass:: flask_security.Security
     :members:
 
+.. data:: flask_security.current_user
+
+   A proxy for the current user.
+   
+
+Protecting Views
+----------------
 .. autofunction:: flask_security.login_required
     
 .. autofunction:: flask_security.roles_required
 
 .. autofunction:: flask_security.roles_accepted
 
+
+User Object Helpers
+-------------------
+.. autoclass:: flask_security.UserMixin
+   :members:
+   
+.. autoclass:: flask_security.RoleMixin
+   :members:
+
+.. autoclass:: flask_security.AnonymousUser
+   :members:
+
+
+Datastores
+----------
 .. autoclass:: flask_security.datastore.UserDatastore
     :members:
     
@@ -174,7 +203,62 @@ ___
     
 .. autoclass:: flask_security.datastore.mongoengine.MongoEngineUserDatastore
     :members:
+
+
+Models
+------
+.. autoclass:: flask_security.User
     
+    .. attribute:: id
+       
+       User ID
+       
+    .. attribute:: username
+       
+       Username
+       
+    .. attribute:: email
+       
+       Email address
+       
+    .. attribute:: password
+    
+       Password
+       
+    .. attribute:: active
+    
+       Active state
+       
+    .. attribute:: roles
+    
+       User roles
+       
+    .. attribute:: created_at
+    
+       Created date
+       
+    .. attribute:: modified_at
+    
+       Modified date
+        
+        
+.. autoclass:: flask_security.Role
+
+    .. attribute:: id
+    
+       Role ID
+       
+    .. attribute:: name
+    
+       Role name
+       
+    .. attribute:: description
+    
+       Role description
+       
+
+Exceptions
+----------    
 .. autoexception:: flask_security.BadCredentialsError
 
 .. autoexception:: flask_security.AuthenticationError
@@ -190,3 +274,10 @@ ___
 .. autoexception:: flask_security.UserCreationError
 
 .. autoexception:: flask_security.RoleCreationError
+
+
+Signals
+-------
+See the documentation for the signals provided by the Flask-Login and 
+Flask-Principal extensions. Flask-Security does not provide any additional 
+signals. 

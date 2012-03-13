@@ -33,11 +33,11 @@ from passlib.context import CryptContext
 from werkzeug.utils import import_string
 from werkzeug.local import LocalProxy
 
-#: User model
-User = None
+class User(object):
+    """User model"""
 
-#: Role model
-Role = None
+class Role(object):
+    """Role model"""
 
 URL_PREFIX_KEY =     'SECURITY_URL_PREFIX'
 AUTH_PROVIDER_KEY =  'SECURITY_AUTH_PROVIDER'
