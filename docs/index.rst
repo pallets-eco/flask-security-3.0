@@ -133,11 +133,34 @@ specific role::
       <a href="{{ url_for('admin.index') }}">Admin Panel</a>
     {$ endif %}
         
+Configuration Values
+--------------------
+
+* `SECURITY_URL_PREFIX`: Specifies the URL prefix for the Security blueprint
+* `SECURITY_AUTH_PROVIDER`: Specifies the class to use as the authentication 
+  provider. Such as `flask.ext.security.AuthenticationProvider`
+* `SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.: 
+  plaintext, bcrypt, etc
+* `SECURITY_USER_DATASTORE`: Specifies the property name to use for the user 
+  datastore on the application instance
+* `SECURITY_LOGIN_FORM`: Specifies the form class to use when processing an 
+  authentication request
+* `SECURITY_AUTH_URL`: Specifies the URL to process authentication requests 
+* `SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request
+* `SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when authentication is
+  required
+* `SECURITY_POST_LOGIN`: Specifies the URL to redirect to after a user is 
+  authenticated
+* `SECURITY_POST_LOGOUT`: Specifies the URL to redirect to after a user logs out
+* `SECURITY_FLASH_MESSAGES`: Specifies wether or not to flash messages during
+  authentication request
 
 API
 ___
 .. autoclass:: flask_security.Security
     :members:
+
+.. autofunction:: flask_security.login_required
     
 .. autofunction:: flask_security.roles_required
 
@@ -151,3 +174,19 @@ ___
     
 .. autoclass:: flask_security.datastore.mongoengine.MongoEngineUserDatastore
     :members:
+    
+.. autoexception:: flask_security.BadCredentialsError
+
+.. autoexception:: flask_security.AuthenticationError
+
+.. autoexception:: flask_security.UserNotFoundError
+
+.. autoexception:: flask_security.RoleNotFoundError
+
+.. autoexception:: flask_security.UserIdNotFoundError
+
+.. autoexception:: flask_security.UserDatastoreError
+
+.. autoexception:: flask_security.UserCreationError
+
+.. autoexception:: flask_security.RoleCreationError
