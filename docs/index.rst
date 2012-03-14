@@ -58,7 +58,7 @@ Installation
 First, install Flask-Security::
 
     $ mkvirtualenv app-name
-    $ pip install https://github.com/mattupstate/flask-security/tarball/master
+    $ pip install Flask-Security
     
 Then install your datastore requirement. 
 
