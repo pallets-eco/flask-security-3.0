@@ -1,6 +1,8 @@
 .DS_Store
 *.pyc
 *.egg
+*egg-info
+dist
 .project
 .pydevproject
 .settings
