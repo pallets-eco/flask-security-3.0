@@ -256,6 +256,7 @@ class Security(object):
         """
         if app is None or datastore is None: return
         
+        # TODO: change blueprint name
         blueprint = Blueprint('auth', __name__)
         
         configured = {}

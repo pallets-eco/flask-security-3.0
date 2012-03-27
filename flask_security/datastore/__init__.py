@@ -21,8 +21,9 @@ class UserDatastore(object):
     :param db: An instance of a configured databse manager from a Flask 
                extension such as Flask-SQLAlchemy or Flask-MongoEngine"""
     
-    def __init__(self, db):
+    def __init__(self, db, user_account_mixin=None):
         self.db = db
+        self.user_account_mixin = user_account_mixin or object
         
     def get_models(self):
         """Returns configured `User` and `Role` models for the datastore 
