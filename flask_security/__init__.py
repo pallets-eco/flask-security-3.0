@@ -10,6 +10,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+__version__ = '1.2.1'
+
 import sys
 
 from datetime import datetime
