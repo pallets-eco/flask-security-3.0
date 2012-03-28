@@ -41,7 +41,7 @@ class MongoEngineUserDatastore(UserDatastore):
             name = db.StringField(required=True, unique=True, max_length=80)
             description = db.StringField(max_length=255)
               
-        class User(db.Document, UserMixin):
+        class User(db.Document, UserMixin, self.user_account_mixin):
             """MongoEngine User model"""
             
             username = db.StringField(unique=True, max_length=255)

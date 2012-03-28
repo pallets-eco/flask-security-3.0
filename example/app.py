@@ -84,7 +84,12 @@ def create_sqlalchemy_app(auth_config=None):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/flask_security_example.sqlite'
     
     db = SQLAlchemy(app)
-    Security(app, SQLAlchemyUserDatastore(db))
+
+    class UserAccountMixin():
+        first_name = db.Column(db.String(120))
+        last_name = db.Column(db.String(120))
+
+    Security(app, SQLAlchemyUserDatastore(db, UserAccountMixin))
     
     @app.before_first_request
     def before_first_request():
@@ -101,7 +106,12 @@ def create_mongoengine_app(auth_config=None):
     app.config['MONGODB_PORT'] = 27017
     
     db = MongoEngine(app)
-    Security(app, MongoEngineUserDatastore(db))
+
+    class UserAccountMixin():
+        first_name = db.StringField(max_length=120)
+        last_name = db.StringField(max_length=120)
+
+    Security(app, MongoEngineUserDatastore(db, UserAccountMixin))
     
     @app.before_first_request
     def before_first_request():

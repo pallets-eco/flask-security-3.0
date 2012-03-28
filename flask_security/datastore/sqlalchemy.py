@@ -48,7 +48,7 @@ class SQLAlchemyUserDatastore(UserDatastore):
                 self.name = name
                 self.description = description
               
-        class User(db.Model, UserMixin):
+        class User(db.Model, UserMixin, self.user_account_mixin):
             """SQLAlchemy User model"""
             
             id = db.Column(db.Integer, primary_key=True)

@@ -28,6 +28,7 @@ Contents
 * :ref:`overview`
 * :ref:`installation`
 * :ref:`getting-started`
+* :ref:`flask-script-commands`
 * :ref:`api`
 * :doc:`Changelog </changelog>`
 
@@ -81,8 +82,8 @@ First thing you'll want to do is setup your application and datastore::
 
     from flask import Flask, render_template
     from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.security import User, Security, LoginForm, 
-                                   login_required, roles_accepted, user_datastore
+    from flask.ext.security import (User, Security, LoginForm,  login_required, 
+                                    roles_accepted, user_datastore)
     from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDataStore
     
     app = Flask(__name__)
@@ -150,6 +151,21 @@ specific role::
     {% if current_user.has_role('admin') %}
       <a href="{{ url_for('admin.index') }}">Admin Panel</a>
     {$ endif %}
+
+
+.. _flask-script-commands:
+
+Flask-Script Commands
+---------------------
+Flask-Security comes packed with a few Flask-Script commands. They are:
+
+* :class:`flask.ext.security.script.CreateUserCommand`
+* :class:`flask.ext.security.script.AddRoleCommand`
+* :class:`flask.ext.security.script.RemoveRoleCommand`
+* :class:`flask.ext.security.script.DeactivateUserCommand`
+* :class:`flask.ext.security.script.ActivateUserCommand`
+
+Register these on your script manager for pure convenience.
         
 
 .. _configuration:
