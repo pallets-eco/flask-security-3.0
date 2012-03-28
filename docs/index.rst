@@ -28,6 +28,7 @@ Contents
 * :ref:`overview`
 * :ref:`installation`
 * :ref:`getting-started`
+* :ref:`additional-user-fields`
 * :ref:`flask-script-commands`
 * :ref:`api`
 * :doc:`Changelog </changelog>`
@@ -153,6 +154,22 @@ specific role::
     {$ endif %}
 
 
+.. _additional-user-fields:
+
+Additional User Fields
+----------------------
+If you'd like to add additional fields to the user model you can use a mixin
+class that specifies your additional fields. The following is an example of
+how you might do this::
+
+    db = SQLAlchemy(app)
+
+    class UserAccountMixin():
+        first_name = db.Column(db.String(120))
+        last_name = db.Column(db.String(120))
+
+    Security(app, SQLAlchemyUserDatastore(db, UserAccountMixin))
+
 .. _flask-script-commands:
 
 Flask-Script Commands
@@ -160,6 +177,7 @@ Flask-Script Commands
 Flask-Security comes packed with a few Flask-Script commands. They are:
 
 * :class:`flask.ext.security.script.CreateUserCommand`
+* :class:`flask.ext.security.script.CreateRoleCommand`
 * :class:`flask.ext.security.script.AddRoleCommand`
 * :class:`flask.ext.security.script.RemoveRoleCommand`
 * :class:`flask.ext.security.script.DeactivateUserCommand`
@@ -236,9 +254,11 @@ Datastores
     
 .. autoclass:: flask_security.datastore.sqlalchemy.SQLAlchemyUserDatastore
     :members:
+    :inherited-members:
     
 .. autoclass:: flask_security.datastore.mongoengine.MongoEngineUserDatastore
     :members:
+    :inherited-members:
 
 
 Models

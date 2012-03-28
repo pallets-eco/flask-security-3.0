@@ -19,8 +19,10 @@ class UserDatastore(object):
     :attr:`_do_find_user`,  and :attr:`_do_find_role` methods.
     
     :param db: An instance of a configured databse manager from a Flask 
-               extension such as Flask-SQLAlchemy or Flask-MongoEngine"""
-    
+               extension such as Flask-SQLAlchemy or Flask-MongoEngine
+    :param user_account_mixin: An optional mixin class that specifies additional
+                               fields to be added to the user model
+    """
     def __init__(self, db, user_account_mixin=None):
         self.db = db
         self.user_account_mixin = user_account_mixin or object

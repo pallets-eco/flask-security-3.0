@@ -3,6 +3,14 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.2.1
+-------------
+
+Released March 28th, 2012
+
+- Added optional user model mixin parameter for datastores
+- Added CreateRoleCommand to available Flask-Script commands
+
 Version 1.2.0
 -------------
 

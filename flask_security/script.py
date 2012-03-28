@@ -46,6 +46,19 @@ class CreateUserCommand(Command):
         pprint(kwargs)
 
 
+class CreateRoleCommand(Command):
+    """Create a role"""
+
+    option_list = (
+        Option('-n', '--name', dest='name', default=None),
+        Option('-d', '--desc', dest='description', default=None),
+    )
+
+    def run(self, **kwargs):
+        role = user_datastore.create_role(**kwargs)
+        print 'Role "%(name)s" created successfully.' % kwargs
+
+
 class _RoleCommand(Command):  
     option_list = (
         Option('-u', '--user', dest='user_identifier'),
