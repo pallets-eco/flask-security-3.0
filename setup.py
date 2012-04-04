@@ -12,12 +12,12 @@ Links
   <https://github.com/mattupstate/flask-security/raw/develop#egg=Flask-Security-dev>`_
 
 """
-from flask_security import __version__
+
 from setuptools import setup
 
 setup(
     name='Flask-Security',
-    version=__version__,
+    version='1.2.1',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matthew Wright',

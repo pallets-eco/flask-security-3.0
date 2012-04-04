@@ -18,7 +18,7 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.abspath('_themes'))
-from flask_security import __version__
+#from setup import __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -50,7 +50,7 @@ copyright = u'2012, Matt Wright'
 # built documents.
 #
 # The short X.Y version.
-version = __version__
+version = '1.2.1'
 # The full version, including alpha/beta/rc tags.
 release = version
 
