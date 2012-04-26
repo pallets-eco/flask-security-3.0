@@ -85,7 +85,7 @@ First thing you'll want to do is setup your application and datastore::
     from flask.ext.sqlalchemy import SQLAlchemy
     from flask.ext.security import (User, Security, LoginForm,  login_required, 
                                     roles_accepted, user_datastore)
-    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDataStore
+    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
     
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'secret'
