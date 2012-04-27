@@ -20,7 +20,8 @@ from flask import (current_app, Blueprint, flash, redirect, request,
 
 from flask.ext.login import (AnonymousUser as AnonymousUserBase, 
     UserMixin as BaseUserMixin, LoginManager, login_required, login_user, 
-    logout_user, current_user, user_logged_in, user_logged_out)
+    logout_user, current_user, user_logged_in, user_logged_out,
+    login_url)
 
 from flask.ext.principal import (Identity, Principal, RoleNeed, UserNeed,
     Permission, AnonymousIdentity, identity_changed, identity_loaded)
@@ -147,7 +148,8 @@ def roles_required(*args):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
-                return redirect(current_app.config[LOGIN_VIEW_KEY])
+                return redirect(
+                    login_url(current_app.config[LOGIN_VIEW_KEY], request.url))
             
             if perm.can():
                 return fn(*args, **kwargs)
@@ -181,7 +183,8 @@ def roles_accepted(*args):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
-                return redirect(current_app.config[LOGIN_VIEW_KEY])
+                return redirect(
+                    login_url(current_app.config[LOGIN_VIEW_KEY], request.url))
             
             for perm in perms:
                 if perm.can():
