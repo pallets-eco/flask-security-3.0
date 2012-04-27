@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 1.2.2
 -------------
 
-Released ...
+Released April 27th, 2012
 
 - Fixed bug where `roles_required` and `roles_accepted` did not pass the next
   argument to the login view
