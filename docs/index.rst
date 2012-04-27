@@ -85,7 +85,7 @@ First thing you'll want to do is setup your application and datastore::
     from flask.ext.sqlalchemy import SQLAlchemy
     from flask.ext.security import (User, Security, LoginForm,  login_required, 
                                     roles_accepted, user_datastore)
-    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDataStore
+    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
     
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'secret'
@@ -94,14 +94,14 @@ First thing you'll want to do is setup your application and datastore::
     db = SQLAlchemy(app)
     Security(app, SQLAlchemyUserDatastore(db))
 
-You'll probably want to at least one user to the database to test this out, so 
-you can add something such as the following to quickly add an initial user::
+You'll probably want to at least one user to the database to test this out. 
+There are many ways to do this, but this is a quick and dirty way to do it::
 
     @app.before_first_request
     def before_first_request():
         user_datastore.create_role(name='admin')
         user_datastore.create_user(username='matt', email='matt@something.com',
-                                   password='password', roles['admin'])
+                                   password='password', roles=['admin'])
         
 Next you'll want to setup your login screen. Setup your view::
 
