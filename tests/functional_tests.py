@@ -114,8 +114,8 @@ class ConfiguredSecurityTests(SecurityTest):
         'SECURITY_AUTH_URL': '/custom_auth',
         'SECURITY_LOGOUT_URL': '/custom_logout',
         'SECURITY_LOGIN_VIEW': '/custom_login',
-        'SECURITY_POST_LOGIN': '/post_login',
-        'SECURITY_POST_LOGOUT': '/post_logout'
+        'SECURITY_POST_LOGIN_VIEW': '/post_login',
+        'SECURITY_POST_LOGOUT_VIEW': '/post_logout'
     }
 
     def test_login_view(self):
