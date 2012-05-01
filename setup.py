@@ -17,7 +17,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Security',
-    version='1.2.3-dev',
+    version='1.3.0-dev',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matthew Wright',
@@ -25,8 +25,7 @@ setup(
     description='Simple security for Flask apps',
     long_description=__doc__,
     packages=[
-        'flask_security',
-        'flask_security.datastore'
+        'flask_security'
     ],
     zip_safe=False,
     include_package_data=True,
