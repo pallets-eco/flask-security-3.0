@@ -92,6 +92,7 @@ class UserDatastore(object):
         username = kwargs.get('username', None)
         email = kwargs.get('email', None)
         password = kwargs.get('password', None)
+        kwargs.setdefault('active', True)
 
         if username is None and email is None:
             raise security.UserCreationError(
