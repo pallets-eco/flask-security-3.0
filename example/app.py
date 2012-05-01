@@ -7,13 +7,10 @@ sys.path.pop(0)
 sys.path.insert(0, os.getcwd())
 
 from flask import Flask, render_template, current_app
-
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.sqlalchemy import SQLAlchemy
-
 from flask.ext.security import Security, LoginForm, login_required, \
     roles_required, roles_accepted, UserMixin, RoleMixin
-
 from flask.ext.security.datastore import SQLAlchemyUserDatastore, \
     MongoEngineUserDatastore
 

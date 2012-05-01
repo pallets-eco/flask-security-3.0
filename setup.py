@@ -25,8 +25,7 @@ setup(
     description='Simple security for Flask apps',
     long_description=__doc__,
     packages=[
-        'flask_security',
-        'flask_security.datastore'
+        'flask_security'
     ],
     zip_safe=False,
     include_package_data=True,

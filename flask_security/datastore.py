@@ -3,16 +3,13 @@
     flask.ext.security.datastore
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module contains an abstracted user datastore.
+    This module contains an user datastore classes.
 
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
 
-from datetime import datetime
-
 from flask import current_app
-
 from flask.ext import security
 
 
