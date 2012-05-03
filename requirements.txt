@@ -1,0 +1,6 @@
+Flask==0.8
+Flask-Login==0.1
+Flask-Principal==0.2
+Flask-Script==0.3.2
+Flask-WTF==0.5.4
+passlib=1.5.3
