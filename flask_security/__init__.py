@@ -231,7 +231,6 @@ class Security(object):
         login_manager.setup_app(app)
 
         Provider = _get_class_from_string(app, 'AUTH_PROVIDER')
-        Form = _get_class_from_string(app, 'LOGIN_FORM')
         pw_hash = _config_value(app, 'PASSWORD_HASH')
 
         self.login_manager = login_manager
@@ -239,6 +238,7 @@ class Security(object):
         self.auth_provider = Provider(Form)
         self.principal = Principal(app)
         self.datastore = datastore
+        self.form_class = _get_class_from_string(app, 'LOGIN_FORM')
         self.auth_url = _config_value(app, 'AUTH_URL')
         self.logout_url = _config_value(app, 'LOGOUT_URL')
         self.post_login_view = _config_value(app, 'POST_LOGIN_VIEW')
@@ -267,7 +267,7 @@ class Security(object):
         @bp.route(self.auth_url, methods=['POST'], endpoint='authenticate')
         def authenticate():
             try:
-                form = Form()
+                form = current_app.security.form_class()
                 user = current_app.security.auth_provider.authenticate(form)
 
                 if login_user(user, remember=form.remember.data):
