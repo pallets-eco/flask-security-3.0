@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     flask.ext.security.datastore
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module contains an user datastore classes.
 
@@ -10,7 +10,7 @@
 """
 
 from flask import current_app
-from flask.ext import security
+from flask.ext.security import exceptions
 
 
 class UserDatastore(object):
@@ -84,7 +84,7 @@ class UserDatastore(object):
             kwargs[key] = kwargs.get(key, None)
 
         if kwargs['name'] is None:
-            raise security.RoleCreationError("Missing name argument")
+            raise exceptions.RoleCreationError("Missing name argument")
 
         return kwargs
 
@@ -95,11 +95,11 @@ class UserDatastore(object):
         kwargs.setdefault('active', True)
 
         if username is None and email is None:
-            raise security.UserCreationError(
+            raise exceptions.UserCreationError(
                 'Missing username and/or email arguments')
 
         if password is None:
-            raise security.UserCreationError('Missing password argument')
+            raise exceptions.UserCreationError('Missing password argument')
 
         roles = kwargs.get('roles', [])
 
@@ -124,7 +124,7 @@ class UserDatastore(object):
         user = self._do_with_id(id)
         if user:
             return user
-        raise security.UserIdNotFoundError()
+        raise exceptions.UserIdNotFoundError()
 
     def find_user(self, user):
         """Returns a user based on the specified identifier.
@@ -134,7 +134,7 @@ class UserDatastore(object):
         user = self._do_find_user(user)
         if user:
             return user
-        raise security.UserNotFoundError()
+        raise exceptions.UserNotFoundError()
 
     def find_role(self, role):
         """Returns a role based on its name.
@@ -144,7 +144,7 @@ class UserDatastore(object):
         role = self._do_find_role(role)
         if role:
             return role
-        raise security.RoleNotFoundError()
+        raise exceptions.RoleNotFoundError()
 
     def create_role(self, **kwargs):
         """Creates and returns a new role.

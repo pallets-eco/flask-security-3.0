@@ -11,18 +11,16 @@
 """
 
 from functools import wraps
-from importlib import import_module
 
-from flask import current_app, Blueprint, flash, redirect, request, \
-    session, url_for
+from flask import current_app, Blueprint, redirect, request
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
-    UserMixin as BaseUserMixin, LoginManager, login_required, \
-    current_user, login_url
+     UserMixin as BaseUserMixin, LoginManager, login_required, \
+     current_user, login_url
 from flask.ext.principal import Principal, RoleNeed, UserNeed, \
-    Permission, identity_loaded
+     Permission, identity_loaded
 from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
-    HiddenField, Required, BooleanField
-from flask.ext.security import views
+     HiddenField, Required, BooleanField
+from flask.ext.security import views, exceptions, utils
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
@@ -43,51 +41,6 @@ _default_config = {
     'SECURITY_POST_LOGOUT_VIEW': '/',
     'SECURITY_RESET_PASSWORD_WITHIN': 10
 }
-
-
-class BadCredentialsError(Exception):
-    """Raised when an authentication attempt fails due to an error with the
-    provided credentials.
-    """
-
-
-class AuthenticationError(Exception):
-    """Raised when an authentication attempt fails due to invalid configuration
-    or an unknown reason.
-    """
-
-
-class UserNotFoundError(Exception):
-    """Raised by a user datastore when there is an attempt to find a user by
-    their identifier, often username or email, and the user is not found.
-    """
-
-
-class RoleNotFoundError(Exception):
-    """Raised by a user datastore when there is an attempt to find a role and
-    the role cannot be found.
-    """
-
-
-class UserIdNotFoundError(Exception):
-    """Raised by a user datastore when there is an attempt to find a user by
-    ID and the user is not found.
-    """
-
-
-class UserDatastoreError(Exception):
-    """Raised when a user datastore experiences an unexpected error
-    """
-
-
-class UserCreationError(Exception):
-    """Raised when an error occurs when creating a user
-    """
-
-
-class RoleCreationError(Exception):
-    """Raised when an error occurs when creating a role
-    """
 
 
 def roles_required(*roles):
@@ -154,7 +107,7 @@ def roles_accepted(*roles):
                 'role. Accepted: %s Provided: %s' % ([r for r in roles],
                                                      [r.name for r in current_user.roles]))
 
-            _do_flash('You do not have permission to view this resource',
+            utils.do_flash('You do not have permission to view this resource',
                       'error')
             return redirect(request.referrer or '/')
         return decorated_view
@@ -247,12 +200,12 @@ class Security(object):
 
         login_manager = LoginManager()
         login_manager.anonymous_user = AnonymousUser
-        login_manager.login_view = _config_value(app, 'LOGIN_VIEW')
+        login_manager.login_view = utils.config_value(app, 'LOGIN_VIEW')
         login_manager.setup_app(app)
 
-        Provider = _get_class_from_string(app, 'AUTH_PROVIDER')
-        Form = _get_class_from_string(app, 'LOGIN_FORM')
-        pw_hash = _config_value(app, 'PASSWORD_HASH')
+        Provider = utils.get_class_from_string(app, 'AUTH_PROVIDER')
+        Form = utils.get_class_from_string(app, 'LOGIN_FORM')
+        pw_hash = utils.config_value(app, 'PASSWORD_HASH')
 
         self.login_manager = login_manager
         self.pwd_context = CryptContext(schemes=[pw_hash], default=pw_hash)
@@ -260,12 +213,12 @@ class Security(object):
         self.principal = Principal(app)
         self.datastore = datastore
         self.form_class = Form
-        self.auth_url = _config_value(app, 'AUTH_URL')
-        self.logout_url = _config_value(app, 'LOGOUT_URL')
-        self.reset_url = _config_value(app, 'RESET_URL')
-        self.post_login_view = _config_value(app, 'POST_LOGIN_VIEW')
-        self.post_logout_view = _config_value(app, 'POST_LOGOUT_VIEW')
-        self.reset_password_within = _config_value(app, 'RESET_PASSWORD_WITHIN')
+        self.auth_url = utils.config_value(app, 'AUTH_URL')
+        self.logout_url = utils.config_value(app, 'LOGOUT_URL')
+        self.reset_url = utils.config_value(app, 'RESET_URL')
+        self.post_login_view = utils.config_value(app, 'POST_LOGIN_VIEW')
+        self.post_logout_view = utils.config_value(app, 'POST_LOGOUT_VIEW')
+        self.reset_password_within = utils.config_value(app, 'RESET_PASSWORD_WITHIN')
 
         identity_loaded.connect_via(app)(on_identity_loaded)
 
@@ -285,7 +238,8 @@ class Security(object):
                      methods=['POST'],
                      endpoint='reset')(views.reset)
 
-        app.register_blueprint(bp, url_prefix=_config_value(app, 'URL_PREFIX'))
+        app.register_blueprint(bp,
+            url_prefix=utils.config_value(app, 'URL_PREFIX'))
         app.security = self
 
 
@@ -329,9 +283,9 @@ class AuthenticationProvider(object):
         """
         if not form.validate():
             if form.username.errors:
-                raise BadCredentialsError(form.username.errors[0])
+                raise exceptions.BadCredentialsError(form.username.errors[0])
             if form.password.errors:
-                raise BadCredentialsError(form.password.errors[0])
+                raise exceptions.BadCredentialsError(form.password.errors[0])
 
         return self.do_authenticate(form.username.data, form.password.data)
 
@@ -347,8 +301,8 @@ class AuthenticationProvider(object):
             user = current_app.security.datastore.find_user(user_identifier)
         except AttributeError, e:
             self.auth_error("Could not find user datastore: %s" % e)
-        except UserNotFoundError, e:
-            raise BadCredentialsError("Specified user does not exist")
+        except exceptions.UserNotFoundError, e:
+            raise exceptions.BadCredentialsError("Specified user does not exist")
         except Exception, e:
             self.auth_error('Unexpected authentication error: %s' % e)
 
@@ -357,55 +311,11 @@ class AuthenticationProvider(object):
             return user
 
         # bad match
-        raise BadCredentialsError("Password does not match")
+        raise exceptions.BadCredentialsError("Password does not match")
 
     def auth_error(self, msg):
         """Sends an error log message and raises an authentication error.
 
         :param msg: An authentication error message"""
         current_app.logger.error(msg)
-        raise AuthenticationError(msg)
-
-
-def _do_flash(message, category):
-    if _config_value(current_app, 'FLASH_MESSAGES'):
-        flash(message, category)
-
-
-def _get_class_from_string(app, key):
-    """Get a reference to a class by its configuration key name."""
-    cv = _config_value(app, key).split('::')
-    cm = import_module(cv[0])
-    return getattr(cm, cv[1])
-
-
-def get_url(endpoint_or_url):
-    """Returns a URL if a valid endpoint is found. Otherwise, returns the
-    provided value."""
-    try:
-        return url_for(endpoint_or_url)
-    except:
-        return endpoint_or_url
-
-
-def _get_post_login_redirect():
-    """Returns the URL to redirect to after a user logs in successfully"""
-    return (get_url(request.args.get('next')) or
-            get_url(request.form.get('next')) or
-            _find_redirect('SECURITY_POST_LOGIN_VIEW'))
-
-
-def _find_redirect(key):
-    """Returns the URL to redirect to after a user logs in successfully"""
-    result = (get_url(session.pop(key.lower(), None)) or
-              get_url(current_app.config[key.upper()] or None) or '/')
-
-    try:
-        del session[key.lower()]
-    except:
-        pass
-    return result
-
-
-def _config_value(app, key, default=None):
-    return app.config.get('SECURITY_' + key.upper(), default)
+        raise exceptions.AuthenticationError(msg)
