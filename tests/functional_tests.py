@@ -40,55 +40,55 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login')
-        assert 'Login Page' in r.data
+        self.assertIn('Login Page', r.data)
 
     def test_authenticate(self):
         r = self.authenticate("matt", "password")
-        assert 'Home Page' in r.data
+        self.assertIn('Home Page', r.data)
 
     def test_unprovided_username(self):
         r = self.authenticate("", "password")
-        assert "Username not provided" in r.data
+        self.assertIn("Username not provided", r.data)
 
     def test_unprovided_password(self):
         r = self.authenticate("matt", "")
-        assert "Password not provided" in r.data
+        self.assertIn("Password not provided", r.data)
 
     def test_invalid_user(self):
         r = self.authenticate("bogus", "password")
-        assert "Specified user does not exist" in r.data
+        self.assertIn("Specified user does not exist", r.data)
 
     def test_bad_password(self):
         r = self.authenticate("matt", "bogus")
-        assert "Password does not match" in r.data
+        self.assertIn("Password does not match", r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya", "password")
-        assert "Inactive user" in r.data
+        self.assertIn("Inactive user", r.data)
 
     def test_logout(self):
         self.authenticate("matt", "password")
         r = self.logout()
-        assert 'Home Page' in r.data
+        self.assertIn('Home Page', r.data)
 
     def test_unauthorized_access(self):
         r = self._get('/profile', follow_redirects=True)
-        assert 'Please log in to access this page' in r.data
+        self.assertIn('Please log in to access this page', r.data)
 
     def test_authorized_access(self):
         self.authenticate("matt", "password")
         r = self._get("/profile")
-        assert 'profile' in r.data
+        self.assertIn('profile', r.data)
 
     def test_valid_admin_role(self):
         self.authenticate("matt", "password")
         r = self._get("/admin")
-        assert 'Admin Page' in r.data
+        self.assertIn('Admin Page', r.data)
 
     def test_invalid_admin_role(self):
         self.authenticate("joe", "password")
         r = self._get("/admin", follow_redirects=True)
-        assert 'Home Page' in r.data
+        self.assertIn('Home Page', r.data)
 
     def test_roles_accepted(self):
         for user in ("matt", "joe"):
@@ -120,16 +120,16 @@ class ConfiguredSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/custom_login')
-        assert "Custom Login Page" in r.data
+        self.assertIn("Custom Login Page", r.data)
 
     def test_authenticate(self):
         r = self.authenticate("matt", "password", endpoint="/custom_auth")
-        assert 'Post Login' in r.data
+        self.assertIn('Post Login', r.data)
 
     def test_logout(self):
         self.authenticate("matt", "password", endpoint="/custom_auth")
         r = self.logout(endpoint="/custom_logout")
-        assert 'Post Logout' in r.data
+        self.assertIn('Post Logout', r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
