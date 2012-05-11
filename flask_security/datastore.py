@@ -36,11 +36,11 @@ class UserDatastore(object):
         raise NotImplementedError(
             "User datastore does not implement _do_with_id method")
 
-    def _do_find_user(self):
+    def _do_find_user(self, **kwargs):
         raise NotImplementedError(
             "User datastore does not implement _do_find_user method")
 
-    def _do_find_role(self):
+    def _do_find_role(self, **kwargs):
         raise NotImplementedError(
             "User datastore does not implement _do_find_role method")
 
@@ -86,12 +86,12 @@ class UserDatastore(object):
             return user
         raise exceptions.UserIdNotFoundError()
 
-    def find_user(self, user):
+    def find_user(self, **kwargs):
         """Returns a user based on the specified identifier.
 
         :param user: User identifier, usually email address
         """
-        user = self._do_find_user(user)
+        user = self._do_find_user(**kwargs)
         if user:
             return user
         raise exceptions.UserNotFoundError()
@@ -203,8 +203,8 @@ class SQLAlchemyUserDatastore(UserDatastore):
     def _do_with_id(self, id):
         return self.user_model.query.get(id)
 
-    def _do_find_user(self, user):
-        return self.user_model.query.filter_by(email=user).first()
+    def _do_find_user(self, **kwargs):
+        return self.user_model.query.filter_by(**kwargs).first()
 
     def _do_find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()
@@ -248,8 +248,8 @@ class MongoEngineUserDatastore(UserDatastore):
         except:
             return None
 
-    def _do_find_user(self, user):
-        return self.user_model.objects(email=user).first()
+    def _do_find_user(self, **kwargs):
+        return self.user_model.objects(**kwargs).first()
 
     def _do_find_role(self, role):
         return self.role_model.objects(name=role).first()

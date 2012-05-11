@@ -1,37 +1,34 @@
 
 from datetime import datetime
 
-from flask import render_template, current_app, request, url_for
-from flask.ext.security.utils import generate_token
+from flask import current_app, request, url_for
+from flask.ext.security.exceptions import UserNotFoundError
+from flask.ext.security.utils import generate_token, send_mail
 from werkzeug.local import LocalProxy
 
-
+security = LocalProxy(lambda: current_app.security)
 logger = LocalProxy(lambda: current_app.logger)
 
 
 def send_confirmation_instructions(user):
-    from flask.ext.mail import Message
+    url = url_for('flask_security.confirm',
+                  confirmation_token=user.confirmation_token)
 
-    msg = Message("Please confirm your email",
-                  sender=current_app.security.email_sender,
-                  recipients=[user.email])
+    confirmation_link = request.url_root[:-1] + url
 
-    confirmation_link = request.url_root[:-1] + \
-                        url_for('flask_security.confirm',
-                                confirmation_token=user.confirmation_token)
-
-    ctx = dict(user=user, confirmation_link=confirmation_link)
-    msg.body = render_template('email/confirmation_instructions.txt', **ctx)
-    msg.html = render_template('email/confirmation_instructions.html', **ctx)
-
-    logger.debug("Sending confirmation instructions")
-    logger.debug(msg.html)
-
-    current_app.mail.send(msg)
+    send_mail('Please confirm your email', user.email,
+              'confirmation_instructions',
+              dict(user=user, confirmation_link=confirmation_link))
 
 
 def generate_confirmation_token(user):
-    token = generate_token()
+    while True:
+        token = generate_token()
+        try:
+            security.datastore.find_user(confirmation_token=token)
+        except UserNotFoundError:
+            break
+
     now = datetime.utcnow()
 
     if isinstance(user, dict):

@@ -1,0 +1,8 @@
+<form action="{{ url_for('flask_security.authenticate') }}" method="POST" name="login_form">
+  {{ form.hidden_tag() }}
+  {{ form.email.label }} {{ form.email }}<br/>
+  {{ form.password.label }} {{ form.password }}<br/>
+  {{ form.remember.label }} {{ form.remember }}<br/>
+  {{ form.next }}
+  {{ form.submit }}
+</form>

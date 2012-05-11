@@ -14,7 +14,7 @@ import os
 
 from importlib import import_module
 
-from flask import url_for, flash, current_app, request, session
+from flask import url_for, flash, current_app, request, session, render_template
 
 
 def generate_token():
@@ -63,3 +63,16 @@ def find_redirect(key):
 
 def config_value(app, key, default=None):
     return app.config.get('SECURITY_' + key.upper(), default)
+
+
+def send_mail(subject, recipient, template, context):
+    from flask.ext.mail import Message
+
+    msg = Message(subject,
+                  sender=current_app.security.email_sender,
+                  recipients=[recipient])
+
+    msg.body = render_template('email/%s.txt' % template, **context)
+    msg.html = render_template('email/%s.html' % template, **context)
+
+    current_app.mail.send(msg)

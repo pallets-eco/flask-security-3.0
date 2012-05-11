@@ -337,7 +337,7 @@ class AuthenticationProvider(object):
 
         return self.do_authenticate(form.email.data, form.password.data)
 
-    def do_authenticate(self, user_identifier, password):
+    def do_authenticate(self, email, password):
         """Returns the authenticated user if authentication is successfull. If
         authentication fails an appropriate error is raised
 
@@ -345,7 +345,7 @@ class AuthenticationProvider(object):
         :param password: The user's unencrypted password
         """
         try:
-            user = current_app.security.datastore.find_user(user_identifier)
+            user = current_app.security.datastore.find_user(email=email)
         except AttributeError, e:
             self.auth_error("Could not find user datastore: %s" % e)
         except exceptions.UserNotFoundError, e:
