@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # a little trick so you can run:
 # $ python example/app.py
 # from the root of the security project
@@ -7,6 +9,7 @@ sys.path.pop(0)
 sys.path.insert(0, os.getcwd())
 
 from flask import Flask, render_template, current_app
+from flask.ext.mail import Mail
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, LoginForm, login_required, \
@@ -21,12 +24,12 @@ def create_roles():
 
 
 def create_users():
-    for u in  (('matt', 'matt@lp.com', 'password', ['admin'], True),
-               ('joe', 'joe@lp.com', 'password', ['editor'], True),
-               ('jill', 'jill@lp.com', 'password', ['author'], True),
-               ('tiya', 'tiya@lp.com', 'password', [], False)):
-        current_app.security.datastore.create_user(username=u[0], email=u[1],
-            password=u[2], roles=u[3], active=u[4])
+    for u in  (('matt@lp.com', 'password', ['admin'], True),
+               ('joe@lp.com', 'password', ['editor'], True),
+               ('jill@lp.com', 'password', ['author'], True),
+               ('tiya@lp.com', 'password', [], False)):
+        current_app.security.datastore.create_user(
+            email=u[0], password=u[1], roles=u[2], active=u[3])
 
 
 def populate_data():
@@ -42,6 +45,8 @@ def create_app(auth_config):
     if auth_config:
         for key, value in auth_config.items():
             app.config[key] = value
+
+    app.mail = Mail(app)
 
     @app.route('/')
     def index():
@@ -68,6 +73,10 @@ def create_app(auth_config):
     @app.route('/post_logout')
     def post_logout():
         return render_template('index.html', content='Post Logout')
+
+    @app.route('/post_register')
+    def post_register():
+        return render_template('index.html', content='Post Register')
 
     @app.route('/admin')
     @roles_required('admin')
@@ -99,14 +108,11 @@ def create_sqlalchemy_app(auth_config=None):
 
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
-        username = db.Column(db.String(255), unique=True)
         email = db.Column(db.String(255), unique=True)
         password = db.Column(db.String(120))
-        first_name = db.Column(db.String(120))
-        last_name = db.Column(db.String(120))
         active = db.Column(db.Boolean())
-        created_at = db.Column(db.DateTime())
-        modified_at = db.Column(db.DateTime())
+        confirmation_token = db.Column(db.String(255))
+        confirmation_sent_at = db.Column(db.DateTime())
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
@@ -134,10 +140,11 @@ def create_mongoengine_app(auth_config=None):
         description = db.StringField(max_length=255)
 
     class User(db.Document, UserMixin):
-        username = db.StringField(unique=True, max_length=255)
         email = db.StringField(unique=True, max_length=255)
         password = db.StringField(required=True, max_length=120)
         active = db.BooleanField(default=True)
+        confirmation_token = db.StringField(max_length=255)
+        confirmation_sent_at = db.DateTimeField()
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     Security(app, MongoEngineUserDatastore(db, User, Role))

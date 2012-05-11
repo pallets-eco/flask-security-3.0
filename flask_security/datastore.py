@@ -15,13 +15,13 @@ from flask.ext.security import exceptions
 
 class UserDatastore(object):
     """Abstracted user datastore. Always extend this class and implement the
-    :attr:`get_models`, :attr:`_save_model`, :attr:`_do_with_id`,
-    :attr:`_do_find_user`,  and :attr:`_do_find_role` methods.
+    :attr:`_save_model`, :attr:`_do_with_id`, :attr:`_do_find_user`,  and
+    :attr:`_do_find_role` methods.
 
     :param db: An instance of a configured databse manager from a Flask
                extension such as Flask-SQLAlchemy or Flask-MongoEngine
-    :param user_model: A user model class
-    :param role_model: A role model class
+    :param user_model: A user model class definition
+    :param role_model: A role model class definition
     """
     def __init__(self, db, user_model, role_model):
         self.db = db
@@ -44,59 +44,19 @@ class UserDatastore(object):
         raise NotImplementedError(
             "User datastore does not implement _do_find_role method")
 
-    def _do_add_role(self, user, role):
-        user, role = self._prepare_role_modify_args(user, role)
-        if role not in user.roles:
-            user.roles.append(role)
-        return user
-
-    def _do_remove_role(self, user, role):
-        user, role = self._prepare_role_modify_args(user, role)
-        if role in user.roles:
-            user.roles.remove(role)
-        return user
-
-    def _do_toggle_active(self, user, active=None):
-        user = self.find_user(user)
-        if active is None:
-            user.active = not user.active
-        elif active != user.active:
-            user.active = active
-        return user
-
-    def _do_deactive_user(self, user):
-        return self._do_toggle_active(user, False)
-
-    def _do_active_user(self, user):
-        return self._do_toggle_active(user, True)
-
-    def _prepare_role_modify_args(self, user, role):
-        if isinstance(user, self.user_model):
-            user = user.username or user.email
-
-        if isinstance(role, self.role_model):
-            role = role.name
-
-        return self.find_user(user), self.find_role(role)
-
     def _prepare_create_role_args(self, kwargs):
-        for key in ('name', 'description'):
-            kwargs[key] = kwargs.get(key, None)
-
         if kwargs['name'] is None:
             raise exceptions.RoleCreationError("Missing name argument")
 
         return kwargs
 
     def _prepare_create_user_args(self, kwargs):
-        username = kwargs.get('username', None)
         email = kwargs.get('email', None)
         password = kwargs.get('password', None)
         kwargs.setdefault('active', True)
 
-        if username is None and email is None:
-            raise exceptions.UserCreationError(
-                'Missing username and/or email arguments')
+        if email is None:
+            raise exceptions.UserCreationError('Missing email argument')
 
         if password is None:
             raise exceptions.UserCreationError('Missing password argument')
@@ -129,7 +89,7 @@ class UserDatastore(object):
     def find_user(self, user):
         """Returns a user based on the specified identifier.
 
-        :param user: User identifier, usually a username or email address
+        :param user: User identifier, usually email address
         """
         user = self._do_find_user(user)
         if user:
@@ -150,7 +110,6 @@ class UserDatastore(object):
         """Creates and returns a new role.
 
         :param name: Role name
-        :param description: Role description
         """
         role = self.role_model(**self._prepare_create_role_args(kwargs))
         return self._save_model(role)
@@ -158,7 +117,6 @@ class UserDatastore(object):
     def create_user(self, **kwargs):
         """Creates and returns a new user.
 
-        :param username: Username
         :param email: Email address
         :param password: Unencrypted password
         :param active: The optional active state
@@ -224,7 +182,6 @@ class SQLAlchemyUserDatastore(UserDatastore):
 
         class User(db.Model, UserMixin):
             id = db.Column(db.Integer, primary_key=True)
-            username = db.Column(db.String(255), unique=True)
             email = db.Column(db.String(255), unique=True)
             password = db.Column(db.String(120))
             first_name = db.Column(db.String(120))
@@ -247,8 +204,7 @@ class SQLAlchemyUserDatastore(UserDatastore):
         return self.user_model.query.get(id)
 
     def _do_find_user(self, user):
-        return self.user_model.query.filter_by(username=user).first() or \
-               self.user_model.query.filter_by(email=user).first()
+        return self.user_model.query.filter_by(email=user).first()
 
     def _do_find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()
@@ -274,7 +230,6 @@ class MongoEngineUserDatastore(UserDatastore):
             name = db.StringField(required=True, unique=True, max_length=80)
 
         class User(db.Document, UserMixin):
-            username = db.StringField(unique=True, max_length=255)
             email = db.StringField(unique=True, max_length=255)
             password = db.StringField(required=True, max_length=120)
             active = db.BooleanField(default=True)
@@ -294,8 +249,7 @@ class MongoEngineUserDatastore(UserDatastore):
             return None
 
     def _do_find_user(self, user):
-        return self.user_model.objects(username=user).first() or \
-               self.user_model.objects(email=user).first()
+        return self.user_model.objects(email=user).first()
 
     def _do_find_role(self, role):
         return self.role_model.objects(name=role).first()

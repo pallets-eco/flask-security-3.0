@@ -9,9 +9,16 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import base64
+import os
+
 from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session
+
+
+def generate_token():
+    return base64.urlsafe_b64encode(os.urandom(30))
 
 
 def do_flash(message, category):
