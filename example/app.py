@@ -93,7 +93,7 @@ def create_app(auth_config):
 
 def create_sqlalchemy_app(auth_config=None):
     app = create_app(auth_config)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/flask_security_example.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
 
     db = SQLAlchemy(app)
 
@@ -113,6 +113,7 @@ def create_sqlalchemy_app(auth_config=None):
         active = db.Column(db.Boolean())
         confirmation_token = db.Column(db.String(255))
         confirmation_sent_at = db.Column(db.DateTime())
+        confirmed_at = db.Column(db.DateTime())
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 

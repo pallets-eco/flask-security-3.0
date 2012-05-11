@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+from datetime import datetime, timedelta
+
+from flask.ext.security.utils import capture_registrations
 
 from example import app
 
@@ -150,6 +153,58 @@ class ConfiguredURLTests(SecurityTest):
 
 class ConfirmationTests(SecurityTest):
     AUTH_CONFIG = {
+        'SECURITY_CONFIRM_EMAIL': True
+    }
+
+    def register(self, email, password='password'):
+        data = dict(email=email, password=password, password_confirm=password)
+        return self.client.post('/register', data=data, follow_redirects=True)
+
+    def test_register_sends_confirmation_email(self):
+        e = 'dude@lp.com'
+        with self.app.mail.record_messages() as outbox:
+            self.register(e)
+            self.assertEqual(len(outbox), 1)
+            self.assertIn(e, outbox[0].html)
+
+    def test_confirm_email(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as users:
+            self.register(e)
+            token = users[0].confirmation_token
+
+        r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+        self.assertIn('Thank you! Your email has been confirmed', r.data)
+
+    def test_invalid_or_unprovided_token_when_confirming_email(self):
+        r = self.client.get('/confirm', follow_redirects=True)
+        self.assertIn('Unknown confirmation token', r.data)
+
+    def test_expired_confirmation_token_sends_email(self):
+        e = 'dude@lp.com'
+
+        sent_at = datetime.utcnow() - timedelta(days=15)
+
+        with capture_registrations(confirmation_sent_at=sent_at) as users:
+            self.register(e)
+            token = users[0].confirmation_token
+
+        with self.app.mail.record_messages() as outbox:
+            r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+
+            self.assertEqual(len(outbox), 1)
+            self.assertIn(e, outbox[0].html)
+            self.assertNotIn(token, outbox[0].html)
+
+            expire_text = self.app.security.confirm_email_within_text
+            text = 'You did not confirm your email within %s' % expire_text
+
+            self.assertIn(text, r.data)
+
+
+class ConfirmationAndCanLoginTests(SecurityTest):
+    AUTH_CONFIG = {
         'SECURITY_CONFIRM_EMAIL': True,
         'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True
     }
@@ -160,16 +215,6 @@ class ConfirmationTests(SecurityTest):
         data = dict(email=e, password=p, password_confirm=p)
         r = self.client.post('/register', data=data, follow_redirects=True)
         self.assertIn(e, r.data)
-
-    def test_register_valid_user_sends_confirmation_email(self):
-        e = 'dude@lp.com'
-        p = 'password'
-        data = dict(email=e, password=p, password_confirm=p)
-
-        with self.app.mail.record_messages() as outbox:
-            self.client.post('/register', data=data, follow_redirects=True)
-            self.assertEqual(len(outbox), 1)
-            self.assertIn(e, outbox[0].html)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):

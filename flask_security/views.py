@@ -12,11 +12,12 @@
 from flask import current_app, redirect, request, session
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
-from flask.ext.security import exceptions, utils, confirmable
+from flask.ext.security import exceptions, utils, confirmable, signals
 from werkzeug.local import LocalProxy
 
 
 security = LocalProxy(lambda: current_app.security)
+
 logger = LocalProxy(lambda: current_app.logger)
 
 
@@ -77,6 +78,9 @@ def register():
 
         user = security.datastore.create_user(**params)
 
+        app = current_app._get_current_object()
+        signals.user_registered.send(user, app=app)
+
         if security.confirm_email:
             confirmable.send_confirmation_instructions(user)
 
@@ -84,14 +88,38 @@ def register():
             do_login(user)
 
         url = security.post_register_view
-        logger.debug("User %s registered. Redirect to: %s" % (user, url))
+        logger.debug('User %s registered. Redirect to: %s' % (user, url))
         return redirect(url)
 
     return redirect(request.referrer or security.register_url)
 
 
 def confirm():
-    token = request.args.get('confirmation_token', None)
+    try:
+        token = request.args.get('confirmation_token', None)
+        user = confirmable.confirm_by_token(token)
+
+    except exceptions.ConfirmationError, e:
+        utils.do_flash(str(e), 'error')
+        return redirect('/')  # TODO: Don't just redirect to root
+
+    except exceptions.ConfirmationExpiredError, e:
+        user = e.user
+        confirmable.generate_confirmation_token(user)
+        confirmable.send_confirmation_instructions(user)
+
+        msg = 'You did not confirm your email within %s. ' \
+              'A new confirmation code has been sent to %s' % (
+               security.confirm_email_within_text, user.email)
+
+        utils.do_flash(msg, 'error')
+
+        return redirect('/')
+
+    do_login(user)
+    utils.do_flash('Thank you! Your email has been confirmed', 'success')
+
+    return redirect(security.post_confirm_view or security.post_login_view)
 
 
 def reset():

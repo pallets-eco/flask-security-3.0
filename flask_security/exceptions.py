@@ -53,3 +53,17 @@ class UserCreationError(Exception):
 class RoleCreationError(Exception):
     """Raised when an error occurs when creating a role
     """
+
+
+class ConfirmationError(Exception):
+    """Raised when an unknown confirmation error occurs
+    """
+
+
+class ConfirmationExpiredError(Exception):
+    """Raised when a user attempts to confirm their email but their token
+    has expired
+    """
+    def __init__(self, msg, user=None):
+        super(ConfirmationExpiredError, self).__init__(msg)
+        self.user = user

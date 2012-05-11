@@ -12,9 +12,11 @@
 import base64
 import os
 
+from contextlib import contextmanager
 from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session, render_template
+from flask.ext.security.signals import user_registered
 
 
 def generate_token():
@@ -76,3 +78,22 @@ def send_mail(subject, recipient, template, context):
     msg.html = render_template('email/%s.html' % template, **context)
 
     current_app.mail.send(msg)
+
+
+@contextmanager
+def capture_registrations(confirmation_sent_at=None):
+    users = []
+
+    def _on(user, app):
+        if confirmation_sent_at:
+            user.confirmation_sent_at = confirmation_sent_at
+            current_app.security.datastore._save_model(user)
+
+        users.append(user)
+
+    user_registered.connect(_on)
+
+    try:
+        yield users
+    finally:
+        user_registered.disconnect(_on)

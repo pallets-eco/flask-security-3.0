@@ -42,6 +42,7 @@ _default_config = {
     'SECURITY_POST_LOGIN_VIEW': '/',
     'SECURITY_POST_LOGOUT_VIEW': '/',
     'SECURITY_POST_REGISTER_VIEW': '/',
+    'SECURITY_POST_CONFIRM_VIEW': '/',
     'SECURITY_RESET_PASSWORD_WITHIN': 10,
     'SECURITY_DEFAULT_ROLES': [],
     'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True,
@@ -234,13 +235,15 @@ class Security(object):
         self.post_login_view = utils.config_value(app, 'POST_LOGIN_VIEW')
         self.post_logout_view = utils.config_value(app, 'POST_LOGOUT_VIEW')
         self.post_register_view = utils.config_value(app, 'POST_REGISTER_VIEW')
+        self.post_confirm_view = utils.config_value(app, 'POST_CONFIRM_VIEW')
         self.reset_password_within = utils.config_value(app, 'RESET_PASSWORD_WITHIN')
         self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
         self.confirm_email = utils.config_value(app, 'CONFIRM_EMAIL')
         self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
+        self.confirm_email_within_text = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN')
 
-        values = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN').split()
+        values = self.confirm_email_within_text.split()
         self.confirm_email_within = timedelta(**{values[1]: int(values[0])})
 
         identity_loaded.connect_via(app)(on_identity_loaded)
