@@ -50,18 +50,29 @@ def generate_confirmation_token(user):
     return user
 
 
+def requires_confirmation(user):
+    return (security.confirm_email and \
+            not security.login_without_confirmation and \
+            not confirmation_token_is_expired(user))
+
+
+def confirmation_token_is_expired(user):
+    token_expires = datetime.utcnow() - security.confirm_email_within
+    if user.confirmation_sent_at < token_expires:
+        return True
+    return False
+
+
 def confirm_by_token(token):
-    now = datetime.utcnow()
     user = find_user_by_confirmation_token(token)
 
-    token_expires = now - security.confirm_email_within
-
-    if user.confirmation_sent_at < token_expires:
+    if confirmation_token_is_expired(user):
         raise ConfirmationExpiredError('Confirmation token is expired', user=user)
 
-    user.confirmed_at = now
-    user.confirmation_token = None
-    user.confirmation_sent_at = None
+    user.confirmed_at = datetime.utcnow()
+    #user.confirmation_token = None
+    #user.confirmation_sent_at = None
+
     security.datastore._save_model(user)
 
     return user

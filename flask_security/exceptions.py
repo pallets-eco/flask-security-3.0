@@ -67,3 +67,8 @@ class ConfirmationExpiredError(Exception):
     def __init__(self, msg, user=None):
         super(ConfirmationExpiredError, self).__init__(msg)
         self.user = user
+
+
+class ConfirmationRequiredError(Exception):
+    """Raised when a user attempts to login but requires confirmation
+    """

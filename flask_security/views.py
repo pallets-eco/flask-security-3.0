@@ -22,6 +22,9 @@ logger = LocalProxy(lambda: current_app.logger)
 
 
 def do_login(user, remember=True):
+    if confirmable.requires_confirmation(user):
+        raise exceptions.ConfirmationRequiredError()
+
     if login_user(user, remember):
         identity_changed.send(current_app._get_current_object(),
                               identity=Identity(user.id))
@@ -41,15 +44,19 @@ def authenticate():
 
         raise exceptions.BadCredentialsError('Inactive user')
 
+    except exceptions.ConfirmationRequiredError, e:
+        msg = str(e)
+
     except exceptions.BadCredentialsError, e:
         msg = str(e)
-        utils.do_flash(msg, 'error')
-        url = request.referrer or security.login_manager.login_view
 
-        logger.debug('Unsuccessful authentication attempt: %s. '
-                     'Redirect to: %s' % (msg, url))
+    utils.do_flash(msg, 'error')
+    url = request.referrer or security.login_manager.login_view
 
-        return redirect(url)
+    logger.debug('Unsuccessful authentication attempt: %s. '
+                 'Redirect to: %s' % (msg, url))
+
+    return redirect(url)
 
 
 def logout():

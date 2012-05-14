@@ -130,7 +130,7 @@ def create_sqlalchemy_app(auth_config=None):
 
 def create_mongoengine_app(auth_config=None):
     app = create_app(auth_config)
-    app.config['MONGODB_DB'] = 'flask_security_example'
+    app.config['MONGODB_DB'] = 'flask_security_test'
     app.config['MONGODB_HOST'] = 'localhost'
     app.config['MONGODB_PORT'] = 27017
 
@@ -146,6 +146,7 @@ def create_mongoengine_app(auth_config=None):
         active = db.BooleanField(default=True)
         confirmation_token = db.StringField(max_length=255)
         confirmation_sent_at = db.DateTimeField()
+        confirmed_at = db.DateTimeField()
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     Security(app, MongoEngineUserDatastore(db, User, Role))

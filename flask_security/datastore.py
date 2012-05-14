@@ -91,7 +91,6 @@ class UserDatastore(object):
 
         :param user: User identifier, usually email address
         """
-        print kwargs
         user = self._do_find_user(**kwargs)
         if user:
             return user
