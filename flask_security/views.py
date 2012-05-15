@@ -137,13 +137,11 @@ def confirm():
         return redirect('/')  # TODO: Don't just redirect to root
 
     except ConfirmationExpiredError, e:
-        user = e.user
-        generate_confirmation_token(user)
-        send_confirmation_instructions(user)
+        reset_confirmation_token(e.user)
 
         msg = 'You did not confirm your email within %s. ' \
               'A new confirmation code has been sent to %s' % (
-               security.confirm_email_within_text, user.email)
+               security.confirm_email_within_text, e.user.email)
 
         do_flash(msg, 'error')
 
