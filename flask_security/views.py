@@ -116,11 +116,11 @@ def register():
     if security.confirm_email:
         send_confirmation_instructions(user)
 
-    # Login the user if allowed
-    if security.login_without_confirmation:
-        _do_login(user)
-
     logger.debug('User %s registered' % user)
+
+    # Login the user if allowed
+    if (not security.confirm_email) or security.login_without_confirmation:
+        _do_login(user)
 
     return redirect(security.post_register_view or security.post_login_view)
 

@@ -1,0 +1,6 @@
+<form action="{{ url_for('flask_security.reset') }}" method="POST" name="reset_form">
+  {{ form.hidden_tag() }}
+  {{ form.password.label }} {{ form.password }}<br/>
+  {{ form.password_confirm.label }} {{ form.password_confirm }}<br/>
+  {{ form.submit }}
+</form>

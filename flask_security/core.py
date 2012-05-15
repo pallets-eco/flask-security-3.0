@@ -303,11 +303,19 @@ class RegisterForm(Form):
         validators=[Required(message='Email not provided'), Email()])
     password = PasswordField("Password",
         validators=[Required(message="Password not provided")])
-    password_confirm = PasswordField("Password",
-        validators=[EqualTo('password', message="Password not provided")])
+    password_confirm = PasswordField("Retype Password",
+        validators=[EqualTo('password', message="Passwords do not match")])
 
     def to_dict(self):
         return dict(email=self.email.data, password=self.password.data)
+
+
+class ResetPasswordForm(Form):
+    token = HiddenField()
+    password = PasswordField("Password",
+        validators=[Required(message="Password not provided")])
+    password_confirm = PasswordField("Retype Password",
+        validators=[EqualTo('password', message="Passwords do not match")])
 
 
 class AuthenticationProvider(object):

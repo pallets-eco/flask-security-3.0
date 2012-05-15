@@ -115,8 +115,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_register_valid_user(self):
         data = dict(email='dude@lp.com', password='password', password_confirm='password')
-        r = self.client.post('/register', data=data, follow_redirects=True)
-        self.assertNotIn('Hello dude@lp.com', r.data)
+        self.client.post('/register', data=data, follow_redirects=True)
         r = self.authenticate('dude@lp.com', 'password')
         self.assertIn('Hello dude@lp.com', r.data)
 
