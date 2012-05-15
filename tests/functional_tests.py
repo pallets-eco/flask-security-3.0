@@ -174,8 +174,10 @@ class ConfirmationTests(SecurityTest):
             self.register(e)
             token = users[0].confirmation_token
 
+        r = self.authenticate('dude@lp.com', 'password')
+        self.assertIn('Account requires confirmation', r.data)
         r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
-        self.assertIn('Thank you! Your email has been confirmed', r.data)
+        self.assertIn('Your email has been confirmed. You may now log in.', r.data)
 
     def test_invalid_or_unprovided_token_when_confirming_email(self):
         r = self.client.get('/confirm', follow_redirects=True)

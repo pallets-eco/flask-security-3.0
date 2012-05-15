@@ -130,7 +130,7 @@ def confirm():
     """
     try:
         token = request.args.get('confirmation_token', None)
-        user = confirm_by_token(token)
+        confirm_by_token(token)
 
     except ConfirmationError, e:
         do_flash(str(e), 'error')
@@ -147,8 +147,7 @@ def confirm():
 
         return redirect('/')
 
-    _do_login(user)
-    do_flash('Thank you! Your email has been confirmed', 'success')
+    do_flash('Your email has been confirmed. You may now log in.', 'success')
 
     return redirect(security.post_confirm_view or security.post_login_view)
 
