@@ -115,7 +115,8 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_register_valid_user(self):
         data = dict(email='dude@lp.com', password='password', password_confirm='password')
-        self.client.post('/register', data=data, follow_redirects=True)
+        r = self.client.post('/register', data=data, follow_redirects=True)
+        self.assertNotIn('Hello dude@lp.com', r.data)
         r = self.authenticate('dude@lp.com', 'password')
         self.assertIn('Hello dude@lp.com', r.data)
 
@@ -147,7 +148,6 @@ class ConfiguredURLTests(SecurityTest):
     def test_register(self):
         data = dict(email='dude@lp.com', password='password', password_confirm='password')
         r = self.client.post('/register', data=data, follow_redirects=True)
-        self.assertIn('Hello dude@lp.com', r.data)
         self.assertIn('Post Register', r.data)
 
 
@@ -174,8 +174,6 @@ class ConfirmationTests(SecurityTest):
             self.register(e)
             token = users[0].confirmation_token
 
-        r = self.authenticate('dude@lp.com', 'password')
-        self.assertIn('Account requires confirmation', r.data)
         r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
         self.assertIn('Your email has been confirmed. You may now log in.', r.data)
 

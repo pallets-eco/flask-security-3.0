@@ -27,28 +27,28 @@ from werkzeug.datastructures import ImmutableList
 
 #: Default Flask-Security configuration
 _default_config = {
-    'SECURITY_URL_PREFIX': None,
-    'SECURITY_FLASH_MESSAGES': True,
-    'SECURITY_PASSWORD_HASH': 'plaintext',
-    'SECURITY_AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
-    'SECURITY_LOGIN_FORM': 'flask.ext.security::LoginForm',
-    'SECURITY_REGISTER_FORM': 'flask.ext.security::RegisterForm',
-    'SECURITY_AUTH_URL': '/auth',
-    'SECURITY_LOGOUT_URL': '/logout',
-    'SECURITY_REGISTER_URL': '/register',
-    'SECURITY_RESET_URL': '/reset',
-    'SECURITY_CONFIRM_URL': '/confirm',
-    'SECURITY_LOGIN_VIEW': '/login',
-    'SECURITY_POST_LOGIN_VIEW': '/',
-    'SECURITY_POST_LOGOUT_VIEW': '/',
-    'SECURITY_POST_REGISTER_VIEW': None,
-    'SECURITY_POST_CONFIRM_VIEW': None,
-    'SECURITY_RESET_PASSWORD_WITHIN': 10,
-    'SECURITY_DEFAULT_ROLES': [],
-    'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True,
-    'SECURITY_CONFIRM_EMAIL': False,
-    'SECURITY_CONFIRM_EMAIL_WITHIN': '5 days',
-    'SECURITY_EMAIL_SENDER': 'no-reply@localhost'
+    'URL_PREFIX': None,
+    'FLASH_MESSAGES': True,
+    'PASSWORD_HASH': 'plaintext',
+    'AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
+    'LOGIN_FORM': 'flask.ext.security::LoginForm',
+    'REGISTER_FORM': 'flask.ext.security::RegisterForm',
+    'AUTH_URL': '/auth',
+    'LOGOUT_URL': '/logout',
+    'REGISTER_URL': '/register',
+    'RESET_URL': '/reset',
+    'CONFIRM_URL': '/confirm',
+    'LOGIN_VIEW': '/login',
+    'POST_LOGIN_VIEW': '/',
+    'POST_LOGOUT_VIEW': '/',
+    'POST_REGISTER_VIEW': None,
+    'POST_CONFIRM_VIEW': None,
+    'RESET_PASSWORD_WITHIN': 10,
+    'DEFAULT_ROLES': [],
+    'LOGIN_WITHOUT_CONFIRMATION': False,
+    'CONFIRM_EMAIL': False,
+    'CONFIRM_EMAIL_WITHIN': '5 days',
+    'EMAIL_SENDER': 'no-reply@localhost'
 }
 
 
@@ -209,7 +209,7 @@ class Security(object):
             return
 
         for key, value in _default_config.items():
-            app.config.setdefault(key, value)
+            app.config.setdefault('SECURITY_' + key, value)
 
         login_manager = LoginManager()
         login_manager.anonymous_user = AnonymousUser

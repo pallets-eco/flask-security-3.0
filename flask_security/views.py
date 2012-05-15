@@ -12,9 +12,9 @@
 from flask import current_app, redirect, request, session
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
-from flask.ext.security.confirmable import confirmation_token_is_expired, \
-     send_confirmation_instructions, generate_confirmation_token, \
-     reset_confirmation_token, requires_confirmation, confirm_by_token
+from flask.ext.security.confirmable import confirm_by_token, \
+     confirmation_token_is_expired, requires_confirmation, \
+     reset_confirmation_token, send_confirmation_instructions
 from flask.ext.security.exceptions import ConfirmationExpiredError, \
      ConfirmationError, BadCredentialsError
 from flask.ext.security.utils import get_post_login_redirect, do_flash
@@ -50,6 +50,7 @@ def authenticate():
     try:
         user = security.auth_provider.authenticate(form)
 
+        # Conveniently reset the token if necessary and expired
         if confirmation_token_is_expired(user):
             reset_confirmation_token(user)
 

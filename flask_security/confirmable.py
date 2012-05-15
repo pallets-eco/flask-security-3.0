@@ -60,8 +60,7 @@ def should_confirm_email(fn):
 
 @should_confirm_email
 def requires_confirmation(user):
-    return not security.login_without_confirmation and \
-           not confirmation_token_is_expired(user)
+    return user.confirmed_at == None
 
 
 @should_confirm_email
