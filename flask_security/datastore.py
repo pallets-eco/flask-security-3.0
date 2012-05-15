@@ -10,7 +10,7 @@
 """
 
 from flask import current_app
-from flask.ext.security import exceptions
+from flask.ext.security import exceptions, confirmable
 
 
 class UserDatastore(object):
@@ -53,7 +53,12 @@ class UserDatastore(object):
     def _prepare_create_user_args(self, kwargs):
         email = kwargs.get('email', None)
         password = kwargs.get('password', None)
+
         kwargs.setdefault('active', True)
+        kwargs.setdefault('roles', current_app.security.default_roles)
+
+        if current_app.security.confirm_email:
+            confirmable.generate_confirmation_token(kwargs)
 
         if email is None:
             raise exceptions.UserCreationError('Missing email argument')

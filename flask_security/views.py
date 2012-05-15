@@ -12,7 +12,13 @@
 from flask import current_app, redirect, request, session
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
-from flask.ext.security import exceptions, utils, confirmable, signals
+from flask.ext.security.confirmable import confirmation_token_is_expired, \
+     send_confirmation_instructions, generate_confirmation_token, \
+     reset_confirmation_token, requires_confirmation, confirm_by_token
+from flask.ext.security.exceptions import ConfirmationExpiredError, \
+     ConfirmationError, BadCredentialsError
+from flask.ext.security.utils import get_post_login_redirect, do_flash
+from flask.ext.security.signals import user_registered
 from werkzeug.local import LocalProxy
 
 
@@ -21,110 +27,130 @@ security = LocalProxy(lambda: current_app.security)
 logger = LocalProxy(lambda: current_app.logger)
 
 
-def do_login(user, remember=True):
-    if confirmable.requires_confirmation(user):
-        raise exceptions.ConfirmationRequiredError()
-
+def _do_login(user, remember=True):
     if login_user(user, remember):
         identity_changed.send(current_app._get_current_object(),
                               identity=Identity(user.id))
+
         logger.debug('User %s logged in' % user)
         return True
     return False
 
 
 def authenticate():
-    form = current_app.security.LoginForm()
+    """View function which handles an authentication attempt. If authentication
+    is successful the user is redirected to, if set, the value of the `next`
+    form parameter. If that value is not set the user is redirected to the
+    value of the `SECURITY_POST_LOGIN_VIEW` configuration value. If
+    authenticate fails the user an appropriate error message is flashed and
+    the user is redirected to the referring page or the login view.
+    """
+    form = security.LoginForm()
+
     try:
         user = security.auth_provider.authenticate(form)
 
-        if do_login(user, remember=form.remember.data):
-            url = utils.get_post_login_redirect()
-            return redirect(url)
+        if confirmation_token_is_expired(user):
+            reset_confirmation_token(user)
 
-        raise exceptions.BadCredentialsError('Inactive user')
+        if requires_confirmation(user):
+            raise BadCredentialsError('Account requires confirmation')
 
-    except exceptions.ConfirmationRequiredError, e:
+        if _do_login(user, remember=form.remember.data):
+            return redirect(get_post_login_redirect())
+
+        raise BadCredentialsError('Inactive user')
+
+    except BadCredentialsError, e:
         msg = str(e)
 
-    except exceptions.BadCredentialsError, e:
-        msg = str(e)
+    except Exception, e:
+        msg = 'Uknown authentication error'
 
-    utils.do_flash(msg, 'error')
-    url = request.referrer or security.login_manager.login_view
+    do_flash(msg, 'error')
 
-    logger.debug('Unsuccessful authentication attempt: %s. '
-                 'Redirect to: %s' % (msg, url))
+    logger.debug('Unsuccessful authentication attempt: %s. ' % msg)
 
-    return redirect(url)
+    return redirect(request.referrer or security.login_manager.login_view)
 
 
 def logout():
+    """View function which logs out the current user. When completed the user
+    is redirected to the value of the `next` query string parameter or the
+    `SECURITY_POST_LOGIN_VIEW` configuration value.
+    """
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
 
-    app = current_app._get_current_object()
-    identity_changed.send(app, identity=AnonymousIdentity())
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
+
     logout_user()
 
-    url = security.post_logout_view
-    logger.debug('User logged out. Redirect to: %s' % url)
-    return redirect(url)
+    logger.debug('User logged out')
+
+    return redirect(request.args.get('next', None) or \
+                    security.post_logout_view)
 
 
 def register():
+    """View function which registers a new user and, if configured so, the user
+    isautomatically logged in. If required confirmation instructions are sent
+    via email.  After registration is completed the user is redirected to, if
+    set, the value of the `SECURITY_POST_REGISTER_VIEW` configuration value.
+    Otherwise the user is redirected to the `SECURITY_POST_LOGIN_VIEW`
+    configuration value.
+    """
     form = security.RegisterForm(csrf_enabled=not current_app.testing)
 
-    if form.validate_on_submit():
-        params = form.to_dict()
-        params['roles'] = security.default_roles
-        params['active'] = True
+    # Exit early if the form doesn't validate
+    if not form.validate_on_submit():
+        return redirect(request.referrer or security.register_url)
 
-        if security.confirm_email:
-            confirmable.generate_confirmation_token(params)
+    # Create user and send signal
+    user = security.datastore.create_user(**form.to_dict())
+    user_registered.send(user, app=current_app._get_current_object())
 
-        user = security.datastore.create_user(**params)
+    # Send confirmation instructions if necessary
+    if security.confirm_email:
+        send_confirmation_instructions(user)
 
-        app = current_app._get_current_object()
-        signals.user_registered.send(user, app=app)
+    # Login the user if allowed
+    if security.login_without_confirmation:
+        _do_login(user)
 
-        if security.confirm_email:
-            confirmable.send_confirmation_instructions(user)
+    logger.debug('User %s registered' % user)
 
-        if security.login_without_confirmation:
-            do_login(user)
-
-        url = security.post_register_view
-        logger.debug('User %s registered. Redirect to: %s' % (user, url))
-        return redirect(url)
-
-    return redirect(request.referrer or security.register_url)
+    return redirect(security.post_register_view or security.post_login_view)
 
 
 def confirm():
+    """View function which confirms a user's email address using a token taken
+    from the value of the `confirmation_token` query string argument.
+    """
     try:
         token = request.args.get('confirmation_token', None)
-        user = confirmable.confirm_by_token(token)
+        user = confirm_by_token(token)
 
-    except exceptions.ConfirmationError, e:
-        utils.do_flash(str(e), 'error')
+    except ConfirmationError, e:
+        do_flash(str(e), 'error')
         return redirect('/')  # TODO: Don't just redirect to root
 
-    except exceptions.ConfirmationExpiredError, e:
+    except ConfirmationExpiredError, e:
         user = e.user
-        confirmable.generate_confirmation_token(user)
-        confirmable.send_confirmation_instructions(user)
+        generate_confirmation_token(user)
+        send_confirmation_instructions(user)
 
         msg = 'You did not confirm your email within %s. ' \
               'A new confirmation code has been sent to %s' % (
                security.confirm_email_within_text, user.email)
 
-        utils.do_flash(msg, 'error')
+        do_flash(msg, 'error')
 
         return redirect('/')
 
-    do_login(user)
-    utils.do_flash('Thank you! Your email has been confirmed', 'success')
+    _do_login(user)
+    do_flash('Thank you! Your email has been confirmed', 'success')
 
     return redirect(security.post_confirm_view or security.post_login_view)
 

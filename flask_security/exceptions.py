@@ -64,11 +64,14 @@ class ConfirmationExpiredError(Exception):
     """Raised when a user attempts to confirm their email but their token
     has expired
     """
-    def __init__(self, msg, user=None):
-        super(ConfirmationExpiredError, self).__init__(msg)
+    def __init__(self, user=None):
+        super(ConfirmationExpiredError, self).__init__()
         self.user = user
 
 
 class ConfirmationRequiredError(Exception):
     """Raised when a user attempts to login but requires confirmation
     """
+    def __init__(self, user=None):
+        super(ConfirmationRequiredError, self).__init__()
+        self.user = user
