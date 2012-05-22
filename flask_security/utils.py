@@ -16,7 +16,8 @@ from contextlib import contextmanager
 from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session, render_template
-from flask.ext.security.signals import user_registered
+from flask.ext.security.signals import user_registered, password_reset_requested
+from werkzeug.exceptions import BadRequest
 
 
 def generate_token():
@@ -74,8 +75,9 @@ def send_mail(subject, recipient, template, context):
                   sender=current_app.security.email_sender,
                   recipients=[recipient])
 
-    msg.body = render_template('email/%s.txt' % template, **context)
-    msg.html = render_template('email/%s.html' % template, **context)
+    base = 'security/email'
+    msg.body = render_template('%s/%s.txt' % (base, template), **context)
+    msg.html = render_template('%s/%s.html' % (base, template), **context)
 
     current_app.mail.send(msg)
 
@@ -97,3 +99,29 @@ def capture_registrations(confirmation_sent_at=None):
         yield users
     finally:
         user_registered.disconnect(_on)
+
+
+@contextmanager
+def capture_reset_password_requests(reset_password_sent_at=None):
+    users = []
+
+    def _on(user, app):
+        if reset_password_sent_at:
+            user.reset_password_sent_at = reset_password_sent_at
+            current_app.security.datastore._save_model(user)
+
+        users.append(user)
+
+    password_reset_requested.connect(_on)
+
+    try:
+        yield users
+    finally:
+        password_reset_requested.disconnect(_on)
+
+
+def get_arg_or_bad_request(context, name):
+    rv = context.get(name, None)
+    if not rv:
+        raise BadRequest()
+    return rv

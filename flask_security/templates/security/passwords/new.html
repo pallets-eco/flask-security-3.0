@@ -1,0 +1,5 @@
+<form action="{{ url_for('flask_security.forgot') }}" method="POST" name="forgot_password_form">
+  {{ forgot_password_form.hidden_tag() }}
+  {{ forgot_password_form.email.label }} {{ forgot_password_form.email }}
+  {{ forgot_password_form.submit }}
+</form>

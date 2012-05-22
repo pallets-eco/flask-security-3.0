@@ -3,17 +3,18 @@ from datetime import datetime
 
 from flask import current_app, request, url_for
 from flask.ext.security.exceptions import UserNotFoundError, \
-     ConfirmationError, ConfirmationExpiredError
+     ConfirmationError, TokenExpiredError
 from flask.ext.security.utils import generate_token, send_mail
 from werkzeug.local import LocalProxy
 
 security = LocalProxy(lambda: current_app.security)
+
 logger = LocalProxy(lambda: current_app.logger)
 
 
 def find_user_by_confirmation_token(token):
     if not token:
-        raise ConfirmationError('Unknown confirmation token')
+        raise ConfirmationError('Confirmation token required')
     return security.datastore.find_user(confirmation_token=token)
 
 
@@ -70,14 +71,18 @@ def confirmation_token_is_expired(user):
 
 
 def confirm_by_token(token):
-    user = find_user_by_confirmation_token(token)
+    try:
+        user = find_user_by_confirmation_token(token)
+    except UserNotFoundError:
+        raise ConfirmationError('Invalid confirmation token')
 
     if confirmation_token_is_expired(user):
-        raise ConfirmationExpiredError(user=user)
+        raise TokenExpiredError(message='Confirmation token is expired',
+                                user=user)
 
+    user.confirmation_token = None
+    user.confirmation_sent_at = None
     user.confirmed_at = datetime.utcnow()
-    #user.confirmation_token = None
-    #user.confirmation_sent_at = None
 
     security.datastore._save_model(user)
 

@@ -33,21 +33,25 @@ _default_config = {
     'AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
     'LOGIN_FORM': 'flask.ext.security::LoginForm',
     'REGISTER_FORM': 'flask.ext.security::RegisterForm',
+    'RESET_PASSWORD_FORM': 'flask.ext.security::ResetPasswordForm',
+    'FORGOT_PASSWORD_FORM': 'flask.ext.security::ForgotPasswordForm',
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
+    'FORGOT_URL': '/forgot',
     'RESET_URL': '/reset',
     'CONFIRM_URL': '/confirm',
     'LOGIN_VIEW': '/login',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
+    'POST_FORGOT_VIEW': '/',
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
-    'RESET_PASSWORD_WITHIN': 10,
     'DEFAULT_ROLES': [],
-    'LOGIN_WITHOUT_CONFIRMATION': False,
     'CONFIRM_EMAIL': False,
     'CONFIRM_EMAIL_WITHIN': '5 days',
+    'RESET_PASSWORD_WITHIN': '2 days',
+    'LOGIN_WITHOUT_CONFIRMATION': False,
     'EMAIL_SENDER': 'no-reply@localhost'
 }
 
@@ -198,7 +202,7 @@ class Security(object):
         self.init_app(app, datastore, **kwargs)
 
     def init_app(self, app, datastore,
-                 registerable=True, recoverable=False, template_folder=None):
+                 registerable=True, recoverable=True, template_folder=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -227,24 +231,31 @@ class Security(object):
         self.datastore = datastore
         self.LoginForm = utils.get_class_from_string(app, 'LOGIN_FORM')
         self.RegisterForm = utils.get_class_from_string(app, 'REGISTER_FORM')
+        self.ResetPasswordForm = utils.get_class_from_string(app, 'RESET_PASSWORD_FORM')
+        self.ForgotPasswordForm = utils.get_class_from_string(app, 'FORGOT_PASSWORD_FORM')
         self.auth_url = utils.config_value(app, 'AUTH_URL')
         self.logout_url = utils.config_value(app, 'LOGOUT_URL')
         self.reset_url = utils.config_value(app, 'RESET_URL')
         self.register_url = utils.config_value(app, 'REGISTER_URL')
         self.confirm_url = utils.config_value(app, 'CONFIRM_URL')
+        self.forgot_url = utils.config_value(app, 'FORGOT_URL')
         self.post_login_view = utils.config_value(app, 'POST_LOGIN_VIEW')
         self.post_logout_view = utils.config_value(app, 'POST_LOGOUT_VIEW')
         self.post_register_view = utils.config_value(app, 'POST_REGISTER_VIEW')
         self.post_confirm_view = utils.config_value(app, 'POST_CONFIRM_VIEW')
-        self.reset_password_within = utils.config_value(app, 'RESET_PASSWORD_WITHIN')
+        self.post_forgot_view = utils.config_value(app, 'POST_FORGOT_VIEW')
         self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
         self.confirm_email = utils.config_value(app, 'CONFIRM_EMAIL')
         self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
-        self.confirm_email_within_text = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN')
 
+        self.confirm_email_within_text = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN')
         values = self.confirm_email_within_text.split()
         self.confirm_email_within = timedelta(**{values[1]: int(values[0])})
+
+        self.reset_password_within_text = utils.config_value(app, 'RESET_PASSWORD_WITHIN')
+        values = self.reset_password_within_text.split()
+        self.reset_password_within = timedelta(**{values[1]: int(values[0])})
 
         identity_loaded.connect_via(app)(on_identity_loaded)
 
@@ -257,27 +268,35 @@ class Security(object):
         bp.route(self.logout_url,
                  endpoint='logout')(login_required(views.logout))
 
-        self.setup_register(bp) if registerable else None
-        self.setup_reset(bp) if recoverable else None
-        self.setup_confirm(bp) if self.confirm_email else None
+        self.setup_registerable(bp) if registerable else None
+        self.setup_recoverable(bp) if recoverable else None
+        self.setup_confirmable(bp) if self.confirm_email else None
 
         app.register_blueprint(bp,
             url_prefix=utils.config_value(app, 'URL_PREFIX'))
 
         app.security = self
 
-    def setup_register(self, bp):
+    def setup_registerable(self, bp):
         bp.route(self.register_url,
                  methods=['POST'],
                  endpoint='register')(views.register)
 
-    def setup_reset(self, bp):
+    def setup_recoverable(self, bp):
+        bp.route(self.forgot_url,
+                 methods=['POST'],
+                 endpoint='forgot')(views.forgot)
         bp.route(self.reset_url,
                  methods=['POST'],
                  endpoint='reset')(views.reset)
 
-    def setup_confirm(self, bp):
+    def setup_confirmable(self, bp):
         bp.route(self.confirm_url, endpoint='confirm')(views.confirm)
+
+
+class ForgotPasswordForm(Form):
+    email = TextField("Email Address",
+        validators=[Required(message="Email not provided")])
 
 
 class LoginForm(Form):
@@ -311,7 +330,8 @@ class RegisterForm(Form):
 
 
 class ResetPasswordForm(Form):
-    token = HiddenField()
+    reset_password_token = HiddenField(validators=[Required()])
+    email = HiddenField(validators=[Required()])
     password = PasswordField("Password",
         validators=[Required(message="Password not provided")])
     password_confirm = PasswordField("Retype Password",

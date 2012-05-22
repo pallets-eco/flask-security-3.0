@@ -99,7 +99,7 @@ class UserDatastore(object):
         user = self._do_find_user(**kwargs)
         if user:
             return user
-        raise exceptions.UserNotFoundError()
+        raise exceptions.UserNotFoundError('Parameters=%s' % kwargs)
 
     def find_role(self, role):
         """Returns a role based on its name.

@@ -10,68 +10,73 @@
 """
 
 
-class BadCredentialsError(Exception):
+class SecurityError(Exception):
+    def __init__(self, message=None, user=None):
+        super(SecurityError, self).__init__(message)
+        self.user = user
+
+
+class BadCredentialsError(SecurityError):
     """Raised when an authentication attempt fails due to an error with the
     provided credentials.
     """
 
 
-class AuthenticationError(Exception):
+class AuthenticationError(SecurityError):
     """Raised when an authentication attempt fails due to invalid configuration
     or an unknown reason.
     """
 
 
-class UserNotFoundError(Exception):
+class UserNotFoundError(SecurityError):
     """Raised by a user datastore when there is an attempt to find a user by
     their identifier, often username or email, and the user is not found.
     """
 
 
-class RoleNotFoundError(Exception):
+class RoleNotFoundError(SecurityError):
     """Raised by a user datastore when there is an attempt to find a role and
     the role cannot be found.
     """
 
 
-class UserIdNotFoundError(Exception):
+class UserIdNotFoundError(SecurityError):
     """Raised by a user datastore when there is an attempt to find a user by
     ID and the user is not found.
     """
 
 
-class UserDatastoreError(Exception):
+class UserDatastoreError(SecurityError):
     """Raised when a user datastore experiences an unexpected error
     """
 
 
-class UserCreationError(Exception):
+class UserCreationError(SecurityError):
     """Raised when an error occurs when creating a user
     """
 
 
-class RoleCreationError(Exception):
+class RoleCreationError(SecurityError):
     """Raised when an error occurs when creating a role
     """
 
 
-class ConfirmationError(Exception):
-    """Raised when an unknown confirmation error occurs
+class ConfirmationError(SecurityError):
+    """Raised when an confirmation error occurs
     """
 
 
-class ConfirmationExpiredError(Exception):
+class TokenExpiredError(SecurityError):
     """Raised when a user attempts to confirm their email but their token
     has expired
     """
-    def __init__(self, user=None):
-        super(ConfirmationExpiredError, self).__init__()
-        self.user = user
 
 
-class ConfirmationRequiredError(Exception):
+class ConfirmationRequiredError(SecurityError):
     """Raised when a user attempts to login but requires confirmation
     """
-    def __init__(self, user=None):
-        super(ConfirmationRequiredError, self).__init__()
-        self.user = user
+
+
+class ResetPasswordError(SecurityError):
+    """Raised when a password reset error occurs
+    """

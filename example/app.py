@@ -114,6 +114,8 @@ def create_sqlalchemy_app(auth_config=None):
         confirmation_token = db.Column(db.String(255))
         confirmation_sent_at = db.Column(db.DateTime())
         confirmed_at = db.Column(db.DateTime())
+        reset_password_token = db.Column(db.String(255))
+        reset_password_sent_at = db.Column(db.DateTime())
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
@@ -147,6 +149,8 @@ def create_mongoengine_app(auth_config=None):
         confirmation_token = db.StringField(max_length=255)
         confirmation_sent_at = db.DateTimeField()
         confirmed_at = db.DateTimeField()
+        reset_password_token = db.StringField(max_length=255)
+        reset_password_sent_at = db.DateTimeField()
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     Security(app, MongoEngineUserDatastore(db, User, Role))

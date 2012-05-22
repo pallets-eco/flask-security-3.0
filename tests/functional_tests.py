@@ -3,7 +3,8 @@
 import unittest
 from datetime import datetime, timedelta
 
-from flask.ext.security.utils import capture_registrations
+from flask.ext.security.utils import capture_registrations, \
+     capture_reset_password_requests
 
 from example import app
 
@@ -33,8 +34,9 @@ class SecurityTest(unittest.TestCase):
                 follow_redirects=follow_redirects,
                 content_type=content_type or 'application/x-www-form-urlencoded')
 
-    def register(self, email, password, endpoint=None):
-        return self._post(endpoint or '/register')
+    def register(self, email, password='password'):
+        data = dict(email=email, password=password, password_confirm=password)
+        return self.client.post('/register', data=data, follow_redirects=True)
 
     def authenticate(self, email, password, endpoint=None):
         data = dict(email=email, password=password)
@@ -113,12 +115,6 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/admin', follow_redirects=True)
         self.assertIn('<input id="next"', r.data)
 
-    def test_register_valid_user(self):
-        data = dict(email='dude@lp.com', password='password', password_confirm='password')
-        self.client.post('/register', data=data, follow_redirects=True)
-        r = self.authenticate('dude@lp.com', 'password')
-        self.assertIn('Hello dude@lp.com', r.data)
-
 
 class ConfiguredURLTests(SecurityTest):
 
@@ -150,14 +146,19 @@ class ConfiguredURLTests(SecurityTest):
         self.assertIn('Post Register', r.data)
 
 
-class ConfirmationTests(SecurityTest):
+class RegisterableTests(SecurityTest):
+
+    def test_register_valid_user(self):
+        data = dict(email='dude@lp.com', password='password', password_confirm='password')
+        self.client.post('/register', data=data, follow_redirects=True)
+        r = self.authenticate('dude@lp.com', 'password')
+        self.assertIn('Hello dude@lp.com', r.data)
+
+
+class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRM_EMAIL': True
     }
-
-    def register(self, email, password='password'):
-        data = dict(email=email, password=password, password_confirm=password)
-        return self.client.post('/register', data=data, follow_redirects=True)
 
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
@@ -176,9 +177,24 @@ class ConfirmationTests(SecurityTest):
         r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
         self.assertIn('Your email has been confirmed. You may now log in.', r.data)
 
-    def test_invalid_or_unprovided_token_when_confirming_email(self):
+    def test_confirm_email_twice_flashes_invalid_token_msg(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as users:
+            self.register(e)
+            token = users[0].confirmation_token
+
+        self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+        r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+        self.assertIn('Invalid confirmation token', r.data)
+
+    def test_unprovided_token_when_confirming_email(self):
         r = self.client.get('/confirm', follow_redirects=True)
-        self.assertIn('Unknown confirmation token', r.data)
+        self.assertIn('Confirmation token required', r.data)
+
+    def test_invalid_token_when_confirming_email(self):
+        r = self.client.get('/confirm?confirmation_token=invalid', follow_redirects=True)
+        self.assertIn('Invalid confirmation token', r.data)
 
     def test_expired_confirmation_token_sends_email(self):
         e = 'dude@lp.com'
@@ -202,7 +218,7 @@ class ConfirmationTests(SecurityTest):
             self.assertIn(text, r.data)
 
 
-class ConfirmationAndCanLoginTests(SecurityTest):
+class LoginWithoutImmediateConfirmTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRM_EMAIL': True,
         'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True
@@ -214,6 +230,38 @@ class ConfirmationAndCanLoginTests(SecurityTest):
         data = dict(email=e, password=p, password_confirm=p)
         r = self.client.post('/register', data=data, follow_redirects=True)
         self.assertIn(e, r.data)
+
+
+class RecoverableTests(SecurityTest):
+
+    def test_forgot_post_sends_email_and_sets_required_fields(self):
+        with capture_reset_password_requests() as users:
+            with self.app.mail.record_messages() as outbox:
+                self.client.post('/forgot', data=dict(email='joe@lp.com'))
+                self.assertEqual(len(outbox), 1)
+                self.assertIsNotNone(users[0].reset_password_token)
+                self.assertIsNotNone(users[0].reset_password_sent_at)
+
+    def test_forgot_password_invalid_email(self):
+        r = self.client.post('/forgot',
+                             data=dict(email='larry@lp.com'),
+                             follow_redirects=True)
+        self.assertIn('The email you provided could not be found', r.data)
+
+    def test_reset_password_with_valid_token(self):
+        u = None
+        with capture_reset_password_requests() as users:
+            r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            u = users[0]
+
+        r = self.client.post('/reset', data={
+            'email': u.email,
+            'reset_password_token': u.reset_password_token,
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        })
+        r = self.authenticate('joe@lp.com', 'newpassword')
+        self.assertIn('Hello joe@lp.com', r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):

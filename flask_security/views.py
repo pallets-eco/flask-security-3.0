@@ -9,14 +9,16 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, redirect, request, session
+from flask import current_app, redirect, request, session, render_template
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from flask.ext.security.confirmable import confirm_by_token, \
      confirmation_token_is_expired, requires_confirmation, \
      reset_confirmation_token, send_confirmation_instructions
-from flask.ext.security.exceptions import ConfirmationExpiredError, \
-     ConfirmationError, BadCredentialsError
+from flask.ext.security.recoverable import reset_by_token, \
+     reset_password_reset_token
+from flask.ext.security.exceptions import TokenExpiredError, UserNotFoundError, \
+     ConfirmationError, BadCredentialsError, ResetPasswordError
 from flask.ext.security.utils import get_post_login_redirect, do_flash
 from flask.ext.security.signals import user_registered
 from werkzeug.local import LocalProxy
@@ -70,7 +72,7 @@ def authenticate():
 
     do_flash(msg, 'error')
 
-    logger.debug('Unsuccessful authentication attempt: %s. ' % msg)
+    logger.debug('Unsuccessful authentication attempt: %s' % msg)
 
     return redirect(request.referrer or security.login_manager.login_view)
 
@@ -129,15 +131,16 @@ def confirm():
     """View function which confirms a user's email address using a token taken
     from the value of the `confirmation_token` query string argument.
     """
+
     try:
         token = request.args.get('confirmation_token', None)
-        confirm_by_token(token)
+        user = confirm_by_token(token)
 
     except ConfirmationError, e:
         do_flash(str(e), 'error')
         return redirect('/')  # TODO: Don't just redirect to root
 
-    except ConfirmationExpiredError, e:
+    except TokenExpiredError, e:
         reset_confirmation_token(e.user)
 
         msg = 'You did not confirm your email within %s. ' \
@@ -146,17 +149,44 @@ def confirm():
 
         do_flash(msg, 'error')
 
-        return redirect('/')
+        return redirect('/')  # TODO: Don't redirect to root
 
+    logger.debug('User %s confirmed' % user)
     do_flash('Your email has been confirmed. You may now log in.', 'success')
 
     return redirect(security.post_confirm_view or security.post_login_view)
 
 
+def forgot():
+    form = security.ForgotPasswordForm(csrf_enabled=not current_app.testing)
+
+    if form.validate_on_submit():
+        try:
+            user = security.datastore.find_user(email=form.email.data)
+            reset_password_reset_token(user)
+            do_flash('Instructions to reset your password have been sent to %s' % user.email, 'success')
+
+        except UserNotFoundError:
+            do_flash('The email you provided could not be found', 'error')
+
+        return redirect(security.post_forgot_view)
+
+    return render_template('security/passwords/new.html', forgot_password_form=form)
+
+
 def reset():
-    # user = something
-    # if reset_password_period_valid_for_user(user):
-    #     user.reset_password_sent_at = datetime.utcnow()
-    #     user.reset_password_token = token
-    #     current_app.security.datastore._save_model(user)
-    pass
+    form = security.ResetPasswordForm(csrf_enabled=not current_app.testing)
+
+    if form.validate_on_submit():
+        try:
+            reset_by_token(token=form.reset_password_token.data,
+                           email=form.email.data,
+                           password=form.password.data)
+
+        except ResetPasswordError, e:
+            do_flash(str(e))
+
+        except TokenExpiredError, e:
+            do_flash('You did not reset your password within %s.' % security.reset_password_within_text)
+
+    return redirect(request.referrer)
