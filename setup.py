@@ -45,9 +45,6 @@ setup(
         'Flask-MongoEngine',
         'py-bcrypt'
     ],
-    dependency_links=[
-        'http://github.com/sbook/flask-mongoengine/tarball/master#egg=Flask-MongoEngine-0.1.3-dev'
-    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
