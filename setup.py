@@ -35,6 +35,7 @@ setup(
         'Flask-Login',
         'Flask-Principal',
         'Flask-WTF',
+        'Flask-Mail',
         'passlib'
     ],
     test_suite='nose.collector',
