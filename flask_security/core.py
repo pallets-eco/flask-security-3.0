@@ -45,6 +45,7 @@ _default_config = {
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
     'POST_FORGOT_VIEW': '/',
+    'RESET_PASSWORD_ERROR_VIEW': '/',
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'DEFAULT_ROLES': [],
@@ -244,6 +245,7 @@ class Security(object):
         self.post_register_view = utils.config_value(app, 'POST_REGISTER_VIEW')
         self.post_confirm_view = utils.config_value(app, 'POST_CONFIRM_VIEW')
         self.post_forgot_view = utils.config_value(app, 'POST_FORGOT_VIEW')
+        self.reset_password_error_view = utils.config_value(app, 'RESET_PASSWORD_ERROR_VIEW')
         self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
         self.confirm_email = utils.config_value(app, 'CONFIRM_EMAIL')

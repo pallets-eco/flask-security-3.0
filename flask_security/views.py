@@ -184,9 +184,9 @@ def reset():
                            password=form.password.data)
 
         except ResetPasswordError, e:
-            do_flash(str(e))
+            do_flash(str(e), 'error')
 
         except TokenExpiredError, e:
             do_flash('You did not reset your password within %s.' % security.reset_password_within_text)
 
-    return redirect(request.referrer)
+    return redirect(request.referrer or security.reset_password_error_view)

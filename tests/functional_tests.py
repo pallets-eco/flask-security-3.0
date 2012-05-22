@@ -263,6 +263,27 @@ class RecoverableTests(SecurityTest):
         r = self.authenticate('joe@lp.com', 'newpassword')
         self.assertIn('Hello joe@lp.com', r.data)
 
+    def test_reset_password_twice_flashes_invalid_token_msg(self):
+        u = None
+        with capture_reset_password_requests() as users:
+            r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            u = users[0]
+
+        self.client.post('/reset', data={
+            'email': u.email,
+            'reset_password_token': u.reset_password_token,
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        })
+
+        r = self.client.post('/reset', data={
+            'email': u.email,
+            'reset_password_token': u.reset_password_token,
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }, follow_redirects=True)
+        self.assertIn('Invalid reset password token', r.data)
+
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
