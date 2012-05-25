@@ -204,8 +204,7 @@ class Security(object):
     def __init__(self, app=None, datastore=None, **kwargs):
         self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore,
-                 registerable=True, recoverable=True, template_folder=None):
+    def init_app(self, app, datastore, registerable=True, recoverable=True):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
