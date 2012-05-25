@@ -73,6 +73,8 @@ def reset_by_token(token, email, password):
 
     security.datastore._save_model(user)
 
+    send_mail('Your password has been reset', user.email, 'reset_notice')
+
     return user
 
 

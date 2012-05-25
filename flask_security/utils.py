@@ -17,7 +17,6 @@ from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.security.signals import user_registered, password_reset_requested
-from werkzeug.exceptions import BadRequest
 
 
 def generate_token():
@@ -57,10 +56,8 @@ def find_redirect(key):
     result = (get_url(session.pop(key.lower(), None)) or
               get_url(current_app.config[key.upper()] or None) or '/')
 
-    try:
-        del session[key.lower()]
-    except:
-        pass
+    session.pop(key.lower(), None)
+
     return result
 
 
@@ -68,8 +65,10 @@ def config_value(app, key, default=None):
     return app.config.get('SECURITY_' + key.upper(), default)
 
 
-def send_mail(subject, recipient, template, context):
+def send_mail(subject, recipient, template, context=None):
     from flask.ext.mail import Message
+
+    context = context or {}
 
     msg = Message(subject,
                   sender=current_app.security.email_sender,
@@ -118,10 +117,3 @@ def capture_reset_password_requests(reset_password_sent_at=None):
         yield users
     finally:
         password_reset_requested.disconnect(_on)
-
-
-def get_arg_or_bad_request(context, name):
-    rv = context.get(name, None)
-    if not rv:
-        raise BadRequest()
-    return rv

@@ -293,7 +293,8 @@ class Security(object):
                  endpoint='reset')(views.reset)
 
     def setup_confirmable(self, bp):
-        bp.route(self.confirm_url, endpoint='confirm')(views.confirm)
+        bp.route(self.confirm_url,
+                 endpoint='confirm')(views.confirm)
 
 
 class ForgotPasswordForm(Form):
