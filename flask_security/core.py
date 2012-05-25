@@ -21,6 +21,8 @@ from flask.ext.principal import Principal, RoleNeed, UserNeed, \
 from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
      HiddenField, Required, BooleanField, EqualTo, Email
 from flask.ext.security import views, exceptions, utils
+from flask.ext.security.confirmable import confirmation_token_is_expired, \
+     requires_confirmation, reset_confirmation_token
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
@@ -386,6 +388,12 @@ class AuthenticationProvider(object):
             raise exceptions.BadCredentialsError("Specified user does not exist")
         except Exception, e:
             self.auth_error('Unexpected authentication error: %s' % e)
+
+        if confirmation_token_is_expired(user):
+            reset_confirmation_token(user)
+
+        if requires_confirmation(user):
+            raise exceptions.BadCredentialsError('Account requires confirmation')
 
         # compare passwords
         if current_app.security.pwd_context.verify(password, user.password):

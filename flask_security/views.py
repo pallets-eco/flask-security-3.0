@@ -13,7 +13,6 @@ from flask import current_app, redirect, request, session, render_template
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from flask.ext.security.confirmable import confirm_by_token, \
-     confirmation_token_is_expired, requires_confirmation, \
      reset_confirmation_token, send_confirmation_instructions
 from flask.ext.security.recoverable import reset_by_token, \
      reset_password_reset_token
@@ -51,13 +50,6 @@ def authenticate():
 
     try:
         user = security.auth_provider.authenticate(form)
-
-        # Conveniently reset the token if necessary and expired
-        if confirmation_token_is_expired(user):
-            reset_confirmation_token(user)
-
-        if requires_confirmation(user):
-            raise BadCredentialsError('Account requires confirmation')
 
         if _do_login(user, remember=form.remember.data):
             return redirect(get_post_login_redirect())
