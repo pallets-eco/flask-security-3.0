@@ -60,7 +60,7 @@ def authenticate():
         msg = str(e)
 
     except Exception, e:
-        msg = 'Uknown authentication error'
+        msg = 'Unknown authentication error'
 
     do_flash(msg, 'error')
 
