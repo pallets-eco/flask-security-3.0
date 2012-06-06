@@ -76,12 +76,15 @@ def confirm_by_token(token):
     except UserNotFoundError:
         raise ConfirmationError('Invalid confirmation token')
 
+    if user.confirmed_at:
+        raise ConfirmationError('Account has already been confirmed')
+
     if confirmation_token_is_expired(user):
         raise TokenExpiredError(message='Confirmation token is expired',
                                 user=user)
 
-    user.confirmation_token = None
-    user.confirmation_sent_at = None
+    #user.confirmation_token = None
+    #user.confirmation_sent_at = None
     user.confirmed_at = datetime.utcnow()
 
     security.datastore._save_model(user)

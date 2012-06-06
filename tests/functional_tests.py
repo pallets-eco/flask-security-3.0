@@ -186,7 +186,7 @@ class ConfirmableTests(SecurityTest):
 
         self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
         r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
-        self.assertIn('Invalid confirmation token', r.data)
+        self.assertIn('Account has already been confirmed', r.data)
 
     def test_unprovided_token_when_confirming_email(self):
         r = self.client.get('/confirm', follow_redirects=True)
