@@ -1,49 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from datetime import datetime, timedelta
 
 from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests
 
 from example import app
-
-
-class SecurityTest(unittest.TestCase):
-
-    AUTH_CONFIG = None
-
-    def setUp(self):
-        super(SecurityTest, self).setUp()
-
-        self.app = self._create_app(self.AUTH_CONFIG or None)
-        self.app.debug = False
-        self.app.config['TESTING'] = True
-
-        self.client = self.app.test_client()
-
-    def _create_app(self, auth_config):
-        return app.create_sqlalchemy_app(auth_config)
-
-    def _get(self, route, content_type=None, follow_redirects=None):
-        return self.client.get(route, follow_redirects=follow_redirects,
-                content_type=content_type or 'text/html')
-
-    def _post(self, route, data=None, content_type=None, follow_redirects=True):
-        return self.client.post(route, data=data,
-                follow_redirects=follow_redirects,
-                content_type=content_type or 'application/x-www-form-urlencoded')
-
-    def register(self, email, password='password'):
-        data = dict(email=email, password=password, password_confirm=password)
-        return self.client.post('/register', data=data, follow_redirects=True)
-
-    def authenticate(self, email, password, endpoint=None):
-        data = dict(email=email, password=password)
-        return self._post(endpoint or '/auth', data=data)
-
-    def logout(self, endpoint=None):
-        return self._get(endpoint or '/logout', follow_redirects=True)
+from tests import SecurityTest
 
 
 class DefaultSecurityTests(SecurityTest):
@@ -53,23 +16,23 @@ class DefaultSecurityTests(SecurityTest):
         self.assertIn('Login Page', r.data)
 
     def test_authenticate(self):
-        r = self.authenticate("matt@lp.com", "password")
+        r = self.authenticate()
         self.assertIn('Hello matt@lp.com', r.data)
 
     def test_unprovided_username(self):
-        r = self.authenticate("", "password")
+        r = self.authenticate("")
         self.assertIn("Email not provided", r.data)
 
     def test_unprovided_password(self):
-        r = self.authenticate("matt@lp.com", "")
+        r = self.authenticate(password="")
         self.assertIn("Password not provided", r.data)
 
     def test_invalid_user(self):
-        r = self.authenticate("bogus", "password")
+        r = self.authenticate(email="bogus")
         self.assertIn("Specified user does not exist", r.data)
 
     def test_bad_password(self):
-        r = self.authenticate("matt@lp.com", "bogus")
+        r = self.authenticate(password="bogus")
         self.assertIn("Password does not match", r.data)
 
     def test_inactive_user(self):
@@ -77,39 +40,39 @@ class DefaultSecurityTests(SecurityTest):
         self.assertIn("Inactive user", r.data)
 
     def test_logout(self):
-        self.authenticate("matt@lp.com", "password")
+        self.authenticate()
         r = self.logout()
-        self.assertIn('Home Page', r.data)
+        self.assertIsHomePage(r.data)
 
     def test_unauthorized_access(self):
         r = self._get('/profile', follow_redirects=True)
         self.assertIn('Please log in to access this page', r.data)
 
     def test_authorized_access(self):
-        self.authenticate("matt@lp.com", "password")
+        self.authenticate()
         r = self._get("/profile")
         self.assertIn('profile', r.data)
 
     def test_valid_admin_role(self):
-        self.authenticate("matt@lp.com", "password")
+        self.authenticate()
         r = self._get("/admin")
         self.assertIn('Admin Page', r.data)
 
     def test_invalid_admin_role(self):
-        self.authenticate("joe@lp.com", "password")
+        self.authenticate("joe@lp.com")
         r = self._get("/admin", follow_redirects=True)
-        self.assertIn('Home Page', r.data)
+        self.assertIsHomePage(r.data)
 
     def test_roles_accepted(self):
         for user in ("matt@lp.com", "joe@lp.com"):
-            self.authenticate(user, "password")
+            self.authenticate(user)
             r = self._get("/admin_or_editor")
             self.assertIn('Admin or Editor Page', r.data)
             self.logout()
 
-        self.authenticate("jill@lp.com", "password")
+        self.authenticate("jill@lp.com")
         r = self._get("/admin_or_editor", follow_redirects=True)
-        self.assertIn('Home Page', r.data)
+        self.assertIsHomePage(r.data)
 
     def test_unauthenticated_role_required(self):
         r = self._get('/admin', follow_redirects=True)
@@ -132,11 +95,11 @@ class ConfiguredURLTests(SecurityTest):
         self.assertIn("Custom Login Page", r.data)
 
     def test_authenticate(self):
-        r = self.authenticate("matt@lp.com", "password", endpoint="/custom_auth")
+        r = self.authenticate(endpoint="/custom_auth")
         self.assertIn('Post Login', r.data)
 
     def test_logout(self):
-        self.authenticate("matt@lp.com", "password", endpoint="/custom_auth")
+        self.authenticate(endpoint="/custom_auth")
         r = self.logout(endpoint="/custom_logout")
         self.assertIn('Post Logout', r.data)
 
@@ -151,7 +114,7 @@ class RegisterableTests(SecurityTest):
     def test_register_valid_user(self):
         data = dict(email='dude@lp.com', password='password', password_confirm='password')
         self.client.post('/register', data=data, follow_redirects=True)
-        r = self.authenticate('dude@lp.com', 'password')
+        r = self.authenticate('dude@lp.com')
         self.assertIn('Hello dude@lp.com', r.data)
 
 
@@ -184,8 +147,9 @@ class ConfirmableTests(SecurityTest):
             self.register(e)
             token = users[0].confirmation_token
 
-        self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
-        r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+        url = '/confirm?confirmation_token=' + token
+        self.client.get(url, follow_redirects=True)
+        r = self.client.get(url, follow_redirects=True)
         self.assertIn('Account has already been confirmed', r.data)
 
     def test_unprovided_token_when_confirming_email(self):
@@ -269,19 +233,15 @@ class RecoverableTests(SecurityTest):
             r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
             u = users[0]
 
-        self.client.post('/reset', data={
+        data = {
             'email': u.email,
             'reset_password_token': u.reset_password_token,
             'password': 'newpassword',
             'password_confirm': 'newpassword'
-        })
+        }
 
-        r = self.client.post('/reset', data={
-            'email': u.email,
-            'reset_password_token': u.reset_password_token,
-            'password': 'newpassword',
-            'password_confirm': 'newpassword'
-        }, follow_redirects=True)
+        self.client.post('/reset', data=data)
+        r = self.client.post('/reset', data=data, follow_redirects=True)
         self.assertIn('Invalid reset password token', r.data)
 
 
