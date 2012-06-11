@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import current_app
 from flask.ext.security.exceptions import BadCredentialsError, \
-     UserNotFoundError
+     UserNotFoundError, AuthenticationError
 from flask.ext.security.utils import generate_token
 from werkzeug.local import LocalProxy
 
@@ -36,9 +36,15 @@ def generate_authentication_token(user):
     return user
 
 
-def login_by_token(token):
-    pass
+def authenticate_by_token(token):
+    try:
+        return find_user_by_authentication_token(token)
+    except UserNotFoundError:
+        raise BadCredentialsError('Invalid authentication token')
+    except Exception, e:
+        raise AuthenticationError(str(e))
 
 
 def reset_authentication_token(user):
-    security.datastore._save_model(generate_authentication_token(user))
+    user = generate_authentication_token(user)
+    security.datastore._save_model(user)
