@@ -2,6 +2,7 @@ import unittest
 import flask_security
 from flask_security import RoleMixin, UserMixin, AnonymousUser
 
+
 class Role(RoleMixin):
     def __init__(self, name, description=None):
         self.name = name
@@ -13,31 +14,32 @@ class User(UserMixin):
         self.username = username
         self.email = email
         self.roles = roles
-    
+
 # set the models or we'll get errors
 flask_security.User = User
 flask_security.Role = Role
-    
+
 admin = Role('admin')
 admin2 = Role('admin')
 editor = Role('editor')
 
 user = User('matt', 'matt@lp.com', [admin, editor])
 
+
 class SecurityEntityTests(unittest.TestCase):
-    
-    def test_role_mixin_equal(self):        
+
+    def test_role_mixin_equal(self):
         self.assertEqual(admin, admin2)
-    
-    def test_role_mixin_not_equal(self):        
+
+    def test_role_mixin_not_equal(self):
         self.assertNotEqual(admin, editor)
-        
+
     def test_user_mixin_has_role_with_string(self):
         self.assertTrue(user.has_role('admin'))
-        
+
     def test_user_mixin_has_role_with_role_obj(self):
         self.assertTrue(user.has_role(Role('admin')))
-        
+
     def test_anonymous_user_has_no_roles(self):
         au = AnonymousUser()
         self.assertEqual(0, len(au.roles))

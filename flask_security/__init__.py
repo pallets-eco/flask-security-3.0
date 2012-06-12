@@ -10,46 +10,43 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import sys
-
-from datetime import datetime
-from types import StringType
-
-from flask import (current_app, Blueprint, flash, redirect, request,
-    session, _request_ctx_stack, url_for, abort, g)
-
-from flask.ext.login import (AnonymousUser as AnonymousUserBase,
-    UserMixin as BaseUserMixin, LoginManager, login_required, login_user,
-    logout_user, current_user, user_logged_in, user_logged_out,
-    login_url)
-
-from flask.ext.principal import (Identity, Principal, RoleNeed, UserNeed,
-    Permission, AnonymousIdentity, identity_changed, identity_loaded)
-
-from flask.ext.wtf import (Form, TextField, PasswordField, SubmitField,
-    HiddenField, Required, ValidationError, BooleanField, Email)
-
 from functools import wraps
+
+from flask import current_app, Blueprint, flash, redirect, request, \
+     session, url_for
+
+from flask.ext.login import AnonymousUser as AnonymousUserBase, \
+     UserMixin as BaseUserMixin, LoginManager, login_required, login_user, \
+     logout_user, current_user, login_url
+
+from flask.ext.principal import Identity, Principal, RoleNeed, UserNeed, \
+     Permission, AnonymousIdentity, identity_changed, identity_loaded
+
+from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
+     HiddenField, Required, BooleanField
+
 from passlib.context import CryptContext
-from werkzeug.utils import import_string
+
 from werkzeug.local import LocalProxy
+
 
 class User(object):
     """User model"""
 
+
 class Role(object):
     """Role model"""
 
-URL_PREFIX_KEY =     'SECURITY_URL_PREFIX'
-AUTH_PROVIDER_KEY =  'SECURITY_AUTH_PROVIDER'
-PASSWORD_HASH_KEY =  'SECURITY_PASSWORD_HASH'
+URL_PREFIX_KEY = 'SECURITY_URL_PREFIX'
+AUTH_PROVIDER_KEY = 'SECURITY_AUTH_PROVIDER'
+PASSWORD_HASH_KEY = 'SECURITY_PASSWORD_HASH'
 USER_DATASTORE_KEY = 'SECURITY_USER_DATASTORE'
-LOGIN_FORM_KEY =     'SECURITY_LOGIN_FORM'
-AUTH_URL_KEY =       'SECURITY_AUTH_URL'
-LOGOUT_URL_KEY =     'SECURITY_LOGOUT_URL'
-LOGIN_VIEW_KEY =     'SECURITY_LOGIN_VIEW'
-POST_LOGIN_KEY =     'SECURITY_POST_LOGIN'
-POST_LOGOUT_KEY =    'SECURITY_POST_LOGOUT'
+LOGIN_FORM_KEY = 'SECURITY_LOGIN_FORM'
+AUTH_URL_KEY = 'SECURITY_AUTH_URL'
+LOGOUT_URL_KEY = 'SECURITY_LOGOUT_URL'
+LOGIN_VIEW_KEY = 'SECURITY_LOGIN_VIEW'
+POST_LOGIN_KEY = 'SECURITY_POST_LOGIN'
+POST_LOGOUT_KEY = 'SECURITY_POST_LOGOUT'
 FLASH_MESSAGES_KEY = 'SECURITY_FLASH_MESSAGES'
 
 DEBUG_LOGIN = 'User %s logged in. Redirecting to: %s'
@@ -79,33 +76,40 @@ class BadCredentialsError(Exception):
     provided credentials.
     """
 
+
 class AuthenticationError(Exception):
     """Raised when an authentication attempt fails due to invalid configuration
     or an unknown reason.
     """
+
 
 class UserNotFoundError(Exception):
     """Raised by a user datastore when there is an attempt to find a user by
     their identifier, often username or email, and the user is not found.
     """
 
+
 class RoleNotFoundError(Exception):
     """Raised by a user datastore when there is an attempt to find a role and
     the role cannot be found.
     """
+
 
 class UserIdNotFoundError(Exception):
     """Raised by a user datastore when there is an attempt to find a user by
     ID and the user is not found.
     """
 
+
 class UserDatastoreError(Exception):
     """Raised when a user datastore experiences an unexpected error
     """
 
+
 class UserCreationError(Exception):
     """Raised when an error occurs when creating a user
     """
+
 
 class RoleCreationError(Exception):
     """Raised when an error occurs when creating a role
@@ -128,6 +132,7 @@ pwd_context = LocalProxy(lambda: current_app.pwd_context)
 user_datastore = LocalProxy(lambda: getattr(current_app,
     current_app.config[USER_DATASTORE_KEY]))
 
+
 def roles_required(*args):
     """View decorator which specifies that a user must have all the specified
     roles. Example::
@@ -144,6 +149,7 @@ def roles_required(*args):
     """
     roles = args
     perm = Permission(*[RoleNeed(role) for role in roles])
+
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
@@ -179,6 +185,7 @@ def roles_accepted(*args):
     """
     roles = args
     perms = [Permission(RoleNeed(role)) for role in roles]
+
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
@@ -202,10 +209,10 @@ def roles_accepted(*args):
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
-        return self.name == getattr(other, 'name', None)
+        return self.name == other or self.name == getattr(other, 'name', None)
 
     def __ne__(self, other):
-        return self.name != getattr(other, 'name', None)
+        return self.name != other and self.name != getattr(other, 'name', None)
 
     def __str__(self):
         return '<Role name=%s, description=%s>' % (self.name, self.description)
@@ -222,8 +229,6 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
-        if not isinstance(role, Role):
-            role = Role(name=role)
         return role in self.roles
 
     def __str__(self):
@@ -234,7 +239,7 @@ class UserMixin(BaseUserMixin):
 class AnonymousUser(AnonymousUserBase):
     def __init__(self):
         super(AnonymousUser, self).__init__()
-        self.roles = [] # TODO: Make this immutable?
+        self.roles = []  # TODO: Make this immutable?
 
     def has_role(self, *args):
         """Returns `False`"""
@@ -257,7 +262,8 @@ class Security(object):
         :param app: The application.
         :param datastore: An instance of a user datastore.
         """
-        if app is None or datastore is None: return
+        if app is None or datastore is None:
+            return
 
         # TODO: change blueprint name
         blueprint = Blueprint('auth', __name__)
@@ -309,6 +315,7 @@ class Security(object):
                 return None
 
         auth_url = config[AUTH_URL_KEY]
+
         @blueprint.route(auth_url, methods=['POST'], endpoint='authenticate')
         def authenticate():
             try:
@@ -425,6 +432,7 @@ class AuthenticationProvider(object):
         logger.error(msg)
         raise AuthenticationError(msg)
 
+
 def do_flash(message, category):
     if current_app.config[FLASH_MESSAGES_KEY]:
         flash(message, category)
@@ -434,10 +442,11 @@ def get_class_by_name(clazz):
     """Get a reference to a class by its string representation."""
     parts = clazz.split('.')
     module = ".".join(parts[:-1])
-    m = __import__( module )
+    m = __import__(module)
     for comp in parts[1:]:
         m = getattr(m, comp)
     return m
+
 
 def get_class_from_config(key, config):
     """Get a reference to a class by its configuration key name."""
@@ -448,6 +457,7 @@ def get_class_from_config(key, config):
             "Could not get class '%s' for Auth setting '%s' >> %s" %
             (config[key], key, e))
 
+
 def get_url(endpoint_or_url):
     """Returns a URL if a valid endpoint is found. Otherwise, returns the
     provided value."""
@@ -456,11 +466,13 @@ def get_url(endpoint_or_url):
     except:
         return endpoint_or_url
 
+
 def get_post_login_redirect():
     """Returns the URL to redirect to after a user logs in successfully"""
     return (get_url(request.args.get('next')) or
             get_url(request.form.get('next')) or
             find_redirect(POST_LOGIN_KEY))
+
 
 def find_redirect(key):
     """Returns the URL to redirect to after a user logs in successfully"""
