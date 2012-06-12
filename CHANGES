@@ -3,6 +3,13 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.2.3
+-------------
+
+Released June 12th, 2012
+
+- Fixed a bug in the RoleMixin eq/ne functions
+
 Version 1.2.2
 -------------
 
