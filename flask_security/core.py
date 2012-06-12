@@ -136,14 +136,10 @@ def roles_accepted(*roles):
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
-        if isinstance(other, basestring):
-            return self.name == other
-        return self.name == other.name
+        return self.name == getattr(other, 'name', None)
 
     def __ne__(self, other):
-        if isinstance(other, basestring):
-            return self.name != other
-        return self.name != other.name
+        return self.name != getattr(other, 'name', None)
 
     def __str__(self):
         return '<Role name=%s>' % self.name
