@@ -55,7 +55,9 @@ _default_config = {
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '2 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
-    'EMAIL_SENDER': 'no-reply@localhost'
+    'EMAIL_SENDER': 'no-reply@localhost',
+    'TOKEN_AUTHENTICATION_KEY': 'auth_token',
+    'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token'
 }
 
 
@@ -247,6 +249,8 @@ class Security(object):
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
         self.confirm_email = utils.config_value(app, 'CONFIRM_EMAIL')
         self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
+        self.token_authentication_key = utils.config_value(app, 'TOKEN_AUTHENTICATION_KEY')
+        self.token_authentication_header = utils.config_value(app, 'TOKEN_AUTHENTICATION_HEADER')
 
         self.confirm_email_within_text = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN')
         values = self.confirm_email_within_text.split()
