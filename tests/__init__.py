@@ -18,9 +18,10 @@ class SecurityTest(TestCase):
     def _create_app(self, auth_config):
         return app.create_sqlalchemy_app(auth_config)
 
-    def _get(self, route, content_type=None, follow_redirects=None):
+    def _get(self, route, content_type=None, follow_redirects=None, headers=None):
         return self.client.get(route, follow_redirects=follow_redirects,
-                content_type=content_type or 'text/html')
+                content_type=content_type or 'text/html',
+                headers=headers)
 
     def _post(self, route, data=None, content_type=None, follow_redirects=True):
         return self.client.post(route, data=data,

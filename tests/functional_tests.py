@@ -78,6 +78,22 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/admin', follow_redirects=True)
         self.assertIn('<input id="next"', r.data)
 
+    def test_token_auth_via_querystring_valid_token(self):
+        r = self._get('/token?auth_token=123abc')
+        self.assertIn('Token Authentication', r.data)
+
+    def test_token_auth_via_header_valid_token(self):
+        r = self._get('/token', headers={"X-Auth-Token": '123abc'})
+        self.assertIn('Token Authentication', r.data)
+
+    def test_token_auth_via_querystring_invalid_token(self):
+        r = self._get('/token?auth_token=X')
+        self.assertEqual(401, r.status_code)
+
+    def test_token_auth_via_header_invalid_token(self):
+        r = self._get('/token', headers={"X-Auth-Token": 'X'})
+        self.assertEqual(401, r.status_code)
+
 
 class ConfiguredURLTests(SecurityTest):
 

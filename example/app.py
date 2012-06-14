@@ -13,9 +13,11 @@ from flask.ext.mail import Mail
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, LoginForm, login_required, \
-    roles_required, roles_accepted, UserMixin, RoleMixin
+     roles_required, roles_accepted, UserMixin, RoleMixin
 from flask.ext.security.datastore import SQLAlchemyUserDatastore, \
-    MongoEngineUserDatastore
+     MongoEngineUserDatastore
+from flask.ext.security.decorators import http_auth_required, \
+     auth_token_required
 
 
 def create_roles():
@@ -29,7 +31,8 @@ def create_users():
                ('jill@lp.com', 'password', ['author'], True),
                ('tiya@lp.com', 'password', [], False)):
         current_app.security.datastore.create_user(
-            email=u[0], password=u[1], roles=u[2], active=u[3])
+            email=u[0], password=u[1], roles=u[2], active=u[3],
+            authentication_token='123abc')
 
 
 def populate_data():
@@ -69,6 +72,16 @@ def create_app(auth_config):
     @login_required
     def post_login():
         return render_template('index.html', content='Post Login')
+
+    @app.route('/http')
+    @http_auth_required
+    def http():
+        return render_template('index.html', content='HTTP Authentication')
+
+    @app.route('/token')
+    @auth_token_required
+    def token():
+        return render_template('index.html', content='Token Authentication')
 
     @app.route('/post_logout')
     def post_logout():
@@ -116,6 +129,8 @@ def create_sqlalchemy_app(auth_config=None):
         confirmed_at = db.Column(db.DateTime())
         reset_password_token = db.Column(db.String(255))
         reset_password_sent_at = db.Column(db.DateTime())
+        authentication_token = db.Column(db.String(255))
+        authentication_token_created_at = db.Column(db.DateTime())
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
@@ -151,6 +166,8 @@ def create_mongoengine_app(auth_config=None):
         confirmed_at = db.DateTimeField()
         reset_password_token = db.StringField(max_length=255)
         reset_password_sent_at = db.DateTimeField()
+        authentication_token = db.StringField(max_length=255)
+        authentication_token_created_at = db.DateTimeField()
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     Security(app, MongoEngineUserDatastore(db, User, Role))
