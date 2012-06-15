@@ -47,7 +47,7 @@ def generate_reset_password_token(user):
 
     try:
         user['reset_password_token'] = token
-        user['reset_password_token'] = now
+        user['reset_password_sent_at'] = now
     except TypeError:
         user.reset_password_token = token
         user.reset_password_sent_at = now
