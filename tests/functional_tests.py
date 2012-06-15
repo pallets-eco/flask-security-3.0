@@ -236,7 +236,7 @@ class RecoverableTests(SecurityTest):
 
         r = self.client.post('/reset', data={
             'email': u.email,
-            'reset_password_token': u.reset_password_token,
+            'token': u.reset_password_token,
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         })
@@ -251,7 +251,7 @@ class RecoverableTests(SecurityTest):
 
         data = {
             'email': u.email,
-            'reset_password_token': u.reset_password_token,
+            'token': u.reset_password_token,
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         }

@@ -5,10 +5,11 @@ from flask import current_app, request, url_for
 from flask.ext.security.exceptions import UserNotFoundError, \
      ConfirmationError, TokenExpiredError
 from flask.ext.security.utils import generate_token, send_mail
+from flask.ext.security.signals import user_confirmed, \
+     confirm_instructions_sent
 from werkzeug.local import LocalProxy
 
 security = LocalProxy(lambda: current_app.security)
-
 logger = LocalProxy(lambda: current_app.logger)
 
 
@@ -27,6 +28,8 @@ def send_confirmation_instructions(user):
     send_mail('Please confirm your email', user.email,
               'confirmation_instructions',
               dict(user=user, confirmation_link=confirmation_link))
+
+    confirm_instructions_sent.send(user, app=current_app._get_current_object())
 
     return True
 
@@ -89,6 +92,7 @@ def confirm_by_token(token):
 
     security.datastore._save_model(user)
 
+    user_confirmed.send(user, app=current_app._get_current_object())
     return user
 
 

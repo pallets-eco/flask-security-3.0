@@ -4,12 +4,12 @@ from datetime import datetime
 from flask import current_app, request, url_for
 from flask.ext.security.exceptions import ResetPasswordError, \
      UserNotFoundError, TokenExpiredError
-from flask.ext.security.signals import password_reset_requested
+from flask.ext.security.signals import password_reset, \
+     password_reset_requested, confirm_instructions_sent
 from flask.ext.security.utils import generate_token, send_mail
 from werkzeug.local import LocalProxy
 
 security = LocalProxy(lambda: current_app.security)
-
 logger = LocalProxy(lambda: current_app.logger)
 
 
@@ -29,6 +29,8 @@ def send_reset_password_instructions(user):
               user.email,
               'reset_instructions',
               dict(user=user, reset_link=reset_link))
+
+    confirm_instructions_sent.send(user, app=current_app._get_current_object())
 
     return True
 
@@ -74,6 +76,8 @@ def reset_by_token(token, email, password):
     security.datastore._save_model(user)
 
     send_mail('Your password has been reset', user.email, 'reset_notice')
+
+    password_reset.send(user, app=current_app._get_current_object())
 
     return user
 

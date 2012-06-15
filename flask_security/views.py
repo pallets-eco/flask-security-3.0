@@ -24,7 +24,7 @@ from werkzeug.local import LocalProxy
 
 
 security = LocalProxy(lambda: current_app.security)
-
+datastore = LocalProxy(lambda: current_app.security.datastore)
 logger = LocalProxy(lambda: current_app.logger)
 
 
@@ -63,7 +63,6 @@ def authenticate():
         msg = 'Unknown authentication error'
 
     do_flash(msg, 'error')
-
     logger.debug('Unsuccessful authentication attempt: %s' % msg)
 
     return redirect(request.referrer or security.login_manager.login_view)
@@ -81,10 +80,9 @@ def logout():
                           identity=AnonymousIdentity())
 
     logout_user()
-
     logger.debug('User logged out')
 
-    return redirect(request.args.get('next', None) or \
+    return redirect(request.args.get('next', None) or
                     security.post_logout_view)
 
 
@@ -99,24 +97,26 @@ def register():
     form = security.RegisterForm(csrf_enabled=not current_app.testing)
 
     # Exit early if the form doesn't validate
-    if not form.validate_on_submit():
-        return redirect(request.referrer or security.register_url)
+    if form.validate_on_submit():
+        # Create user and send signal
+        user = datastore.create_user(**form.to_dict())
+        app = current_app._get_current_object()
 
-    # Create user and send signal
-    user = security.datastore.create_user(**form.to_dict())
-    user_registered.send(user, app=current_app._get_current_object())
+        user_registered.send(user, app=app)
 
-    # Send confirmation instructions if necessary
-    if security.confirm_email:
-        send_confirmation_instructions(user)
+        # Send confirmation instructions if necessary
+        if security.confirm_email:
+            send_confirmation_instructions(user)
 
-    logger.debug('User %s registered' % user)
+        logger.debug('User %s registered' % user)
 
-    # Login the user if allowed
-    if (not security.confirm_email) or security.login_without_confirmation:
-        _do_login(user)
+        # Login the user if allowed
+        if not security.confirm_email or security.login_without_confirmation:
+            _do_login(user)
 
-    return redirect(security.post_register_view or security.post_login_view)
+        return redirect(security.post_register_view or security.post_login_view)
+
+    return redirect(request.referrer or security.register_url)
 
 
 def confirm():
@@ -140,7 +140,6 @@ def confirm():
                security.confirm_email_within_text, e.user.email)
 
         do_flash(msg, 'error')
-
         return redirect('/')  # TODO: Don't redirect to root
 
     logger.debug('User %s confirmed' % user)
@@ -150,35 +149,44 @@ def confirm():
 
 
 def forgot():
+    """View function that handles the generation of a password reset token.
+    """
+
     form = security.ForgotPasswordForm(csrf_enabled=not current_app.testing)
 
     if form.validate_on_submit():
         try:
-            user = security.datastore.find_user(email=form.email.data)
+            user = datastore.find_user(**form.to_dict())
+
             reset_password_reset_token(user)
-            do_flash('Instructions to reset your password have been sent to %s' % user.email, 'success')
+
+            do_flash('Instructions to reset your password have been '
+                     'sent to %s' % user.email, 'success')
 
         except UserNotFoundError:
             do_flash('The email you provided could not be found', 'error')
 
         return redirect(security.post_forgot_view)
 
-    return render_template('security/passwords/new.html', forgot_password_form=form)
+    return render_template('security/passwords/new.html',
+                           forgot_password_form=form)
 
 
 def reset():
+    """View function that handles the reset of a user's password.
+    """
+
     form = security.ResetPasswordForm(csrf_enabled=not current_app.testing)
 
     if form.validate_on_submit():
         try:
-            reset_by_token(token=form.reset_password_token.data,
-                           email=form.email.data,
-                           password=form.password.data)
+            reset_by_token(**form.to_dict())
 
         except ResetPasswordError, e:
             do_flash(str(e), 'error')
 
         except TokenExpiredError, e:
-            do_flash('You did not reset your password within %s.' % security.reset_password_within_text)
+            do_flash('You did not reset your password within'
+                     '%s.' % security.reset_password_within_text)
 
     return redirect(request.referrer or security.reset_password_error_view)
