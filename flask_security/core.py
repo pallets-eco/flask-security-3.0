@@ -219,7 +219,7 @@ class Security(object):
         login_manager.anonymous_user = AnonymousUser
         login_manager.login_view = utils.config_value(app, 'LOGIN_VIEW')
         login_manager.user_loader(load_user)
-        login_manager.setup_app(app)
+        login_manager.init_app(app)
 
         Provider = utils.get_class_from_string(app, 'AUTH_PROVIDER')
         pw_hash = utils.config_value(app, 'PASSWORD_HASH')
