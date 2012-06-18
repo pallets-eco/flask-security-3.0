@@ -10,7 +10,8 @@
 """
 
 from flask import current_app
-from flask.ext.security import exceptions, confirmable
+
+from . import exceptions, confirmable
 
 
 class UserDatastore(object):

@@ -10,21 +10,19 @@
 """
 
 from datetime import timedelta
-from functools import wraps
 
-from flask import current_app, Blueprint, redirect, request
+from flask import current_app, Blueprint
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
-     UserMixin as BaseUserMixin, LoginManager, login_required, \
-     current_user, login_url
-from flask.ext.principal import Principal, RoleNeed, UserNeed, \
-     Permission, identity_loaded
-from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
-     HiddenField, Required, BooleanField, EqualTo, Email
-from flask.ext.security import views, exceptions, utils
-from flask.ext.security.confirmable import confirmation_token_is_expired, \
-     requires_confirmation, reset_confirmation_token
+     UserMixin as BaseUserMixin, LoginManager, current_user
+from flask.ext.principal import Principal, RoleNeed, UserNeed, identity_loaded
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
+
+from . import views, exceptions, utils
+from .confirmable import confirmation_token_is_expired, requires_confirmation, \
+     reset_confirmation_token
+from .decorators import login_required
+from .forms import Form, LoginForm
 
 
 #: Default Flask-Security configuration
@@ -33,10 +31,10 @@ _default_config = {
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
-    'LOGIN_FORM': 'flask.ext.security::LoginForm',
-    'REGISTER_FORM': 'flask.ext.security::RegisterForm',
-    'RESET_PASSWORD_FORM': 'flask.ext.security::ResetPasswordForm',
-    'FORGOT_PASSWORD_FORM': 'flask.ext.security::ForgotPasswordForm',
+    'LOGIN_FORM': 'flask.ext.security.forms::LoginForm',
+    'REGISTER_FORM': 'flask.ext.security.forms::RegisterForm',
+    'RESET_PASSWORD_FORM': 'flask.ext.security.forms::ResetPasswordForm',
+    'FORGOT_PASSWORD_FORM': 'flask.ext.security.forms::ForgotPasswordForm',
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -59,80 +57,6 @@ _default_config = {
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token'
 }
-
-
-def roles_required(*roles):
-    """View decorator which specifies that a user must have all the specified
-    roles. Example::
-
-        @app.route('/dashboard')
-        @roles_required('admin', 'editor')
-        def dashboard():
-            return 'Dashboard'
-
-    The current user must have both the `admin` role and `editor` role in order
-    to view the page.
-
-    :param args: The required roles.
-    """
-    perm = Permission(*[RoleNeed(role) for role in roles])
-
-    def wrapper(fn):
-        @wraps(fn)
-        def decorated_view(*args, **kwargs):
-            if not current_user.is_authenticated():
-                login_view = current_app.security.login_manager.login_view
-                return redirect(login_url(login_view, request.url))
-
-            if perm.can():
-                return fn(*args, **kwargs)
-
-            current_app.logger.debug('Identity does not provide the '
-                                     'roles: %s' % [r for r in roles])
-            return redirect(request.referrer or '/')
-        return decorated_view
-    return wrapper
-
-
-def roles_accepted(*roles):
-    """View decorator which specifies that a user must have at least one of the
-    specified roles. Example::
-
-        @app.route('/create_post')
-        @roles_accepted('editor', 'author')
-        def create_post():
-            return 'Create Post'
-
-    The current user must have either the `editor` role or `author` role in
-    order to view the page.
-
-    :param args: The possible roles.
-    """
-    perms = [Permission(RoleNeed(role)) for role in roles]
-
-    def wrapper(fn):
-        @wraps(fn)
-        def decorated_view(*args, **kwargs):
-            if not current_user.is_authenticated():
-                login_view = current_app.security.login_manager.login_view
-                return redirect(login_url(login_view, request.url))
-
-            for perm in perms:
-                if perm.can():
-                    return fn(*args, **kwargs)
-
-            r1 = [r for r in roles]
-            r2 = [r.name for r in current_user.roles]
-
-            current_app.logger.debug('Current user does not provide a '
-                'required role. Accepted: %s Provided: %s' % (r1, r2))
-
-            utils.do_flash('You do not have permission to '
-                           'view this resource', 'error')
-
-            return redirect(request.referrer or '/')
-        return decorated_view
-    return wrapper
 
 
 class RoleMixin(object):
@@ -296,58 +220,6 @@ class Security(object):
     def setup_confirmable(self, bp):
         bp.route(self.confirm_url,
                  endpoint='confirm')(views.confirm)
-
-
-class ForgotPasswordForm(Form):
-    email = TextField("Email Address",
-        validators=[Required(message="Email not provided")])
-
-    def to_dict(self):
-        return dict(email=self.email.data)
-
-
-class LoginForm(Form):
-    """The default login form"""
-
-    email = TextField("Email Address",
-        validators=[Required(message="Email not provided")])
-    password = PasswordField("Password",
-        validators=[Required(message="Password not provided")])
-    remember = BooleanField("Remember Me")
-    next = HiddenField()
-    submit = SubmitField("Login")
-
-    def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
-        self.next.data = request.args.get('next', None)
-
-
-class RegisterForm(Form):
-    """The default register form"""
-
-    email = TextField("Email Address",
-        validators=[Required(message='Email not provided'), Email()])
-    password = PasswordField("Password",
-        validators=[Required(message="Password not provided")])
-    password_confirm = PasswordField("Retype Password",
-        validators=[EqualTo('password', message="Passwords do not match")])
-
-    def to_dict(self):
-        return dict(email=self.email.data, password=self.password.data)
-
-
-class ResetPasswordForm(Form):
-    token = HiddenField(validators=[Required()])
-    email = HiddenField(validators=[Required()])
-    password = PasswordField("Password",
-        validators=[Required(message="Password not provided")])
-    password_confirm = PasswordField("Retype Password",
-        validators=[EqualTo('password', message="Passwords do not match")])
-
-    def to_dict(self):
-        return dict(token=self.token.data,
-                    email=self.email.data,
-                    password=self.password.data)
 
 
 class AuthenticationProvider(object):

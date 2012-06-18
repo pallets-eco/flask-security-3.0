@@ -11,12 +11,12 @@
 
 import base64
 import os
-
 from contextlib import contextmanager
 from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session, render_template
-from flask.ext.security.signals import user_registered, password_reset_requested
+
+from .signals import user_registered, password_reset_requested
 
 
 def generate_token():

@@ -1,19 +1,31 @@
+# -*- coding: utf-8 -*-
+"""
+    flask.ext.security.tokens
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Flask-Security tokens module
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+"""
 
 from datetime import datetime
 
-from flask import current_app
-from flask.ext.security.exceptions import BadCredentialsError, \
-     UserNotFoundError
-from flask.ext.security.utils import generate_token
+from flask import current_app as app
 from werkzeug.local import LocalProxy
 
-datastore = LocalProxy(lambda: current_app.security.datastore)
+from .exceptions import BadCredentialsError, UserNotFoundError
+from .utils import generate_token
+
+
+# Convenient references
+_datastore = LocalProxy(lambda: app.security.datastore)
 
 
 def find_user_by_authentication_token(token):
     if not token:
         raise BadCredentialsError('Authentication token required')
-    return datastore.find_user(authentication_token=token)
+    return _datastore.find_user(authentication_token=token)
 
 
 def generate_authentication_token(user):
@@ -38,7 +50,7 @@ def generate_authentication_token(user):
 
 def reset_authentication_token(user):
     user = generate_authentication_token(user)
-    datastore._save_model(user)
+    _datastore._save_model(user)
     return user.authentication_token
 
 

@@ -1,22 +1,34 @@
+# -*- coding: utf-8 -*-
+"""
+    flask.ext.security.confirmable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Flask-Security confirmable module
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+"""
 
 from datetime import datetime
 
-from flask import current_app, request, url_for
-from flask.ext.security.exceptions import UserNotFoundError, \
-     ConfirmationError, TokenExpiredError
-from flask.ext.security.utils import generate_token, send_mail
-from flask.ext.security.signals import user_confirmed, \
-     confirm_instructions_sent
+from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
-security = LocalProxy(lambda: current_app.security)
-logger = LocalProxy(lambda: current_app.logger)
+from .exceptions import UserNotFoundError, ConfirmationError, TokenExpiredError
+from .utils import generate_token, send_mail
+from .signals import user_confirmed, confirm_instructions_sent
+
+
+# Convenient references
+_security = LocalProxy(lambda: app.security)
+
+_datastore = LocalProxy(lambda: app.security.datastore)
 
 
 def find_user_by_confirmation_token(token):
     if not token:
         raise ConfirmationError('Confirmation token required')
-    return security.datastore.find_user(confirmation_token=token)
+    return _datastore.find_user(confirmation_token=token)
 
 
 def send_confirmation_instructions(user):
@@ -29,7 +41,7 @@ def send_confirmation_instructions(user):
               'confirmation_instructions',
               dict(user=user, confirmation_link=confirmation_link))
 
-    confirm_instructions_sent.send(user, app=current_app._get_current_object())
+    confirm_instructions_sent.send(user, app=app._get_current_object())
 
     return True
 
@@ -56,7 +68,7 @@ def generate_confirmation_token(user):
 
 def should_confirm_email(fn):
     def wrapped(*args, **kwargs):
-        if security.confirm_email:
+        if _security.confirm_email:
             return fn(*args, **kwargs)
         return False
     return wrapped
@@ -69,7 +81,7 @@ def requires_confirmation(user):
 
 @should_confirm_email
 def confirmation_token_is_expired(user):
-    token_expires = datetime.utcnow() - security.confirm_email_within
+    token_expires = datetime.utcnow() - _security.confirm_email_within
     return user.confirmation_sent_at < token_expires
 
 
@@ -86,16 +98,17 @@ def confirm_by_token(token):
         raise TokenExpiredError(message='Confirmation token is expired',
                                 user=user)
 
+    # TODO: Clear confirmation_token after confirmation?
     #user.confirmation_token = None
     #user.confirmation_sent_at = None
     user.confirmed_at = datetime.utcnow()
 
-    security.datastore._save_model(user)
+    _datastore._save_model(user)
 
-    user_confirmed.send(user, app=current_app._get_current_object())
+    user_confirmed.send(user, app=app._get_current_object())
     return user
 
 
 def reset_confirmation_token(user):
-    security.datastore._save_model(generate_confirmation_token(user))
+    _datastore._save_model(generate_confirmation_token(user))
     send_confirmation_instructions(user)

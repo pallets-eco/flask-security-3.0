@@ -1,4 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+    flask.ext.security.signals
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Flask-Security signals module
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+"""
+
 import blinker
+
 
 signals = blinker.Namespace()
 
