@@ -31,12 +31,12 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'Flask',
-        'Flask-Login',
-        'Flask-Principal',
-        'Flask-WTF',
-        'Flask-Mail',
-        'passlib'
+        'Flask>=0.8',
+        'Flask-Login==0.1.3',
+        'Flask-Principal==0.2',
+        'Flask-WTF==0.5.4',
+        'Flask-Mail==0.6.1',
+        'passlib==1.5.3'
     ],
     test_suite='nose.collector',
     tests_require=[
