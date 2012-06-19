@@ -6,7 +6,7 @@ python:
   - 2.7
 
 install: 
-  - pip install Flask Flask-Login Flask-Principal Flask-WTF Flask-Mail passlib nose Flask-SQLAlchemy Flask-MongoEngine pybcrypt --use-mirrors
+  - pip install Flask Flask-Login Flask-Principal Flask-WTF Flask-Mail passlib nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt --use-mirrors
   - pip install . --use-mirrors
 
 before_script:
