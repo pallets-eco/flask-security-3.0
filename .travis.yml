@@ -9,4 +9,11 @@ install:
   - pip install Flask Flask-Login Flask-Principal Flask-WTF Flask-Mail passlib nose Flask-SQLAlchemy Flask-MongoEngine pybcrypt --use-mirrors
   - pip install . --use-mirrors
 
+before_script:
+  - mysql -e 'create database flask_security_test;'
+
 script: nosetests
+
+branches:
+  only:
+    - develop
