@@ -45,6 +45,38 @@ class UserDatastore(object):
         raise NotImplementedError(
             "User datastore does not implement _do_find_role method")
 
+    def _do_add_role(self, user, role):
+        user, role = self._prepare_role_modify_args(user, role)
+        if role not in user.roles:
+            user.roles.append(role)
+        return user
+
+    def _do_remove_role(self, user, role):
+        user, role = self._prepare_role_modify_args(user, role)
+        if role in user.roles:
+            user.roles.remove(role)
+        return user
+
+    def _do_toggle_active(self, user, active=None):
+        user = self.find_user(email=user.email)
+        if active is None:
+            user.active = not user.active
+        elif active != user.active:
+            user.active = active
+        return user
+
+    def _do_deactive_user(self, user):
+        return self._do_toggle_active(user, False)
+
+    def _do_active_user(self, user):
+        return self._do_toggle_active(user, True)
+
+    def _prepare_role_modify_args(self, user, role):
+        if isinstance(role, self.role_model):
+            role = role.name
+
+        return self.find_user(email=user.email), self.find_role(role)
+
     def _prepare_create_role_args(self, kwargs):
         if kwargs['name'] is None:
             raise exceptions.RoleCreationError("Missing name argument")
