@@ -35,6 +35,7 @@ def find_user_by_reset_token(token):
 
 def send_reset_password_instructions(user):
     url = url_for('flask_security.reset',
+                  email=user.email,
                   reset_token=user.reset_password_token)
 
     reset_link = request.url_root[:-1] + url

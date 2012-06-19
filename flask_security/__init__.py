@@ -10,6 +10,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from flask.ext.login import login_user, logout_user
+
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, \
      AuthenticationProvider, current_user
 from .decorators import auth_token_required, http_auth_required, \
