@@ -1,13 +1,14 @@
 language: python
 
 python:
-  - 2.5
-  - 2.6
-  - 2.7
+  - "2.5"
+  - "2.6"
+  - "2.7"
 
-install: 
-  - pip install -r requirements.txt --use-mirrors
-  - pip install . --use-mirrors
+install:
+  - pip install . --quiet --use-mirrors
+  - pip install nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt --quiet --use-mirrors
+  - "if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then pip install importlib --quiet --use-mirrors; fi"
 
 before_script:
   - mysql -e 'create database flask_security_test;'

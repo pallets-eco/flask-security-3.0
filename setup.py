@@ -8,6 +8,8 @@ via Flask-Login, Flask-Principal, Flask-WTF, and passlib.
 Links
 `````
 
+* `documentation <http://packages.python.org/Flask-Security/>`_
+* `source <https://github.com/mattupstate/flask-security>`_
 * `development version
   <https://github.com/mattupstate/flask-security/raw/develop#egg=Flask-Security-dev>`_
 
@@ -32,11 +34,11 @@ setup(
     platforms='any',
     install_requires=[
         'Flask>=0.8',
-        'Flask-Login==0.1.3',
-        'Flask-Principal==0.2',
-        'Flask-WTF==0.5.4',
-        'Flask-Mail==0.6.1',
-        'passlib==1.5.3'
+        'Flask-Login>=0.1.3',
+        'Flask-Principal>=0.3',
+        'Flask-WTF>=0.5.4',
+        'Flask-Mail>=0.6.1',
+        'passlib>=1.5.3'
     ],
     test_suite='nose.collector',
     tests_require=[

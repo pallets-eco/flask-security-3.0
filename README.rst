@@ -1,11 +1,7 @@
 Flask-Security
-===========
+==============
 
-|build status|_
-
-.. |build status| image:: https://secure.travis-ci.org/mattupstate/flask-security.png?branch=develop
-   :alt: Build Status
-.. _build status: http://travis-ci.org/mattupstate/flask-security
+.. image:: https://secure.travis-ci.org/mattupstate/flask-security.png?branch=develop
 
 Simple security for Flask applications combining Flask-Login, Flask-Principal, 
 Flask-WTF, passlib, and your choice of datastore. Currently SQLAlchemy via 
