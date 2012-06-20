@@ -41,3 +41,21 @@ class SecurityTest(TestCase):
 
     def assertIsHomePage(self, data):
         self.assertIn('Home Page', data)
+
+    def assertIn(self, member, container, msg=None):
+        if hasattr(TestCase, 'assertIn'):
+            return TestCase.assertIn(self, member, container, msg)
+
+        return self.assertTrue(member in container)
+
+    def assertNotIn(self, member, container, msg=None):
+        if hasattr(TestCase, 'assertNotIn'):
+            return TestCase.assertNotIn(self, member, container, msg)
+
+        return self.assertFalse(member in container)
+
+    def assertIsNotNone(self, obj, msg=None):
+        if hasattr(TestCase, 'assertIsNotNone'):
+            return TestCase.assertIsNotNone(self, obj, msg)
+
+        return self.assertTrue(obj is not None)
