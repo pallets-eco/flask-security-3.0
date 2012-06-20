@@ -7,8 +7,9 @@ python:
 
 install:
   - pip install . --quiet --use-mirrors
-  - pip install nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt MySQL-python --quiet --use-mirrors
   - "if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then pip install importlib simplejson --quiet --use-mirrors; fi"
+  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install mongoengine==0.6.5 --quiet --use-mirrors; fi"
+  - pip install nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt MySQL-python --quiet --use-mirrors
 
 before_script:
   - mysql -e 'create database flask_security_test;'
