@@ -107,8 +107,10 @@ def roles_required(*roles):
                     app.logger.debug('Identity does not provide the '
                                              'roles: %s' % [r for r in roles])
 
-                    utils.do_flash('You do not have permission to '
-                                   'view this resource', 'error')
+                    utils.do_flash(
+                        utils.config_value(app, 'FLASH_PERMISSIONS_MESSAGE'),
+                        utils.config_value(app, 'FLASH_PERMISSIONS_CATEGORY')
+                    )
 
                     url = (utils.config_value(app, 'UNAUTHORIZED_URL', None)
                            or request.referrer
@@ -152,8 +154,10 @@ def roles_accepted(*roles):
             app.logger.debug('Current user does not provide a '
                 'required role. Accepted: %s Provided: %s' % (r1, r2))
 
-            utils.do_flash('You do not have permission to '
-                           'view this resource', 'error')
+            utils.do_flash(
+                utils.config_value(app, 'FLASH_PERMISSIONS_MESSAGE'),
+                utils.config_value(app, 'FLASH_PERMISSIONS_CATEGORY')
+            )
 
             url = (utils.config_value(app, 'UNAUTHORIZED_URL', None)
                    or request.referrer

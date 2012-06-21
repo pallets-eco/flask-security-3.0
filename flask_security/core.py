@@ -57,6 +57,8 @@ _default_config = {
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token',
     'UNAUTHORIZED_URL': None,
+    'FLASH_PERMISSIONS_MESSAGE': 'You do not have permission to view this resource',
+    'FLASH_PERMISSIONS_CATEGORY': 'error',
 }
 
 
