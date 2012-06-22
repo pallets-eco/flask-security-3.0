@@ -106,7 +106,15 @@ def roles_required(*roles):
                 if not perm.can():
                     app.logger.debug('Identity does not provide the '
                                              'roles: %s' % [r for r in roles])
-                    return redirect(request.referrer or '/')
+
+                    utils.do_flash('You do not have permission to '
+                                   'view this resource', 'error')
+
+                    url = (utils.config_value(app, 'UNAUTHORIZED_URL', None)
+                           or request.referrer
+                           or '/')
+                    return redirect(url)
+
             return fn(*args, **kwargs)
         return decorated_view
     return wrapper
@@ -147,6 +155,9 @@ def roles_accepted(*roles):
             utils.do_flash('You do not have permission to '
                            'view this resource', 'error')
 
-            return redirect(request.referrer or '/')
+            url = (utils.config_value(app, 'UNAUTHORIZED_URL', None)
+                   or request.referrer
+                   or '/')
+            return redirect(url)
         return decorated_view
     return wrapper
