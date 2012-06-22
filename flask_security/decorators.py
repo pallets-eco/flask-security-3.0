@@ -93,7 +93,7 @@ def roles_required(*roles):
 
     :param args: The required roles.
     """
-    perm = Permission(*[RoleNeed(role) for role in roles])
+    perms = [Permission(RoleNeed(role)) for role in roles]
 
     def wrapper(fn):
         @wraps(fn)
@@ -102,12 +102,12 @@ def roles_required(*roles):
                 login_view = app.security.login_manager.login_view
                 return redirect(login_url(login_view, request.url))
 
-            if perm.can():
-                return fn(*args, **kwargs)
-
-            app.logger.debug('Identity does not provide the '
-                                     'roles: %s' % [r for r in roles])
-            return redirect(request.referrer or '/')
+            for perm in perms:
+                if not perm.can():
+                    app.logger.debug('Identity does not provide the '
+                                             'roles: %s' % [r for r in roles])
+                    return redirect(request.referrer or '/')
+            return fn(*args, **kwargs)
         return decorated_view
     return wrapper
 
@@ -126,7 +126,7 @@ def roles_accepted(*roles):
 
     :param args: The possible roles.
     """
-    perms = [Permission(RoleNeed(role)) for role in roles]
+    perm = Permission(*[RoleNeed(role) for role in roles])
 
     def wrapper(fn):
         @wraps(fn)
@@ -135,9 +135,8 @@ def roles_accepted(*roles):
                 login_view = app.security.login_manager.login_view
                 return redirect(login_url(login_view, request.url))
 
-            for perm in perms:
-                if perm.can():
-                    return fn(*args, **kwargs)
+            if perm.can():
+                return fn(*args, **kwargs)
 
             r1 = [r for r in roles]
             r2 = [r.name for r in current_user.roles]

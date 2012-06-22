@@ -84,6 +84,16 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/admin', follow_redirects=True)
         self.assertIn('<input id="next"', r.data)
 
+    def test_multiple_role_required(self):
+        for user in ("matt@lp.com", "joe@lp.com"):
+            self.authenticate(user)
+            r = self._get("/admin_and_editor", follow_redirects=True)
+            self.assertIsHomePage(r.data)
+
+        self.authenticate('dave@lp.com')
+        r = self._get("/admin_and_editor")
+        self.assertIn('Admin and Editor Page', r.data)
+
     def test_token_auth_via_querystring_valid_token(self):
         r = self._get('/token?auth_token=123abc')
         self.assertIn('Token Authentication', r.data)
