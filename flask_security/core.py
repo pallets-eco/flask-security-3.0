@@ -55,7 +55,10 @@ _default_config = {
     'LOGIN_WITHOUT_CONFIRMATION': False,
     'EMAIL_SENDER': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
-    'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token'
+    'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token',
+    'UNAUTHORIZED_URL': None,
+    'FLASH_PERMISSIONS_MESSAGE': 'You do not have permission to view this resource',
+    'FLASH_PERMISSIONS_CATEGORY': 'error',
 }
 
 
