@@ -28,12 +28,20 @@ _datastore = LocalProxy(lambda: app.security.datastore)
 
 
 def find_user_by_reset_token(token):
+    """Returns a user with a matching reset password token.
+
+    :param token: The reset password token
+    """
     if not token:
         raise ResetPasswordError('Reset password token required')
     return _datastore.find_user(reset_password_token=token)
 
 
 def send_reset_password_instructions(user):
+    """Sends the reset password instructions email for the specified user.
+
+    :param user: The user to send the instructions to
+    """
     url = url_for('flask_security.reset',
                   email=user.email,
                   reset_token=user.reset_password_token)
@@ -51,6 +59,10 @@ def send_reset_password_instructions(user):
 
 
 def generate_reset_password_token(user):
+    """Generates a unique reset password token for the specified user.
+
+    :param user: The user to work with
+    """
     while True:
         token = generate_token()
         try:
@@ -71,11 +83,23 @@ def generate_reset_password_token(user):
 
 
 def password_reset_token_is_expired(user):
+    """Returns `True` if the specified user's reset password token is expired.
+
+    :param user: The user to examine
+    """
     token_expires = datetime.utcnow() - _security.reset_password_within
     return user.reset_password_sent_at < token_expires
 
 
 def reset_by_token(token, email, password):
+    """Resets the password of the user given the specified token, email and
+    password. If the token is invalid a `ResetPasswordError` error will be
+    raised. If the token is expired a `TokenExpiredError` error will be raised.
+
+    :param token: The user's reset password token
+    :param email: The user's email address
+    :param password: The user's new password
+    """
     try:
         user = find_user_by_reset_token(token)
     except UserNotFoundError:
@@ -98,6 +122,11 @@ def reset_by_token(token, email, password):
 
 
 def reset_password_reset_token(user):
+    """Resets the specified user's reset password token and sends the user
+    an email with instructions explaining next steps.
+
+    :param user: The user to work with
+    """
     _datastore._save_model(generate_reset_password_token(user))
     send_reset_password_instructions(user)
     password_reset_requested.send(user, app=app._get_current_object())

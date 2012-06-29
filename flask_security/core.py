@@ -49,7 +49,9 @@ _default_config = {
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'DEFAULT_ROLES': [],
-    'CONFIRM_EMAIL': False,
+    'CONFIRMABLE': False,
+    'REGISTERABLE': True,
+    'RECOVERABLE': True,
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '2 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
@@ -90,6 +92,8 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserBase):
+    """AnonymousUser definition"""
+
     def __init__(self):
         super(AnonymousUser, self).__init__()
         self.roles = ImmutableList()
@@ -99,7 +103,7 @@ class AnonymousUser(AnonymousUserBase):
         return False
 
 
-def load_user(user_id):
+def _load_user(user_id):
     try:
         return current_app.security.datastore.with_id(user_id)
     except Exception, e:
@@ -107,7 +111,7 @@ def load_user(user_id):
         return None
 
 
-def on_identity_loaded(sender, identity):
+def _on_identity_loaded(sender, identity):
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
 
@@ -126,12 +130,16 @@ class Security(object):
     def __init__(self, app=None, datastore=None, **kwargs):
         self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore, registerable=True, recoverable=True):
+    def init_app(self, app, datastore):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
+        :param confirmable: Set to `True` to enable email confirmation
+        :param registerable: Set to `False` to disable registration endpoints
+        :param recoverable: Set to `False` to disable password recovery
+                            endpoints
         """
         if app is None or datastore is None:
             return
@@ -142,7 +150,7 @@ class Security(object):
         login_manager = LoginManager()
         login_manager.anonymous_user = AnonymousUser
         login_manager.login_view = utils.config_value(app, 'LOGIN_VIEW')
-        login_manager.user_loader(load_user)
+        login_manager.user_loader(_load_user)
         login_manager.init_app(app)
 
         Provider = utils.get_class_from_string(app, 'AUTH_PROVIDER')
@@ -150,7 +158,7 @@ class Security(object):
 
         self.login_manager = login_manager
         self.pwd_context = CryptContext(schemes=[pw_hash], default=pw_hash)
-        self.auth_provider = Provider(Form)
+        self.auth_provider = Provider()
         self.principal = Principal(app)
         self.datastore = datastore
         self.LoginForm = utils.get_class_from_string(app, 'LOGIN_FORM')
@@ -171,7 +179,9 @@ class Security(object):
         self.reset_password_error_view = utils.config_value(app, 'RESET_PASSWORD_ERROR_VIEW')
         self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
-        self.confirm_email = utils.config_value(app, 'CONFIRM_EMAIL')
+        self.confirmable = utils.config_value(app, 'CONFIRMABLE')
+        self.registerable = utils.config_value(app, 'REGISTERABLE')
+        self.recoverable = utils.config_value(app, 'RECOVERABLE')
         self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
         self.token_authentication_key = utils.config_value(app, 'TOKEN_AUTHENTICATION_KEY')
         self.token_authentication_header = utils.config_value(app, 'TOKEN_AUTHENTICATION_HEADER')
@@ -184,7 +194,7 @@ class Security(object):
         values = self.reset_password_within_text.split()
         self.reset_password_within = timedelta(**{values[1]: int(values[0])})
 
-        identity_loaded.connect_via(app)(on_identity_loaded)
+        identity_loaded.connect_via(app)(_on_identity_loaded)
 
         bp = Blueprint('flask_security', __name__, template_folder='templates')
 
@@ -195,21 +205,21 @@ class Security(object):
         bp.route(self.logout_url,
                  endpoint='logout')(login_required(views.logout))
 
-        self.setup_registerable(bp) if registerable else None
-        self.setup_recoverable(bp) if recoverable else None
-        self.setup_confirmable(bp) if self.confirm_email else None
+        self._setup_registerable(bp) if self.registerable else None
+        self._setup_recoverable(bp) if self.recoverable else None
+        self._setup_confirmable(bp) if self.confirmable else None
 
         app.register_blueprint(bp,
             url_prefix=utils.config_value(app, 'URL_PREFIX'))
 
         app.security = self
 
-    def setup_registerable(self, bp):
+    def _setup_registerable(self, bp):
         bp.route(self.register_url,
                  methods=['POST'],
                  endpoint='register')(views.register)
 
-    def setup_recoverable(self, bp):
+    def _setup_recoverable(self, bp):
         bp.route(self.forgot_url,
                  methods=['POST'],
                  endpoint='forgot')(views.forgot)
@@ -217,32 +227,30 @@ class Security(object):
                  methods=['POST'],
                  endpoint='reset')(views.reset)
 
-    def setup_confirmable(self, bp):
+    def _setup_confirmable(self, bp):
         bp.route(self.confirm_url,
                  endpoint='confirm')(views.confirm)
 
 
 class AuthenticationProvider(object):
-    """The default authentication provider implementation.
+    """The default authentication provider implementation."""
+    def _get_user(self, username_or_email):
+        datastore = current_app.security.datastore
 
-    :param login_form_class: The login form class to use when authenticating a
-                             user
-    """
-
-    def __init__(self, login_form_class=None):
-        self.login_form_class = login_form_class or LoginForm
-
-    def login_form(self, formdata=None):
-        """Returns an instance of the login form with the provided form.
-
-        :param formdata: The incoming form data"""
-        return self.login_form_class(formdata)
+        try:
+            return datastore.find_user(email=username_or_email)
+        except exceptions.UserNotFoundError:
+            try:
+                return datastore.find_user(username=username_or_email)
+            except:
+                raise exceptions.UserNotFoundError()
 
     def authenticate(self, form):
         """Processes an authentication request and returns a user instance if
         authentication is successful.
 
-        :param form: An instance of a populated login form
+        :param form: A populated WTForm instance that contains `email` and
+                     `password` form fields
         """
         if not form.validate():
             if form.email.errors:
@@ -252,15 +260,16 @@ class AuthenticationProvider(object):
 
         return self.do_authenticate(form.email.data, form.password.data)
 
-    def do_authenticate(self, email, password):
+    def do_authenticate(self, username_or_email, password):
         """Returns the authenticated user if authentication is successfull. If
-        authentication fails an appropriate error is raised
+        authentication fails an appropriate `AuthenticationError` is raised
 
-        :param user_identifier: The user's identifier, usuall an email address
-        :param password: The user's unencrypted password
+        :param username_or_email: The username or email address of the user
+        :param password: The password supplied by the authentication request
         """
+
         try:
-            user = current_app.security.datastore.find_user(email=email)
+            user = self._get_user(username_or_email)
         except AttributeError, e:
             self.auth_error("Could not find user datastore: %s" % e)
         except exceptions.UserNotFoundError, e:

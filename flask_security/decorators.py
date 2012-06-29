@@ -55,6 +55,7 @@ def _check_http_auth():
 
 
 def http_auth_required(fn):
+    """Decorator that protects endpoints using Basic HTTP authentication."""
     headers = {'WWW-Authenticate': 'Basic realm="Login Required"'}
 
     @wraps(fn)
@@ -68,7 +69,7 @@ def http_auth_required(fn):
 
 
 def auth_token_required(fn):
-
+    """Decorator that protects endpoints using token authentication."""
     @wraps(fn)
     def decorated(*args, **kwargs):
         if _check_token():
@@ -80,8 +81,8 @@ def auth_token_required(fn):
 
 
 def roles_required(*roles):
-    """View decorator which specifies that a user must have all the specified
-    roles. Example::
+    """Decorator which specifies that a user must have all the specified roles.
+    Example::
 
         @app.route('/dashboard')
         @roles_required('admin', 'editor')
@@ -113,7 +114,7 @@ def roles_required(*roles):
 
 
 def roles_accepted(*roles):
-    """View decorator which specifies that a user must have at least one of the
+    """Decorator which specifies that a user must have at least one of the
     specified roles. Example::
 
         @app.route('/create_post')

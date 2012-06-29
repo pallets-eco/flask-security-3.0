@@ -23,12 +23,20 @@ _datastore = LocalProxy(lambda: app.security.datastore)
 
 
 def find_user_by_authentication_token(token):
+    """Returns a user with a matching authentication token.
+
+    :param token: The authentication token
+    """
     if not token:
         raise BadCredentialsError('Authentication token required')
     return _datastore.find_user(authentication_token=token)
 
 
 def generate_authentication_token(user):
+    """Generates a unique authentication token for the specified user.
+
+    :param user: The user to work with
+    """
     while True:
         token = generate_token()
         try:
@@ -49,12 +57,21 @@ def generate_authentication_token(user):
 
 
 def reset_authentication_token(user):
+    """Resets a user's authentication token and returns the new token value.
+
+    :param user: The user to work with
+    """
     user = generate_authentication_token(user)
     _datastore._save_model(user)
     return user.authentication_token
 
 
 def ensure_authentication_token(user):
+    """Ensures that a user has an authentication token. If the user has an
+    authentication token already, nothing is performed.
+
+    :param user: The user to work with
+    """
     if not user.authentication_token:
         reset_authentication_token(user)
     return user.authentication_token

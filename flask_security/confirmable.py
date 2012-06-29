@@ -26,12 +26,20 @@ _datastore = LocalProxy(lambda: app.security.datastore)
 
 
 def find_user_by_confirmation_token(token):
+    """Returns a user with a matching confirmation token.
+
+    :param token: The reset password token
+    """
     if not token:
         raise ConfirmationError('Confirmation token required')
     return _datastore.find_user(confirmation_token=token)
 
 
 def send_confirmation_instructions(user):
+    """Sends the confirmation instructions email for the specified user.
+
+    :param user: The user to send the instructions to
+    """
     url = url_for('flask_security.confirm',
                   confirmation_token=user.confirmation_token)
 
@@ -47,6 +55,10 @@ def send_confirmation_instructions(user):
 
 
 def generate_confirmation_token(user):
+    """Generates a unique confirmation token for the specified user.
+
+    :param user: The user to work with
+    """
     while True:
         token = generate_token()
         try:
@@ -67,8 +79,9 @@ def generate_confirmation_token(user):
 
 
 def should_confirm_email(fn):
+    """Handy decorator that returns early if confirmation should not occur."""
     def wrapped(*args, **kwargs):
-        if _security.confirm_email:
+        if _security.confirmable:
             return fn(*args, **kwargs)
         return False
     return wrapped
@@ -76,16 +89,24 @@ def should_confirm_email(fn):
 
 @should_confirm_email
 def requires_confirmation(user):
+    """Returns `True` if the user requires confirmation."""
     return user.confirmed_at == None
 
 
 @should_confirm_email
 def confirmation_token_is_expired(user):
+    """Returns `True` if the user's confirmation token is expired."""
     token_expires = datetime.utcnow() - _security.confirm_email_within
     return user.confirmation_sent_at < token_expires
 
 
 def confirm_by_token(token):
+    """Confirm the user given the specified token. If the token is invalid or
+    the user is already confirmed a `ConfirmationError` error will be raised.
+    If the token is expired a `TokenExpiredError` error will be raised.
+
+    :param token: The user's confirmation token
+    """
     try:
         user = find_user_by_confirmation_token(token)
     except UserNotFoundError:
@@ -110,5 +131,10 @@ def confirm_by_token(token):
 
 
 def reset_confirmation_token(user):
+    """Resets the specified user's confirmation token and sends the user
+    an email with instructions explaining next steps.
+
+    :param user: The user to work with
+    """
     _datastore._save_model(generate_confirmation_token(user))
     send_confirmation_instructions(user)

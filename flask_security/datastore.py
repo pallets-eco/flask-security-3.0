@@ -90,7 +90,7 @@ class UserDatastore(object):
         kwargs.setdefault('active', True)
         kwargs.setdefault('roles', current_app.security.default_roles)
 
-        if current_app.security.confirm_email:
+        if current_app.security.confirmable:
             confirmable.generate_confirmation_token(kwargs)
 
         if email is None:
@@ -196,7 +196,9 @@ class UserDatastore(object):
 
 
 class SQLAlchemyUserDatastore(UserDatastore):
-    """A SQLAlchemy datastore implementation for Flask-Security.
+    """A SQLAlchemy datastore implementation for Flask-Security that assumes the
+    use of the Flask-SQLAlchemy extension.
+
     Example usage::
 
         from flask import Flask
@@ -249,7 +251,9 @@ class SQLAlchemyUserDatastore(UserDatastore):
 
 
 class MongoEngineUserDatastore(UserDatastore):
-    """A MongoEngine datastore implementation for Flask-Security.
+    """A MongoEngine datastore implementation for Flask-Security that assumes
+    the use of the Flask-MongoEngine extension.
+
     Example usage::
 
         from flask import Flask

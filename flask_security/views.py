@@ -34,6 +34,8 @@ _logger = LocalProxy(lambda: app.logger)
 
 
 def _do_login(user, remember=True):
+    """Performs the login and sends the appropriate signal."""
+
     if login_user(user, remember):
         identity_changed.send(app._get_current_object(),
                               identity=Identity(user.id))
@@ -44,13 +46,8 @@ def _do_login(user, remember=True):
 
 
 def authenticate():
-    """View function which handles an authentication attempt. If authentication
-    is successful the user is redirected to, if set, the value of the `next`
-    form parameter. If that value is not set the user is redirected to the
-    value of the `SECURITY_POST_LOGIN_VIEW` configuration value. If
-    authenticate fails the user an appropriate error message is flashed and
-    the user is redirected to the referring page or the login view.
-    """
+    """View function which handles an authentication request."""
+
     form = _security.LoginForm()
 
     try:
@@ -74,10 +71,8 @@ def authenticate():
 
 
 def logout():
-    """View function which logs out the current user. When completed the user
-    is redirected to the value of the `next` query string parameter or the
-    `SECURITY_POST_LOGIN_VIEW` configuration value.
-    """
+    """View function which handles a logout request."""
+
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
 
@@ -92,13 +87,8 @@ def logout():
 
 
 def register():
-    """View function which registers a new user and, if configured so, the user
-    isautomatically logged in. If required confirmation instructions are sent
-    via email.  After registration is completed the user is redirected to, if
-    set, the value of the `SECURITY_POST_REGISTER_VIEW` configuration value.
-    Otherwise the user is redirected to the `SECURITY_POST_LOGIN_VIEW`
-    configuration value.
-    """
+    """View function which handles a registration request."""
+
     form = _security.RegisterForm(csrf_enabled=not app.testing)
 
     # Exit early if the form doesn't validate
@@ -109,13 +99,13 @@ def register():
         user_registered.send(user, app=app._get_current_object())
 
         # Send confirmation instructions if necessary
-        if _security.confirm_email:
+        if _security.confirmable:
             send_confirmation_instructions(user)
 
         _logger.debug('User %s registered' % user)
 
         # Login the user if allowed
-        if not _security.confirm_email or _security.login_without_confirmation:
+        if not _security.confirmable or _security.login_without_confirmation:
             _do_login(user)
 
         return redirect(_security.post_register_view or
@@ -126,9 +116,7 @@ def register():
 
 
 def confirm():
-    """View function which confirms a user's email address using a token taken
-    from the value of the `confirmation_token` query string argument.
-    """
+    """View function which handles a account confirmation request."""
 
     try:
         token = request.args.get('confirmation_token', None)
@@ -156,8 +144,7 @@ def confirm():
 
 
 def forgot():
-    """View function that handles the generation of a password reset token.
-    """
+    """View function that handles a forgotten password request."""
 
     form = _security.ForgotPasswordForm(csrf_enabled=not app.testing)
 
@@ -180,8 +167,7 @@ def forgot():
 
 
 def reset():
-    """View function that handles the reset of a user's password.
-    """
+    """View function that handles a reset password request."""
 
     form = _security.ResetPasswordForm(csrf_enabled=not app.testing)
 

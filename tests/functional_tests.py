@@ -142,7 +142,7 @@ class RegisterableTests(SecurityTest):
 
 class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_CONFIRM_EMAIL': True
+        'SECURITY_CONFIRMABLE': True
     }
 
     def test_register_sends_confirmation_email(self):

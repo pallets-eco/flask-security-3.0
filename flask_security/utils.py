@@ -20,7 +20,7 @@ from .signals import user_registered, password_reset_requested
 
 
 def generate_token():
-    """Generate an arbitrary URL safe token"""
+    """Generate an arbitrary URL safe token."""
     return base64.urlsafe_b64encode(os.urandom(30))
 
 
@@ -59,14 +59,14 @@ def get_url(endpoint_or_url):
 
 
 def get_post_login_redirect():
-    """Returns the URL to redirect to after a user logs in successfully"""
+    """Returns the URL to redirect to after a user logs in successfully."""
     return (get_url(request.args.get('next')) or
             get_url(request.form.get('next')) or
             find_redirect('SECURITY_POST_LOGIN_VIEW'))
 
 
 def find_redirect(key):
-    """Returns the URL to redirect to after a user logs in successfully
+    """Returns the URL to redirect to after a user logs in successfully.
 
     :param key: The session or application configuration key to search for
     """
@@ -79,7 +79,7 @@ def find_redirect(key):
 
 
 def config_value(app, key, default=None):
-    """Get a Flask-Security configuration value
+    """Get a Flask-Security configuration value.
 
     :param app: The application to retrieve the configuration from
     :param key: The configuration key without the prefix `SECURITY_`
@@ -89,7 +89,7 @@ def config_value(app, key, default=None):
 
 
 def send_mail(subject, recipient, template, context=None):
-    """Send an email via the Flask-Mail extension
+    """Send an email via the Flask-Mail extension.
 
     :param subject: Email subject
     :param recipient: Email recipient
@@ -113,7 +113,7 @@ def send_mail(subject, recipient, template, context=None):
 
 @contextmanager
 def capture_registrations(confirmation_sent_at=None):
-    """Testing utility for capturing registrations
+    """Testing utility for capturing registrations.
 
     :param confirmation_sent_at: An optional datetime object to set the
                                  user's `confirmation_sent_at` to
@@ -137,7 +137,7 @@ def capture_registrations(confirmation_sent_at=None):
 
 @contextmanager
 def capture_reset_password_requests(reset_password_sent_at=None):
-    """Testing utility for capturing password reset requests
+    """Testing utility for capturing password reset requests.
 
     :param reset_password_sent_at: An optional datetime object to set the
                                    user's `reset_password_sent_at` to
