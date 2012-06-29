@@ -28,6 +28,7 @@ def create_roles():
 def create_users():
     for u in  (('matt@lp.com', 'password', ['admin'], True),
                ('joe@lp.com', 'password', ['editor'], True),
+               ('dave@lp.com', 'password', ['admin', 'editor'], True),
                ('jill@lp.com', 'password', ['author'], True),
                ('tiya@lp.com', 'password', [], False)):
         current_app.security.datastore.create_user(
@@ -95,6 +96,11 @@ def create_app(auth_config):
     @roles_required('admin')
     def admin():
         return render_template('index.html', content='Admin Page')
+
+    @app.route('/admin_and_editor')
+    @roles_required('admin', 'editor')
+    def admin_and_editor():
+        return render_template('index.html', content='Admin and Editor Page')
 
     @app.route('/admin_or_editor')
     @roles_accepted('admin', 'editor')
