@@ -38,28 +38,30 @@ _logger = LocalProxy(lambda: app.logger)
 def _do_login(user, remember=True):
     """Performs the login and sends the appropriate signal."""
 
-    if login_user(user, remember):
-        user.remember_token = make_secure_token(user.email, user.password)
+    if not login_user(user, remember):
+        return False
 
-        if _security.trackable:
-            old_current, new_current = user.current_login_at, datetime.utcnow()
-            user.last_login_at = old_current or new_current
-            user.current_login_at = new_current
+    user.remember_token = None if not remember else \
+                          make_secure_token(user.email, user.password)
 
-            old_current, new_current = user.current_login_ip, request.remote_addr
-            user.last_login_ip = old_current or new_current
-            user.current_login_ip = new_current
+    if _security.trackable:
+        old_current, new_current = user.current_login_at, datetime.utcnow()
+        user.last_login_at = old_current or new_current
+        user.current_login_at = new_current
 
-            user.login_count = user.login_count + 1 if user.login_count else 0
+        old_current, new_current = user.current_login_ip, request.remote_addr
+        user.last_login_ip = old_current or new_current
+        user.current_login_ip = new_current
 
-        _datastore._save_model(user)
+        user.login_count = user.login_count + 1 if user.login_count else 0
 
-        identity_changed.send(app._get_current_object(),
-                              identity=Identity(user.id))
+    _datastore._save_model(user)
 
-        _logger.debug('User %s logged in' % user)
-        return True
-    return False
+    identity_changed.send(app._get_current_object(),
+                          identity=Identity(user.id))
+
+    _logger.debug('User %s logged in' % user)
+    return True
 
 
 def authenticate():
