@@ -13,7 +13,7 @@ py-bcrypt to support bcrypt passwords.
 Resources
 ---------
 
-- `Documentation` <http://packages.python.org/Flask-Security/>`_
+- `Documentation <http://packages.python.org/Flask-Security/>`_
 - `Issue Tracker <http://github.com/mattupstate/flask-security/issues>`_
 - `Code <http://github.com/mattupstate/flask-security/>`_
 - `Development Version
