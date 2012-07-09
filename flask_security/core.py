@@ -22,7 +22,6 @@ from . import views, exceptions, utils
 from .confirmable import confirmation_token_is_expired, requires_confirmation, \
      reset_confirmation_token
 from .decorators import login_required
-from .forms import Form, LoginForm
 
 
 #: Default Flask-Security configuration
@@ -50,8 +49,9 @@ _default_config = {
     'POST_CONFIRM_VIEW': None,
     'DEFAULT_ROLES': [],
     'CONFIRMABLE': False,
-    'REGISTERABLE': True,
-    'RECOVERABLE': True,
+    'REGISTERABLE': False,
+    'RECOVERABLE': False,
+    'TRACKABLE': False,
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '2 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
@@ -80,6 +80,10 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user is active."""
         return self.active
 
+    def get_auth_token(self):
+        """Returns the user's authentication token."""
+        self.remember_token
+
     def has_role(self, role):
         """Returns `True` if the user identifies with the specified role.
 
@@ -103,9 +107,17 @@ class AnonymousUser(AnonymousUserBase):
         return False
 
 
-def _load_user(user_id):
+def _user_loader(user_id):
     try:
         return current_app.security.datastore.with_id(user_id)
+    except Exception, e:
+        current_app.logger.error('Error getting user: %s' % e)
+        return None
+
+
+def _token_loader(token):
+    try:
+        return current_app.security.datastore.find_user(remember_token=token)
     except Exception, e:
         current_app.logger.error('Error getting user: %s' % e)
         return None
@@ -150,7 +162,8 @@ class Security(object):
         login_manager = LoginManager()
         login_manager.anonymous_user = AnonymousUser
         login_manager.login_view = utils.config_value(app, 'LOGIN_VIEW')
-        login_manager.user_loader(_load_user)
+        login_manager.user_loader(_user_loader)
+        login_manager.token_loader(_token_loader)
         login_manager.init_app(app)
 
         Provider = utils.get_class_from_string(app, 'AUTH_PROVIDER')
@@ -182,6 +195,7 @@ class Security(object):
         self.confirmable = utils.config_value(app, 'CONFIRMABLE')
         self.registerable = utils.config_value(app, 'REGISTERABLE')
         self.recoverable = utils.config_value(app, 'RECOVERABLE')
+        self.trackable = utils.config_value(app, 'TRACKABLE')
         self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
         self.token_authentication_key = utils.config_value(app, 'TOKEN_AUTHENTICATION_KEY')
         self.token_authentication_header = utils.config_value(app, 'TOKEN_AUTHENTICATION_HEADER')

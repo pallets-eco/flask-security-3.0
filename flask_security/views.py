@@ -9,9 +9,11 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from datetime import datetime
+
 from flask import current_app as app, redirect, request, session, \
      render_template
-from flask.ext.login import login_user, logout_user
+from flask.ext.login import login_user, logout_user, make_secure_token
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
@@ -37,6 +39,21 @@ def _do_login(user, remember=True):
     """Performs the login and sends the appropriate signal."""
 
     if login_user(user, remember):
+        user.remember_token = make_secure_token(user.email, user.password)
+
+        if _security.trackable:
+            old_current, new_current = user.current_login_at, datetime.utcnow()
+            user.last_login_at = old_current or new_current
+            user.current_login_at = new_current
+
+            old_current, new_current = user.current_login_ip, request.remote_addr
+            user.last_login_ip = old_current or new_current
+            user.current_login_ip = new_current
+
+            user.login_count = user.login_count + 1 if user.login_count else 0
+
+        _datastore._save_model(user)
+
         identity_changed.send(app._get_current_object(),
                               identity=Identity(user.id))
 

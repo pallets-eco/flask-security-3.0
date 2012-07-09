@@ -114,6 +114,7 @@ class DefaultSecurityTests(SecurityTest):
 class ConfiguredURLTests(SecurityTest):
 
     AUTH_CONFIG = {
+        'SECURITY_REGISTERABLE': True,
         'SECURITY_AUTH_URL': '/custom_auth',
         'SECURITY_LOGOUT_URL': '/custom_logout',
         'SECURITY_LOGIN_VIEW': '/custom_login',
@@ -142,6 +143,9 @@ class ConfiguredURLTests(SecurityTest):
 
 
 class RegisterableTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_REGISTERABLE': True
+    }
 
     def test_register_valid_user(self):
         data = dict(email='dude@lp.com', password='password', password_confirm='password')
@@ -152,7 +156,8 @@ class RegisterableTests(SecurityTest):
 
 class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_CONFIRMABLE': True
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True
     }
 
     def test_register_sends_confirmation_email(self):
@@ -216,7 +221,8 @@ class ConfirmableTests(SecurityTest):
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_CONFIRM_EMAIL': True,
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True,
         'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True
     }
 
@@ -229,6 +235,10 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
 
 
 class RecoverableTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True
+    }
 
     def test_forgot_post_sends_email_and_sets_required_fields(self):
         with capture_reset_password_requests() as users:
