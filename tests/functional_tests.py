@@ -213,7 +213,7 @@ class ConfirmableTests(SecurityTest):
             self.assertIn(e, outbox[0].html)
             self.assertNotIn(token, outbox[0].html)
 
-            expire_text = self.app.security.confirm_email_within_text
+            expire_text = self.app.security.confirm_email_within
             text = 'You did not confirm your email within %s' % expire_text
 
             self.assertIn(text, r.data)

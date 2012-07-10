@@ -15,7 +15,7 @@ from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
 from .exceptions import UserNotFoundError, ConfirmationError, TokenExpiredError
-from .utils import generate_token, send_mail
+from .utils import generate_token, send_mail, get_within_delta
 from .signals import user_confirmed, confirm_instructions_sent
 
 
@@ -96,7 +96,7 @@ def requires_confirmation(user):
 @should_confirm_email
 def confirmation_token_is_expired(user):
     """Returns `True` if the user's confirmation token is expired."""
-    token_expires = datetime.utcnow() - _security.confirm_email_within
+    token_expires = datetime.utcnow() - get_within_delta('CONFIRM_EMAIL_WITHIN')
     return user.confirmation_sent_at < token_expires
 
 

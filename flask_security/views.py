@@ -152,7 +152,7 @@ def confirm():
 
         msg = 'You did not confirm your email within %s. ' \
               'A new confirmation code has been sent to %s' % (
-               _security.confirm_email_within_text, e.user.email)
+               _security.confirm_email_within, e.user.email)
 
         do_flash(msg, 'error')
         return redirect('/')  # TODO: Don't redirect to root

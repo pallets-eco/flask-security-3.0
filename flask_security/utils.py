@@ -12,7 +12,7 @@
 import base64
 import os
 from contextlib import contextmanager
-from importlib import import_module
+from datetime import timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.login import make_secure_token
@@ -38,19 +38,8 @@ def do_flash(message, category=None):
     :param message: The flash message
     :param category: The flash message category
     """
-    if config_value(current_app, 'FLASH_MESSAGES'):
+    if config_value('FLASH_MESSAGES'):
         flash(message, category)
-
-
-def get_class_from_string(app, key):
-    """Get a reference to a class by its configuration key name.
-
-    :param app: The application instance to work against
-    :param key: The configuration key to use
-    """
-    cv = config_value(app, key).split('::')
-    cm = import_module(cv[0])
-    return getattr(cm, cv[1])
 
 
 def get_url(endpoint_or_url):
@@ -85,14 +74,51 @@ def find_redirect(key):
     return result
 
 
-def config_value(app, key, default=None):
+def get_config(app):
+    """Conveniently get the security configuration for the specified
+    application without the annoying 'SECURITY_' prefix.
+
+    :param app: The application to inspect
+    """
+    items = app.config.items()
+    prefix = 'SECURITY_'
+
+    def strip_prefix(tup):
+        return (tup[0].replace('SECURITY_', ''), tup[1])
+
+    return dict([strip_prefix(i) for i in items if i[0].startswith(prefix)])
+
+
+def config_value(key, app=None, default=None):
     """Get a Flask-Security configuration value.
 
-    :param app: The application to retrieve the configuration from
     :param key: The configuration key without the prefix `SECURITY_`
+    :param app: An optional specific application to inspect. Defaults to Flask's
+                `current_app`
     :param default: An optional default value if the value is not set
     """
-    return app.config.get('SECURITY_' + key.upper(), default)
+    app = app or current_app
+    return get_config(app).get(key.upper(), default)
+
+
+def get_within_delta(key, app=None):
+    """Get a timedelta object from the application configuration following
+    the internal convention of::
+
+        <Amount of Units> <Type of Units>
+
+    Examples of valid config values::
+
+        5 days
+        10 minutes
+
+    :param key: The config value key without the 'SECURITY_' prefix
+    :param app: Optional application to inspect. Defaults to Flask's
+                `current_app`
+    """
+    txt = config_value(key, app=app)
+    values = txt.split()
+    return timedelta(**{values[1]: int(values[0])})
 
 
 def send_mail(subject, recipient, template, context=None):

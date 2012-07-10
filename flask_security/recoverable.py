@@ -18,7 +18,7 @@ from .exceptions import ResetPasswordError, UserNotFoundError, \
      TokenExpiredError
 from .signals import password_reset, password_reset_requested, \
      confirm_instructions_sent
-from .utils import generate_token, send_mail
+from .utils import generate_token, send_mail, get_within_delta
 
 
 # Convenient references
@@ -87,7 +87,7 @@ def password_reset_token_is_expired(user):
 
     :param user: The user to examine
     """
-    token_expires = datetime.utcnow() - _security.reset_password_within
+    token_expires = datetime.utcnow() - get_within_delta('RESET_PASSWORD_WITHIN')
     return user.reset_password_sent_at < token_expires
 
 

@@ -9,8 +9,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from datetime import timedelta
-
 from flask import current_app, Blueprint
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
@@ -19,10 +17,11 @@ from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
-from . import views, exceptions, utils
+from . import views, exceptions
 from .confirmable import confirmation_token_is_expired, requires_confirmation, \
      reset_confirmation_token
 from .decorators import login_required
+from .utils import config_value as cv, get_config
 
 
 #: Default Flask-Security configuration
@@ -30,7 +29,6 @@ _default_config = {
     'URL_PREFIX': None,
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
-    'AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -136,6 +134,57 @@ def _on_identity_loaded(sender, identity):
     identity.user = current_user
 
 
+def _get_login_manager(app):
+    lm = LoginManager()
+    lm.anonymous_user = AnonymousUser
+    lm.login_view = cv('LOGIN_VIEW', app=app)
+    lm.user_loader(_user_loader)
+    lm.token_loader(_token_loader)
+    lm.init_app(app)
+    return lm
+
+
+def _get_principal(app):
+    p = Principal(app, use_sessions=False)
+    p.identity_loader(_identity_loader)
+    return p
+
+
+def _get_pwd_context(app):
+    pw_hash = cv('PASSWORD_HASH', app=app)
+    return CryptContext(schemes=[pw_hash], default=pw_hash)
+
+
+def _create_blueprint(config):
+    bp = Blueprint('flask_security', __name__, template_folder='templates')
+
+    bp.route(config['SECURITY_AUTH_URL'],
+             methods=['POST'],
+             endpoint='authenticate')(views.authenticate)
+
+    bp.route(config['SECURITY_LOGOUT_URL'],
+             endpoint='logout')(login_required(views.logout))
+
+    if config['SECURITY_REGISTERABLE']:
+        bp.route(config['SECURITY_REGISTER_URL'],
+                 methods=['POST'],
+                 endpoint='register')(views.register)
+
+    if config['SECURITY_RECOVERABLE']:
+        bp.route(config['SECURITY_FORGOT_URL'],
+                 methods=['POST'],
+                 endpoint='forgot')(views.forgot)
+        bp.route(config['SECURITY_RESET_URL'],
+                 methods=['POST'],
+                 endpoint='reset')(views.reset)
+
+    if config['SECURITY_CONFIRMABLE']:
+        bp.route(config['SECURITY_CONFIRM_URL'],
+                 endpoint='confirm')(views.confirm)
+
+    return bp
+
+
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
 
@@ -151,10 +200,6 @@ class Security(object):
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
-        :param confirmable: Set to `True` to enable email confirmation
-        :param registerable: Set to `False` to disable registration endpoints
-        :param recoverable: Set to `False` to disable password recovery
-                            endpoints
         """
         if app is None or datastore is None:
             return
@@ -162,95 +207,21 @@ class Security(object):
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
 
-        login_manager = LoginManager()
-        login_manager.anonymous_user = AnonymousUser
-        login_manager.login_view = utils.config_value(app, 'LOGIN_VIEW')
-        login_manager.user_loader(_user_loader)
-        login_manager.token_loader(_token_loader)
-        login_manager.init_app(app)
-
-        Provider = utils.get_class_from_string(app, 'AUTH_PROVIDER')
-        pw_hash = utils.config_value(app, 'PASSWORD_HASH')
-
-        self.login_manager = login_manager
-
-        self.pwd_context = CryptContext(schemes=[pw_hash], default=pw_hash)
-
-        self.auth_provider = Provider()
-
-        self.principal = Principal(app, use_sessions=False)
-        self.principal.identity_loader(_identity_loader)
-
         self.datastore = datastore
+        self.auth_provider = AuthenticationProvider()
+        self.login_manager = _get_login_manager(app)
+        self.principal = _get_principal(app)
+        self.pwd_context = _get_pwd_context(app)
 
-        self.auth_url = utils.config_value(app, 'AUTH_URL')
-        self.logout_url = utils.config_value(app, 'LOGOUT_URL')
-        self.reset_url = utils.config_value(app, 'RESET_URL')
-        self.register_url = utils.config_value(app, 'REGISTER_URL')
-        self.confirm_url = utils.config_value(app, 'CONFIRM_URL')
-        self.forgot_url = utils.config_value(app, 'FORGOT_URL')
-
-        self.post_login_view = utils.config_value(app, 'POST_LOGIN_VIEW')
-        self.post_logout_view = utils.config_value(app, 'POST_LOGOUT_VIEW')
-        self.post_register_view = utils.config_value(app, 'POST_REGISTER_VIEW')
-        self.post_confirm_view = utils.config_value(app, 'POST_CONFIRM_VIEW')
-        self.post_forgot_view = utils.config_value(app, 'POST_FORGOT_VIEW')
-        self.reset_password_error_view = utils.config_value(app, 'RESET_PASSWORD_ERROR_VIEW')
-
-        self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
-        self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
-        self.confirmable = utils.config_value(app, 'CONFIRMABLE')
-        self.registerable = utils.config_value(app, 'REGISTERABLE')
-        self.recoverable = utils.config_value(app, 'RECOVERABLE')
-        self.trackable = utils.config_value(app, 'TRACKABLE')
-        self.email_sender = utils.config_value(app, 'EMAIL_SENDER')
-        self.token_authentication_key = utils.config_value(app, 'TOKEN_AUTHENTICATION_KEY')
-        self.token_authentication_header = utils.config_value(app, 'TOKEN_AUTHENTICATION_HEADER')
-
-        self.confirm_email_within_text = utils.config_value(app, 'CONFIRM_EMAIL_WITHIN')
-        values = self.confirm_email_within_text.split()
-        self.confirm_email_within = timedelta(**{values[1]: int(values[0])})
-
-        self.reset_password_within_text = utils.config_value(app, 'RESET_PASSWORD_WITHIN')
-        values = self.reset_password_within_text.split()
-        self.reset_password_within = timedelta(**{values[1]: int(values[0])})
+        for key, value in get_config(app).items():
+            setattr(self, key.lower(), value)
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        bp = Blueprint('flask_security', __name__, template_folder='templates')
-
-        bp.route(self.auth_url,
-                 methods=['POST'],
-                 endpoint='authenticate')(views.authenticate)
-
-        bp.route(self.logout_url,
-                 endpoint='logout')(login_required(views.logout))
-
-        self._setup_registerable(bp) if self.registerable else None
-        self._setup_recoverable(bp) if self.recoverable else None
-        self._setup_confirmable(bp) if self.confirmable else None
-
-        app.register_blueprint(bp,
-            url_prefix=utils.config_value(app, 'URL_PREFIX'))
+        app.register_blueprint(_create_blueprint(app.config),
+                               url_prefix=cv('URL_PREFIX', app=app))
 
         app.security = self
-
-    def _setup_registerable(self, bp):
-        bp.route(self.register_url,
-                 methods=['POST'],
-                 endpoint='register')(views.register)
-
-    def _setup_recoverable(self, bp):
-        bp.route(self.forgot_url,
-                 methods=['POST'],
-                 endpoint='forgot')(views.forgot)
-        bp.route(self.reset_url,
-                 methods=['POST'],
-                 endpoint='reset')(views.reset)
-
-    def _setup_confirmable(self, bp):
-        bp.route(self.confirm_url,
-                 endpoint='confirm')(views.confirm)
 
 
 class AuthenticationProvider(object):
