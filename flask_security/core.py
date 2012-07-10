@@ -56,52 +56,6 @@ _default_config = {
 }
 
 
-class RoleMixin(object):
-    """Mixin for `Role` model definitions"""
-    def __eq__(self, other):
-        return self.name == other or self.name == getattr(other, 'name', None)
-
-    def __ne__(self, other):
-        return self.name != other and self.name != getattr(other, 'name', None)
-
-    def __str__(self):
-        return '<Role name=%s>' % self.name
-
-
-class UserMixin(BaseUserMixin):
-    """Mixin for `User` model definitions"""
-
-    def is_active(self):
-        """Returns `True` if the user is active."""
-        return self.active
-
-    def get_auth_token(self):
-        """Returns the user's authentication token."""
-        self.remember_token
-
-    def has_role(self, role):
-        """Returns `True` if the user identifies with the specified role.
-
-        :param role: A role name or `Role` instance"""
-        return role in self.roles
-
-    def __str__(self):
-        ctx = (str(self.id), self.email)
-        return '<User id=%s, email=%s>' % ctx
-
-
-class AnonymousUser(AnonymousUserBase):
-    """AnonymousUser definition"""
-
-    def __init__(self):
-        super(AnonymousUser, self).__init__()
-        self.roles = ImmutableList()
-
-    def has_role(self, *args):
-        """Returns `False`"""
-        return False
-
-
 def _user_loader(user_id):
     try:
         return current_app.security.datastore.with_id(user_id)
@@ -183,6 +137,52 @@ def _create_blueprint(app):
                  endpoint='confirm')(views.confirm)
 
     return bp
+
+
+class RoleMixin(object):
+    """Mixin for `Role` model definitions"""
+    def __eq__(self, other):
+        return self.name == other or self.name == getattr(other, 'name', None)
+
+    def __ne__(self, other):
+        return self.name != other and self.name != getattr(other, 'name', None)
+
+    def __str__(self):
+        return '<Role name=%s>' % self.name
+
+
+class UserMixin(BaseUserMixin):
+    """Mixin for `User` model definitions"""
+
+    def is_active(self):
+        """Returns `True` if the user is active."""
+        return self.active
+
+    def get_auth_token(self):
+        """Returns the user's authentication token."""
+        self.remember_token
+
+    def has_role(self, role):
+        """Returns `True` if the user identifies with the specified role.
+
+        :param role: A role name or `Role` instance"""
+        return role in self.roles
+
+    def __str__(self):
+        ctx = (str(self.id), self.email)
+        return '<User id=%s, email=%s>' % ctx
+
+
+class AnonymousUser(AnonymousUserBase):
+    """AnonymousUser definition"""
+
+    def __init__(self):
+        super(AnonymousUser, self).__init__()
+        self.roles = ImmutableList()
+
+    def has_role(self, *args):
+        """Returns `False`"""
+        return False
 
 
 class Security(object):
