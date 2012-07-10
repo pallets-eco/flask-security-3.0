@@ -1,1 +1,7 @@
-Resend confirmation instructions...
+{% include "../messages.html" %}
+<h1>Resend confirmation instructions</h1>
+<form action="{{ url_for('flask_security.confirm') }}" method="POST" name="reset_confirmation_form">
+  {{ reset_confirmation_form.hidden_tag() }}
+  {{ reset_confirmation_form.email.label }} {{ reset_confirmation_form.email }}
+  {{ reset_confirmation_form.submit }}
+</form>
