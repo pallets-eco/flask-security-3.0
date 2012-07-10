@@ -113,7 +113,6 @@ def _user_loader(user_id):
 
 
 def _token_loader(token):
-    print 'token loader!'
     try:
         return current_app.security.datastore.find_user(remember_token=token)
     except Exception, e:
