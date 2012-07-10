@@ -15,6 +15,7 @@ from contextlib import contextmanager
 from importlib import import_module
 
 from flask import url_for, flash, current_app, request, session, render_template
+from flask.ext.login import make_secure_token
 
 from .signals import user_registered, password_reset_requested
 
@@ -22,6 +23,12 @@ from .signals import user_registered, password_reset_requested
 def generate_token():
     """Generate an arbitrary URL safe token."""
     return base64.urlsafe_b64encode(os.urandom(30))
+
+
+def get_remember_token(email, password):
+    assert email is not None
+    assert password is not None
+    return make_secure_token(email, password)
 
 
 def do_flash(message, category=None):

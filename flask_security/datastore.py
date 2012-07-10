@@ -11,7 +11,7 @@
 
 from flask import current_app
 
-from . import exceptions, confirmable
+from . import exceptions, confirmable, utils
 
 
 class UserDatastore(object):
@@ -112,6 +112,9 @@ class UserDatastore(object):
         pw = kwargs['password']
         if not pwd_context.identify(pw):
             kwargs['password'] = pwd_context.encrypt(pw)
+
+        kwargs['remember_token'] = utils.get_remember_token(kwargs['email'],
+                                                            kwargs['password'])
 
         return kwargs
 

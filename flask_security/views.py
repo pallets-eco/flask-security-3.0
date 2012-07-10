@@ -13,7 +13,7 @@ from datetime import datetime
 
 from flask import current_app as app, redirect, request, session, \
      render_template
-from flask.ext.login import login_user, logout_user, make_secure_token
+from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
@@ -26,7 +26,7 @@ from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
 from .recoverable import reset_by_token, \
      reset_password_reset_token
 from .signals import user_registered
-from .utils import get_post_login_redirect, do_flash
+from .utils import get_post_login_redirect, do_flash, get_remember_token
 
 
 # Convenient references
@@ -43,8 +43,8 @@ def _do_login(user, remember=True):
     if not login_user(user, remember):
         return False
 
-    user.remember_token = None if not remember else \
-                          make_secure_token(user.email, user.password)
+    if remember:
+        user.remember_token = get_remember_token(user.email, user.password)
 
     if _security.trackable:
         old_current, new_current = user.current_login_at, datetime.utcnow()
