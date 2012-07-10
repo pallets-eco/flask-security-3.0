@@ -155,31 +155,31 @@ def _get_pwd_context(app):
     return CryptContext(schemes=[pw_hash], default=pw_hash)
 
 
-def _create_blueprint(config):
+def _create_blueprint(app):
     bp = Blueprint('flask_security', __name__, template_folder='templates')
 
-    bp.route(config['SECURITY_AUTH_URL'],
+    bp.route(cv('AUTH_URL', app=app),
              methods=['POST'],
              endpoint='authenticate')(views.authenticate)
 
-    bp.route(config['SECURITY_LOGOUT_URL'],
+    bp.route(cv('LOGOUT_URL', app=app),
              endpoint='logout')(login_required(views.logout))
 
-    if config['SECURITY_REGISTERABLE']:
-        bp.route(config['SECURITY_REGISTER_URL'],
+    if cv('REGISTERABLE', app=app):
+        bp.route(cv('REGISTER_URL', app=app),
                  methods=['POST'],
                  endpoint='register')(views.register)
 
-    if config['SECURITY_RECOVERABLE']:
-        bp.route(config['SECURITY_FORGOT_URL'],
+    if cv('RECOVERABLE', app=app):
+        bp.route(cv('FORGOT_URL', app=app),
                  methods=['POST'],
                  endpoint='forgot')(views.forgot)
-        bp.route(config['SECURITY_RESET_URL'],
+        bp.route(cv('RESET_URL', app=app),
                  methods=['POST'],
                  endpoint='reset')(views.reset)
 
-    if config['SECURITY_CONFIRMABLE']:
-        bp.route(config['SECURITY_CONFIRM_URL'],
+    if cv('CONFIRMABLE', app=app):
+        bp.route(cv('CONFIRM_URL', app=app),
                  endpoint='confirm')(views.confirm)
 
     return bp
@@ -218,7 +218,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        app.register_blueprint(_create_blueprint(app.config),
+        app.register_blueprint(_create_blueprint(app),
                                url_prefix=cv('URL_PREFIX', app=app))
 
         app.security = self
