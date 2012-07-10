@@ -14,7 +14,8 @@ from datetime import timedelta
 from flask import current_app, Blueprint
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
-from flask.ext.principal import Principal, RoleNeed, UserNeed, identity_loaded
+from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
+     identity_loaded
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
@@ -123,6 +124,12 @@ def _token_loader(token):
         return None
 
 
+def _identity_loader():
+    if not isinstance(current_user._get_current_object(), AnonymousUser):
+        identity = Identity(current_user.id)
+        return identity
+
+
 def _on_identity_loaded(sender, identity):
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
@@ -172,7 +179,8 @@ class Security(object):
         self.login_manager = login_manager
         self.pwd_context = CryptContext(schemes=[pw_hash], default=pw_hash)
         self.auth_provider = Provider()
-        self.principal = Principal(app)
+        self.principal = Principal(app, use_sessions=False)
+        self.principal.identity_loader(_identity_loader)
         self.datastore = datastore
         self.LoginForm = utils.get_class_from_string(app, 'LOGIN_FORM')
         self.RegisterForm = utils.get_class_from_string(app, 'REGISTER_FORM')
