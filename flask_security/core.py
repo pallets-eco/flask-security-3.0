@@ -31,10 +31,6 @@ _default_config = {
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'AUTH_PROVIDER': 'flask.ext.security::AuthenticationProvider',
-    'LOGIN_FORM': 'flask.ext.security.forms::LoginForm',
-    'REGISTER_FORM': 'flask.ext.security.forms::RegisterForm',
-    'RESET_PASSWORD_FORM': 'flask.ext.security.forms::ResetPasswordForm',
-    'FORGOT_PASSWORD_FORM': 'flask.ext.security.forms::ForgotPasswordForm',
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -177,27 +173,30 @@ class Security(object):
         pw_hash = utils.config_value(app, 'PASSWORD_HASH')
 
         self.login_manager = login_manager
+
         self.pwd_context = CryptContext(schemes=[pw_hash], default=pw_hash)
+
         self.auth_provider = Provider()
+
         self.principal = Principal(app, use_sessions=False)
         self.principal.identity_loader(_identity_loader)
+
         self.datastore = datastore
-        self.LoginForm = utils.get_class_from_string(app, 'LOGIN_FORM')
-        self.RegisterForm = utils.get_class_from_string(app, 'REGISTER_FORM')
-        self.ResetPasswordForm = utils.get_class_from_string(app, 'RESET_PASSWORD_FORM')
-        self.ForgotPasswordForm = utils.get_class_from_string(app, 'FORGOT_PASSWORD_FORM')
+
         self.auth_url = utils.config_value(app, 'AUTH_URL')
         self.logout_url = utils.config_value(app, 'LOGOUT_URL')
         self.reset_url = utils.config_value(app, 'RESET_URL')
         self.register_url = utils.config_value(app, 'REGISTER_URL')
         self.confirm_url = utils.config_value(app, 'CONFIRM_URL')
         self.forgot_url = utils.config_value(app, 'FORGOT_URL')
+
         self.post_login_view = utils.config_value(app, 'POST_LOGIN_VIEW')
         self.post_logout_view = utils.config_value(app, 'POST_LOGOUT_VIEW')
         self.post_register_view = utils.config_value(app, 'POST_REGISTER_VIEW')
         self.post_confirm_view = utils.config_value(app, 'POST_CONFIRM_VIEW')
         self.post_forgot_view = utils.config_value(app, 'POST_FORGOT_VIEW')
         self.reset_password_error_view = utils.config_value(app, 'RESET_PASSWORD_ERROR_VIEW')
+
         self.default_roles = utils.config_value(app, "DEFAULT_ROLES")
         self.login_without_confirmation = utils.config_value(app, 'LOGIN_WITHOUT_CONFIRMATION')
         self.confirmable = utils.config_value(app, 'CONFIRMABLE')

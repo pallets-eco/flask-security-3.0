@@ -21,6 +21,8 @@ from .confirmable import confirm_by_token, \
      reset_confirmation_token, send_confirmation_instructions
 from .exceptions import TokenExpiredError, UserNotFoundError, \
      ConfirmationError, BadCredentialsError, ResetPasswordError
+from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
+     ResetPasswordForm
 from .recoverable import reset_by_token, \
      reset_password_reset_token
 from .signals import user_registered
@@ -67,7 +69,7 @@ def _do_login(user, remember=True):
 def authenticate():
     """View function which handles an authentication request."""
 
-    form = _security.LoginForm()
+    form = LoginForm()
 
     try:
         user = _security.auth_provider.authenticate(form)
@@ -108,7 +110,7 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    form = _security.RegisterForm(csrf_enabled=not app.testing)
+    form = RegisterForm(csrf_enabled=not app.testing)
 
     # Exit early if the form doesn't validate
     if form.validate_on_submit():
@@ -165,7 +167,7 @@ def confirm():
 def forgot():
     """View function that handles a forgotten password request."""
 
-    form = _security.ForgotPasswordForm(csrf_enabled=not app.testing)
+    form = ForgotPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
         try:
@@ -188,7 +190,7 @@ def forgot():
 def reset():
     """View function that handles a reset password request."""
 
-    form = _security.ResetPasswordForm(csrf_enabled=not app.testing)
+    form = ResetPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
         try:
