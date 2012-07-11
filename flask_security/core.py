@@ -19,7 +19,7 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
 from . import views, exceptions
-from .confirmable import requires_confirmation, reset_confirmation_token
+from .confirmable import requires_confirmation
 from .decorators import login_required
 from .utils import config_value as cv, get_config
 

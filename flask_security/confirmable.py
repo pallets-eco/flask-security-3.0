@@ -26,16 +26,6 @@ _security = LocalProxy(lambda: app.security)
 _datastore = LocalProxy(lambda: app.security.datastore)
 
 
-def find_user_by_confirmation_token(token):
-    """Returns a user with a matching confirmation token.
-
-    :param token: The reset password token
-    """
-    if not token:
-        raise ConfirmationError('Confirmation token required')
-    return _datastore.find_user(confirmation_token=token)
-
-
 def send_confirmation_instructions(user, token):
     """Sends the confirmation instructions email for the specified user.
 

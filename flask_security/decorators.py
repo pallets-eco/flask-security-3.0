@@ -14,8 +14,13 @@ from functools import wraps
 from flask import current_app as app, Response, request, abort, redirect
 from flask.ext.login import login_required, login_url, current_user
 from flask.ext.principal import RoleNeed, Permission
+from werkzeug.local import LocalProxy
 
 from . import utils
+
+
+# Convenient references
+_security = LocalProxy(lambda: app.security)
 
 
 _default_http_auth_msg = """
@@ -29,15 +34,24 @@ _default_http_auth_msg = """
 
 
 def _check_token():
+
     header_key = app.security.token_authentication_header
     args_key = app.security.token_authentication_key
 
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
 
+    serializer = _security.token_auth_serializer
+
     try:
-        app.security.datastore.find_user(authentication_token=token)
-    except:
+        data = serializer.loads(token)
+        user = app.security.datastore.find_user(id=data[0],
+                                                authentication_token=token)
+
+        if data[1] != utils.md5(user.email):
+            raise Exception()
+
+    except Exception:
         return False
 
     return True

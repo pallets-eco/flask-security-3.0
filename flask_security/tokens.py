@@ -9,27 +9,16 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from datetime import datetime
-
 from flask import current_app as app
 from werkzeug.local import LocalProxy
 
-from .exceptions import BadCredentialsError, UserNotFoundError
-from .utils import generate_token
+from .utils import md5
 
 
 # Convenient references
+_security = LocalProxy(lambda: app.security)
+
 _datastore = LocalProxy(lambda: app.security.datastore)
-
-
-def find_user_by_authentication_token(token):
-    """Returns a user with a matching authentication token.
-
-    :param token: The authentication token
-    """
-    if not token:
-        raise BadCredentialsError('Authentication token required')
-    return _datastore.find_user(authentication_token=token)
 
 
 def generate_authentication_token(user):
@@ -37,23 +26,8 @@ def generate_authentication_token(user):
 
     :param user: The user to work with
     """
-    while True:
-        token = generate_token()
-        try:
-            find_user_by_authentication_token(token)
-        except UserNotFoundError:
-            break
-
-    now = datetime.utcnow()
-
-    try:
-        user['authentication_token'] = token
-        user['authentication_token_created_at'] = now
-    except TypeError:
-        user.authentication_token = token
-        user.authentication_token_created_at = now
-
-    return user
+    data = [str(user.id), md5(user.email)]
+    return _security.token_auth_serializer.dumps(data)
 
 
 def reset_authentication_token(user):
@@ -61,9 +35,10 @@ def reset_authentication_token(user):
 
     :param user: The user to work with
     """
-    user = generate_authentication_token(user)
+    token = generate_authentication_token(user)
+    user.authentication_token = token
     _datastore._save_model(user)
-    return user.authentication_token
+    return token
 
 
 def ensure_authentication_token(user):
@@ -73,5 +48,4 @@ def ensure_authentication_token(user):
     :param user: The user to work with
     """
     if not user.authentication_token:
-        reset_authentication_token(user)
-    return user.authentication_token
+        return reset_authentication_token(user)

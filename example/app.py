@@ -32,8 +32,7 @@ def create_users():
                ('jill@lp.com', 'password', ['author'], True),
                ('tiya@lp.com', 'password', [], False)):
         current_app.security.datastore.create_user(
-            email=u[0], password=u[1], roles=u[2], active=u[3],
-            authentication_token='123abc')
+            email=u[0], password=u[1], roles=u[2], active=u[3])
 
 
 def populate_data():

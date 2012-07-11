@@ -12,9 +12,10 @@
 from datetime import datetime
 
 from flask import current_app as app, redirect, request, session, \
-     render_template
+     render_template, jsonify
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
+from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from .confirmable import confirm_by_token, reset_confirmation_token
@@ -25,6 +26,7 @@ from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
 from .recoverable import reset_by_token, \
      reset_password_reset_token
 from .signals import user_registered
+from .tokens import generate_authentication_token
 from .utils import get_post_login_redirect, do_flash, get_remember_token
 
 
@@ -41,6 +43,9 @@ def _do_login(user, remember=True):
 
     if not login_user(user, remember):
         return False
+
+    if user.authentication_token is None:
+        user.authentication_token = generate_authentication_token(user)
 
     if remember:
         user.remember_token = get_remember_token(user.email, user.password)
@@ -65,15 +70,45 @@ def _do_login(user, remember=True):
     return True
 
 
+def _json_auth_ok(user):
+    return jsonify({
+        "meta": {
+            "code": 200
+        },
+        "response": {
+            "user": {
+                "id": str(user.id),
+                "authentication_token": user.authentication_token
+            }
+        }
+    })
+
+
+def _json_auth_error(msg):
+    resp = jsonify({
+        "meta": {
+            "code": 400
+        },
+        "response": {
+            "error": msg
+        }
+    })
+    resp.status_code = 400
+    return resp
+
+
 def authenticate():
     """View function which handles an authentication request."""
 
-    form = LoginForm()
+    form = LoginForm(MultiDict(request.json) if request.json else request.form)
 
     try:
         user = _security.auth_provider.authenticate(form)
 
         if _do_login(user, remember=form.remember.data):
+            if request.json:
+                return _json_auth_ok(user)
+
             return redirect(get_post_login_redirect())
 
         raise BadCredentialsError('Inactive user')
@@ -81,8 +116,8 @@ def authenticate():
     except BadCredentialsError, e:
         msg = str(e)
 
-    except Exception, e:
-        msg = 'Unknown authentication error'
+    if request.json:
+        return _json_auth_error(msg)
 
     do_flash(msg, 'error')
     _logger.debug('Unsuccessful authentication attempt: %s' % msg)

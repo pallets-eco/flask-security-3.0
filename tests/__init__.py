@@ -36,6 +36,17 @@ class SecurityTest(TestCase):
         data = dict(email=email, password=password)
         return self._post(endpoint or '/auth', data=data)
 
+    def json_authenticate(self, email="matt@lp.com", password="password", endpoint=None):
+        data = """
+{
+    "email": "%s",
+    "password": "%s"
+}
+"""
+        return self._post(endpoint or '/auth',
+                          content_type="application/json",
+                          data=data % (email, password))
+
     def logout(self, endpoint=None):
         return self._get(endpoint or '/logout', follow_redirects=True)
 

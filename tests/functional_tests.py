@@ -3,7 +3,11 @@
 from __future__ import with_statement
 
 import time
-from datetime import datetime, timedelta
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests
@@ -95,12 +99,27 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get("/admin_and_editor")
         self.assertIn('Admin and Editor Page', r.data)
 
+    def test_ok_json_auth(self):
+        r = self.json_authenticate()
+        self.assertIn('"code": 200', r.data)
+
+    def test_invalid_json_auth(self):
+        r = self.json_authenticate(password='junk')
+        self.assertIn('"code": 400', r.data)
+
     def test_token_auth_via_querystring_valid_token(self):
-        r = self._get('/token?auth_token=123abc')
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        r = self._get('/token?auth_token=' + token)
         self.assertIn('Token Authentication', r.data)
 
     def test_token_auth_via_header_valid_token(self):
-        r = self._get('/token', headers={"X-Auth-Token": '123abc'})
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        headers = {"X-Auth-Token": token}
+        r = self._get('/token', headers=headers)
         self.assertIn('Token Authentication', r.data)
 
     def test_token_auth_via_querystring_invalid_token(self):

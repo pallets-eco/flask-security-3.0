@@ -15,7 +15,8 @@ import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 
-from flask import url_for, flash, current_app, request, session, render_template
+from flask import url_for, flash, current_app, request, session, \
+     render_template
 from flask.ext.login import make_secure_token
 
 from .signals import user_registered, password_reset_requested
