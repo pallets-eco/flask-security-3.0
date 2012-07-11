@@ -169,8 +169,7 @@ def register():
         return redirect(_security.post_register_view or
                         _security.post_login_view)
 
-    return redirect(request.referrer or
-                    _security.register_url)
+    return redirect(request.referrer or _security.register_url)
 
 
 def confirm(token):
@@ -180,20 +179,28 @@ def confirm(token):
         user = confirm_by_token(token)
 
     except ConfirmationError, e:
+        _logger.debug('Confirmation error: ' + str(e))
+
         do_flash(str(e), 'error')
+
         return redirect('/')  # TODO: Don't just redirect to root
 
     except TokenExpiredError, e:
+
         reset_confirmation_token(e.user)
 
         msg = 'You did not confirm your email within %s. ' \
               'A new confirmation code has been sent to %s' % (
                _security.confirm_email_within, e.user.email)
 
+        _logger.debug('Attempted account confirmation but token was expired')
+
         do_flash(msg, 'error')
+
         return redirect('/')  # TODO: Don't redirect to root
 
     _logger.debug('User %s confirmed' % user)
+
     do_flash('Your email has been confirmed. You may now log in.', 'success')
 
     return redirect(_security.post_confirm_view or
@@ -211,10 +218,15 @@ def forgot():
 
             reset_password_reset_token(user)
 
+            _logger.debug('%s requested to reset their password' % user)
+
             do_flash('Instructions to reset your password have been '
                      'sent to %s' % user.email, 'success')
 
         except UserNotFoundError:
+            _logger.debug('A reset password request was made for %s but '
+                          'that email does not exist.' % form.email.data)
+
             do_flash('The email you provided could not be found', 'error')
 
         return redirect(_security.post_forgot_view)
@@ -233,10 +245,14 @@ def reset(token):
             reset_by_token(token=token, **form.to_dict())
 
         except ResetPasswordError, e:
+            _logger.debug('Password reset error: ' + str(e))
+
             do_flash(str(e), 'error')
 
         except TokenExpiredError, e:
-            do_flash('You did not reset your password within'
+            _logger.debug('Attempted password reset but token was expired')
+
+            do_flash('You did not reset your password within '
                      '%s.' % _security.reset_password_within)
 
     return redirect(request.referrer or

@@ -177,8 +177,7 @@ class RegisterableTests(SecurityTest):
 class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-        'SECURITY_CONFIRM_EMAIL_WITHIN': '1 seconds'
+        'SECURITY_REGISTERABLE': True
     }
 
     def test_register_sends_confirmation_email(self):
@@ -213,6 +212,14 @@ class ConfirmableTests(SecurityTest):
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)
+
+
+class ExpiredConfirmationTest(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True,
+        'SECURITY_CONFIRM_EMAIL_WITHIN': '1 seconds'
+    }
 
     def test_expired_confirmation_token_sends_email(self):
         e = 'dude@lp.com'
@@ -255,7 +262,6 @@ class RecoverableTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_RECOVERABLE': True,
-        'SECURITY_RESET_PASSWORD_WITHIN': '1 seconds'
     }
 
     def test_forgot_post_sends_email(self):
@@ -272,16 +278,41 @@ class RecoverableTests(SecurityTest):
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            r = self.client.post('/forgot',
+                                 data=dict(email='joe@lp.com'),
+                                 follow_redirects=True)
             t = requests[0]['token']
 
         r = self.client.post('/reset/' + t, data={
             'password': 'newpassword',
             'password_confirm': 'newpassword'
-        })
+        }, follow_redirects=True)
 
         r = self.authenticate('joe@lp.com', 'newpassword')
         self.assertIn('Hello joe@lp.com', r.data)
+
+    def test_reset_password_twice_flashes_invalid_token_msg(self):
+        with capture_reset_password_requests() as requests:
+            self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            t = requests[0]['token']
+
+        data = {
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }
+
+        url = '/reset/' + t
+        r = self.client.post(url, data=data, follow_redirects=True)
+        r = self.client.post(url, data=data, follow_redirects=True)
+        self.assertIn('Invalid reset password token', r.data)
+
+
+class ExpiredResetPasswordTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
+        'SECURITY_RESET_PASSWORD_WITHIN': '1 seconds'
+    }
 
     def test_reset_password_with_expired_token(self):
         with capture_reset_password_requests() as requests:
@@ -298,21 +329,6 @@ class RecoverableTests(SecurityTest):
         }, follow_redirects=True)
 
         self.assertIn('You did not reset your password within', r.data)
-
-    def test_reset_password_twice_flashes_invalid_token_msg(self):
-        with capture_reset_password_requests() as requests:
-            self.client.post('/forgot', data=dict(email='joe@lp.com'))
-            t = requests[0]['token']
-
-        data = {
-            'password': 'newpassword',
-            'password_confirm': 'newpassword'
-        }
-
-        url = '/reset/' + t
-        r = self.client.post(url, data=data, follow_redirects=True)
-        r = self.client.post(url, data=data, follow_redirects=True)
-        self.assertIn('Invalid reset password token', r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
