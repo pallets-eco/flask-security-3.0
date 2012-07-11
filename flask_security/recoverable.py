@@ -86,26 +86,24 @@ def reset_by_token(token, password):
         if md5(user.password) != data[1]:
             raise UserNotFoundError()
 
+        user.password = _security.pwd_context.encrypt(password)
+        _datastore._save_model(user)
+
+        send_password_reset_notice(user)
+
+        password_reset.send(user, app=app._get_current_object())
+
+        return user
+
     except UserNotFoundError:
         raise ResetPasswordError('Invalid reset password token')
 
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
-        user = _datastore.find_user(id=data[0])
-        raise TokenExpiredError('Reset password token is expired', user)
+        raise TokenExpiredError(user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
         raise ResetPasswordError('Invalid reset password token')
-
-    user.password = _security.pwd_context.encrypt(password)
-
-    _datastore._save_model(user)
-
-    send_password_reset_notice(user)
-
-    password_reset.send(user, app=app._get_current_object())
-
-    return user
 
 
 def reset_password_reset_token(user):

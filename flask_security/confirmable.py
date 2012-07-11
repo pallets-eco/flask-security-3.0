@@ -96,27 +96,25 @@ def confirm_by_token(token):
         if md5(user.email) != data[1]:
             raise UserNotFoundError()
 
+        if user.confirmed_at:
+            raise ConfirmationError('Account has already been confirmed')
+
+        user.confirmed_at = datetime.utcnow()
+        _datastore._save_model(user)
+
+        user_confirmed.send(user, app=app._get_current_object())
+
+        return user
+
     except UserNotFoundError:
         raise ConfirmationError('Invalid confirmation token')
 
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
-        user = _datastore.find_user(id=data[0])
-        raise TokenExpiredError(message='Confirmation token is expired',
-                                user=user)
+        raise TokenExpiredError(user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
         raise ConfirmationError('Invalid confirmation token')
-
-    if user.confirmed_at:
-        raise ConfirmationError('Account has already been confirmed')
-
-    user.confirmed_at = datetime.utcnow()
-    _datastore._save_model(user)
-
-    user_confirmed.send(user, app=app._get_current_object())
-
-    return user
 
 
 def reset_confirmation_token(user):
