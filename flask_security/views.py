@@ -116,11 +116,12 @@ def authenticate():
     except BadCredentialsError, e:
         msg = str(e)
 
+    _logger.debug('Unsuccessful authentication attempt: %s' % msg)
+
     if request.json:
         return _json_auth_error(msg)
 
     do_flash(msg, 'error')
-    _logger.debug('Unsuccessful authentication attempt: %s' % msg)
 
     return redirect(request.referrer or _security.login_manager.login_view)
 
