@@ -17,8 +17,7 @@ from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
-from .confirmable import confirm_by_token, \
-     reset_confirmation_token, send_confirmation_instructions
+from .confirmable import confirm_by_token, reset_confirmation_token
 from .exceptions import TokenExpiredError, UserNotFoundError, \
      ConfirmationError, BadCredentialsError, ResetPasswordError
 from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
@@ -116,12 +115,14 @@ def register():
     if form.validate_on_submit():
         # Create user and send signal
         user = _datastore.create_user(**form.to_dict())
-
-        user_registered.send(user, app=app._get_current_object())
+        confirm_token = None
 
         # Send confirmation instructions if necessary
         if _security.confirmable:
-            send_confirmation_instructions(user)
+            confirm_token = reset_confirmation_token(user)
+
+        user_registered.send(dict(user=user, confirm_token=confirm_token),
+                             app=app._get_current_object())
 
         _logger.debug('User %s registered' % user)
 
@@ -136,11 +137,10 @@ def register():
                     _security.register_url)
 
 
-def confirm():
+def confirm(token):
     """View function which handles a account confirmation request."""
 
     try:
-        token = request.args.get('confirmation_token', None)
         user = confirm_by_token(token)
 
     except ConfirmationError, e:
@@ -187,21 +187,21 @@ def forgot():
                            forgot_password_form=form)
 
 
-def reset():
+def reset(token):
     """View function that handles a reset password request."""
 
     form = ResetPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
         try:
-            reset_by_token(**form.to_dict())
+            reset_by_token(token=token, **form.to_dict())
 
         except ResetPasswordError, e:
             do_flash(str(e), 'error')
 
         except TokenExpiredError, e:
             do_flash('You did not reset your password within'
-                     '%s.' % _security.reset_password_within_text)
+                     '%s.' % _security.reset_password_within)
 
     return redirect(request.referrer or
                     _security.reset_password_error_view)

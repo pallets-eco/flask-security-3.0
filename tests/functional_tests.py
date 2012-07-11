@@ -2,6 +2,7 @@
 
 from __future__ import with_statement
 
+import time
 from datetime import datetime, timedelta
 
 from flask.ext.security.utils import capture_registrations, \
@@ -157,7 +158,8 @@ class RegisterableTests(SecurityTest):
 class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True
+        'SECURITY_REGISTERABLE': True,
+        'SECURITY_CONFIRM_EMAIL_WITHIN': '1 seconds'
     }
 
     def test_register_sends_confirmation_email(self):
@@ -170,44 +172,40 @@ class ConfirmableTests(SecurityTest):
     def test_confirm_email(self):
         e = 'dude@lp.com'
 
-        with capture_registrations() as users:
+        with capture_registrations() as registrations:
             self.register(e)
-            token = users[0].confirmation_token
+            token = registrations[0]['confirm_token']
 
-        r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+        r = self.client.get('/confirm/' + token, follow_redirects=True)
         self.assertIn('Your email has been confirmed. You may now log in.', r.data)
 
-    def test_confirm_email_twice_flashes_invalid_token_msg(self):
+    def test_confirm_email_twice_flashes_already_confirmed_message(self):
         e = 'dude@lp.com'
 
-        with capture_registrations() as users:
+        with capture_registrations() as registrations:
             self.register(e)
-            token = users[0].confirmation_token
+            token = registrations[0]['confirm_token']
 
-        url = '/confirm?confirmation_token=' + token
+        url = '/confirm/' + token
         self.client.get(url, follow_redirects=True)
         r = self.client.get(url, follow_redirects=True)
         self.assertIn('Account has already been confirmed', r.data)
 
-    def test_unprovided_token_when_confirming_email(self):
-        r = self.client.get('/confirm', follow_redirects=True)
-        self.assertIn('Confirmation token required', r.data)
-
     def test_invalid_token_when_confirming_email(self):
-        r = self.client.get('/confirm?confirmation_token=invalid', follow_redirects=True)
+        r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)
 
     def test_expired_confirmation_token_sends_email(self):
         e = 'dude@lp.com'
 
-        sent_at = datetime.utcnow() - timedelta(days=15)
-
-        with capture_registrations(confirmation_sent_at=sent_at) as users:
+        with capture_registrations() as registrations:
             self.register(e)
-            token = users[0].confirmation_token
+            token = registrations[0]['confirm_token']
+
+        time.sleep(3)
 
         with self.app.mail.record_messages() as outbox:
-            r = self.client.get('/confirm?confirmation_token=' + token, follow_redirects=True)
+            r = self.client.get('/confirm/' + token, follow_redirects=True)
 
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)
@@ -237,16 +235,15 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
 class RecoverableTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_RECOVERABLE': True
+        'SECURITY_RECOVERABLE': True,
+        'SECURITY_RESET_PASSWORD_WITHIN': '1 seconds'
     }
 
-    def test_forgot_post_sends_email_and_sets_required_fields(self):
-        with capture_reset_password_requests() as users:
+    def test_forgot_post_sends_email(self):
+        with capture_reset_password_requests():
             with self.app.mail.record_messages() as outbox:
                 self.client.post('/forgot', data=dict(email='joe@lp.com'))
                 self.assertEqual(len(outbox), 1)
-                self.assertIsNotNone(users[0].reset_password_token)
-                self.assertIsNotNone(users[0].reset_password_sent_at)
 
     def test_forgot_password_invalid_email(self):
         r = self.client.post('/forgot',
@@ -255,35 +252,47 @@ class RecoverableTests(SecurityTest):
         self.assertIn('The email you provided could not be found', r.data)
 
     def test_reset_password_with_valid_token(self):
-        u = None
-        with capture_reset_password_requests() as users:
+        with capture_reset_password_requests() as requests:
             r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
-            u = users[0]
+            t = requests[0]['token']
 
-        r = self.client.post('/reset', data={
-            'email': u.email,
-            'token': u.reset_password_token,
+        r = self.client.post('/reset/' + t, data={
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         })
+
         r = self.authenticate('joe@lp.com', 'newpassword')
         self.assertIn('Hello joe@lp.com', r.data)
 
+    def test_reset_password_with_expired_token(self):
+        with capture_reset_password_requests() as requests:
+            r = self.client.post('/forgot',
+                                 data=dict(email='joe@lp.com'),
+                                 follow_redirects=True)
+            t = requests[0]['token']
+
+        time.sleep(2)
+
+        r = self.client.post('/reset/' + t, data={
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }, follow_redirects=True)
+
+        self.assertIn('You did not reset your password within', r.data)
+
     def test_reset_password_twice_flashes_invalid_token_msg(self):
-        u = None
-        with capture_reset_password_requests() as users:
-            r = self.client.post('/forgot', data=dict(email='joe@lp.com'))
-            u = users[0]
+        with capture_reset_password_requests() as requests:
+            self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            t = requests[0]['token']
 
         data = {
-            'email': u.email,
-            'token': u.reset_password_token,
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         }
 
-        self.client.post('/reset', data=data)
-        r = self.client.post('/reset', data=data, follow_redirects=True)
+        url = '/reset/' + t
+        r = self.client.post(url, data=data, follow_redirects=True)
+        r = self.client.post(url, data=data, follow_redirects=True)
         self.assertIn('Invalid reset password token', r.data)
 
 

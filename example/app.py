@@ -136,13 +136,8 @@ def create_sqlalchemy_app(auth_config=None):
         current_login_ip = db.Column(db.String(100))
         login_count = db.Column(db.Integer)
         active = db.Column(db.Boolean())
-        confirmation_token = db.Column(db.String(255))
-        confirmation_sent_at = db.Column(db.DateTime())
         confirmed_at = db.Column(db.DateTime())
-        reset_password_token = db.Column(db.String(255))
-        reset_password_sent_at = db.Column(db.DateTime())
         authentication_token = db.Column(db.String(255))
-        authentication_token_created_at = db.Column(db.DateTime())
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
@@ -179,13 +174,8 @@ def create_mongoengine_app(auth_config=None):
         current_login_ip = db.StringField(max_length=100)
         login_count = db.IntField()
         active = db.BooleanField(default=True)
-        confirmation_token = db.StringField(max_length=255)
-        confirmation_sent_at = db.DateTimeField()
         confirmed_at = db.DateTimeField()
-        reset_password_token = db.StringField(max_length=255)
-        reset_password_sent_at = db.DateTimeField()
         authentication_token = db.StringField(max_length=255)
-        authentication_token_created_at = db.DateTimeField()
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     Security(app, MongoEngineUserDatastore(db, User, Role))

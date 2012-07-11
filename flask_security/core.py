@@ -9,6 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from itsdangerous import URLSafeTimedSerializer
 from flask import current_app, Blueprint
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
@@ -18,8 +19,7 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 
 from . import views, exceptions
-from .confirmable import confirmation_token_is_expired, requires_confirmation, \
-     reset_confirmation_token
+from .confirmable import requires_confirmation, reset_confirmation_token
 from .decorators import login_required
 from .utils import config_value as cv, get_config
 
@@ -33,8 +33,8 @@ _default_config = {
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'FORGOT_URL': '/forgot',
-    'RESET_URL': '/reset',
-    'CONFIRM_URL': '/confirm',
+    'RESET_URL': '/reset/<token>',
+    'CONFIRM_URL': '/confirm/<token>',
     'LOGIN_VIEW': '/login',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
@@ -48,11 +48,14 @@ _default_config = {
     'RECOVERABLE': False,
     'TRACKABLE': False,
     'CONFIRM_EMAIL_WITHIN': '5 days',
-    'RESET_PASSWORD_WITHIN': '2 days',
+    'RESET_PASSWORD_WITHIN': '5 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
     'EMAIL_SENDER': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
-    'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token'
+    'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token',
+    'CONFIRM_SALT': 'confirm-salt',
+    'RESET_SALT': 'reset-salt',
+    'AUTH_SALT': 'auth-salt'
 }
 
 
@@ -107,6 +110,23 @@ def _get_principal(app):
 def _get_pwd_context(app):
     pw_hash = cv('PASSWORD_HASH', app=app)
     return CryptContext(schemes=[pw_hash], default=pw_hash)
+
+
+def _get_serializer(app, salt):
+    secret_key = app.config.get('SECRET_KEY', 'secret-key')
+    return URLSafeTimedSerializer(secret_key=secret_key, salt=salt)
+
+
+def _get_reset_serializer(app):
+    return _get_serializer(app, app.config['SECURITY_RESET_SALT'])
+
+
+def _get_confirm_serializer(app):
+    return _get_serializer(app, app.config['SECURITY_CONFIRM_SALT'])
+
+
+def _get_token_auth_serializer(app):
+    return _get_serializer(app, app.config['SECURITY_AUTH_SALT'])
 
 
 def _create_blueprint(app):
@@ -212,6 +232,9 @@ class Security(object):
         self.login_manager = _get_login_manager(app)
         self.principal = _get_principal(app)
         self.pwd_context = _get_pwd_context(app)
+        self.reset_serializer = _get_reset_serializer(app)
+        self.confirm_serializer = _get_confirm_serializer(app)
+        self.token_auth_serializer = _get_token_auth_serializer(app)
 
         for key, value in get_config(app).items():
             setattr(self, key.lower(), value)
@@ -268,9 +291,6 @@ class AuthenticationProvider(object):
             raise exceptions.BadCredentialsError("Specified user does not exist")
         except Exception, e:
             self.auth_error('Unexpected authentication error: %s' % e)
-
-        if confirmation_token_is_expired(user):
-            reset_confirmation_token(user)
 
         if requires_confirmation(user):
             raise exceptions.BadCredentialsError('Account requires confirmation')

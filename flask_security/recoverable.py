@@ -9,16 +9,15 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from datetime import datetime
-
+from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
 from .exceptions import ResetPasswordError, UserNotFoundError, \
      TokenExpiredError
 from .signals import password_reset, password_reset_requested, \
-     confirm_instructions_sent
-from .utils import generate_token, send_mail, get_within_delta
+     reset_instructions_sent
+from .utils import send_mail, get_max_age, md5
 
 
 # Convenient references
@@ -27,24 +26,13 @@ _security = LocalProxy(lambda: app.security)
 _datastore = LocalProxy(lambda: app.security.datastore)
 
 
-def find_user_by_reset_token(token):
-    """Returns a user with a matching reset password token.
-
-    :param token: The reset password token
-    """
-    if not token:
-        raise ResetPasswordError('Reset password token required')
-    return _datastore.find_user(reset_password_token=token)
-
-
-def send_reset_password_instructions(user):
+def send_reset_password_instructions(user, reset_token):
     """Sends the reset password instructions email for the specified user.
 
     :param user: The user to send the instructions to
     """
     url = url_for('flask_security.reset',
-                  email=user.email,
-                  reset_token=user.reset_password_token)
+                  token=reset_token)
 
     reset_link = request.url_root[:-1] + url
 
@@ -53,9 +41,21 @@ def send_reset_password_instructions(user):
               'reset_instructions',
               dict(user=user, reset_link=reset_link))
 
-    confirm_instructions_sent.send(user, app=app._get_current_object())
+    reset_instructions_sent.send(dict(user=user, token=reset_token),
+                                 app=app._get_current_object())
 
     return True
+
+
+def send_password_reset_notice(user):
+    """Sends the password reset notice email for the specified user.
+
+    :param user: The user to send the notice to
+    """
+    send_mail('Your password has been reset',
+              user.email,
+              'reset_notice',
+              dict(user=user))
 
 
 def generate_reset_password_token(user):
@@ -63,35 +63,11 @@ def generate_reset_password_token(user):
 
     :param user: The user to work with
     """
-    while True:
-        token = generate_token()
-        try:
-            find_user_by_reset_token(token)
-        except UserNotFoundError:
-            break
-
-    now = datetime.utcnow()
-
-    try:
-        user['reset_password_token'] = token
-        user['reset_password_sent_at'] = now
-    except TypeError:
-        user.reset_password_token = token
-        user.reset_password_sent_at = now
-
-    return user
+    data = [user.id, md5(user.password)]
+    return _security.reset_serializer.dumps(data)
 
 
-def password_reset_token_is_expired(user):
-    """Returns `True` if the specified user's reset password token is expired.
-
-    :param user: The user to examine
-    """
-    token_expires = datetime.utcnow() - get_within_delta('RESET_PASSWORD_WITHIN')
-    return user.reset_password_sent_at < token_expires
-
-
-def reset_by_token(token, email, password):
+def reset_by_token(token, password):
     """Resets the password of the user given the specified token, email and
     password. If the token is invalid a `ResetPasswordError` error will be
     raised. If the token is expired a `TokenExpiredError` error will be raised.
@@ -100,21 +76,32 @@ def reset_by_token(token, email, password):
     :param email: The user's email address
     :param password: The user's new password
     """
+    serializer = _security.reset_serializer
+    max_age = get_max_age('RESET_PASSWORD')
+
     try:
-        user = find_user_by_reset_token(token)
+        data = serializer.loads(token, max_age=max_age)
+        user = _datastore.find_user(id=data[0])
+
+        if md5(user.password) != data[1]:
+            raise UserNotFoundError()
+
     except UserNotFoundError:
         raise ResetPasswordError('Invalid reset password token')
 
-    if password_reset_token_is_expired(user):
+    except SignatureExpired:
+        sig_okay, data = serializer.loads_unsafe(token)
+        user = _datastore.find_user(id=data[0])
         raise TokenExpiredError('Reset password token is expired', user)
 
-    user.reset_password_token = None
-    user.reset_password_sent_at = None
+    except BadSignature:
+        raise ResetPasswordError('Invalid reset password token')
+
     user.password = _security.pwd_context.encrypt(password)
 
     _datastore._save_model(user)
 
-    send_mail('Your password has been reset', user.email, 'reset_notice')
+    send_password_reset_notice(user)
 
     password_reset.send(user, app=app._get_current_object())
 
@@ -127,6 +114,11 @@ def reset_password_reset_token(user):
 
     :param user: The user to work with
     """
-    _datastore._save_model(generate_reset_password_token(user))
-    send_reset_password_instructions(user)
-    password_reset_requested.send(user, app=app._get_current_object())
+    token = generate_reset_password_token(user)
+
+    send_reset_password_instructions(user, token)
+
+    password_reset_requested.send(dict(user=user, token=token),
+                                  app=app._get_current_object())
+
+    return token

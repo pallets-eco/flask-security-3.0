@@ -66,23 +66,11 @@ class RegisterForm(Form,
 
 
 class ResetPasswordForm(Form,
-                        EmailFormMixin,
                         PasswordFormMixin,
                         PasswordConfirmFormMixin):
     """The default reset password form"""
 
-    token = HiddenField(validators=[Required()])
-
     submit = SubmitField("Reset Password")
 
-    def __init__(self, *args, **kwargs):
-        super(ResetPasswordForm, self).__init__(*args, **kwargs)
-
-        if request.method == 'GET':
-            self.token.data = request.args.get('token', None)
-            self.email.data = request.args.get('email', None)
-
     def to_dict(self):
-        return dict(token=self.token.data,
-                    email=self.email.data,
-                    password=self.password.data)
+        return dict(password=self.password.data)

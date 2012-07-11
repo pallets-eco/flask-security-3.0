@@ -90,9 +90,6 @@ class UserDatastore(object):
         kwargs.setdefault('active', True)
         kwargs.setdefault('roles', current_app.security.default_roles)
 
-        if current_app.security.confirmable:
-            confirmable.generate_confirmation_token(kwargs)
-
         if email is None:
             raise exceptions.UserCreationError('Missing email argument')
 

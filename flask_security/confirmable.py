@@ -11,11 +11,12 @@
 
 from datetime import datetime
 
+from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
 from .exceptions import UserNotFoundError, ConfirmationError, TokenExpiredError
-from .utils import generate_token, send_mail, get_within_delta
+from .utils import send_mail, get_max_age, md5
 from .signals import user_confirmed, confirm_instructions_sent
 
 
@@ -35,13 +36,13 @@ def find_user_by_confirmation_token(token):
     return _datastore.find_user(confirmation_token=token)
 
 
-def send_confirmation_instructions(user):
+def send_confirmation_instructions(user, token):
     """Sends the confirmation instructions email for the specified user.
 
     :param user: The user to send the instructions to
     """
     url = url_for('flask_security.confirm',
-                  confirmation_token=user.confirmation_token)
+                  token=token)
 
     confirmation_link = request.url_root[:-1] + url
 
@@ -59,23 +60,8 @@ def generate_confirmation_token(user):
 
     :param user: The user to work with
     """
-    while True:
-        token = generate_token()
-        try:
-            find_user_by_confirmation_token(token)
-        except UserNotFoundError:
-            break
-
-    now = datetime.utcnow()
-
-    try:
-        user['confirmation_token'] = token
-        user['confirmation_sent_at'] = now
-    except TypeError:
-        user.confirmation_token = token
-        user.confirmation_sent_at = now
-
-    return user
+    data = [user.id, md5(user.email)]
+    return _security.confirm_serializer.dumps(data)
 
 
 def should_confirm_email(fn):
@@ -93,13 +79,6 @@ def requires_confirmation(user):
     return user.confirmed_at == None
 
 
-@should_confirm_email
-def confirmation_token_is_expired(user):
-    """Returns `True` if the user's confirmation token is expired."""
-    token_expires = datetime.utcnow() - get_within_delta('CONFIRM_EMAIL_WITHIN')
-    return user.confirmation_sent_at < token_expires
-
-
 def confirm_by_token(token):
     """Confirm the user given the specified token. If the token is invalid or
     the user is already confirmed a `ConfirmationError` error will be raised.
@@ -107,26 +86,36 @@ def confirm_by_token(token):
 
     :param token: The user's confirmation token
     """
+    serializer = _security.confirm_serializer
+    max_age = get_max_age('CONFIRM_EMAIL')
+
     try:
-        user = find_user_by_confirmation_token(token)
+        data = serializer.loads(token, max_age=max_age)
+        user = _datastore.find_user(id=data[0])
+
+        if md5(user.email) != data[1]:
+            raise UserNotFoundError()
+
     except UserNotFoundError:
+        raise ConfirmationError('Invalid confirmation token')
+
+    except SignatureExpired:
+        sig_okay, data = serializer.loads_unsafe(token)
+        user = _datastore.find_user(id=data[0])
+        raise TokenExpiredError(message='Confirmation token is expired',
+                                user=user)
+
+    except BadSignature:
         raise ConfirmationError('Invalid confirmation token')
 
     if user.confirmed_at:
         raise ConfirmationError('Account has already been confirmed')
 
-    if confirmation_token_is_expired(user):
-        raise TokenExpiredError(message='Confirmation token is expired',
-                                user=user)
-
-    # TODO: Clear confirmation_token after confirmation?
-    #user.confirmation_token = None
-    #user.confirmation_sent_at = None
     user.confirmed_at = datetime.utcnow()
-
     _datastore._save_model(user)
 
     user_confirmed.send(user, app=app._get_current_object())
+
     return user
 
 
@@ -136,5 +125,11 @@ def reset_confirmation_token(user):
 
     :param user: The user to work with
     """
-    _datastore._save_model(generate_confirmation_token(user))
-    send_confirmation_instructions(user)
+    token = generate_confirmation_token(user)
+
+    user.confirmed_at = None
+    _datastore._save_model(user)
+
+    send_confirmation_instructions(user, token)
+
+    return token

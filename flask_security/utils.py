@@ -10,14 +10,19 @@
 """
 
 import base64
+import hashlib
 import os
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.login import make_secure_token
 
 from .signals import user_registered, password_reset_requested
+
+
+def md5(data):
+    return hashlib.md5(data).hexdigest()
 
 
 def generate_token():
@@ -101,6 +106,12 @@ def config_value(key, app=None, default=None):
     return get_config(app).get(key.upper(), default)
 
 
+def get_max_age(key, app=None):
+    now = datetime.utcnow()
+    expires = now + get_within_delta(key + '_WITHIN', app)
+    return int(expires.strftime('%s')) - int(now.strftime('%s'))
+
+
 def get_within_delta(key, app=None):
     """Get a timedelta object from the application configuration following
     the internal convention of::
@@ -145,25 +156,21 @@ def send_mail(subject, recipient, template, context=None):
 
 
 @contextmanager
-def capture_registrations(confirmation_sent_at=None):
+def capture_registrations():
     """Testing utility for capturing registrations.
 
     :param confirmation_sent_at: An optional datetime object to set the
                                  user's `confirmation_sent_at` to
     """
-    users = []
+    registrations = []
 
-    def _on(user, app):
-        if confirmation_sent_at:
-            user.confirmation_sent_at = confirmation_sent_at
-            current_app.security.datastore._save_model(user)
-
-        users.append(user)
+    def _on(data, app):
+        registrations.append(data)
 
     user_registered.connect(_on)
 
     try:
-        yield users
+        yield registrations
     finally:
         user_registered.disconnect(_on)
 
@@ -175,18 +182,14 @@ def capture_reset_password_requests(reset_password_sent_at=None):
     :param reset_password_sent_at: An optional datetime object to set the
                                    user's `reset_password_sent_at` to
     """
-    users = []
+    reset_requests = []
 
-    def _on(user, app):
-        if reset_password_sent_at:
-            user.reset_password_sent_at = reset_password_sent_at
-            current_app.security.datastore._save_model(user)
-
-        users.append(user)
+    def _on(request, app):
+        reset_requests.append(request)
 
     password_reset_requested.connect(_on)
 
     try:
-        yield users
+        yield reset_requests
     finally:
         password_reset_requested.disconnect(_on)
