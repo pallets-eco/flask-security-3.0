@@ -62,15 +62,15 @@ _default_config = {
 
 #: Default Flask-Security flash messages
 _default_flash_messages = {
-    'UNAUTHORIZED': 'You do not have permission to view this resource.',
-    'ACCOUNT_CONFIRMED': 'Your account has been confirmed. You may now log in.',
-    'ALREADY_CONFIRMED': 'Your account has already been confirmed',
-    'INVALID_CONFIRMATION_TOKEN': 'Invalid confirmation token',
-    'PASSWORD_RESET_REQUEST': 'Instructions to reset your password have been sent to %(email)s.',
-    'PASSWORD_RESET_EXPIRED': 'You did not reset your password within %(within)s. New instructions have been sent to %(email)s.',
-    'INVALID_RESET_PASSWORD_TOKEN': 'Invalid reset password token',
-    'CONFIRMATION_REQUEST': 'A new confirmation code has been sent to %(email)s.',
-    'CONFIRMATION_EXPIRED': 'You did not confirm your account within %(within)s. New instructions to confirm your account have been sent to %(email)s.'
+    'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
+    'ACCOUNT_CONFIRMED': ('Your account has been confirmed. You may now log in.', 'success'),
+    'ALREADY_CONFIRMED': ('Your account has already been confirmed', 'info'),
+    'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token', 'error'),
+    'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
+    'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
+    'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token', 'error'),
+    'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
+    'CONFIRMATION_EXPIRED': ('You did not confirm your account within %(within)s. New instructions to confirm your account have been sent to %(email)s.', 'error')
 }
 
 

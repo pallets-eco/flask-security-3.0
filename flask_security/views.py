@@ -181,9 +181,9 @@ def send_confirmation():
 
         _logger.debug('%s request confirmation instructions' % user)
 
-        msg = get_message('CONFIRMATION_REQUEST', email=user.email)
+        msg, cat = get_message('CONFIRMATION_REQUEST', email=user.email)
 
-        do_flash(msg, 'info')
+        do_flash(msg, cat)
 
     else:
         for key, value in form.errors.items():
@@ -200,22 +200,22 @@ def confirm_account(token):
         _logger.debug('%s confirmed their account' % user)
 
     except ConfirmationError, e:
-        msg = str(e)
+        msg, cat = str(e), 'error'
 
         _logger.debug('Confirmation error: ' + msg)
 
         if e.user:
             reset_confirmation_token(e.user)
 
-            msg = get_message('CONFIRMATION_EXPIRED',
-                              within=_security.confirm_email_within,
-                              email=e.user.email)
+            msg, cat = get_message('CONFIRMATION_EXPIRED',
+                                   within=_security.confirm_email_within,
+                                   email=e.user.email)
 
-        do_flash(msg, 'error')
+        do_flash(msg, cat)
 
         return redirect(get_url(_security.confirm_error_view))
 
-    do_flash(get_message('ACCOUNT_CONFIRMED'), 'success')
+    do_flash(get_message('ACCOUNT_CONFIRMED'))
 
     return redirect(_security.post_confirm_view or _security.post_login_view)
 
@@ -232,8 +232,9 @@ def forgot_password():
 
         _logger.debug('%s requested to reset their password' % user)
 
-        msg = get_message('PASSWORD_RESET_REQUEST', email=user.email)
-        do_flash(msg, 'success')
+        msg, cat = get_message('PASSWORD_RESET_REQUEST', email=user.email)
+
+        do_flash(msg, cat)
 
         return redirect(_security.post_forgot_view)
 
@@ -259,18 +260,18 @@ def reset_password(token):
             _logger.debug('%s reset their password' % user)
 
         except ResetPasswordError, e:
-            msg = str(e)
+            msg, cat = str(e), 'error'
 
             _logger.debug('Password reset error: ' + msg)
 
             if e.user:
                 reset_password_reset_token(e.user)
 
-                msg = get_message('PASSWORD_RESET_EXPIRED',
-                                  within=_security.reset_password_within,
-                                  email=e.user.email)
+                msg, cat = get_message('PASSWORD_RESET_EXPIRED',
+                                       within=_security.reset_password_within,
+                                       email=e.user.email)
 
-            do_flash(msg, 'error')
+            do_flash(msg, cat)
 
     return render_template('security/passwords/edit.html',
                            reset_password_form=form,
