@@ -39,7 +39,8 @@ def _get_unauthorized_response(text=None, headers=None):
 
 def _get_unauthorized_view():
     cv = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
-    return (cv or request.referrer or '/')
+    utils.do_flash('You do not have permission to view this resource', 'error')
+    return redirect(cv or request.referrer or '/')
 
 
 def _check_token():
@@ -116,22 +117,19 @@ def roles_required(*roles):
 
     :param args: The required roles.
     """
-    perms = [Permission(RoleNeed(role)) for role in roles]
-
     def wrapper(fn):
 
         @wraps(fn)
+        @login_required
         def decorated_view(*args, **kwargs):
-            if not current_user.is_authenticated():
-                login_view = app.security.login_manager.login_view
-                return redirect(login_url(login_view, request.url))
+            perms = [Permission(RoleNeed(role)) for role in roles]
 
             for perm in perms:
                 if not perm.can():
                     app.logger.debug('Identity does not provide the '
                                      'roles: %s' % [r for r in roles])
 
-                    return redirect(_get_unauthorized_view())
+                    return _get_unauthorized_view()
 
             return fn(*args, **kwargs)
 
@@ -154,15 +152,12 @@ def roles_accepted(*roles):
 
     :param args: The possible roles.
     """
-    perm = Permission(*[RoleNeed(role) for role in roles])
-
     def wrapper(fn):
 
         @wraps(fn)
+        @login_required
         def decorated_view(*args, **kwargs):
-            if not current_user.is_authenticated():
-                login_view = app.security.login_manager.login_view
-                return redirect(login_url(login_view, request.url))
+            perm = Permission(*[RoleNeed(role) for role in roles])
 
             if perm.can():
                 return fn(*args, **kwargs)
@@ -173,10 +168,7 @@ def roles_accepted(*roles):
             app.logger.debug('Current user does not provide a '
                 'required role. Accepted: %s Provided: %s' % (r1, r2))
 
-            utils.do_flash('You do not have permission to '
-                           'view this resource', 'error')
-
-            return redirect(_get_unauthorized_view())
+            return _get_unauthorized_view()
 
         return decorated_view
 
