@@ -95,6 +95,10 @@ def get_config(app):
     return dict([strip_prefix(i) for i in items if i[0].startswith(prefix)])
 
 
+def get_message(key, **kwargs):
+    return config_value('MSG_' + key) % kwargs
+
+
 def config_value(key, app=None, default=None):
     """Get a Flask-Security configuration value.
 

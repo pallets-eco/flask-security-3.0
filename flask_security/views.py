@@ -28,7 +28,7 @@ from .recoverable import reset_by_token, \
 from .signals import user_registered
 from .tokens import generate_authentication_token
 from .utils import get_url, get_post_login_redirect, do_flash, \
-     get_remember_token
+     get_remember_token, get_message
 
 
 # Convenient references
@@ -181,7 +181,8 @@ def send_confirmation():
 
         _logger.debug('%s request confirmation instructions' % user)
 
-        msg = 'A new confirmation code has been sent to ' + user.email
+        msg = get_message('CONFIRMATION_REQUEST', email=user.email)
+
         do_flash(msg, 'info')
 
     else:
@@ -205,15 +206,16 @@ def confirm_account(token):
 
         if e.user:
             reset_confirmation_token(e.user)
-            msg = ('You did not confirm your email within %s. '
-                   'A new confirmation code has been sent to %s' % (
-                    _security.confirm_email_within, e.user.email))
+
+            msg = get_message('CONFIRMATION_EXPIRED',
+                              within=_security.confirm_email_within,
+                              email=e.user.email)
 
         do_flash(msg, 'error')
 
         return redirect(get_url(_security.confirm_error_view))
 
-    do_flash('Your email has been confirmed. You may now log in.', 'success')
+    do_flash(get_message('ACCOUNT_CONFIRMED'), 'success')
 
     return redirect(_security.post_confirm_view or _security.post_login_view)
 
@@ -230,8 +232,8 @@ def forgot_password():
 
         _logger.debug('%s requested to reset their password' % user)
 
-        do_flash('Instructions to reset your password have been '
-                 'sent to %s' % user.email, 'success')
+        msg = get_message('PASSWORD_RESET_REQUEST', email=user.email)
+        do_flash(msg, 'success')
 
         return redirect(_security.post_forgot_view)
 
@@ -262,8 +264,11 @@ def reset_password(token):
             _logger.debug('Password reset error: ' + msg)
 
             if e.user:
-                msg = ('You did not reset your password within '
-                       '%s.' % _security.reset_password_within)
+                reset_password_reset_token(e.user)
+
+                msg = get_message('PASSWORD_RESET_EXPIRED',
+                                  within=_security.reset_password_within,
+                                  email=e.user.email)
 
             do_flash(msg, 'error')
 

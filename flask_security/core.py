@@ -60,6 +60,19 @@ _default_config = {
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
 }
 
+#: Default Flask-Security flash messages
+_default_flash_messages = {
+    'UNAUTHORIZED': 'You do not have permission to view this resource.',
+    'ACCOUNT_CONFIRMED': 'Your account has been confirmed. You may now log in.',
+    'ALREADY_CONFIRMED': 'Your account has already been confirmed',
+    'INVALID_CONFIRMATION_TOKEN': 'Invalid confirmation token',
+    'PASSWORD_RESET_REQUEST': 'Instructions to reset your password have been sent to %(email)s.',
+    'PASSWORD_RESET_EXPIRED': 'You did not reset your password within %(within)s. New instructions have been sent to %(email)s.',
+    'INVALID_RESET_PASSWORD_TOKEN': 'Invalid reset password token',
+    'CONFIRMATION_REQUEST': 'A new confirmation code has been sent to %(email)s.',
+    'CONFIRMATION_EXPIRED': 'You did not confirm your account within %(within)s. New instructions to confirm your account have been sent to %(email)s.'
+}
+
 
 def _user_loader(user_id):
     try:
@@ -232,6 +245,9 @@ class Security(object):
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
+
+        for key, value in _default_flash_messages.items():
+            app.config.setdefault('SECURITY_MSG_' + key, value)
 
         self.datastore = datastore
         self.auth_provider = AuthenticationProvider()

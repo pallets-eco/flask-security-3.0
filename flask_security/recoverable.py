@@ -16,7 +16,7 @@ from werkzeug.local import LocalProxy
 from .exceptions import ResetPasswordError, UserNotFoundError
 from .signals import password_reset, password_reset_requested, \
      reset_instructions_sent
-from .utils import send_mail, get_max_age, md5
+from .utils import send_mail, get_max_age, md5, get_message
 
 
 # Convenient references
@@ -100,10 +100,10 @@ def reset_by_token(token, password):
                                  user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
-        raise ResetPasswordError('Invalid reset password token')
+        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN'))
 
     except UserNotFoundError:
-        raise ResetPasswordError('Invalid reset password token')
+        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN'))
 
 
 def reset_password_reset_token(user):

@@ -26,7 +26,7 @@ _security = LocalProxy(lambda: current_app.security)
 _logger = LocalProxy(lambda: current_app.logger)
 
 
-_default_unauthorized_txt = """
+_default_unauthorized_html = """
     <h1>Unauthorized</h1>
     <p>The server could not verify that you are authorized to access the URL
     requested. You either supplied the wrong credentials (e.g. a bad password),
@@ -35,14 +35,14 @@ _default_unauthorized_txt = """
 
 
 def _get_unauthorized_response(text=None, headers=None):
-    text = text or _default_unauthorized_txt
+    text = text or _default_unauthorized_html
     headers = headers or {}
-    return Response(_default_unauthorized_txt, 401, headers)
+    return Response(text, 401, headers)
 
 
 def _get_unauthorized_view():
     cv = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
-    utils.do_flash('You do not have permission to view this resource', 'error')
+    utils.do_flash(utils.get_message('UNAUTHORIZED'), 'error')
     return redirect(cv or request.referrer or '/')
 
 

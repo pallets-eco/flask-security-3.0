@@ -49,7 +49,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")
-        self.assertIn("Inactive user", r.data)
+        self.assertIn("Account is disabled", r.data)
 
     def test_logout(self):
         self.authenticate()
@@ -237,7 +237,7 @@ class ConfirmableTests(SecurityTest):
             token = registrations[0]['confirm_token']
 
         r = self.client.get('/confirm/' + token, follow_redirects=True)
-        self.assertIn('Your email has been confirmed. You may now log in.', r.data)
+        self.assertIn('Your account has been confirmed. You may now log in.', r.data)
 
     def test_confirm_email_twice_flashes_already_confirmed_message(self):
         e = 'dude@lp.com'
@@ -249,7 +249,7 @@ class ConfirmableTests(SecurityTest):
         url = '/confirm/' + token
         self.client.get(url, follow_redirects=True)
         r = self.client.get(url, follow_redirects=True)
-        self.assertIn('Account has already been confirmed', r.data)
+        self.assertIn('Your account has already been confirmed', r.data)
 
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
@@ -280,7 +280,7 @@ class ExpiredConfirmationTest(SecurityTest):
             self.assertNotIn(token, outbox[0].html)
 
             expire_text = self.app.security.confirm_email_within
-            text = 'You did not confirm your email within %s' % expire_text
+            text = 'You did not confirm your account within %s' % expire_text
 
             self.assertIn(text, r.data)
 

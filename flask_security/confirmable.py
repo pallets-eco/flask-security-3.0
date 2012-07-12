@@ -16,7 +16,7 @@ from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
 from .exceptions import UserNotFoundError, ConfirmationError
-from .utils import send_mail, get_max_age, md5
+from .utils import send_mail, get_max_age, md5, get_message
 from .signals import user_confirmed, confirm_instructions_sent
 
 
@@ -87,7 +87,7 @@ def confirm_by_token(token):
             raise UserNotFoundError()
 
         if user.confirmed_at:
-            raise ConfirmationError('Account has already been confirmed')
+            raise ConfirmationError(get_message('ALREADY_CONFIRMED'))
 
         user.confirmed_at = datetime.utcnow()
         _datastore._save_model(user)
@@ -102,10 +102,10 @@ def confirm_by_token(token):
                                 user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
-        raise ConfirmationError('Invalid confirmation token')
+        raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))
 
     except UserNotFoundError:
-        raise ConfirmationError('Invalid confirmation token')
+        raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))
 
 
 def reset_confirmation_token(user):
