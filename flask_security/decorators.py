@@ -11,7 +11,7 @@
 
 from functools import wraps
 
-from flask import current_app as app, Response, request, redirect
+from flask import current_app, Response, request, redirect
 from flask.ext.login import login_required, login_url, current_user
 from flask.ext.principal import RoleNeed, Permission
 from werkzeug.local import LocalProxy
@@ -21,7 +21,9 @@ from .exceptions import UserNotFoundError
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.security)
+_security = LocalProxy(lambda: current_app.security)
+
+_logger = LocalProxy(lambda: current_app.logger)
 
 
 _default_unauthorized_txt = """
@@ -45,8 +47,8 @@ def _get_unauthorized_view():
 
 
 def _check_token():
-    header_key = app.security.token_authentication_header
-    args_key = app.security.token_authentication_key
+    header_key = _security.token_authentication_header
+    args_key = _security.token_authentication_key
 
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
@@ -55,7 +57,7 @@ def _check_token():
 
     try:
         data = serializer.loads(token)
-        user = app.security.datastore.find_user(id=data[0],
+        user = _security.datastore.find_user(id=data[0],
                                                 authentication_token=token)
 
         if data[1] != utils.md5(user.email):
@@ -71,11 +73,11 @@ def _check_http_auth():
     auth = request.authorization or dict(username=None, password=None)
 
     try:
-        user = app.security.datastore.find_user(email=auth.username)
+        user = _security.datastore.find_user(email=auth.username)
     except UserNotFoundError:
         return False
 
-    return app.security.pwd_context.verify(auth.password, user.password)
+    return _security.pwd_context.verify(auth.password, user.password)
 
 
 def http_auth_required(realm):
@@ -102,6 +104,7 @@ def http_auth_required(realm):
 
 def auth_token_required(fn):
     """Decorator that protects endpoints using token authentication."""
+
     @wraps(fn)
     def decorated(*args, **kwargs):
         if _check_token():
@@ -135,8 +138,8 @@ def roles_required(*roles):
 
             for perm in perms:
                 if not perm.can():
-                    app.logger.debug('Identity does not provide the '
-                                     'roles: %s' % [r for r in roles])
+                    _logger.debug('Identity does not provide the '
+                                  'roles: %s' % [r for r in roles])
 
                     return _get_unauthorized_view()
 
@@ -174,8 +177,8 @@ def roles_accepted(*roles):
             r1 = [r for r in roles]
             r2 = [r.name for r in current_user.roles]
 
-            app.logger.debug('Current user does not provide a '
-                'required role. Accepted: %s Provided: %s' % (r1, r2))
+            _logger.debug('Current user does not provide a required role. '
+                          'Accepted: %s Provided: %s' % (r1, r2))
 
             return _get_unauthorized_view()
 
