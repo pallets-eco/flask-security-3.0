@@ -57,7 +57,7 @@ _default_config = {
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'AUTH_SALT': 'auth-salt',
-    'DEFAULT_HTTP_AUTH_HEADER': 'Basic realm="Login Required"'
+    'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
 }
 
 

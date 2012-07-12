@@ -78,23 +78,26 @@ def _check_http_auth():
     return app.security.pwd_context.verify(auth.password, user.password)
 
 
-def http_auth_required(auth_header=None):
+def http_auth_required(realm):
     """Decorator that protects endpoints using Basic HTTP authentication."""
-    def wrapper(fn):
 
+    def decorator(fn):
         @wraps(fn)
-        def decorated(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             if _check_http_auth():
                 return fn(*args, **kwargs)
 
-            header = auth_header or _security.default_http_auth_header
-            headers = {'WWW-Authenticate': header}
+            r = _security.default_http_auth_realm if callable(realm) else realm
+            h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
 
-            return _get_unauthorized_response(headers=headers)
+            return _get_unauthorized_response(headers=h)
 
-        return decorated
+        return wrapper
 
-    return wrapper
+    if callable(realm):
+        return decorator(realm)
+
+    return decorator
 
 
 def auth_token_required(fn):

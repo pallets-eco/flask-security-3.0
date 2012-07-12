@@ -2,6 +2,7 @@
 
 from __future__ import with_statement
 
+import base64
 import time
 
 try:
@@ -130,8 +131,30 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/token', headers={"X-Auth-Token": 'X'})
         self.assertEqual(401, r.status_code)
 
+    def test_http_auth(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+        })
+        self.assertIn('HTTP Authentication', r.data)
 
-class ConfiguredURLTests(SecurityTest):
+    def test_invalid_http_auth(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="Login Required"', r.headers['WWW-Authenticate'])
+
+    def test_custom_http_auth_realm(self):
+        r = self._get('/http_custom_realm', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="My Realm"', r.headers['WWW-Authenticate'])
+
+
+class ConfiguredSecurityTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
@@ -141,7 +164,8 @@ class ConfiguredURLTests(SecurityTest):
         'SECURITY_POST_LOGIN_VIEW': '/post_login',
         'SECURITY_POST_LOGOUT_VIEW': '/post_logout',
         'SECURITY_POST_REGISTER_VIEW': '/post_register',
-        'SECURITY_UNAUTHORIZED_VIEW': '/unauthorized'
+        'SECURITY_UNAUTHORIZED_VIEW': '/unauthorized',
+        'SECURITY_DEFAULT_HTTP_AUTH_REALM': 'Custom Realm'
     }
 
     def test_login_view(self):
@@ -170,6 +194,14 @@ class ConfiguredURLTests(SecurityTest):
         r = self._get("/admin", follow_redirects=True)
         msg = 'You are not allowed to access the requested resouce'
         self.assertIn(msg, r.data)
+
+    def test_default_http_auth_realm(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="Custom Realm"', r.headers['WWW-Authenticate'])
 
 
 class RegisterableTests(SecurityTest):

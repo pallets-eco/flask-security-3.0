@@ -78,6 +78,11 @@ def create_app(auth_config):
     def http():
         return render_template('index.html', content='HTTP Authentication')
 
+    @app.route('/http_custom_realm')
+    @http_auth_required('My Realm')
+    def http_custom_realm():
+        return render_template('index.html', content='HTTP Authentication')
+
     @app.route('/token')
     @auth_token_required
     def token():
