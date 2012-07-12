@@ -19,15 +19,16 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from .confirmable import confirm_by_token, reset_confirmation_token
-from .exceptions import TokenExpiredError, UserNotFoundError, \
-     ConfirmationError, BadCredentialsError, ResetPasswordError
+from .exceptions import TokenExpiredError, ConfirmationError, \
+     BadCredentialsError, ResetPasswordError
 from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
-     ResetPasswordForm
+     ResetPasswordForm, ResendConfirmationForm
 from .recoverable import reset_by_token, \
      reset_password_reset_token
 from .signals import user_registered
 from .tokens import generate_authentication_token
-from .utils import get_post_login_redirect, do_flash, get_remember_token
+from .utils import get_url, get_post_login_redirect, do_flash, \
+     get_remember_token
 
 
 # Convenient references
@@ -142,50 +143,71 @@ def logout():
                     _security.post_logout_view)
 
 
-def register():
+def register_user():
     """View function which handles a registration request."""
 
     form = RegisterForm(csrf_enabled=not app.testing)
 
-    # Exit early if the form doesn't validate
     if form.validate_on_submit():
-        # Create user and send signal
-        user = _datastore.create_user(**form.to_dict())
-        confirm_token = None
+        # Create user
+        u = _datastore.create_user(**form.to_dict())
 
         # Send confirmation instructions if necessary
-        if _security.confirmable:
-            confirm_token = reset_confirmation_token(user)
+        t = reset_confirmation_token(u) if _security.confirmable else None
 
-        user_registered.send(dict(user=user, confirm_token=confirm_token),
-                             app=app._get_current_object())
+        data = dict(user=u, confirm_token=t)
+        user_registered.send(data, app=app._get_current_object())
 
-        _logger.debug('User %s registered' % user)
+        _logger.debug('User %s registered' % u)
 
         # Login the user if allowed
         if not _security.confirmable or _security.login_without_confirmation:
-            _do_login(user)
+            _do_login(u)
 
         return redirect(_security.post_register_view or
                         _security.post_login_view)
 
-    return redirect(request.referrer or _security.register_url)
+    return render_template('security/registrations/new.html',
+                           register_user_form=form)
 
 
-def confirm(token):
+def send_confirmation():
+    form = ResendConfirmationForm()
+
+    if form.validate_on_submit():
+        user = _datastore.find_user(email=form.email.data)
+
+        reset_confirmation_token(user)
+
+        _logger.debug('%s request confirmation instructions' % user)
+
+        msg = 'A new confirmation code has been sent to ' + user.email
+        do_flash(msg, 'info')
+
+    else:
+        for key, value in form.errors.items():
+            do_flash(value[0], 'error')
+
+    return render_template('security/confirmations/new.html',
+                           reset_confirmation_form=form)
+
+
+def confirm_account(token):
     """View function which handles a account confirmation request."""
+    error = False
 
     try:
         user = confirm_by_token(token)
 
     except ConfirmationError, e:
+        error = True
+
         _logger.debug('Confirmation error: ' + str(e))
 
         do_flash(str(e), 'error')
 
-        return redirect('/')  # TODO: Don't just redirect to root
-
     except TokenExpiredError, e:
+        error = True
 
         reset_confirmation_token(e.user)
 
@@ -197,7 +219,8 @@ def confirm(token):
 
         do_flash(msg, 'error')
 
-        return redirect('/')  # TODO: Don't redirect to root
+    if error:
+        return redirect(get_url(_security.confirm_error_view))
 
     _logger.debug('User %s confirmed' % user)
 
@@ -207,35 +230,35 @@ def confirm(token):
                     _security.post_login_view)
 
 
-def forgot():
+def forgot_password():
     """View function that handles a forgotten password request."""
 
     form = ForgotPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
-        try:
-            user = _datastore.find_user(**form.to_dict())
+        user = _datastore.find_user(**form.to_dict())
 
-            reset_password_reset_token(user)
+        reset_password_reset_token(user)
 
-            _logger.debug('%s requested to reset their password' % user)
+        _logger.debug('%s requested to reset their password' % user)
 
-            do_flash('Instructions to reset your password have been '
-                     'sent to %s' % user.email, 'success')
-
-        except UserNotFoundError:
-            _logger.debug('A reset password request was made for %s but '
-                          'that email does not exist.' % form.email.data)
-
-            do_flash('The email you provided could not be found', 'error')
+        do_flash('Instructions to reset your password have been '
+                 'sent to %s' % user.email, 'success')
 
         return redirect(_security.post_forgot_view)
+
+    else:
+        _logger.debug('A reset password request was made for %s but '
+                      'that email does not exist.' % form.email.data)
+
+        for key, value in form.errors.items():
+            do_flash(value[0], 'error')
 
     return render_template('security/passwords/new.html',
                            forgot_password_form=form)
 
 
-def reset(token):
+def reset_password(token):
     """View function that handles a reset password request."""
 
     form = ResetPasswordForm(csrf_enabled=not app.testing)

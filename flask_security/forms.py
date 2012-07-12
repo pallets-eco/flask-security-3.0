@@ -9,15 +9,36 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import request
+from flask import request, current_app as app
 from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
-     HiddenField, Required, BooleanField, EqualTo, Email
+     HiddenField, Required, BooleanField, EqualTo, Email, ValidationError
+from werkzeug.local import LocalProxy
+
+from .exceptions import UserNotFoundError
+
+
+# Convenient reference
+_datastore = LocalProxy(lambda: app.security.datastore)
+
+
+def valid_user_email(form, field):
+    try:
+        _datastore.find_user(email=field.data)
+    except UserNotFoundError:
+        raise ValidationError('Invalid email address')
 
 
 class EmailFormMixin():
     email = TextField("Email Address",
         validators=[Required(message="Email not provided"),
                     Email(message="Invalid email address")])
+
+
+class UserEmailFormMixin():
+    email = TextField("Email Address",
+        validators=[Required(message="Email not provided"),
+                    Email(message="Invalid email address"),
+                    valid_user_email])
 
 
 class PasswordFormMixin():
@@ -30,7 +51,16 @@ class PasswordConfirmFormMixin():
         validators=[EqualTo('password', message="Passwords do not match")])
 
 
-class ForgotPasswordForm(Form, EmailFormMixin):
+class ResendConfirmationForm(Form, UserEmailFormMixin):
+    """The default forgot password form"""
+
+    submit = SubmitField("Resend Confirmation Instructions")
+
+    def to_dict(self):
+        return dict(email=self.email.data)
+
+
+class ForgotPasswordForm(Form, UserEmailFormMixin):
     """The default forgot password form"""
 
     submit = SubmitField("Recover Password")

@@ -31,7 +31,7 @@ def send_reset_password_instructions(user, reset_token):
 
     :param user: The user to send the instructions to
     """
-    url = url_for('flask_security.reset',
+    url = url_for('flask_security.reset_password',
                   token=reset_token)
 
     reset_link = request.url_root[:-1] + url

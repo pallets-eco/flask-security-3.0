@@ -32,10 +32,10 @@ _default_config = {
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
-    'FORGOT_URL': '/forgot',
-    'RESET_URL': '/reset/<token>',
-    'CONFIRM_URL': '/confirm/<token>',
+    'RESET_URL': '/reset',
+    'CONFIRM_URL': '/confirm',
     'LOGIN_VIEW': '/login',
+    'CONFIRM_ERROR_VIEW': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
     'POST_FORGOT_VIEW': '/',
@@ -141,20 +141,24 @@ def _create_blueprint(app):
 
     if cv('REGISTERABLE', app=app):
         bp.route(cv('REGISTER_URL', app=app),
-                 methods=['POST'],
-                 endpoint='register')(views.register)
+                 methods=['GET', 'POST'],
+                 endpoint='register')(views.register_user)
 
     if cv('RECOVERABLE', app=app):
-        bp.route(cv('FORGOT_URL', app=app),
-                 methods=['POST'],
-                 endpoint='forgot')(views.forgot)
         bp.route(cv('RESET_URL', app=app),
-                 methods=['POST'],
-                 endpoint='reset')(views.reset)
+                 methods=['GET', 'POST'],
+                 endpoint='forgot_password')(views.forgot_password)
+        bp.route(cv('RESET_URL', app=app) + '/<token>',
+                 methods=['GET', 'POST'],
+                 endpoint='reset_password')(views.reset_password)
 
     if cv('CONFIRMABLE', app=app):
         bp.route(cv('CONFIRM_URL', app=app),
-                 endpoint='confirm')(views.confirm)
+                 methods=['GET', 'POST'],
+                 endpoint='send_confirmation')(views.send_confirmation)
+        bp.route(cv('CONFIRM_URL', app=app) + '/<token>',
+                 methods=['GET', 'POST'],
+                 endpoint='confirm_account')(views.confirm_account)
 
     return bp
 

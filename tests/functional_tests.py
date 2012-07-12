@@ -267,18 +267,18 @@ class RecoverableTests(SecurityTest):
     def test_forgot_post_sends_email(self):
         with capture_reset_password_requests():
             with self.app.mail.record_messages() as outbox:
-                self.client.post('/forgot', data=dict(email='joe@lp.com'))
+                self.client.post('/reset', data=dict(email='joe@lp.com'))
                 self.assertEqual(len(outbox), 1)
 
     def test_forgot_password_invalid_email(self):
-        r = self.client.post('/forgot',
+        r = self.client.post('/reset',
                              data=dict(email='larry@lp.com'),
                              follow_redirects=True)
-        self.assertIn('The email you provided could not be found', r.data)
+        self.assertIn('Invalid email address', r.data)
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/forgot',
+            r = self.client.post('/reset',
                                  data=dict(email='joe@lp.com'),
                                  follow_redirects=True)
             t = requests[0]['token']
@@ -293,7 +293,7 @@ class RecoverableTests(SecurityTest):
 
     def test_reset_password_twice_flashes_invalid_token_msg(self):
         with capture_reset_password_requests() as requests:
-            self.client.post('/forgot', data=dict(email='joe@lp.com'))
+            self.client.post('/reset', data=dict(email='joe@lp.com'))
             t = requests[0]['token']
 
         data = {
@@ -316,7 +316,7 @@ class ExpiredResetPasswordTest(SecurityTest):
 
     def test_reset_password_with_expired_token(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/forgot',
+            r = self.client.post('/reset',
                                  data=dict(email='joe@lp.com'),
                                  follow_redirects=True)
             t = requests[0]['token']

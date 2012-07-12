@@ -31,14 +31,14 @@ def send_confirmation_instructions(user, token):
 
     :param user: The user to send the instructions to
     """
-    url = url_for('flask_security.confirm',
-                  token=token)
+    url = url_for('flask_security.confirm_account', token=token)
 
     confirmation_link = request.url_root[:-1] + url
 
+    ctx = dict(user=user, confirmation_link=confirmation_link)
+
     send_mail('Please confirm your email', user.email,
-              'confirmation_instructions',
-              dict(user=user, confirmation_link=confirmation_link))
+              'confirmation_instructions', ctx)
 
     confirm_instructions_sent.send(user, app=app._get_current_object())
 
