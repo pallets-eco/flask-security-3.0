@@ -112,7 +112,7 @@ def authenticate():
 
             return redirect(get_post_login_redirect())
 
-        raise BadCredentialsError('Inactive user')
+        raise BadCredentialsError('Account is disabled')
 
     except BadCredentialsError, e:
         msg = str(e)

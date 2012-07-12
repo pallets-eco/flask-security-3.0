@@ -66,11 +66,6 @@ class ConfirmationError(SecurityError):
     """
 
 
-class ConfirmationRequiredError(SecurityError):
-    """Raised when a user attempts to login but requires confirmation
-    """
-
-
 class ResetPasswordError(SecurityError):
     """Raised when a password reset error occurs
     """
