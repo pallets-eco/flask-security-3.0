@@ -1,6 +1,6 @@
-{% include "../messages.html" %}
+{% include "security/messages.html" %}
 <h1>Change password</h1>
-<form action="{{ url_for('flask_security.reset_password') }}" method="POST" name="reset_password_form">
+<form action="{{ url_for('flask_security.reset_password', token=reset_token) }}" method="POST" name="reset_password_form">
   {{ reset_password_form.hidden_tag() }}
   {{ reset_password_form.password.label }} {{ reset_password_form.password }}<br/>
   {{ reset_password_form.password_confirm.label }} {{ reset_password_form.password_confirm }}<br/>

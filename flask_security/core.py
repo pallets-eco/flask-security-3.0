@@ -245,8 +245,9 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        app.register_blueprint(_create_blueprint(app),
-                               url_prefix=cv('URL_PREFIX', app=app))
+        bp = _create_blueprint(app)
+        pre = cv('URL_PREFIX', app=app)
+        app.register_blueprint(bp, url_prefix=pre)
 
         app.security = self
 

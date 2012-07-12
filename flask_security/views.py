@@ -278,5 +278,6 @@ def reset_password(token):
             do_flash('You did not reset your password within '
                      '%s.' % _security.reset_password_within)
 
-    return redirect(request.referrer or
-                    _security.reset_password_error_view)
+    return render_template('security/passwords/edit.html',
+                           reset_password_form=form,
+                           password_reset_token=token)
