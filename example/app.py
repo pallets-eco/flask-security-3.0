@@ -106,6 +106,10 @@ def create_app(auth_config):
     def admin_or_editor():
         return render_template('index.html', content='Admin or Editor Page')
 
+    @app.route('/unauthorized')
+    def unauthorized():
+        return render_template('unauthorized.html')
+
     return app
 
 

@@ -140,7 +140,8 @@ class ConfiguredURLTests(SecurityTest):
         'SECURITY_LOGIN_VIEW': '/custom_login',
         'SECURITY_POST_LOGIN_VIEW': '/post_login',
         'SECURITY_POST_LOGOUT_VIEW': '/post_logout',
-        'SECURITY_POST_REGISTER_VIEW': '/post_register'
+        'SECURITY_POST_REGISTER_VIEW': '/post_register',
+        'SECURITY_UNAUTHORIZED_VIEW': '/unauthorized'
     }
 
     def test_login_view(self):
@@ -157,9 +158,18 @@ class ConfiguredURLTests(SecurityTest):
         self.assertIn('Post Logout', r.data)
 
     def test_register(self):
-        data = dict(email='dude@lp.com', password='password', password_confirm='password')
+        data = dict(email='dude@lp.com',
+                    password='password',
+                    password_confirm='password')
+
         r = self.client.post('/register', data=data, follow_redirects=True)
         self.assertIn('Post Register', r.data)
+
+    def test_unauthorized(self):
+        self.authenticate("joe@lp.com", endpoint="/custom_auth")
+        r = self._get("/admin", follow_redirects=True)
+        msg = 'You are not allowed to access the requested resouce'
+        self.assertIn(msg, r.data)
 
 
 class RegisterableTests(SecurityTest):

@@ -11,7 +11,7 @@
 
 from functools import wraps
 
-from flask import current_app as app, Response, request, abort, redirect
+from flask import current_app as app, Response, request, redirect
 from flask.ext.login import login_required, login_url, current_user
 from flask.ext.principal import RoleNeed, Permission
 from werkzeug.local import LocalProxy
@@ -23,18 +23,26 @@ from . import utils
 _security = LocalProxy(lambda: app.security)
 
 
-_default_http_auth_msg = """
+_default_unauthorized_txt = """
     <h1>Unauthorized</h1>
     <p>The server could not verify that you are authorized to access the URL
     requested. You either supplied the wrong credentials (e.g. a bad password),
     or your browser doesn't understand how to supply the credentials required.</p>
-    <p>In case you are allowed to request the document, please check your
-    user-id and password and try again.</p>
     """
 
 
-def _check_token():
+def _get_unauthorized_response(text=None, headers=None):
+    text = text or _default_unauthorized_txt
+    headers = headers or {}
+    return Response(_default_unauthorized_txt, 401, headers)
 
+
+def _get_unauthorized_view():
+    cv = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
+    return (cv or request.referrer or '/')
+
+
+def _check_token():
     header_key = app.security.token_authentication_header
     args_key = app.security.token_authentication_key
 
@@ -77,7 +85,7 @@ def http_auth_required(fn):
         if _check_http_auth():
             return fn(*args, **kwargs)
 
-        return Response(_default_http_auth_msg, 401, headers)
+        return _get_unauthorized_response(headers=headers)
 
     return decorated
 
@@ -89,7 +97,7 @@ def auth_token_required(fn):
         if _check_token():
             return fn(*args, **kwargs)
 
-        abort(401)
+        return _get_unauthorized_response()
 
     return decorated
 
@@ -111,6 +119,7 @@ def roles_required(*roles):
     perms = [Permission(RoleNeed(role)) for role in roles]
 
     def wrapper(fn):
+
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
@@ -120,10 +129,14 @@ def roles_required(*roles):
             for perm in perms:
                 if not perm.can():
                     app.logger.debug('Identity does not provide the '
-                                             'roles: %s' % [r for r in roles])
-                    return redirect(request.referrer or '/')
+                                     'roles: %s' % [r for r in roles])
+
+                    return redirect(_get_unauthorized_view())
+
             return fn(*args, **kwargs)
+
         return decorated_view
+
     return wrapper
 
 
@@ -144,6 +157,7 @@ def roles_accepted(*roles):
     perm = Permission(*[RoleNeed(role) for role in roles])
 
     def wrapper(fn):
+
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             if not current_user.is_authenticated():
@@ -162,6 +176,8 @@ def roles_accepted(*roles):
             utils.do_flash('You do not have permission to '
                            'view this resource', 'error')
 
-            return redirect(request.referrer or '/')
+            return redirect(_get_unauthorized_view())
+
         return decorated_view
+
     return wrapper

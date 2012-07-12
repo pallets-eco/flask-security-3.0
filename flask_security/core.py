@@ -42,6 +42,7 @@ _default_config = {
     'RESET_PASSWORD_ERROR_VIEW': '/',
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
+    'UNAUTHORIZED_VIEW': None,
     'DEFAULT_ROLES': [],
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
