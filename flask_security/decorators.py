@@ -17,6 +17,7 @@ from flask.ext.principal import RoleNeed, Permission
 from werkzeug.local import LocalProxy
 
 from . import utils
+from .exceptions import UserNotFoundError
 
 
 # Convenient references
@@ -71,24 +72,29 @@ def _check_http_auth():
 
     try:
         user = app.security.datastore.find_user(email=auth.username)
-    except:
+    except UserNotFoundError:
         return False
 
     return app.security.pwd_context.verify(auth.password, user.password)
 
 
-def http_auth_required(fn):
+def http_auth_required(auth_header=None):
     """Decorator that protects endpoints using Basic HTTP authentication."""
-    headers = {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    def wrapper(fn):
 
-    @wraps(fn)
-    def decorated(*args, **kwargs):
-        if _check_http_auth():
-            return fn(*args, **kwargs)
+        @wraps(fn)
+        def decorated(*args, **kwargs):
+            if _check_http_auth():
+                return fn(*args, **kwargs)
 
-        return _get_unauthorized_response(headers=headers)
+            header = auth_header or _security.default_http_auth_header
+            headers = {'WWW-Authenticate': header}
 
-    return decorated
+            return _get_unauthorized_response(headers=headers)
+
+        return decorated
+
+    return wrapper
 
 
 def auth_token_required(fn):

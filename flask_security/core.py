@@ -56,7 +56,8 @@ _default_config = {
     'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token',
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
-    'AUTH_SALT': 'auth-salt'
+    'AUTH_SALT': 'auth-salt',
+    'DEFAULT_HTTP_AUTH_HEADER': 'Basic realm="Login Required"'
 }
 
 
