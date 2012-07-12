@@ -58,7 +58,7 @@ def _check_token():
     try:
         data = serializer.loads(token)
         user = _security.datastore.find_user(id=data[0],
-                                                authentication_token=token)
+                                             authentication_token=token)
 
         if data[1] != utils.md5(user.email):
             raise Exception()
