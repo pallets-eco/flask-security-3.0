@@ -66,12 +66,6 @@ class ConfirmationError(SecurityError):
     """
 
 
-class TokenExpiredError(SecurityError):
-    """Raised when a user attempts to confirm their email but their token
-    has expired
-    """
-
-
 class ConfirmationRequiredError(SecurityError):
     """Raised when a user attempts to login but requires confirmation
     """

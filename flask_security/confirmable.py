@@ -15,7 +15,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
-from .exceptions import UserNotFoundError, ConfirmationError, TokenExpiredError
+from .exceptions import UserNotFoundError, ConfirmationError
 from .utils import send_mail, get_max_age, md5
 from .signals import user_confirmed, confirm_instructions_sent
 
@@ -96,14 +96,15 @@ def confirm_by_token(token):
 
         return user
 
-    except UserNotFoundError:
-        raise ConfirmationError('Invalid confirmation token')
-
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
-        raise TokenExpiredError(user=_datastore.find_user(id=data[0]))
+        raise ConfirmationError('Confirmation token expired',
+                                user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
+        raise ConfirmationError('Invalid confirmation token')
+
+    except UserNotFoundError:
         raise ConfirmationError('Invalid confirmation token')
 
 

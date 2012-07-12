@@ -19,8 +19,8 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from .confirmable import confirm_by_token, reset_confirmation_token
-from .exceptions import TokenExpiredError, ConfirmationError, \
-     BadCredentialsError, ResetPasswordError
+from .exceptions import ConfirmationError, BadCredentialsError, \
+     ResetPasswordError
 from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
      ResetPasswordForm, ResendConfirmationForm
 from .recoverable import reset_by_token, \
@@ -194,40 +194,28 @@ def send_confirmation():
 
 def confirm_account(token):
     """View function which handles a account confirmation request."""
-    error = False
-
     try:
         user = confirm_by_token(token)
+        _logger.debug('%s confirmed their account' % user)
 
     except ConfirmationError, e:
-        error = True
+        msg = str(e)
 
-        _logger.debug('Confirmation error: ' + str(e))
+        _logger.debug('Confirmation error: ' + msg)
 
-        do_flash(str(e), 'error')
-
-    except TokenExpiredError, e:
-        error = True
-
-        reset_confirmation_token(e.user)
-
-        msg = 'You did not confirm your email within %s. ' \
-              'A new confirmation code has been sent to %s' % (
-               _security.confirm_email_within, e.user.email)
-
-        _logger.debug('Attempted account confirmation but token was expired')
+        if e.user:
+            reset_confirmation_token(e.user)
+            msg = ('You did not confirm your email within %s. '
+                   'A new confirmation code has been sent to %s' % (
+                    _security.confirm_email_within, e.user.email))
 
         do_flash(msg, 'error')
 
-    if error:
         return redirect(get_url(_security.confirm_error_view))
-
-    _logger.debug('User %s confirmed' % user)
 
     do_flash('Your email has been confirmed. You may now log in.', 'success')
 
-    return redirect(_security.post_confirm_view or
-                    _security.post_login_view)
+    return redirect(_security.post_confirm_view or _security.post_login_view)
 
 
 def forgot_password():
@@ -265,18 +253,19 @@ def reset_password(token):
 
     if form.validate_on_submit():
         try:
-            reset_by_token(token=token, **form.to_dict())
+            user = reset_by_token(token=token, **form.to_dict())
+            _logger.debug('%s reset their password' % user)
 
         except ResetPasswordError, e:
-            _logger.debug('Password reset error: ' + str(e))
+            msg = str(e)
 
-            do_flash(str(e), 'error')
+            _logger.debug('Password reset error: ' + msg)
 
-        except TokenExpiredError, e:
-            _logger.debug('Attempted password reset but token was expired')
+            if e.user:
+                msg = ('You did not reset your password within '
+                       '%s.' % _security.reset_password_within)
 
-            do_flash('You did not reset your password within '
-                     '%s.' % _security.reset_password_within)
+            do_flash(msg, 'error')
 
     return render_template('security/passwords/edit.html',
                            reset_password_form=form,
