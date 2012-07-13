@@ -203,6 +203,6 @@ def create_mongoengine_app(auth_config=None):
     return app
 
 if __name__ == '__main__':
-    app = create_sqlalchemy_app(register_blueprint=False)
+    app = create_sqlalchemy_app()
     #app = create_mongoengine_app()
     app.run()
