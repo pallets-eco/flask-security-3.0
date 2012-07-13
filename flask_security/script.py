@@ -138,10 +138,7 @@ class GenerateBlueprintCommand(Command):
     TODO: Documentation URL
 \"""
 """
-                ctx = dict(module_name=inspect.getmodulename(output))
-                to_replace = to_replace % ctx
                 contents = s.read().replace(to_remove, to_replace)
-
                 o.write(contents)
 
         print 'File generated successfully.'
