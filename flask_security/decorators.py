@@ -87,7 +87,10 @@ def _check_http_auth():
 
 
 def http_auth_required(realm):
-    """Decorator that protects endpoints using Basic HTTP authentication."""
+    """Decorator that protects endpoints using Basic HTTP authentication.
+    The username should be set to the user's email address.
+
+    :param realm: optional realm name"""
 
     def decorator(fn):
         @wraps(fn)
@@ -109,7 +112,12 @@ def http_auth_required(realm):
 
 
 def auth_token_required(fn):
-    """Decorator that protects endpoints using token authentication."""
+    """Decorator that protects endpoints using token authentication. The token
+    should be added to the request by the client by using a query string
+    variable with a name equal to the configuration value of
+    `SECURITY_TOKEN_AUTHENTICATION_KEY` or in a request header named that of
+    the configuration value of `SECURITY_TOKEN_AUTHENTICATION_HEADER`
+    """
 
     @wraps(fn)
     def decorated(*args, **kwargs):

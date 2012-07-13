@@ -3,32 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Flask-Security
-==============
+Extending Flask-Security
+========================
 
 .. module:: flask_security
 
-Simple security for Flask applications combining 
-`Flask-Login <http://packages.python.org/Flask-Login/>`_, 
-`Flask-Principal <http://packages.python.org/Flask-Principal/>`_, 
-`Flask-WTF <http://packages.python.org/Flask-WTF/>`_, 
-`passlib <http://packages.python.org/passlib/>`_, and your choice of datastore. 
-Currently `SQLAlchemy <http://www.sqlalchemy.org>`_ via 
-`Flask-SQLAlchemy <http://packages.python.org/Flask-SQLAlchemy/>`_ and 
-`MongoEngine <http://www.mongoengine.org/>`_ via 
-`Flask-MongoEngine <https://github.com/sbook/flask-mongoengine/>`_ are supported 
-out of the box. You will need to install the necessary Flask extensions that 
-you'll be using on your own. Additionally, you may need to install an encryption 
-library such as `py-bcrypt <http://www.mindrot.org/projects/py-bcrypt/>`_ (if 
-you plan to use bcrypt) for your desired encryption method.
+Quick and simple security for Flask applications.
 
 
 Contents
 =========
 * :ref:`overview`
 * :ref:`installation`
-* :ref:`getting-started`
-* :ref:`additional-user-fields`
+* :ref:`quick-start`
+* :ref:`models`
 * :ref:`flask-script-commands`
 * :ref:`api`
 * :doc:`Changelog </changelog>`
@@ -39,17 +27,34 @@ Contents
 Overview
 ========
 
-Flask-Security does a few things that Flask-Login and Flask-Principal don't 
-provide out of the box. They are:
+Flask-Security allows you to quickly add common user and security mechanisms to 
+your Flask application. They include:
 
-1. Setting up login and logout endpoints
-2. Authenticating users based on username or email
-3. Limiting access based on user 'roles'
-4. User and role creation
-5. Password encryption
+1. Session based authentication
+2. Role management
+3. Password encryption
+4. Basic HTTP authentication
+5. Token based authentication
+6. Token based account activation (optional)
+7. Token based password recovery/resetting (optional)
+8. User registration (optional)
+9. Login tracking (optional)
+10. Basic user management commands
 
-That being said, you can still hook into things such as the Flask-Login and 
-Flask-Principal signals if need be.
+Many of these features are made possible by integrating various Flask extensions
+and libraries. They include:
+
+1. Flask-Login
+2. Flask-Mail
+3. Flask-Principal
+4. Flask-Script
+5. Flask-WTF
+6. itsdangerous
+7. passlib
+
+Additionally, it assumes you'll be using a common library for your database 
+connections and model definitions. Flask-Security thus supports SQLAlchemy and 
+MongoEngine out of the box and additional libraries can easily be supported.
 
 
 .. _installation:
@@ -66,109 +71,93 @@ Then install your datastore requirement.
 
 **SQLAlchemy**::
 
-    $ pip install Flask-SQLAlchemy
+    $ pip install flask-sqlalchemy
     
 **MongoEngine**::
 
-    $ pip install https://github.com/sbook/flask-mongoengine/tarball/master
+    $ pip install flask-mongoengine
+
+And lastly install any password encryption library that you may need. For 
+example::
+
+    $ pip install py-bcrypt
 
 
-.. _getting-started:
+.. _quick-start:
 
-Getting Started
-===============
+Quick Start Example
+===================
 
-The following code samples will illustrate how to get started using SQLAlchemy. 
-First thing you'll want to do is setup your application and datastore::
+The following code sample illustrates how to get started as quickly as possible 
+using SQLAlchemy.::
 
-    from flask import Flask, render_template
+    from flask import Flask, render_template, url_for
     from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.security import (User, Security, LoginForm,  login_required, 
-                                    roles_accepted, user_datastore)
-    from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
-    
+    from flask.ext.security import Security, UserMixin, RoleMixin, \
+         login_required
+    from flask.ext.security.datastore import SQLAlchemyUserDatastore
+    from flask.ext.security.forms import LoginForm
+
     app = Flask(__name__)
+    app.debug = True
     app.config['SECRET_KEY'] = 'secret'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    
-    db = SQLAlchemy(app)
-    Security(app, SQLAlchemyUserDatastore(db))
+    app.config['SECURITY_POST_LOGIN_VIEW'] = '/protected'
 
-You'll probably want to at least one user to the database to test this out. 
-There are many ways to do this, but this is a quick and dirty way to do it::
+    db = SQLAlchemy(app)
+
+    roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
+    class Role(db.Model, RoleMixin):
+        id = db.Column(db.Integer(), primary_key=True)
+        name = db.Column(db.String(80), unique=True)
+        description = db.Column(db.String(255))
+
+    class User(db.Model, UserMixin):
+        id = db.Column(db.Integer, primary_key=True)
+        email = db.Column(db.String(255), unique=True)
+        password = db.Column(db.String(120))
+        remember_token = db.Column(db.String(255))
+        active = db.Column(db.Boolean())
+        authentication_token = db.Column(db.String(255))
+        roles = db.relationship('Role', secondary=roles_users,
+                    backref=db.backref('users', lazy='dynamic'))
+
+    datastore = SQLAlchemyUserDatastore(db, User, Role)
+
+    Security(app, datastore)
 
     @app.before_first_request
-    def before_first_request():
-        user_datastore.create_role(name='admin')
-        user_datastore.create_user(username='matt', email='matt@something.com',
-                                   password='password', roles=['admin'])
-        
-Next you'll want to setup your login screen. Setup your view::
+    def add_user():
+        db.create_all()
+        datastore.create_user(email='matt@matt.com',
+                              password='password')
 
-    @app.route("/login")
+    @app.route('/')
+    @app.route('/login')
     def login():
-        return render_template('login.html', form=LoginForm())
-    
-And corresponding template::
+        return render_template('security/logins/new.html',
+                               login_form=LoginForm())
 
-    <form action="{{ url_for('auth.authenticate') }}" method="POST">
-      {{ form.hidden_tag() }}
-      {{ form.username.label }} {{ form.username }}<br/>
-      {{ form.password.label }} {{ form.password }}<br/>
-      {{ form.remember.label }} {{ form.remember }}<br/>
-      {{ form.submit }}
-    </form>
-    
-By default, Flask-Security will redirect a user to `/profile` after logging in. 
-You can set this page up yourself or set the `SECURITY_POST_LOGIN` config 
-value to change this behavior. Regardless, setup a protected view as such::
-
-    @app.route('/profile')
+    @app.route('/protected')
     @login_required
-    def profile():
-        return render_template('profile.html')
-         
-Now you have an application with basic authentication. If you run the local 
-development server you can visit `http://localhost:5000/login <http://localhost:5000/login>`_ 
-to login.
+    def protected():
+        return """<h1>You are logged in</h1>
+                  <p><a href="%s">Log out</a>""" % (
+                  url_for('flask_security.logout'))
 
-The last thing you'll want to do is add a logout link to your templates. This 
-can be achieved with::
-
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-    
-Now, for instance, say you want to protect an admin area to users that are 
-administrators. You can use the `roles_accepted` decorator to prevent access. 
-The corresponding view would look like such::
-
-    @app.route('/admin')
-    @roles_accepted('admin')
-    def admin():
-        return render_template('admin/index.html')
-        
-And lastly, maybe you only want to show something in a template if a user has a 
-specific role::
-
-    {% if current_user.has_role('admin') %}
-      <a href="{{ url_for('admin.index') }}">Admin Panel</a>
-    {$ endif %}
+    if __name__ == '__main__':
+        app.run()
 
 
-.. _additional-user-fields:
+.. _models:
 
-Additional User Fields
-----------------------
-If you'd like to add additional fields to the user model you can use a mixin
-class that specifies your additional fields. The following is an example of
-how you might do this::
+Data Models
+-----------
 
-    db = SQLAlchemy(app)
-
-    class UserAccountMixin():
-        first_name = db.Column(db.String(120))
-        last_name = db.Column(db.String(120))
-
-    Security(app, SQLAlchemyUserDatastore(db, UserAccountMixin))
+TODO: Describe models and required fields for various features
 
 .. _flask-script-commands:
 
@@ -176,12 +165,14 @@ Flask-Script Commands
 ---------------------
 Flask-Security comes packed with a few Flask-Script commands. They are:
 
-* :class:`flask.ext.security.script.CreateUserCommand`
-* :class:`flask.ext.security.script.CreateRoleCommand`
-* :class:`flask.ext.security.script.AddRoleCommand`
-* :class:`flask.ext.security.script.RemoveRoleCommand`
-* :class:`flask.ext.security.script.DeactivateUserCommand`
-* :class:`flask.ext.security.script.ActivateUserCommand`
+* :class:`flask_security.script.CreateUserCommand`
+* :class:`flask_security.script.CreateRoleCommand`
+* :class:`flask_security.script.AddRoleCommand`
+* :class:`flask_security.script.RemoveRoleCommand`
+* :class:`flask_security.script.DeactivateUserCommand`
+* :class:`flask_security.script.ActivateUserCommand`
+* :class:`flask_security.script.ActivateUserCommand`
+* :class:`flask_security.script.GenerateBlueprintCommand`
 
 Register these on your script manager for pure convenience.
         
@@ -192,25 +183,63 @@ Configuration Values
 ====================
 
 * :attr:`SECURITY_URL_PREFIX`: Specifies the URL prefix for the Security 
-  blueprint
-* :attr:`SECURITY_AUTH_PROVIDER`: Specifies the class to use as the 
-  authentication provider. Such as `flask.ext.security.AuthenticationProvider`
-* :attr:`SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.: 
-  plaintext, bcrypt, etc
-* :attr:`SECURITY_USER_DATASTORE`: Specifies the property name to use for the 
-  user datastore on the application instance
-* :attr:`SECURITY_LOGIN_FORM`: Specifies the form class to use when processing 
-  an authentication request
-* :attr:`SECURITY_AUTH_URL`: Specifies the URL to to handle authentication 
-* :attr:`SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request
-* :attr:`SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when 
-  authentication is required
-* :attr:`SECURITY_POST_LOGIN`: Specifies the URL to redirect to after a user is 
-  authenticated
-* :attr:`SECURITY_POST_LOGOUT`: Specifies the URL to redirect to after a user 
-  logs out
+  blueprint.
 * :attr:`SECURITY_FLASH_MESSAGES`: Specifies wether or not to flash messages 
-  during authentication request
+  during security mechanisms.
+* :attr:`SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.: 
+  plaintext, bcrypt, etc.
+* :attr:`SECURITY_AUTH_URL`: Specifies the URL to to handle authentication.
+* :attr:`SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request.
+* :attr:`SECURITY_REGISTER_URL`: Specifies the URL for user registrations.
+* :attr:`SECURITY_RESET_URL`: Specifies the URL for password resets.
+* :attr:`SECURITY_CONFIRM_URL`: Specifies the URL for account confirmations.
+* :attr:`SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when 
+  authentication is required.
+* :attr:`SECURITY_CONFIRM_ERROR_VIEW`: Specifies the URL to redirect to when 
+  an confirmation error occurs.
+* :attr:`SECURITY_POST_LOGIN_VIEW`: Specifies the URL to redirect to after a 
+  user logins in.
+* :attr:`SECURITY_POST_LOGOUT_VIEW`: Specifies the URL to redirect to after a 
+  user logs out.
+* :attr:`SECURITY_POST_FORGOT_VIEW`: Specifies the URL to redirect to after a 
+  user requests password reset instructions.
+* :attr:`SECURITY_RESET_PASSWORD_ERROR_VIEW`: Specifies the URL to redirect to 
+  after an error occurs during the password reset process.
+* :attr:`SECURITY_POST_REGISTER_VIEW`: Specifies the URL to redirect to after a 
+  user successfully registers.
+* :attr:`SECURITY_POST_CONFIRM_VIEW`: Specifies the URL to redirect to after a 
+  user successfully confirms their account.
+* :attr:`SECURITY_UNAUTHORIZED_VIEW`: Specifies the URL to redirect to when a 
+  user attempts to access a view they don't have permission to view.
+* :attr:`SECURITY_DEFAULT_ROLES`: The default roles any new users should have.
+* :attr:`SECURITY_CONFIRMABLE`: Enables confirmation features. Defaults to 
+  `False`.
+* :attr:`SECURITY_REGISTERABLE`: Enables user registration features. Defaults to 
+  `False`.
+* :attr:`SECURITY_RECOVERABLE`: Enables password reset/recovery features. 
+  Defaults to `False`.
+* :attr:`SECURITY_TRACKABLE`: Enables login tracking features. Defaults to 
+  `False`.
+* :attr:`SECURITY_CONFIRM_EMAIL_WITHIN`: Specifies the amount of time a user
+  has to confirm their account/email. Default is `5 days`.
+* :attr:`SECURITY_RESET_PASSWORD_WITHIN`: Specifies the amount of time a user
+  has to reset their password. Default is `5 days`.
+* :attr:`SECURITY_LOGIN_WITHOUT_CONFIRMATION`: Specifies if users can login
+  without first confirming their accounts. Defaults to `False`
+* :attr:`SECURITY_EMAIL_SENDER`: Specifies the email address to send emails on
+  behalf of. Defaults to `no-reply@localhost`.
+* :attr:`SECURITY_TOKEN_AUTHENTICATION_KEY`: Specifies the query string argument
+  to use during token authentication. Defaults to `auth_token`.
+* :attr:`SECURITY_TOKEN_AUTHENTICATION_HEADER`: Specifies the header name to use
+  during token authentication. Defaults to `X-Auth-Token`.
+* :attr:`SECURITY_CONFIRM_SALT`: Specifies the salt value to use for account 
+  confirmation tokens. Defaults to `confirm-salt`.
+* :attr:`SECURITY_RESET_SALT`: Specifies the salt value to use for password 
+  reset tokens. Defaults to `reset-salt`.
+* :attr:`SECURITY_AUTH_SALT`: Specifies the salt value to use for token based
+  authentication tokens. Defaults to `auth-salt`.
+* :attr:`SECURITY_DEFAULT_HTTP_AUTH_REALM`: Specifies the default basic HTTP
+  authentication realm. Defaults to `Login Required`.
 
 
 .. _api:
@@ -218,32 +247,36 @@ Configuration Values
 API
 ===
 
-.. autoclass:: flask_security.Security
+.. autoclass:: flask_security.core.Security
     :members:
 
-.. data:: flask_security.current_user
+.. data:: flask_security.core.current_user
 
    A proxy for the current user.
    
 
 Protecting Views
 ----------------
-.. autofunction:: flask_security.login_required
+.. autofunction:: flask_security.decorators.login_required
     
-.. autofunction:: flask_security.roles_required
+.. autofunction:: flask_security.decorators.roles_required
 
-.. autofunction:: flask_security.roles_accepted
+.. autofunction:: flask_security.decorators.roles_accepted
+
+.. autofunction:: flask_security.decorators.http_auth_required
+
+.. autofunction:: flask_security.decorators.auth_token_required
 
 
 User Object Helpers
 -------------------
-.. autoclass:: flask_security.UserMixin
+.. autoclass:: flask_security.core.UserMixin
    :members:
    
-.. autoclass:: flask_security.RoleMixin
+.. autoclass:: flask_security.core.RoleMixin
    :members:
 
-.. autoclass:: flask_security.AnonymousUser
+.. autoclass:: flask_security.core.AnonymousUser
    :members:
 
 
@@ -252,65 +285,13 @@ Datastores
 .. autoclass:: flask_security.datastore.UserDatastore
     :members:
     
-.. autoclass:: flask_security.datastore.sqlalchemy.SQLAlchemyUserDatastore
+.. autoclass:: flask_security.datastore.SQLAlchemyUserDatastore
     :members:
     :inherited-members:
     
-.. autoclass:: flask_security.datastore.mongoengine.MongoEngineUserDatastore
+.. autoclass:: flask_security.datastore.MongoEngineUserDatastore
     :members:
     :inherited-members:
-
-
-Models
-------
-.. autoclass:: flask_security.User
-    
-    .. attribute:: id
-       
-       User ID
-       
-    .. attribute:: username
-       
-       Username
-       
-    .. attribute:: email
-       
-       Email address
-       
-    .. attribute:: password
-    
-       Password
-       
-    .. attribute:: active
-    
-       Active state
-       
-    .. attribute:: roles
-    
-       User roles
-       
-    .. attribute:: created_at
-    
-       Created date
-       
-    .. attribute:: modified_at
-    
-       Modified date
-        
-        
-.. autoclass:: flask_security.Role
-
-    .. attribute:: id
-    
-       Role ID
-       
-    .. attribute:: name
-    
-       Role name
-       
-    .. attribute:: description
-    
-       Role description
        
 
 Exceptions
@@ -330,6 +311,10 @@ Exceptions
 .. autoexception:: flask_security.UserCreationError
 
 .. autoexception:: flask_security.RoleCreationError
+
+.. autoexception:: flask_security.ConfirmationError
+
+.. autoexception:: flask_security.ResetPasswordError
 
 
 Signals
