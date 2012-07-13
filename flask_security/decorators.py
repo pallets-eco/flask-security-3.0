@@ -13,7 +13,7 @@ from functools import wraps
 
 from flask import current_app, Response, request, redirect
 from flask.ext.login import login_required, login_url, current_user
-from flask.ext.principal import RoleNeed, Permission
+from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 
 from . import utils
@@ -77,7 +77,13 @@ def _check_http_auth():
     except UserNotFoundError:
         return False
 
-    return _security.pwd_context.verify(auth.password, user.password)
+    rv = _security.pwd_context.verify(auth.password, user.password)
+
+    if rv:
+        identity_changed.send(current_app._get_current_object(),
+                              identity=Identity(user.id))
+
+    return rv
 
 
 def http_auth_required(realm):
@@ -132,7 +138,6 @@ def roles_required(*roles):
     def wrapper(fn):
 
         @wraps(fn)
-        @login_required
         def decorated_view(*args, **kwargs):
             perms = [Permission(RoleNeed(role)) for role in roles]
 
@@ -167,7 +172,6 @@ def roles_accepted(*roles):
     def wrapper(fn):
 
         @wraps(fn)
-        @login_required
         def decorated_view(*args, **kwargs):
             perm = Permission(*[RoleNeed(role) for role in roles])
 

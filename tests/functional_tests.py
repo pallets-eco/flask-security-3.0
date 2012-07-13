@@ -88,7 +88,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_unauthenticated_role_required(self):
         r = self._get('/admin', follow_redirects=True)
-        self.assertIn('<input id="next"', r.data)
+        self.assertIn('You do not have permission to view this resource', r.data)
 
     def test_multiple_role_required(self):
         for user in ("matt@lp.com", "joe@lp.com"):
