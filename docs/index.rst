@@ -1,10 +1,6 @@
-.. Flask-Security documentation master file, created by
-   sphinx-quickstart on Mon Mar 12 15:35:21 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Extending Flask-Security
-========================
+Flask-Security
+==============
 
 .. module:: flask_security
 
@@ -296,25 +292,25 @@ Datastores
 
 Exceptions
 ----------    
-.. autoexception:: flask_security.BadCredentialsError
+.. autoexception:: flask_security.exceptions.BadCredentialsError
 
-.. autoexception:: flask_security.AuthenticationError
+.. autoexception:: flask_security.exceptions.AuthenticationError
 
-.. autoexception:: flask_security.UserNotFoundError
+.. autoexception:: flask_security.exceptions.UserNotFoundError
 
-.. autoexception:: flask_security.RoleNotFoundError
+.. autoexception:: flask_security.exceptions.RoleNotFoundError
 
-.. autoexception:: flask_security.UserIdNotFoundError
+.. autoexception:: flask_security.exceptions.UserIdNotFoundError
 
-.. autoexception:: flask_security.UserDatastoreError
+.. autoexception:: flask_security.exceptions.UserDatastoreError
 
-.. autoexception:: flask_security.UserCreationError
+.. autoexception:: flask_security.exceptions.UserCreationError
 
-.. autoexception:: flask_security.RoleCreationError
+.. autoexception:: flask_security.exceptions.RoleCreationError
 
-.. autoexception:: flask_security.ConfirmationError
+.. autoexception:: flask_security.exceptions.ConfirmationError
 
-.. autoexception:: flask_security.ResetPasswordError
+.. autoexception:: flask_security.exceptions.ResetPasswordError
 
 
 Signals
