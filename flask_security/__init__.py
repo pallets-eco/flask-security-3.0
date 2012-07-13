@@ -14,6 +14,7 @@ from flask.ext.login import login_user, logout_user
 
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, \
      AuthenticationProvider, current_user
+from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore
 from .decorators import auth_token_required, http_auth_required, \
      login_required, roles_accepted, roles_required
 from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \

@@ -118,7 +118,7 @@ def create_app(auth_config):
     return app
 
 
-def create_sqlalchemy_app(auth_config=None):
+def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
     app = create_app(auth_config)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
 
@@ -149,7 +149,13 @@ def create_sqlalchemy_app(auth_config=None):
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
-    Security(app, SQLAlchemyUserDatastore(db, User, Role))
+    Security(app, SQLAlchemyUserDatastore(db, User, Role),
+             register_blueprint=register_blueprint)
+
+    if not register_blueprint:
+        from example import security
+        blueprint = security.create_blueprint(app, 'flask_security', __name__)
+        app.register_blueprint(blueprint)
 
     @app.before_first_request
     def before_first_request():
@@ -197,6 +203,6 @@ def create_mongoengine_app(auth_config=None):
     return app
 
 if __name__ == '__main__':
-    app = create_sqlalchemy_app()
+    app = create_sqlalchemy_app(register_blueprint=False)
     #app = create_mongoengine_app()
     app.run()

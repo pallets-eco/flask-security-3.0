@@ -1,21 +1,19 @@
 # a little trick so you can run:
-# $ python example/app.py 
+# $ python example/app.py
 # from the root of the security project
-import sys, os
+import sys
+import os
+
 sys.path.pop(0)
 sys.path.insert(0, os.getcwd())
 
 from example import app
 from flask.ext.script import Manager
-from flask.ext.security.script import (CreateUserCommand , AddRoleCommand,
-        RemoveRoleCommand, ActivateUserCommand, DeactivateUserCommand)
+from flask.ext.security.script import CreateUserCommand, GenerateBlueprintCommand
 
 manager = Manager(app.create_sqlalchemy_app())
 manager.add_command('create_user', CreateUserCommand())
-manager.add_command('add_role', AddRoleCommand())
-manager.add_command('remove_role', RemoveRoleCommand())
-manager.add_command('deactivate_user', DeactivateUserCommand())
-manager.add_command('activate_user', ActivateUserCommand())
+manager.add_command('generate_blueprint', GenerateBlueprintCommand())
 
 if __name__ == "__main__":
     manager.run()
