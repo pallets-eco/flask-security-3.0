@@ -12,13 +12,14 @@
 from datetime import datetime
 
 from flask import current_app as app, redirect, request, session, \
-     render_template, jsonify
+     render_template, jsonify, Blueprint
 from flask.ext.login import login_user, logout_user
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from .confirmable import confirm_by_token, reset_confirmation_token
+from .decorators import login_required
 from .exceptions import ConfirmationError, BadCredentialsError, \
      ResetPasswordError
 from .forms import LoginForm, RegisterForm, ForgotPasswordForm, \
@@ -28,7 +29,7 @@ from .recoverable import reset_by_token, \
 from .signals import user_registered
 from .tokens import generate_authentication_token
 from .utils import get_url, get_post_login_redirect, do_flash, \
-     get_remember_token, get_message
+     get_remember_token, get_message, config_value
 
 
 # Convenient references
@@ -276,3 +277,37 @@ def reset_password(token):
     return render_template('security/passwords/edit.html',
                            reset_password_form=form,
                            password_reset_token=token)
+
+
+def create_blueprint(app, name, import_name, **kwargs):
+    bp = Blueprint(name, import_name, **kwargs)
+
+    bp.route(config_value('AUTH_URL', app=app),
+             methods=['POST'],
+             endpoint='authenticate')(authenticate)
+
+    bp.route(config_value('LOGOUT_URL', app=app),
+             endpoint='logout')(login_required(logout))
+
+    if config_value('REGISTERABLE', app=app):
+        bp.route(config_value('REGISTER_URL', app=app),
+                 methods=['GET', 'POST'],
+                 endpoint='register')(register_user)
+
+    if config_value('RECOVERABLE', app=app):
+        bp.route(config_value('RESET_URL', app=app),
+                 methods=['GET', 'POST'],
+                 endpoint='forgot_password')(forgot_password)
+        bp.route(config_value('RESET_URL', app=app) + '/<token>',
+                 methods=['GET', 'POST'],
+                 endpoint='reset_password')(reset_password)
+
+    if config_value('CONFIRMABLE', app=app):
+        bp.route(config_value('CONFIRM_URL', app=app),
+                 methods=['GET', 'POST'],
+                 endpoint='send_confirmation')(send_confirmation)
+        bp.route(config_value('CONFIRM_URL', app=app) + '/<token>',
+                 methods=['GET', 'POST'],
+                 endpoint='confirm_account')(confirm_account)
+
+    return bp

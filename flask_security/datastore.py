@@ -11,7 +11,7 @@
 
 from flask import current_app
 
-from . import exceptions, confirmable, utils
+from . import exceptions, utils
 
 
 class UserDatastore(object):

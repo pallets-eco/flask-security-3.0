@@ -10,7 +10,7 @@
 """
 
 from itsdangerous import URLSafeTimedSerializer
-from flask import current_app, Blueprint
+from flask import current_app
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -20,7 +20,6 @@ from werkzeug.datastructures import ImmutableList
 
 from . import views, exceptions
 from .confirmable import requires_confirmation
-from .decorators import login_required
 from .utils import config_value as cv, get_config
 
 
@@ -144,40 +143,6 @@ def _get_token_auth_serializer(app):
     return _get_serializer(app, app.config['SECURITY_AUTH_SALT'])
 
 
-def _create_blueprint(app):
-    bp = Blueprint('flask_security', __name__, template_folder='templates')
-
-    bp.route(cv('AUTH_URL', app=app),
-             methods=['POST'],
-             endpoint='authenticate')(views.authenticate)
-
-    bp.route(cv('LOGOUT_URL', app=app),
-             endpoint='logout')(login_required(views.logout))
-
-    if cv('REGISTERABLE', app=app):
-        bp.route(cv('REGISTER_URL', app=app),
-                 methods=['GET', 'POST'],
-                 endpoint='register')(views.register_user)
-
-    if cv('RECOVERABLE', app=app):
-        bp.route(cv('RESET_URL', app=app),
-                 methods=['GET', 'POST'],
-                 endpoint='forgot_password')(views.forgot_password)
-        bp.route(cv('RESET_URL', app=app) + '/<token>',
-                 methods=['GET', 'POST'],
-                 endpoint='reset_password')(views.reset_password)
-
-    if cv('CONFIRMABLE', app=app):
-        bp.route(cv('CONFIRM_URL', app=app),
-                 methods=['GET', 'POST'],
-                 endpoint='send_confirmation')(views.send_confirmation)
-        bp.route(cv('CONFIRM_URL', app=app) + '/<token>',
-                 methods=['GET', 'POST'],
-                 endpoint='confirm_account')(views.confirm_account)
-
-    return bp
-
-
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
@@ -233,7 +198,7 @@ class Security(object):
     def __init__(self, app=None, datastore=None, **kwargs):
         self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore):
+    def init_app(self, app, datastore, register_blueprint=True):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -263,9 +228,11 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        bp = _create_blueprint(app)
-        pre = cv('URL_PREFIX', app=app)
-        app.register_blueprint(bp, url_prefix=pre)
+        if register_blueprint:
+            bp = views.create_blueprint(app, 'flask_security', __name__,
+                                        template_folder='templates',
+                                        url_prefix=cv('URL_PREFIX', app=app))
+            app.register_blueprint(bp)
 
         app.security = self
 
