@@ -1,4 +1,4 @@
-{% include "../messages.html" %}
+{% include "security/messages.html" %}
 <h1>Register</h1>
 <form action="{{ url_for('flask_security.register') }}" method="POST" name="register_user_form">
   {{ register_user_form.hidden_tag() }}

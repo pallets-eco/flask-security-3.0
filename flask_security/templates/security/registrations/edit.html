@@ -1,4 +1,4 @@
-{% include "../messages.html" %}
+{% include "security/messages.html" %}
 <h1>Edit account</h1>
 <form action="{{ url_for('flask_security.update_user') }}" method="POST" name="edit_user_form">
   {{ edit_user_form.hidden_tag() }}

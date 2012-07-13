@@ -1,10 +1,10 @@
-{% include "../messages.html" %}
+{% include "security/messages.html" %}
 <h1>Login</h1>
 <form action="{{ url_for('flask_security.authenticate') }}" method="POST" name="login_form">
-  {{ form.hidden_tag() }}
-  {{ form.email.label }} {{ form.email }}<br/>
-  {{ form.password.label }} {{ form.password }}<br/>
-  {{ form.remember.label }} {{ form.remember }}<br/>
-  {{ form.next }}
-  {{ form.submit }}
+  {{ login_form.hidden_tag() }}
+  {{ login_form.email.label }} {{ login_form.email }}<br/>
+  {{ login_form.password.label }} {{ login_form.password }}<br/>
+  {{ login_form.remember.label }} {{ login_form.remember }}<br/>
+  {{ login_form.next }}
+  {{ login_form.submit }}
 </form>
