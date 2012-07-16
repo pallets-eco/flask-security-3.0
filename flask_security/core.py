@@ -208,7 +208,7 @@ class Security(object):
     """
     def __init__(self, app=None, datastore=None, **kwargs):
         if app is not None and datastore is not None:
-            self.init_app(app, datastore, **kwargs)
+            self._state = self.init_app(app, datastore, **kwargs)
 
     def init_app(self, app, datastore, register_blueprint=True):
         """Initializes the Flask-Security extension for the specified
@@ -252,6 +252,11 @@ class Security(object):
             app.extensions = {}
 
         app.extensions['security'] = state
+
+        return state
+
+    def __getattr__(self, name):
+        return getattr(self._state, name, None)
 
 
 class AuthenticationProvider(object):

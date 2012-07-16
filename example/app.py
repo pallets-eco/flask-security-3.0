@@ -22,7 +22,7 @@ from flask.ext.security.decorators import http_auth_required, \
 
 def create_roles():
     for role in ('admin', 'editor', 'author'):
-        current_app.extensions['security'].datastore.create_role(name=role)
+        current_app.security.datastore.create_role(name=role)
 
 
 def create_users():
@@ -31,7 +31,7 @@ def create_users():
                ('dave@lp.com', 'password', ['admin', 'editor'], True),
                ('jill@lp.com', 'password', ['author'], True),
                ('tiya@lp.com', 'password', [], False)):
-        current_app.extensions['security'].datastore.create_user(
+        current_app.security.datastore.create_user(
             email=u[0], password=u[1], roles=u[2], active=u[3])
 
 
