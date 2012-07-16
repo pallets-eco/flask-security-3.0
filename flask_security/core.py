@@ -232,14 +232,11 @@ class Security(object):
                                         url_prefix=cv('URL_PREFIX', app=app))
             app.register_blueprint(bp)
 
-        if not hasattr(app, 'extensions'):
-            app.extensions = {}
-
         kwargs = {}
         for key, value in get_config(app).items():
             kwargs[key.lower()] = value
 
-        app.extensions['security'] = _SecurityState(
+        state = _SecurityState(
             app=app,
             datastore=datastore,
             auth_provider=AuthenticationProvider(),
@@ -250,6 +247,11 @@ class Security(object):
             confirm_serializer=_get_confirm_serializer(app),
             token_auth_serializer=_get_token_auth_serializer(app),
             **kwargs)
+
+        if not hasattr(app, 'extensions'):
+            app.extensions = {}
+
+        app.extensions['security'] = state
 
 
 class AuthenticationProvider(object):
