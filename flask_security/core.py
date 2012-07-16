@@ -207,9 +207,6 @@ class Security(object):
     :param datastore: An instance of a user datastore.
     """
     def __init__(self, app=None, datastore=None, **kwargs):
-        self.app = app
-        self.datastore = datastore
-
         if app is not None and datastore is not None:
             self.init_app(app, datastore, **kwargs)
 
