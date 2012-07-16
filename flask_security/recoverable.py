@@ -20,9 +20,9 @@ from .utils import send_mail, get_max_age, md5, get_message
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.security)
+_security = LocalProxy(lambda: app.extensions['security'])
 
-_datastore = LocalProxy(lambda: app.security.datastore)
+_datastore = LocalProxy(lambda: _security.datastore)
 
 
 def send_reset_password_instructions(user, reset_token):

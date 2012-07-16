@@ -17,10 +17,14 @@ from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
      identity_loaded
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
+from werkzeug.local import LocalProxy
 
 from . import views, exceptions
 from .confirmable import requires_confirmation
 from .utils import config_value as cv, get_config
+
+# Convenient references
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 
 #: Default Flask-Security configuration
@@ -75,7 +79,7 @@ _default_flash_messages = {
 
 def _user_loader(user_id):
     try:
-        return current_app.security.datastore.with_id(user_id)
+        return _security.datastore.with_id(user_id)
     except Exception, e:
         current_app.logger.error('Error getting user: %s' % e)
         return None
@@ -83,7 +87,7 @@ def _user_loader(user_id):
 
 def _token_loader(token):
     try:
-        return current_app.security.datastore.find_user(remember_token=token)
+        return _security.datastore.find_user(remember_token=token)
     except Exception, e:
         current_app.logger.error('Error getting user: %s' % e)
         return None
@@ -189,6 +193,13 @@ class AnonymousUser(AnonymousUserBase):
         return False
 
 
+class _SecurityState(object):
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key.lower(), value)
+
+
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
 
@@ -196,7 +207,11 @@ class Security(object):
     :param datastore: An instance of a user datastore.
     """
     def __init__(self, app=None, datastore=None, **kwargs):
-        self.init_app(app, datastore, **kwargs)
+        self.app = app
+        self.datastore = datastore
+
+        if app is not None and datastore is not None:
+            self.init_app(app, datastore, **kwargs)
 
     def init_app(self, app, datastore, register_blueprint=True):
         """Initializes the Flask-Security extension for the specified
@@ -205,26 +220,12 @@ class Security(object):
         :param app: The application.
         :param datastore: An instance of a user datastore.
         """
-        if app is None or datastore is None:
-            return
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
 
         for key, value in _default_flash_messages.items():
             app.config.setdefault('SECURITY_MSG_' + key, value)
-
-        self.datastore = datastore
-        self.auth_provider = AuthenticationProvider()
-        self.login_manager = _get_login_manager(app)
-        self.principal = _get_principal(app)
-        self.pwd_context = _get_pwd_context(app)
-        self.reset_serializer = _get_reset_serializer(app)
-        self.confirm_serializer = _get_confirm_serializer(app)
-        self.token_auth_serializer = _get_token_auth_serializer(app)
-
-        for key, value in get_config(app).items():
-            setattr(self, key.lower(), value)
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
@@ -234,13 +235,30 @@ class Security(object):
                                         url_prefix=cv('URL_PREFIX', app=app))
             app.register_blueprint(bp)
 
-        app.security = self
+        if not hasattr(app, 'extensions'):
+            app.extensions = {}
+
+        kwargs = {}
+        for key, value in get_config(app).items():
+            kwargs[key.lower()] = value
+
+        app.extensions['security'] = _SecurityState(
+            app=app,
+            datastore=datastore,
+            auth_provider=AuthenticationProvider(),
+            login_manager=_get_login_manager(app),
+            principal=_get_principal(app),
+            pwd_context=_get_pwd_context(app),
+            reset_serializer=_get_reset_serializer(app),
+            confirm_serializer=_get_confirm_serializer(app),
+            token_auth_serializer=_get_token_auth_serializer(app),
+            **kwargs)
 
 
 class AuthenticationProvider(object):
     """The default authentication provider implementation."""
     def _get_user(self, username_or_email):
-        datastore = current_app.security.datastore
+        datastore = _security.datastore
 
         try:
             return datastore.find_user(email=username_or_email)
@@ -286,7 +304,7 @@ class AuthenticationProvider(object):
             raise exceptions.BadCredentialsError('Account requires confirmation')
 
         # compare passwords
-        if current_app.security.pwd_context.verify(password, user.password):
+        if _security.pwd_context.verify(password, user.password):
             return user
 
         # bad match

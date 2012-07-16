@@ -16,9 +16,9 @@ from .utils import md5
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.security)
+_security = LocalProxy(lambda: app.extensions['security'])
 
-_datastore = LocalProxy(lambda: app.security.datastore)
+_datastore = LocalProxy(lambda: _security.datastore)
 
 
 def generate_authentication_token(user):

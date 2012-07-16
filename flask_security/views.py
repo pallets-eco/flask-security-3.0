@@ -33,9 +33,9 @@ from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.security)
+_security = LocalProxy(lambda: app.extensions['security'])
 
-_datastore = LocalProxy(lambda: app.security.datastore)
+_datastore = LocalProxy(lambda: _security.datastore)
 
 _logger = LocalProxy(lambda: app.logger)
 

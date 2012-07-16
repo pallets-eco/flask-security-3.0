@@ -17,8 +17,13 @@ from datetime import datetime, timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.login import make_secure_token
+from werkzeug.local import LocalProxy
 
 from .signals import user_registered, password_reset_requested
+
+
+# Convenient references
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 
 def md5(data):
@@ -150,7 +155,7 @@ def send_mail(subject, recipient, template, context=None):
     context = context or {}
 
     msg = Message(subject,
-                  sender=current_app.security.email_sender,
+                  sender=_security.email_sender,
                   recipients=[recipient])
 
     base = 'security/email'

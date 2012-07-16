@@ -15,7 +15,7 @@ from werkzeug.local import LocalProxy
 from flask_security import views
 
 
-_datastore = LocalProxy(lambda: current_app.security.datastore)
+_datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
 def pprint(obj):

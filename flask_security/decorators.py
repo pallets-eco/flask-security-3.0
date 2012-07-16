@@ -21,7 +21,7 @@ from .exceptions import UserNotFoundError
 
 
 # Convenient references
-_security = LocalProxy(lambda: current_app.security)
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 _logger = LocalProxy(lambda: current_app.logger)
 

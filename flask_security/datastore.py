@@ -10,8 +10,12 @@
 """
 
 from flask import current_app
+from werkzeug.local import LocalProxy
 
 from . import exceptions, utils
+
+# Convenient references
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 
 class UserDatastore(object):
@@ -88,7 +92,7 @@ class UserDatastore(object):
         password = kwargs.get('password', None)
 
         kwargs.setdefault('active', True)
-        kwargs.setdefault('roles', current_app.security.default_roles)
+        kwargs.setdefault('roles', _security.default_roles)
 
         if email is None:
             raise exceptions.UserCreationError('Missing email argument')
@@ -105,8 +109,9 @@ class UserDatastore(object):
 
         kwargs['roles'] = roles
 
-        pwd_context = current_app.security.pwd_context
+        pwd_context = _security.pwd_context
         pw = kwargs['password']
+
         if not pwd_context.identify(pw):
             kwargs['password'] = pwd_context.encrypt(pw)
 

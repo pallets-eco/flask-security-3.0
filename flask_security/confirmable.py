@@ -21,9 +21,9 @@ from .signals import user_confirmed, confirm_instructions_sent
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.security)
+_security = LocalProxy(lambda: app.extensions['security'])
 
-_datastore = LocalProxy(lambda: app.security.datastore)
+_datastore = LocalProxy(lambda: _security.datastore)
 
 
 def send_confirmation_instructions(user, token):

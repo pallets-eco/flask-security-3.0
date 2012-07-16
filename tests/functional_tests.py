@@ -279,7 +279,7 @@ class ExpiredConfirmationTest(SecurityTest):
             self.assertIn(e, outbox[0].html)
             self.assertNotIn(token, outbox[0].html)
 
-            expire_text = self.app.security.confirm_email_within
+            expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
             text = 'You did not confirm your account within %s' % expire_text
 
             self.assertIn(text, r.data)

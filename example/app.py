@@ -149,8 +149,8 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
-    Security(app, SQLAlchemyUserDatastore(db, User, Role),
-             register_blueprint=register_blueprint)
+    app.security = Security(app, SQLAlchemyUserDatastore(db, User, Role),
+                            register_blueprint=register_blueprint)
 
     if not register_blueprint:
         from example import security
@@ -192,7 +192,7 @@ def create_mongoengine_app(auth_config=None):
         authentication_token = db.StringField(max_length=255)
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
-    Security(app, MongoEngineUserDatastore(db, User, Role))
+    app.security = Security(app, MongoEngineUserDatastore(db, User, Role))
 
     @app.before_first_request
     def before_first_request():

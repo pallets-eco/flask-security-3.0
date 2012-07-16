@@ -18,7 +18,7 @@ from .exceptions import UserNotFoundError
 
 
 # Convenient reference
-_datastore = LocalProxy(lambda: app.security.datastore)
+_datastore = LocalProxy(lambda: app.extensions['security'].datastore)
 
 
 def valid_user_email(form, field):
