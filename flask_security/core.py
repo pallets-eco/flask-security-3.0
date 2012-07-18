@@ -21,7 +21,7 @@ from werkzeug.local import LocalProxy
 
 from . import views, exceptions
 from .confirmable import requires_confirmation
-from .utils import config_value as cv, get_config
+from .utils import config_value as cv, get_config, verify_password
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -32,6 +32,8 @@ _default_config = {
     'URL_PREFIX': None,
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
+    'PASSWORD_SALT': None,
+    'PASSWORD_HMAC': False,
     'AUTH_URL': '/auth',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -308,7 +310,9 @@ class AuthenticationProvider(object):
             raise exceptions.BadCredentialsError('Account requires confirmation')
 
         # compare passwords
-        if _security.pwd_context.verify(password, user.password):
+        if verify_password(password, user.password,
+                           salt=_security.password_salt,
+                           use_hmac=_security.password_hmac):
             return user
 
         # bad match

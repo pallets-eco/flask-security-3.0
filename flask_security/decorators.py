@@ -77,7 +77,9 @@ def _check_http_auth():
     except UserNotFoundError:
         return False
 
-    rv = _security.pwd_context.verify(auth.password, user.password)
+    rv = utils.verify_password(auth.password, user.password,
+                               salt=_security.password_salt,
+                               use_hmac=_security.password_hmac)
 
     if rv:
         identity_changed.send(current_app._get_current_object(),

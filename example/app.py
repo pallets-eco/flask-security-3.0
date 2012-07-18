@@ -136,7 +136,7 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
         email = db.Column(db.String(255), unique=True)
-        password = db.Column(db.String(120))
+        password = db.Column(db.String(255))
         remember_token = db.Column(db.String(255))
         last_login_at = db.Column(db.DateTime())
         current_login_at = db.Column(db.DateTime())
@@ -180,7 +180,7 @@ def create_mongoengine_app(auth_config=None):
 
     class User(db.Document, UserMixin):
         email = db.StringField(unique=True, max_length=255)
-        password = db.StringField(required=True, max_length=120)
+        password = db.StringField(required=True, max_length=255)
         remember_token = db.StringField(max_length=255)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()

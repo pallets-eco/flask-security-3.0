@@ -113,7 +113,10 @@ class UserDatastore(object):
         pw = kwargs['password']
 
         if not pwd_context.identify(pw):
-            kwargs['password'] = pwd_context.encrypt(pw)
+            pwd_hash = utils.encrypt_password(pw,
+                                              salt=_security.password_salt,
+                                              use_hmac=_security.password_hmac)
+            kwargs['password'] = pwd_hash
 
         kwargs['remember_token'] = utils.get_remember_token(kwargs['email'],
                                                             kwargs['password'])

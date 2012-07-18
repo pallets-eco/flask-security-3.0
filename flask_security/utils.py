@@ -11,6 +11,7 @@
 
 import base64
 import hashlib
+import hmac
 import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta
@@ -24,6 +25,23 @@ from .signals import user_registered, password_reset_requested
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
+
+_pwd_context = LocalProxy(lambda: _security.pwd_context)
+
+
+def get_hmac(msg, salt=None, digestmod=None):
+    digestmod = digestmod or hashlib.sha512
+    return base64.b64encode(hmac.new(salt, msg, digestmod).digest())
+
+
+def verify_password(password, password_hash, salt=None, use_hmac=False):
+    hmac_value = get_hmac(password, salt) if use_hmac else password
+    return _pwd_context.verify(hmac_value, password_hash)
+
+
+def encrypt_password(password, salt=None, use_hmac=False):
+    hmac_value = get_hmac(password, salt) if use_hmac else password
+    return _pwd_context.encrypt(hmac_value)
 
 
 def md5(data):

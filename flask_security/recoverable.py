@@ -16,7 +16,7 @@ from werkzeug.local import LocalProxy
 from .exceptions import ResetPasswordError, UserNotFoundError
 from .signals import password_reset, password_reset_requested, \
      reset_instructions_sent
-from .utils import send_mail, get_max_age, md5, get_message
+from .utils import send_mail, get_max_age, md5, get_message, encrypt_password
 
 
 # Convenient references
@@ -85,7 +85,10 @@ def reset_by_token(token, password):
         if md5(user.password) != data[1]:
             raise UserNotFoundError()
 
-        user.password = _security.pwd_context.encrypt(password)
+        user.password = encrypt_password(password,
+                                         salt=_security.password_salt,
+                                         use_hmac=_security.password_hmac)
+        print user.password
         _datastore._save_model(user)
 
         send_password_reset_notice(user)
