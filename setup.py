@@ -38,7 +38,6 @@ setup(
         'Flask-Login>=0.1.3',
         'Flask-Principal>=0.3',
         'Flask-WTF>=0.5.4',
-        'Flask-Mail>=0.6.1',
         'itsdangerous>=0.15',
         'passlib>=1.5.3',
     ],
