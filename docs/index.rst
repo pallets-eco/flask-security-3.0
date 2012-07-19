@@ -1,10 +1,4 @@
-
-Flask-Security
-==============
-
-.. module:: flask_security
-
-Quick and simple security for Flask applications.
+.. include:: ../README.rst
 
 
 Contents
@@ -322,6 +316,7 @@ signals.
 
 Changelog
 =========
+
 .. toctree::
    :maxdepth: 2
 
