@@ -168,6 +168,14 @@ def send_mail(subject, recipient, template, context=None):
     :param template: The name of the email template
     :param context: The context to render the template with
     """
+    mail = current_app.extensions.get('mail', None)
+    current_app.logger.debug('%s' % current_app.extensions)
+
+    if mail is None:
+        raise RuntimeError('You need to install and configure the '
+                           'Flask-Mail extension in order to send '
+                           'emails with Flask-Security')
+
     from flask.ext.mail import Message
 
     context = context or {}
@@ -180,7 +188,7 @@ def send_mail(subject, recipient, template, context=None):
     msg.body = render_template('%s/%s.txt' % (base, template), **context)
     msg.html = render_template('%s/%s.html' % (base, template), **context)
 
-    current_app.mail.send(msg)
+    mail.send(msg)
 
 
 @contextmanager
