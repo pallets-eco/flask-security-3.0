@@ -88,7 +88,7 @@ def reset_by_token(token, password):
         user.password = encrypt_password(password,
                                          salt=_security.password_salt,
                                          use_hmac=_security.password_hmac)
-        print user.password
+
         _datastore._save_model(user)
 
         send_password_reset_notice(user)
