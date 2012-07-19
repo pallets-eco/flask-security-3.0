@@ -209,10 +209,13 @@ class Security(object):
     :param datastore: An instance of a user datastore.
     """
     def __init__(self, app=None, datastore=None, **kwargs):
+        self.app = app
+        self.datastore = datastore
+
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore, register_blueprint=True):
+    def init_app(self, app, datastore=None, register_blueprint=True):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -234,28 +237,39 @@ class Security(object):
                                         url_prefix=cv('URL_PREFIX', app=app))
             app.register_blueprint(bp)
 
-        kwargs = {}
-        for key, value in get_config(app).items():
-            kwargs[key.lower()] = value
-
-        state = _SecurityState(
-            app=app,
-            datastore=datastore,
-            auth_provider=AuthenticationProvider(),
-            login_manager=_get_login_manager(app),
-            principal=_get_principal(app),
-            pwd_context=_get_pwd_context(app),
-            reset_serializer=_get_reset_serializer(app),
-            confirm_serializer=_get_confirm_serializer(app),
-            token_auth_serializer=_get_token_auth_serializer(app),
-            **kwargs)
+        state = self._get_state(app, datastore or self.datastore)
 
         if not hasattr(app, 'extensions'):
             app.extensions = {}
 
         app.extensions['security'] = state
 
-        return state
+    def _get_state(self, app, datastore):
+        assert app is not None
+        assert datastore is not None
+
+        kwargs = {}
+
+        for key, value in get_config(app).items():
+            kwargs[key.lower()] = value
+
+        for key, value in [
+                ('app', app),
+                ('datastore', datastore),
+                ('auth_provider', AuthenticationProvider()),
+                ('login_manager', _get_login_manager(app)),
+                ('principal', _get_principal(app)),
+                ('pwd_context', _get_pwd_context(app)),
+                ('token_auth_serializer', _get_token_auth_serializer(app))]:
+            kwargs[key] = value
+
+        kwargs['reset_serializer'] = (
+            _get_reset_serializer(app) if kwargs['recoverable'] else None)
+
+        kwargs['confirm_serializer'] = (
+            _get_confirm_serializer(app) if kwargs['confirmable'] else None)
+
+        return _SecurityState(**kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)
