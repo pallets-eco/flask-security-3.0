@@ -244,6 +244,8 @@ class Security(object):
 
         app.extensions['security'] = state
 
+        return state
+
     def _get_state(self, app, datastore):
         assert app is not None
         assert datastore is not None
