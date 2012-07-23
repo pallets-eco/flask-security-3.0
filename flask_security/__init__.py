@@ -10,8 +10,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask.ext.login import login_user, logout_user
-
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, \
      AuthenticationProvider, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore
@@ -22,3 +20,4 @@ from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
 from .signals import confirm_instructions_sent, password_reset, \
      password_reset_requested, reset_instructions_sent, user_confirmed, \
      user_registered
+from .utils import login_user, logout_user

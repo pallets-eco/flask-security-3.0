@@ -17,7 +17,9 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
-from flask.ext.login import make_secure_token
+from flask.ext.login import make_secure_token, login_user as _login_user, \
+     logout_user as _logout_user
+from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
 from .signals import user_registered, password_reset_requested
@@ -26,7 +28,55 @@ from .signals import user_registered, password_reset_requested
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
 
+_datastore = LocalProxy(lambda: _security.datastore)
+
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
+
+_logger = LocalProxy(lambda: current_app.logger)
+
+
+def login_user(user, remember=True):
+    """Performs the login and sends the appropriate signal."""
+
+    if not _login_user(user, remember):
+        return False
+
+    if user.authentication_token is None:
+        from .tokens import generate_authentication_token
+
+        user.authentication_token = generate_authentication_token(user)
+
+    if remember:
+        user.remember_token = get_remember_token(user.email, user.password)
+
+    if _security.trackable:
+        old_current, new_current = user.current_login_at, datetime.utcnow()
+        user.last_login_at = old_current or new_current
+        user.current_login_at = new_current
+
+        old_current, new_current = user.current_login_ip, request.remote_addr
+        user.last_login_ip = old_current or new_current
+        user.current_login_ip = new_current
+
+        user.login_count = user.login_count + 1 if user.login_count else 0
+
+    _datastore._save_model(user)
+
+    identity_changed.send(current_app._get_current_object(),
+                          identity=Identity(user.id))
+
+    _logger.debug('User %s logged in' % user)
+    return True
+
+
+def logout_user():
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
+
+    _logout_user()
 
 
 def get_hmac(msg, salt=None, digestmod=None):
@@ -42,6 +92,15 @@ def verify_password(password, password_hash, salt=None, use_hmac=False):
 def encrypt_password(password, salt=None, use_hmac=False):
     hmac_value = get_hmac(password, salt) if use_hmac else password
     return _pwd_context.encrypt(hmac_value)
+
+
+def generate_authentication_token(user):
+    """Generates a unique authentication token for the specified user.
+
+    :param user: The user to work with
+    """
+    data = [str(user.id), md5(user.email)]
+    return _security.token_auth_serializer.dumps(data)
 
 
 def md5(data):
