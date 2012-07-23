@@ -42,8 +42,6 @@ def login_user(user, remember=True):
         return False
 
     if user.authentication_token is None:
-        from .tokens import generate_authentication_token
-
         user.authentication_token = generate_authentication_token(user)
 
     if remember:
