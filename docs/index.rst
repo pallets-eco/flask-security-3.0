@@ -151,7 +151,7 @@ specific role::
 
     {% if current_user.has_role('admin') %}
       <a href="{{ url_for('admin.index') }}">Admin Panel</a>
-    {$ endif %}
+    {% endif %}
 
 
 .. _additional-user-fields:
