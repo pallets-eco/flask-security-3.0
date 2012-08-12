@@ -14,8 +14,8 @@ from flask.ext.mongoengine import MongoEngine
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, LoginForm, login_required, \
      roles_required, roles_accepted, UserMixin, RoleMixin
-from flask.ext.security.datastore import SQLAlchemyUserDatastore, \
-     MongoEngineUserDatastore
+from flask.ext.security.datastore.sqlalchemy import SQLAlchemyUserDatastore
+from flask.ext.security.datastore.mongoengine import MongoEngineUserDatastore
 from flask.ext.security.decorators import http_auth_required, \
      auth_token_required
 
