@@ -119,3 +119,5 @@ def reset_password_reset_token(user):
 
     password_reset_requested.send(dict(user=user, token=token),
                                   app=app._get_current_object())
+
+    return token
