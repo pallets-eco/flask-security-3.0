@@ -237,9 +237,6 @@ class Security(object):
 
         state = self._get_state(app, datastore or self.datastore)
 
-        if not hasattr(app, 'extensions'):
-            app.extensions = {}
-
         app.extensions['security'] = state
 
         return state
@@ -314,12 +311,8 @@ class AuthenticationProvider(object):
 
         try:
             user = self._get_user(username_or_email)
-        except AttributeError, e:
-            self.auth_error("Could not find user datastore: %s" % e)
-        except exceptions.UserNotFoundError, e:
+        except exceptions.UserNotFoundError:
             raise exceptions.BadCredentialsError("Specified user does not exist")
-        except Exception, e:
-            self.auth_error('Unexpected authentication error: %s' % e)
 
         if requires_confirmation(user):
             raise exceptions.BadCredentialsError('Account requires confirmation')
@@ -332,10 +325,3 @@ class AuthenticationProvider(object):
 
         # bad match
         raise exceptions.BadCredentialsError("Password does not match")
-
-    def auth_error(self, msg):
-        """Sends an error log message and raises an authentication error.
-
-        :param msg: An authentication error message"""
-        current_app.logger.error(msg)
-        raise exceptions.AuthenticationError(msg)

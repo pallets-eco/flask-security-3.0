@@ -132,10 +132,10 @@ def register_user():
 
 
 def send_confirmation():
-    form = ResendConfirmationForm()
+    form = ResendConfirmationForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
-        user = _datastore.find_user(email=form.email.data)
+        user = _datastore.find_user(**form.to_dict())
 
         reset_confirmation_token(user)
 
