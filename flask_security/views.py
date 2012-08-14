@@ -149,11 +149,11 @@ def send_confirmation():
                            reset_confirmation_form=form)
 
 
-def confirm_account(token):
-    """View function which handles a account confirmation request."""
+def confirm_email(token):
+    """View function which handles a email confirmation request."""
     try:
         user = confirm_by_token(token)
-        _logger.debug('%s confirmed their account' % user)
+        _logger.debug('%s confirmed their email' % user)
 
     except ConfirmationError, e:
         msg, cat = str(e), 'error'
@@ -171,7 +171,7 @@ def confirm_account(token):
 
         return redirect(get_url(_security.confirm_error_view))
 
-    do_flash(get_message('ACCOUNT_CONFIRMED'))
+    do_flash(get_message('EMAIL_CONFIRMED'))
 
     return redirect(_security.post_confirm_view or _security.post_login_view)
 
@@ -263,6 +263,6 @@ def create_blueprint(app, name, import_name, **kwargs):
                  endpoint='send_confirmation')(send_confirmation)
         bp.route(config_value('CONFIRM_URL', app=app) + '/<token>',
                  methods=['GET', 'POST'],
-                 endpoint='confirm_account')(confirm_account)
+                 endpoint='confirm_email')(confirm_email)
 
     return bp

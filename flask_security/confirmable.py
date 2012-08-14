@@ -31,7 +31,7 @@ def send_confirmation_instructions(user, token):
 
     :param user: The user to send the instructions to
     """
-    url = url_for('flask_security.confirm_account', token=token)
+    url = url_for('flask_security.confirm_email', token=token)
 
     confirmation_link = request.url_root[:-1] + url
 

@@ -69,14 +69,14 @@ _default_config = {
 #: Default Flask-Security flash messages
 _default_flash_messages = {
     'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
-    'ACCOUNT_CONFIRMED': ('Your account has been confirmed. You may now log in.', 'success'),
-    'ALREADY_CONFIRMED': ('Your account has already been confirmed', 'info'),
+    'EMAIL_CONFIRMED': ('Your email has been confirmed. You may now log in.', 'success'),
+    'ALREADY_CONFIRMED': ('Your email has already been confirmed', 'info'),
     'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token', 'error'),
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token', 'error'),
     'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
-    'CONFIRMATION_EXPIRED': ('You did not confirm your account within %(within)s. New instructions to confirm your account have been sent to %(email)s.', 'error')
+    'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error')
 }
 
 
@@ -310,10 +310,10 @@ class AuthenticationProvider(object):
         try:
             user = self._get_user(username_or_email)
         except exceptions.UserNotFoundError:
-            raise exceptions.BadCredentialsError("Specified user does not exist")
+            raise exceptions.BadCredentialsError('Specified user does not exist')
 
         if requires_confirmation(user):
-            raise exceptions.BadCredentialsError('Account requires confirmation')
+            raise exceptions.BadCredentialsError('Email requires confirmation')
 
         # compare passwords
         if verify_password(password, user.password,

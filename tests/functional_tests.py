@@ -272,7 +272,7 @@ class ConfirmableTests(SecurityTest):
         e = 'dude@lp.com'
         self.register(e)
         r = self.authenticate(email=e)
-        self.assertIn('Account requires confirmation', r.data)
+        self.assertIn('Email requires confirmation', r.data)
 
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
@@ -289,7 +289,9 @@ class ConfirmableTests(SecurityTest):
             token = registrations[0]['confirm_token']
 
         r = self.client.get('/confirm/' + token, follow_redirects=True)
-        self.assertIn('Your account has been confirmed. You may now log in.', r.data)
+
+        msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
+        self.assertIn(msg, r.data)
 
     def test_confirm_email_twice_flashes_already_confirmed_message(self):
         e = 'dude@lp.com'
@@ -301,7 +303,9 @@ class ConfirmableTests(SecurityTest):
         url = '/confirm/' + token
         self.client.get(url, follow_redirects=True)
         r = self.client.get(url, follow_redirects=True)
-        self.assertIn('Your account has already been confirmed', r.data)
+
+        msg = self.app.config['SECURITY_MSG_ALREADY_CONFIRMED'][0]
+        self.assertIn(msg, r.data)
 
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
@@ -338,9 +342,8 @@ class ExpiredConfirmationTest(SecurityTest):
             self.assertNotIn(token, outbox[0].html)
 
             expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
-            text = 'You did not confirm your account within %s' % expire_text
-
-            self.assertIn(text, r.data)
+            msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0] % dict(within=expire_text, email=e)
+            self.assertIn(msg, r.data)
 
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
