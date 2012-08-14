@@ -2,6 +2,7 @@
 import unittest
 
 from flask_security import RoleMixin, UserMixin, AnonymousUser
+from flask_security.datastore import UserDatastore
 
 
 class Role(RoleMixin):
@@ -41,3 +42,13 @@ class SecurityEntityTests(unittest.TestCase):
         au = AnonymousUser()
         self.assertEqual(0, len(au.roles))
         self.assertFalse(au.has_role('admin'))
+
+
+class UserDatastoreTests(unittest.TestCase):
+
+    def test_unimplemented(self):
+        ds = UserDatastore(None, None, None)
+        self.assertRaises(NotImplementedError, ds._save_model, None)
+        self.assertRaises(NotImplementedError, ds._delete_model, None)
+        self.assertRaises(NotImplementedError, ds._do_find_user)
+        self.assertRaises(NotImplementedError, ds._do_find_role)

@@ -18,6 +18,7 @@ from flask.ext.security.datastore import SQLAlchemyUserDatastore, \
      MongoEngineUserDatastore
 from flask.ext.security.decorators import http_auth_required, \
      auth_token_required
+from flask.ext.security.exceptions import RoleNotFoundError
 
 
 def create_roles():
@@ -45,11 +46,11 @@ def create_app(auth_config):
     app.debug = True
     app.config['SECRET_KEY'] = 'secret'
 
+    app.mail = Mail(app)
+
     if auth_config:
         for key, value in auth_config.items():
             app.config[key] = value
-
-    app.mail = Mail(app)
 
     @app.route('/')
     def index():
@@ -114,6 +115,43 @@ def create_app(auth_config):
     @app.route('/unauthorized')
     def unauthorized():
         return render_template('unauthorized.html')
+
+    @app.route('/coverage/add_role_to_user')
+    def add_role_to_user():
+        ds = app.security.datastore
+        u = ds.find_user(email='joe@lp.com')
+        r = ds.find_role('admin')
+        ds.add_role_to_user(u, r)
+        return 'success'
+
+    @app.route('/coverage/remove_role_from_user')
+    def remove_role_from_user():
+        ds = app.security.datastore
+        u = ds.find_user(email='matt@lp.com')
+        ds.remove_role_from_user(u, 'admin')
+        return 'success'
+
+    @app.route('/coverage/deactivate_user')
+    def deactivate_user():
+        ds = app.security.datastore
+        u = ds.find_user(email='matt@lp.com')
+        ds.deactivate_user(u)
+        return 'success'
+
+    @app.route('/coverage/activate_user')
+    def activate_user():
+        ds = app.security.datastore
+        u = ds.find_user(email='tiya@lp.com')
+        ds.activate_user(u)
+        return 'success'
+
+    @app.route('/coverage/invalid_role')
+    def invalid_role():
+        ds = app.security.datastore
+        try:
+            ds.find_role('bogus')
+        except RoleNotFoundError:
+            return 'success'
 
     return app
 

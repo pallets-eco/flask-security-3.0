@@ -49,11 +49,12 @@ def login_user(user, remember=True):
         user.last_login_at = old_current or new_current
         user.current_login_at = new_current
 
-        old_current, new_current = user.current_login_ip, request.remote_addr
+        remote_addr = request.remote_addr or 'untrackable'
+        old_current, new_current = user.current_login_ip, remote_addr
         user.last_login_ip = old_current or new_current
         user.current_login_ip = new_current
 
-        user.login_count = user.login_count + 1 if user.login_count else 0
+        user.login_count = user.login_count + 1 if user.login_count else 1
 
     _datastore._save_model(user)
 
@@ -100,11 +101,6 @@ def generate_authentication_token(user):
 
 def md5(data):
     return hashlib.md5(data).hexdigest()
-
-
-def generate_token():
-    """Generate an arbitrary URL safe token."""
-    return base64.urlsafe_b64encode(os.urandom(30))
 
 
 def do_flash(message, category=None):
@@ -216,16 +212,9 @@ def send_mail(subject, recipient, template, context=None):
     :param template: The name of the email template
     :param context: The context to render the template with
     """
-    mail = current_app.extensions.get('mail', None)
-    current_app.logger.debug('%s' % current_app.extensions)
-
-    if mail is None:
-        raise RuntimeError('You need to install and configure the '
-                           'Flask-Mail extension in order to send '
-                           'emails with Flask-Security')
-
     from flask.ext.mail import Message
 
+    mail = current_app.extensions.get('mail')
     context = context or {}
 
     msg = Message(subject,

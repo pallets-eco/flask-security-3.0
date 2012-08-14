@@ -145,10 +145,6 @@ def send_confirmation():
 
         do_flash(msg, cat)
 
-    else:
-        for key, value in form.errors.items():
-            do_flash(value[0], 'error')
-
     return render_template('security/confirmations/new.html',
                            reset_confirmation_form=form)
 

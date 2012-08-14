@@ -36,6 +36,8 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/login')
         self.assertIn('Login Page', r.data)
 
+
+
     def test_authenticate(self):
         r = self.authenticate()
         self.assertIn('Hello matt@lp.com', r.data)
@@ -220,6 +222,10 @@ class ConfiguredSecurityTests(SecurityTest):
         self.authenticate(endpoint="/custom_auth")
         r = self.logout(endpoint="/custom_logout")
         self.assertIn('Post Logout', r.data)
+
+    def test_register_view(self):
+        r = self._get('/register')
+        self.assertIn('<h1>Register</h1>', r.data)
 
     def test_register(self):
         data = dict(email='dude@lp.com',
@@ -432,7 +438,57 @@ class ExpiredResetPasswordTest(SecurityTest):
         self.assertIn('You did not reset your password within', r.data)
 
 
+class TrackableTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_TRACKABLE': True
+    }
+
+    def test_did_track(self):
+        e = 'matt@lp.com'
+        self.authenticate(email=e)
+        self.logout()
+        self.authenticate(email=e)
+
+        with self.app.test_request_context('/profile'):
+            user = self.app.security.datastore.find_user(email=e)
+            self.assertIsNotNone(user.last_login_at)
+            self.assertIsNotNone(user.current_login_at)
+            self.assertEquals('untrackable', user.last_login_ip)
+            self.assertEquals('untrackable', user.current_login_ip)
+            self.assertEquals(2, user.login_count)
+
+
 class MongoEngineSecurityTests(DefaultSecurityTests):
+
+    def _create_app(self, auth_config):
+        return app.create_mongoengine_app(auth_config)
+
+
+class DefaultDatastoreTests(SecurityTest):
+
+    def test_add_role_to_user(self):
+        r = self._get('/coverage/add_role_to_user')
+        self.assertIn('success', r.data)
+
+    def test_remove_role_from_user(self):
+        r = self._get('/coverage/remove_role_from_user')
+        self.assertIn('success', r.data)
+
+    def test_activate_user(self):
+        r = self._get('/coverage/activate_user')
+        self.assertIn('success', r.data)
+
+    def test_deactivate_user(self):
+        r = self._get('/coverage/deactivate_user')
+        self.assertIn('success', r.data)
+
+    def test_invalid_role(self):
+        r = self._get('/coverage/invalid_role')
+        self.assertIn('success', r.data)
+
+
+class MongoEngineDatastoreTests(DefaultDatastoreTests):
 
     def _create_app(self, auth_config):
         return app.create_mongoengine_app(auth_config)

@@ -20,7 +20,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 
 class UserDatastore(object):
     """Abstracted user datastore. Always extend this class and implement the
-    :attr:`_save_model`, :attr:`_do_with_id`, :attr:`_do_find_user`,  and
+    :attr:`_save_model`, :attr:`_delete_model`, :attr:`_do_find_user`,  and
     :attr:`_do_find_role` methods.
 
     :param db: An instance of a configured databse manager from a Flask
@@ -40,10 +40,6 @@ class UserDatastore(object):
     def _delete_model(self, model):
         raise NotImplementedError(
             "User datastore does not implement _delete_model method")
-
-    def _do_with_id(self, id):
-        raise NotImplementedError(
-            "User datastore does not implement _do_with_id method")
 
     def _do_find_user(self, **kwargs):
         raise NotImplementedError(
@@ -65,11 +61,9 @@ class UserDatastore(object):
             user.roles.remove(role)
         return user
 
-    def _do_toggle_active(self, user, active=None):
+    def _do_toggle_active(self, user, active):
         user = self.find_user(email=user.email)
-        if active is None:
-            user.active = not user.active
-        elif active != user.active:
+        if active != user.active:
             user.active = active
         return user
 
@@ -80,29 +74,12 @@ class UserDatastore(object):
         return self._do_toggle_active(user, True)
 
     def _prepare_role_modify_args(self, user, role):
-        if isinstance(role, self.role_model):
-            role = role.name
-
+        role = role.name if isinstance(role, self.role_model) else role
         return self.find_user(email=user.email), self.find_role(role)
 
-    def _prepare_create_role_args(self, kwargs):
-        if kwargs['name'] is None:
-            raise exceptions.RoleCreationError("Missing name argument")
-
-        return kwargs
-
-    def _prepare_create_user_args(self, kwargs):
-        email = kwargs.get('email', None)
-        password = kwargs.get('password', None)
-
+    def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
         kwargs.setdefault('roles', _security.default_roles)
-
-        if email is None:
-            raise exceptions.UserCreationError('Missing email argument')
-
-        if password is None:
-            raise exceptions.UserCreationError('Missing password argument')
 
         roles = kwargs.get('roles', [])
 
@@ -123,15 +100,6 @@ class UserDatastore(object):
             kwargs['password'] = pwd_hash
 
         return kwargs
-
-    def with_id(self, id):
-        """Returns a user with the specified ID.
-
-        :param id: User ID"""
-        user = self._do_with_id(id)
-        if user:
-            return user
-        raise exceptions.UserIdNotFoundError()
 
     def find_user(self, **kwargs):
         """Returns a user based on the specified identifier.
@@ -158,7 +126,7 @@ class UserDatastore(object):
 
         :param name: Role name
         """
-        role = self.role_model(**self._prepare_create_role_args(kwargs))
+        role = self.role_model(**kwargs)
         return self._save_model(role)
 
     def create_user(self, **kwargs):
@@ -168,7 +136,7 @@ class UserDatastore(object):
         :param password: Unencrypted password
         :param active: The optional active state
         """
-        user = self.user_model(**self._prepare_create_user_args(kwargs))
+        user = self.user_model(**self._prepare_create_user_args(**kwargs))
         return self._save_model(user)
 
     def delete_user(self, user):
@@ -260,9 +228,6 @@ class SQLAlchemyUserDatastore(UserDatastore):
         self.db.session.delete(model)
         self.db.session.commit()
 
-    def _do_with_id(self, id):
-        return self.user_model.query.get(id)
-
     def _do_find_user(self, **kwargs):
         return self.user_model.query.filter_by(**kwargs).first()
 
@@ -306,12 +271,6 @@ class MongoEngineUserDatastore(UserDatastore):
 
     def _delete_model(self, model):
         model.delete()
-
-    def _do_with_id(self, id):
-        try:
-            return self.user_model.objects.get(id=id)
-        except:
-            return None
 
     def _do_find_user(self, **kwargs):
         return self.user_model.objects(**kwargs).first()

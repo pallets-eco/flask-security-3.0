@@ -40,12 +40,6 @@ class RoleNotFoundError(SecurityError):
     """
 
 
-class UserIdNotFoundError(SecurityError):
-    """Raised by a user datastore when there is an attempt to find a user by
-    ID and the user is not found.
-    """
-
-
 class UserDatastoreError(SecurityError):
     """Raised when a user datastore experiences an unexpected error
     """

@@ -23,10 +23,11 @@ class SecurityTest(TestCase):
                 content_type=content_type or 'text/html',
                 headers=headers)
 
-    def _post(self, route, data=None, content_type=None, follow_redirects=True):
+    def _post(self, route, data=None, content_type=None, follow_redirects=True, headers=None):
         return self.client.post(route, data=data,
                 follow_redirects=follow_redirects,
-                content_type=content_type or 'application/x-www-form-urlencoded')
+                content_type=content_type or 'application/x-www-form-urlencoded',
+                headers=headers)
 
     def register(self, email, password='password'):
         data = dict(email=email, password=password, password_confirm=password)
