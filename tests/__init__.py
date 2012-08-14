@@ -32,9 +32,9 @@ class SecurityTest(TestCase):
         data = dict(email=email, password=password, password_confirm=password)
         return self.client.post('/register', data=data, follow_redirects=True)
 
-    def authenticate(self, email="matt@lp.com", password="password", endpoint=None):
-        data = dict(email=email, password=password)
-        return self._post(endpoint or '/auth', data=data)
+    def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):
+        data = dict(email=email, password=password, remember='y')
+        return self._post(endpoint or '/auth', data=data, **kwargs)
 
     def json_authenticate(self, email="matt@lp.com", password="password", endpoint=None):
         data = """

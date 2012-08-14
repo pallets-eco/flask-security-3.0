@@ -12,9 +12,17 @@ except ImportError:
 
 from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests
+from werkzeug.utils import parse_cookie
 
 from example import app
 from tests import SecurityTest
+
+
+def get_cookies(rv):
+    cookies = {}
+    for value in rv.headers.get_all("Set-Cookie"):
+        cookies.update(parse_cookie(value))
+    return cookies
 
 
 class DefaultSecurityTests(SecurityTest):
@@ -152,6 +160,22 @@ class DefaultSecurityTests(SecurityTest):
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="My Realm"', r.headers['WWW-Authenticate'])
+
+    def test_user_deleted_during_session_reverts_to_anonymous_user(self):
+        self.authenticate()
+
+        with self.app.test_request_context('/'):
+            user = self.app.security.datastore.find_user(email='matt@lp.com')
+            self.app.security.datastore.delete_user(user)
+
+        r = self._get('/')
+        self.assertNotIn('Hello matt@lp.com', r.data)
+
+    def test_remember_token(self):
+        r = self.authenticate(follow_redirects=False)
+        self.client.cookie_jar.clear_session_cookies()
+        r = self._get('/profile')
+        self.assertIn('profile', r.data)
 
 
 class ConfiguredSecurityTests(SecurityTest):
