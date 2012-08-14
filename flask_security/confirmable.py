@@ -15,7 +15,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
-from .exceptions import UserNotFoundError, ConfirmationError
+from .exceptions import ConfirmationError
 from .utils import send_mail, get_max_age, md5, get_message
 from .signals import user_confirmed, confirm_instructions_sent
 
@@ -41,8 +41,6 @@ def send_confirmation_instructions(user, token):
               'confirmation_instructions', ctx)
 
     confirm_instructions_sent.send(user, app=app._get_current_object())
-
-    return True
 
 
 def generate_confirmation_token(user):

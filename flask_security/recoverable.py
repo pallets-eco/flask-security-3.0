@@ -43,8 +43,6 @@ def send_reset_password_instructions(user, reset_token):
     reset_instructions_sent.send(dict(user=user, token=reset_token),
                                  app=app._get_current_object())
 
-    return True
-
 
 def send_password_reset_notice(user):
     """Sends the password reset notice email for the specified user.
@@ -121,5 +119,3 @@ def reset_password_reset_token(user):
 
     password_reset_requested.send(dict(user=user, token=token),
                                   app=app._get_current_object())
-
-    return token
