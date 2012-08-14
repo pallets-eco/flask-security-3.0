@@ -110,7 +110,6 @@ using SQLAlchemy.::
         email = db.Column(db.String(255), unique=True)
         password = db.Column(db.String(255))
         active = db.Column(db.Boolean())
-        authentication_token = db.Column(db.String(255))
         roles = db.relationship('Role', secondary=roles_users,
                     backref=db.backref('users', lazy='dynamic'))
 
@@ -159,7 +158,6 @@ and `Role` model should include the following fields:
 * email
 * password
 * active
-* authentication_token
 
 **Role**
 
