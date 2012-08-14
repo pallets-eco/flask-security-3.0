@@ -27,6 +27,11 @@ def get_cookies(rv):
 
 class DefaultSecurityTests(SecurityTest):
 
+    def test_instance(self):
+        self.assertIsNotNone(self.app)
+        self.assertIsNotNone(self.app.security)
+        self.assertIsNotNone(self.app.security.pwd_context)
+
     def test_login_view(self):
         r = self._get('/login')
         self.assertIn('Login Page', r.data)
@@ -145,7 +150,15 @@ class DefaultSecurityTests(SecurityTest):
         })
         self.assertIn('HTTP Authentication', r.data)
 
-    def test_invalid_http_auth(self):
+    def test_invalid_http_auth_invalid_username(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("bogus:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="Login Required"', r.headers['WWW-Authenticate'])
+
+    def test_invalid_http_auth_bad_password(self):
         r = self._get('/http', headers={
             'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
         })
@@ -249,6 +262,12 @@ class ConfirmableTests(SecurityTest):
         'SECURITY_REGISTERABLE': True
     }
 
+    def test_login_before_confirmation(self):
+        e = 'dude@lp.com'
+        self.register(e)
+        r = self.authenticate(email=e)
+        self.assertIn('Account requires confirmation', r.data)
+
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
         with self.app.mail.record_messages() as outbox:
@@ -281,6 +300,12 @@ class ConfirmableTests(SecurityTest):
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)
+
+    def test_resend_confirmation(self):
+        e = 'dude@lp.com'
+        self.register(e)
+        r = self._post('/confirm', data={'email': e})
+        self.assertIn('A new confirmation code has been sent to dude@lp.com', r.data)
 
 
 class ExpiredConfirmationTest(SecurityTest):
@@ -352,13 +377,20 @@ class RecoverableTests(SecurityTest):
                                  follow_redirects=True)
             t = requests[0]['token']
 
-        r = self.client.post('/reset/' + t, data={
+        r = self._post('/reset/' + t, data={
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
 
         r = self.authenticate('joe@lp.com', 'newpassword')
         self.assertIn('Hello joe@lp.com', r.data)
+
+    def test_reset_password_with_invalid_token(self):
+        r = self._post('/reset/bogus', data={
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }, follow_redirects=True)
+        self.assertIn('Invalid reset password token', r.data)
 
     def test_reset_password_twice_flashes_invalid_token_msg(self):
         with capture_reset_password_requests() as requests:

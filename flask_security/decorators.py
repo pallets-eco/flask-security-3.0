@@ -14,6 +14,7 @@ from functools import wraps
 from flask import current_app, Response, request, redirect
 from flask.ext.login import login_required, login_url, current_user
 from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
+from itsdangerous import BadSignature
 from werkzeug.local import LocalProxy
 
 from . import utils
@@ -57,13 +58,8 @@ def _check_token():
 
     try:
         data = serializer.loads(token)
-        user = _security.datastore.find_user(id=data[0],
-                                             authentication_token=token)
-
-        if data[1] != utils.md5(user.email):
-            raise Exception()
-
-    except Exception:
+        _security.datastore.find_user(id=data[0], authentication_token=token)
+    except BadSignature:
         return False
 
     return True
