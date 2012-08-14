@@ -54,19 +54,9 @@ def generate_confirmation_token(user):
     return _security.confirm_serializer.dumps(data)
 
 
-def should_confirm_email(fn):
-    """Handy decorator that returns early if confirmation should not occur."""
-    def wrapped(*args, **kwargs):
-        if _security.confirmable:
-            return fn(*args, **kwargs)
-        return False
-    return wrapped
-
-
-@should_confirm_email
 def requires_confirmation(user):
     """Returns `True` if the user requires confirmation."""
-    return user.confirmed_at == None
+    return user.confirmed_at == None if _security.confirmable else False
 
 
 def confirm_by_token(token):
