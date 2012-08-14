@@ -37,6 +37,10 @@ class UserDatastore(object):
         raise NotImplementedError(
             "User datastore does not implement _save_model method")
 
+    def _delete_model(self, model):
+        raise NotImplementedError(
+            "User datastore does not implement _delete_model method")
+
     def _do_with_id(self, id):
         raise NotImplementedError(
             "User datastore does not implement _do_with_id method")
@@ -118,9 +122,6 @@ class UserDatastore(object):
                                               use_hmac=_security.password_hmac)
             kwargs['password'] = pwd_hash
 
-        kwargs['remember_token'] = utils.get_remember_token(kwargs['email'],
-                                                            kwargs['password'])
-
         return kwargs
 
     def with_id(self, id):
@@ -169,6 +170,13 @@ class UserDatastore(object):
         """
         user = self.user_model(**self._prepare_create_user_args(kwargs))
         return self._save_model(user)
+
+    def delete_user(self, user):
+        """Delete the specified user
+
+        :param user: The user to delete_user
+        """
+        self._delete_model(user)
 
     def add_role_to_user(self, user, role):
         """Adds a role to a user if the user does not have it already. Returns
@@ -248,6 +256,10 @@ class SQLAlchemyUserDatastore(UserDatastore):
         self.db.session.commit()
         return model
 
+    def _delete_model(self, model):
+        self.db.session.delete(model)
+        self.db.session.commit()
+
     def _do_with_id(self, id):
         return self.user_model.query.get(id)
 
@@ -291,6 +303,9 @@ class MongoEngineUserDatastore(UserDatastore):
     def _save_model(self, model):
         model.save()
         return model
+
+    def _delete_model(self, model):
+        model.delete()
 
     def _do_with_id(self, id):
         try:

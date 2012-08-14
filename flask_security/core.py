@@ -21,7 +21,7 @@ from werkzeug.local import LocalProxy
 
 from . import views, exceptions
 from .confirmable import requires_confirmation
-from .utils import config_value as cv, get_config, verify_password
+from .utils import config_value as cv, get_config, verify_password, md5
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -62,6 +62,7 @@ _default_config = {
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'AUTH_SALT': 'auth-salt',
+    'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
 }
 
@@ -81,17 +82,16 @@ _default_flash_messages = {
 
 def _user_loader(user_id):
     try:
-        return _security.datastore.with_id(user_id)
-    except Exception, e:
-        current_app.logger.error('Error getting user: %s' % e)
+        return _security.datastore.find_user(id=user_id)
+    except:
         return None
 
 
 def _token_loader(token):
     try:
-        return _security.datastore.find_user(remember_token=token)
-    except Exception, e:
-        current_app.logger.error('Error getting user: %s' % e)
+        data = _security.remember_token_serializer.loads(token)
+        return _security.datastore.find_user(email=md5(data[0]))
+    except:
         return None
 
 
@@ -137,6 +137,10 @@ def _get_serializer(app, salt):
     return URLSafeTimedSerializer(secret_key=secret_key, salt=salt)
 
 
+def _get_remember_token_serializer(app):
+    return _get_serializer(app, app.config['SECURITY_REMEMBER_SALT'])
+
+
 def _get_reset_serializer(app):
     return _get_serializer(app, app.config['SECURITY_RESET_SALT'])
 
@@ -157,9 +161,6 @@ class RoleMixin(object):
     def __ne__(self, other):
         return self.name != other and self.name != getattr(other, 'name', None)
 
-    def __str__(self):
-        return '<Role name=%s>' % self.name
-
 
 class UserMixin(BaseUserMixin):
     """Mixin for `User` model definitions"""
@@ -170,17 +171,14 @@ class UserMixin(BaseUserMixin):
 
     def get_auth_token(self):
         """Returns the user's authentication token."""
-        self.remember_token
+        data = [md5(self.email), self.password]
+        return _security.remember_token_serializer.dumps(data)
 
     def has_role(self, role):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
         return role in self.roles
-
-    def __str__(self):
-        ctx = (str(self.id), self.email)
-        return '<User id=%s, email=%s>' % ctx
 
 
 class AnonymousUser(AnonymousUserBase):
@@ -262,6 +260,7 @@ class Security(object):
                 ('login_manager', _get_login_manager(app)),
                 ('principal', _get_principal(app)),
                 ('pwd_context', _get_pwd_context(app)),
+                ('remember_token_serializer', _get_remember_token_serializer(app)),
                 ('token_auth_serializer', _get_token_auth_serializer(app))]:
             kwargs[key] = value
 

@@ -123,6 +123,7 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
 
     db = SQLAlchemy(app)
+    app.db = db
 
     roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -137,7 +138,6 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
         id = db.Column(db.Integer, primary_key=True)
         email = db.Column(db.String(255), unique=True)
         password = db.Column(db.String(255))
-        remember_token = db.Column(db.String(255))
         last_login_at = db.Column(db.DateTime())
         current_login_at = db.Column(db.DateTime())
         last_login_ip = db.Column(db.String(100))
@@ -173,6 +173,7 @@ def create_mongoengine_app(auth_config=None):
     app.config['MONGODB_PORT'] = 27017
 
     db = MongoEngine(app)
+    app.db = db
 
     class Role(db.Document, RoleMixin):
         name = db.StringField(required=True, unique=True, max_length=80)
@@ -181,7 +182,6 @@ def create_mongoengine_app(auth_config=None):
     class User(db.Document, UserMixin):
         email = db.StringField(unique=True, max_length=255)
         password = db.StringField(required=True, max_length=255)
-        remember_token = db.StringField(max_length=255)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()
         last_login_ip = db.StringField(max_length=100)

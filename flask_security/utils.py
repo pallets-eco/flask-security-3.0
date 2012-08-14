@@ -44,9 +44,6 @@ def login_user(user, remember=True):
     if user.authentication_token is None:
         user.authentication_token = generate_authentication_token(user)
 
-    if remember:
-        user.remember_token = get_remember_token(user.email, user.password)
-
     if _security.trackable:
         old_current, new_current = user.current_login_at, datetime.utcnow()
         user.last_login_at = old_current or new_current
@@ -108,12 +105,6 @@ def md5(data):
 def generate_token():
     """Generate an arbitrary URL safe token."""
     return base64.urlsafe_b64encode(os.urandom(30))
-
-
-def get_remember_token(email, password):
-    assert email is not None
-    assert password is not None
-    return make_secure_token(email, password)
 
 
 def do_flash(message, category=None):

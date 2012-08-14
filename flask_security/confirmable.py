@@ -73,9 +73,6 @@ def confirm_by_token(token):
         data = serializer.loads(token, max_age=max_age)
         user = _datastore.find_user(id=data[0])
 
-        if md5(user.email) != data[1]:
-            raise UserNotFoundError()
-
         if user.confirmed_at:
             raise ConfirmationError(get_message('ALREADY_CONFIRMED'))
 
@@ -92,9 +89,6 @@ def confirm_by_token(token):
                                 user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
-        raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))
-
-    except UserNotFoundError:
         raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))
 
 
