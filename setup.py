@@ -23,7 +23,7 @@ setup(
     version='1.3.0-dev',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
-    author='Matthew Wright',
+    author='Matt Wright',
     author_email='matt@nobien.net',
     description='Simple security for Flask apps',
     long_description=__doc__,
