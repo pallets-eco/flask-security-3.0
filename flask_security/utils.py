@@ -41,9 +41,6 @@ def login_user(user, remember=True):
     if not _login_user(user, remember):
         return False
 
-    if user.authentication_token is None:
-        user.authentication_token = generate_authentication_token(user)
-
     if _security.trackable:
         old_current, new_current = user.current_login_at, datetime.utcnow()
         user.last_login_at = old_current or new_current
@@ -88,15 +85,6 @@ def verify_password(password, password_hash, salt=None, use_hmac=False):
 def encrypt_password(password, salt=None, use_hmac=False):
     hmac_value = get_hmac(password, salt) if use_hmac else password
     return _pwd_context.encrypt(hmac_value)
-
-
-def generate_authentication_token(user):
-    """Generates a unique authentication token for the specified user.
-
-    :param user: The user to work with
-    """
-    data = [str(user.id), md5(user.email)]
-    return _security.token_auth_serializer.dumps(data)
 
 
 def md5(data):

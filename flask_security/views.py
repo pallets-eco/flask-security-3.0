@@ -44,7 +44,7 @@ def _json_auth_ok(user):
         "response": {
             "user": {
                 "id": str(user.id),
-                "authentication_token": user.authentication_token
+                "authentication_token": user.get_auth_token()
             }
         }
     })

@@ -88,11 +88,9 @@ def _user_loader(user_id):
 
 
 def _token_loader(token):
-    try:
-        data = _security.remember_token_serializer.loads(token)
-        return _security.datastore.find_user(email=md5(data[0]))
-    except:
-        return None
+    data = _security.remember_token_serializer.loads(token)
+    user = _security.datastore.find_user(id=data[0])
+    return user if md5(user.password) == data[1] else None
 
 
 def _identity_loader():
@@ -171,7 +169,7 @@ class UserMixin(BaseUserMixin):
 
     def get_auth_token(self):
         """Returns the user's authentication token."""
-        data = [md5(self.email), self.password]
+        data = [str(self.id), md5(self.password)]
         return _security.remember_token_serializer.dumps(data)
 
     def has_role(self, role):

@@ -183,7 +183,6 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
         login_count = db.Column(db.Integer)
         active = db.Column(db.Boolean())
         confirmed_at = db.Column(db.DateTime())
-        authentication_token = db.Column(db.String(255))
         roles = db.relationship('Role', secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
@@ -227,7 +226,6 @@ def create_mongoengine_app(auth_config=None):
         login_count = db.IntField()
         active = db.BooleanField(default=True)
         confirmed_at = db.DateTimeField()
-        authentication_token = db.StringField(max_length=255)
         roles = db.ListField(db.ReferenceField(Role), default=[])
 
     app.security = Security(app, MongoEngineUserDatastore(db, User, Role))

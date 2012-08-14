@@ -54,15 +54,15 @@ def _check_token():
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
 
-    serializer = _security.token_auth_serializer
+    serializer = _security.remember_token_serializer
 
     try:
         data = serializer.loads(token)
-        _security.datastore.find_user(id=data[0], authentication_token=token)
-    except BadSignature:
+        user = _security.datastore.find_user(id=data[0])
+    except:
         return False
 
-    return True
+    return True if utils.md5(user.password) == data[1] else False
 
 
 def _check_http_auth():
