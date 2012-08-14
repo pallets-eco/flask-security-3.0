@@ -9,18 +9,18 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app as app, redirect, request, session, \
+from flask import current_app as app, redirect, request, \
      render_template, jsonify, Blueprint
-from flask.ext.principal import AnonymousIdentity, identity_changed
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from flask_security.confirmable import confirm_by_token, reset_confirmation_token
 from flask_security.decorators import login_required
 from flask_security.exceptions import ConfirmationError, BadCredentialsError, \
-     ResetPasswordError
+     ResetPasswordError, PasswordlessLoginError
 from flask_security.forms import LoginForm, RegisterForm, ForgotPasswordForm, \
-     ResetPasswordForm, ResendConfirmationForm
+     ResetPasswordForm, ResendConfirmationForm, PasswordlessLoginForm
+from flask_security.passwordless import send_login_instructions, login_by_token
 from flask_security.recoverable import reset_by_token, \
      reset_password_reset_token
 from flask_security.signals import user_registered
@@ -65,8 +65,8 @@ def _json_auth_error(msg):
 
 def authenticate():
     """View function which handles an authentication request."""
-
-    form = LoginForm(MultiDict(request.json) if request.json else request.form)
+    form_data = MultiDict(request.json) if request.json else request.form
+    form = LoginForm(form_data)
 
     try:
         user = _security.auth_provider.authenticate(form)
@@ -77,7 +77,7 @@ def authenticate():
 
             return redirect(get_post_login_redirect())
 
-        raise BadCredentialsError('Account is disabled')
+        raise BadCredentialsError(get_message('DISABLED_ACCOUNT')[0])
 
     except BadCredentialsError, e:
         msg = str(e)
@@ -129,6 +129,39 @@ def register_user():
 
     return render_template('security/registrations/new.html',
                            register_user_form=form)
+
+
+def send_login():
+    form = PasswordlessLoginForm()
+
+    user = _datastore.find_user(**form.to_dict())
+
+    if user.is_active():
+        send_login_instructions(user, form.next.data)
+        msg, cat = get_message('LOGIN_EMAIL_SENT', email=user.email)
+    else:
+        msg, cat = get_message('DISABLED_ACCOUNT')
+
+    do_flash(msg, cat)
+
+    return render_template('security/logins/passwordless.html', login_form=form)
+
+
+def token_login(token):
+    try:
+        user, next = login_by_token(token)
+
+    except PasswordlessLoginError, e:
+        msg, cat = str(e), 'error'
+
+        if e.user:
+            send_login_instructions(e.user, e.next)
+
+        do_flash(msg, cat)
+
+        return redirect(request.referrer or _security.login_manager.login_view)
+
+    return redirect(next or _security.post_login_view)
 
 
 def send_confirmation():
@@ -237,9 +270,18 @@ def reset_password(token):
 def create_blueprint(app, name, import_name, **kwargs):
     bp = Blueprint(name, import_name, **kwargs)
 
-    bp.route(config_value('AUTH_URL', app=app),
-             methods=['POST'],
-             endpoint='authenticate')(authenticate)
+    if config_value('PASSWORDLESS', app=app):
+        bp.route(config_value('AUTH_URL', app=app),
+                 methods=['POST'],
+                 endpoint='send_login')(send_login)
+
+        bp.route(config_value('AUTH_URL', app=app) + '/<token>',
+                 methods=['GET'],
+                 endpoint='token_login')(token_login)
+    else:
+        bp.route(config_value('AUTH_URL', app=app),
+                 methods=['POST'],
+                 endpoint='authenticate')(authenticate)
 
     bp.route(config_value('LOGOUT_URL', app=app),
              endpoint='logout')(login_required(logout))

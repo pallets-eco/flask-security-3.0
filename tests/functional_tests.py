@@ -11,7 +11,7 @@ except ImportError:
     import json
 
 from flask.ext.security.utils import capture_registrations, \
-     capture_reset_password_requests
+     capture_reset_password_requests, capture_passwordless_login_requests
 from werkzeug.utils import parse_cookie
 
 from example import app
@@ -35,8 +35,6 @@ class DefaultSecurityTests(SecurityTest):
     def test_login_view(self):
         r = self._get('/login')
         self.assertIn('Login Page', r.data)
-
-
 
     def test_authenticate(self):
         r = self.authenticate()
@@ -460,6 +458,70 @@ class TrackableTests(SecurityTest):
             self.assertEquals('untrackable', user.last_login_ip)
             self.assertEquals('untrackable', user.current_login_ip)
             self.assertEquals(2, user.login_count)
+
+
+class PasswordlessTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_LOGIN_WITHIN': '1 seconds'
+    }
+
+    def test_login_requset_for_inactive_user(self):
+        msg = self.app.config['SECURITY_MSG_DISABLED_ACCOUNT'][0]
+        r = self.client.post('/auth', data=dict(email='tiya@lp.com'), follow_redirects=True)
+        self.assertIn(msg, r.data)
+
+    def test_request_login_token_sends_email_and_can_login(self):
+        e = 'matt@lp.com'
+        r, user, token = None, None, None
+
+        with capture_passwordless_login_requests() as requests:
+            with self.app.mail.record_messages() as outbox:
+                r = self.client.post('/auth', data=dict(email=e), follow_redirects=True)
+
+                self.assertEqual(len(outbox), 1)
+
+                self.assertEquals(1, len(requests))
+                self.assertIn('user', requests[0])
+                self.assertIn('login_token', requests[0])
+
+                user = requests[0]['user']
+                token = requests[0]['login_token']
+
+        msg = self.app.config['SECURITY_MSG_LOGIN_EMAIL_SENT'][0] % dict(email=user.email)
+        self.assertIn(msg, r.data)
+
+        r = self.client.get('/auth/' + token, follow_redirects=True)
+        self.assertIn('Hello ' + e, r.data)
+
+        r = self.client.get('/profile')
+        self.assertIn('Profile Page', r.data)
+
+    def test_expired_login_token_sends_email(self):
+        e = 'matt@lp.com'
+
+        with capture_passwordless_login_requests() as requests:
+            self.client.post('/auth', data=dict(email=e), follow_redirects=True)
+            token = requests[0]['login_token']
+
+        time.sleep(3)
+
+        with self.app.mail.record_messages() as outbox:
+            r = self.client.get('/auth/' + token, follow_redirects=True)
+
+            self.assertEqual(len(outbox), 1)
+            self.assertIn(e, outbox[0].html)
+            self.assertNotIn(token, outbox[0].html)
+
+            expire_text = self.AUTH_CONFIG['SECURITY_LOGIN_WITHIN']
+            msg = self.app.config['SECURITY_MSG_LOGIN_EXPIRED'][0] % dict(within=expire_text, email=e)
+            self.assertIn(msg, r.data)
+
+    def test_invalid_login_token(self):
+        msg = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
+        r = self._get('/auth/bogus', follow_redirects=True)
+        self.assertIn(msg, r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):

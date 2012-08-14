@@ -69,6 +69,20 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
         return dict(email=self.email.data)
 
 
+class PasswordlessLoginForm(Form, EmailFormMixin):
+    """The passwordless login form"""
+
+    next = HiddenField()
+    submit = SubmitField("Send Login Link")
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
+        self.next.data = request.args.get('next', None)
+
+    def to_dict(self):
+        return dict(email=self.email.data)
+
+
 class LoginForm(Form, EmailFormMixin, PasswordFormMixin):
     """The default login form"""
 

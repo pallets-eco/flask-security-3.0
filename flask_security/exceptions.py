@@ -63,3 +63,11 @@ class ConfirmationError(SecurityError):
 class ResetPasswordError(SecurityError):
     """Raised when a password reset error occurs
     """
+
+
+class PasswordlessLoginError(SecurityError):
+    """Raised when a passwordless login error occurs
+    """
+    def __init__(self, message=None, user=None, next=None):
+        super(PasswordlessLoginError, self).__init__(message, user)
+        self.next = next

@@ -12,8 +12,8 @@ from flask import Flask, render_template, current_app
 from flask.ext.mail import Mail
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import Security, LoginForm, login_required, \
-     roles_required, roles_accepted, UserMixin, RoleMixin
+from flask.ext.security import Security, LoginForm, PasswordlessLoginForm, \
+     login_required, roles_required, roles_accepted, UserMixin, RoleMixin
 from flask.ext.security.datastore import SQLAlchemyUserDatastore, \
      MongoEngineUserDatastore
 from flask.ext.security.decorators import http_auth_required, \
@@ -58,7 +58,14 @@ def create_app(auth_config):
 
     @app.route('/login')
     def login():
-        return render_template('login.html', content='Login Page', form=LoginForm())
+        if app.config['SECURITY_PASSWORDLESS']:
+            form = PasswordlessLoginForm()
+            template = 'passwordless_login'
+        else:
+            form = LoginForm()
+            template = 'login'
+
+        return render_template(template + '.html', content='Login Page', form=form)
 
     @app.route('/custom_login')
     def custom_login():

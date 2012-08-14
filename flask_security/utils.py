@@ -22,7 +22,8 @@ from flask.ext.login import make_secure_token, login_user as _login_user, \
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
-from .signals import user_registered, password_reset_requested
+from .signals import user_registered, password_reset_requested, \
+     login_instructions_sent
 
 
 # Convenient references
@@ -214,6 +215,21 @@ def send_mail(subject, recipient, template, context=None):
     msg.html = render_template('%s/%s.html' % (base, template), **context)
 
     mail.send(msg)
+
+
+@contextmanager
+def capture_passwordless_login_requests():
+    login_requests = []
+
+    def _on(data, app):
+        login_requests.append(data)
+
+    login_instructions_sent.connect(_on)
+
+    try:
+        yield login_requests
+    finally:
+        login_instructions_sent.disconnect(_on)
 
 
 @contextmanager

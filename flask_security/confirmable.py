@@ -30,6 +30,7 @@ def send_confirmation_instructions(user, token):
     """Sends the confirmation instructions email for the specified user.
 
     :param user: The user to send the instructions to
+    :param token: The confirmation token
     """
     url = url_for('flask_security.confirm_email', token=token)
 
@@ -83,8 +84,11 @@ def confirm_by_token(token):
 
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
-        raise ConfirmationError('Confirmation token expired',
-                                user=_datastore.find_user(id=data[0]))
+        user = _datastore.find_user(id=data[0])
+        msg = get_message('CONFIRMATION_EXPIRED',
+                          within=_security.confirm_email_within,
+                          email=user.email)[0]
+        raise ConfirmationError(msg, user=user)
 
     except BadSignature:
         raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))

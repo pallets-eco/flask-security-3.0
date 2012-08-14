@@ -53,6 +53,8 @@ _default_config = {
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
+    'PASSWORDLESS': False,
+    'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
@@ -62,6 +64,7 @@ _default_config = {
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'AUTH_SALT': 'auth-salt',
+    'LOGIN_SALT': 'login-salt',
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
 }
@@ -76,7 +79,11 @@ _default_flash_messages = {
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token', 'error'),
     'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
-    'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error')
+    'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
+    'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login to your account have been sent to %(email)s.', 'error'),
+    'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s', 'success'),
+    'INVALID_LOGIN_TOKEN': ('Invalid login token', 'error'),
+    'DISABLED_ACCOUNT': ('Account is disabled', 'error')
 }
 
 
@@ -149,6 +156,10 @@ def _get_confirm_serializer(app):
 
 def _get_token_auth_serializer(app):
     return _get_serializer(app, app.config['SECURITY_AUTH_SALT'])
+
+
+def _get_login_serializer(app):
+    return _get_serializer(app, app.config['SECURITY_LOGIN_SALT'])
 
 
 class RoleMixin(object):
@@ -258,6 +269,9 @@ class Security(object):
                 ('remember_token_serializer', _get_remember_token_serializer(app)),
                 ('token_auth_serializer', _get_token_auth_serializer(app))]:
             kwargs[key] = value
+
+        kwargs['login_serializer'] = (
+            _get_login_serializer(app) if kwargs['passwordless'] else None)
 
         kwargs['reset_serializer'] = (
             _get_reset_serializer(app) if kwargs['recoverable'] else None)
