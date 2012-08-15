@@ -85,7 +85,8 @@ _default_messages = {
     'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s', 'success'),
     'INVALID_LOGIN_TOKEN': ('Invalid login token', 'error'),
     'DISABLED_ACCOUNT': ('Account is disabled', 'error'),
-    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in', 'success')
+    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in', 'success'),
+    'PASSWORD_RESET': ('Your password has successfully been reset. You may now log in.', 'success')
 }
 
 

@@ -139,9 +139,9 @@ def send_login():
 
     if user.is_active():
         send_login_instructions(user, form.next.data)
-        do_flash(get_message('LOGIN_EMAIL_SENT', email=user.email))
+        do_flash(*get_message('LOGIN_EMAIL_SENT', email=user.email))
     else:
-        do_flash(get_message('DISABLED_ACCOUNT'))
+        do_flash(*get_message('DISABLED_ACCOUNT'))
 
     return render_template('security/logins/passwordless.html', login_form=form)
 
@@ -163,7 +163,7 @@ def token_login(token):
 
         return redirect(request.referrer or _security.login_manager.login_view)
 
-    do_flash(get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
+    do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
 
     return redirect(next or _security.post_login_view)
 
@@ -204,7 +204,7 @@ def confirm_email(token):
 
         return redirect(get_url(_security.confirm_error_view))
 
-    do_flash(get_message('EMAIL_CONFIRMED'))
+    do_flash(*get_message('EMAIL_CONFIRMED'))
 
     return redirect(_security.post_confirm_view or _security.post_login_view)
 
@@ -228,9 +228,6 @@ def forgot_password():
         return redirect(_security.post_forgot_view)
 
     else:
-        _logger.debug('A reset password request was made for %s but '
-                      'that email does not exist.' % form.email.data)
-
         for key, value in form.errors.items():
             do_flash(value[0], 'error')
 
@@ -246,7 +243,12 @@ def reset_password(token):
     if form.validate_on_submit():
         try:
             user = reset_by_token(token=token, **form.to_dict())
+
             _logger.debug('%s reset their password' % user)
+
+            do_flash(*get_message('PASSWORD_RESET'))
+
+            return redirect(_security.login_manager.login_view)
 
         except ResetPasswordError, e:
             msg, cat = str(e), 'error'
