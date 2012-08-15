@@ -5,6 +5,8 @@ from __future__ import with_statement
 import base64
 import time
 
+from cookielib import Cookie
+
 try:
     import simplejson as json
 except ImportError:
@@ -189,6 +191,11 @@ class DefaultSecurityTests(SecurityTest):
         self.client.cookie_jar.clear_session_cookies()
         r = self._get('/profile')
         self.assertIn('profile', r.data)
+
+    def test_token_loader_does_not_fail_with_invalid_token(self):
+        self.client.cookie_jar.set_cookie(Cookie(version=0, name='remember_token', value='None', port=None, port_specified=False, domain='www.example.com', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False))
+        r = self._get('/')
+        self.assertNotIn('BadSignature', r.data)
 
 
 class ConfiguredSecurityTests(SecurityTest):

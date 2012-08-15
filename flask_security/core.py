@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, BadSignature
 from flask import current_app
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
@@ -97,9 +97,13 @@ def _user_loader(user_id):
 
 
 def _token_loader(token):
-    data = _security.remember_token_serializer.loads(token)
-    user = _security.datastore.find_user(id=data[0])
-    return user if md5(user.password) == data[1] else None
+    try:
+        data = _security.remember_token_serializer.loads(token)
+        user = _security.datastore.find_user(id=data[0])
+        return user if md5(user.password) == data[1] else None
+    except:
+        print 'word'
+        return None
 
 
 def _identity_loader():
