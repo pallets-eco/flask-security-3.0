@@ -248,7 +248,10 @@ def reset_password(token):
 
             do_flash(*get_message('PASSWORD_RESET'))
 
-            return redirect(_security.login_manager.login_view)
+            login_user(user)
+
+            return redirect(_security.post_reset_view or
+                            _security.post_login_view)
 
         except ResetPasswordError, e:
             msg, cat = str(e), 'error'

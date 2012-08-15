@@ -47,6 +47,7 @@ _default_config = {
     'RESET_PASSWORD_ERROR_VIEW': '/',
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
+    'POST_RESET_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'DEFAULT_ROLES': [],
     'CONFIRMABLE': False,
@@ -73,20 +74,20 @@ _default_config = {
 _default_messages = {
     'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
     'EMAIL_CONFIRMED': ('Your email has been confirmed. You may now log in.', 'success'),
-    'ALREADY_CONFIRMED': ('Your email has already been confirmed', 'info'),
-    'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token', 'error'),
+    'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
+    'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
-    'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token', 'error'),
-    'CONFIRMATION_REQUIRED': ('Email requires confirmation', 'error'),
+    'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token.', 'error'),
+    'CONFIRMATION_REQUIRED': ('Email requires confirmation.', 'error'),
     'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
     'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
     'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login to your account have been sent to %(email)s.', 'error'),
-    'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s', 'success'),
-    'INVALID_LOGIN_TOKEN': ('Invalid login token', 'error'),
-    'DISABLED_ACCOUNT': ('Account is disabled', 'error'),
-    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in', 'success'),
-    'PASSWORD_RESET': ('Your password has successfully been reset. You may now log in.', 'success')
+    'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s.', 'success'),
+    'INVALID_LOGIN_TOKEN': ('Invalid login token.', 'error'),
+    'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
+    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
+    'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success')
 }
 
 
@@ -330,10 +331,10 @@ class AuthenticationProvider(object):
         try:
             user = self._get_user(username_or_email)
         except exceptions.UserNotFoundError:
-            raise exceptions.BadCredentialsError('Specified user does not exist')
+            raise exceptions.BadCredentialsError('Specified user does not exist.')
 
         if requires_confirmation(user):
-            raise exceptions.BadCredentialsError('Email requires confirmation')
+            raise exceptions.BadCredentialsError('Email requires confirmation.')
 
         # compare passwords
         if verify_password(password, user.password,
