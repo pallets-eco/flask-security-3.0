@@ -69,8 +69,8 @@ _default_config = {
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
 }
 
-#: Default Flask-Security flash messages
-_default_flash_messages = {
+#: Default Flask-Security messages
+_default_messages = {
     'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
     'EMAIL_CONFIRMED': ('Your email has been confirmed. You may now log in.', 'success'),
     'ALREADY_CONFIRMED': ('Your email has already been confirmed', 'info'),
@@ -78,12 +78,14 @@ _default_flash_messages = {
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token', 'error'),
+    'CONFIRMATION_REQUIRED': ('Email requires confirmation', 'error'),
     'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
     'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
     'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login to your account have been sent to %(email)s.', 'error'),
     'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s', 'success'),
     'INVALID_LOGIN_TOKEN': ('Invalid login token', 'error'),
-    'DISABLED_ACCOUNT': ('Account is disabled', 'error')
+    'DISABLED_ACCOUNT': ('Account is disabled', 'error'),
+    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in', 'success')
 }
 
 
@@ -233,7 +235,7 @@ class Security(object):
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
 
-        for key, value in _default_flash_messages.items():
+        for key, value in _default_messages.items():
             app.config.setdefault('SECURITY_MSG_' + key, value)
 
         identity_loaded.connect_via(app)(_on_identity_loaded)

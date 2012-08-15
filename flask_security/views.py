@@ -15,6 +15,7 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from flask_security.confirmable import confirm_by_token, reset_confirmation_token
+from flask_security.core import current_user
 from flask_security.decorators import login_required
 from flask_security.exceptions import ConfirmationError, BadCredentialsError, \
      ResetPasswordError, PasswordlessLoginError
@@ -138,16 +139,17 @@ def send_login():
 
     if user.is_active():
         send_login_instructions(user, form.next.data)
-        msg, cat = get_message('LOGIN_EMAIL_SENT', email=user.email)
+        do_flash(get_message('LOGIN_EMAIL_SENT', email=user.email))
     else:
-        msg, cat = get_message('DISABLED_ACCOUNT')
-
-    do_flash(msg, cat)
+        do_flash(get_message('DISABLED_ACCOUNT'))
 
     return render_template('security/logins/passwordless.html', login_form=form)
 
 
 def token_login(token):
+    if current_user.is_authenticated():
+        return redirect(_security.post_login_view)
+
     try:
         user, next = login_by_token(token)
 
@@ -160,6 +162,8 @@ def token_login(token):
         do_flash(msg, cat)
 
         return redirect(request.referrer or _security.login_manager.login_view)
+
+    do_flash(get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
 
     return redirect(next or _security.post_login_view)
 
@@ -195,10 +199,6 @@ def confirm_email(token):
 
         if e.user:
             reset_confirmation_token(e.user)
-
-            msg, cat = get_message('CONFIRMATION_EXPIRED',
-                                   within=_security.confirm_email_within,
-                                   email=e.user.email)
 
         do_flash(msg, cat)
 

@@ -71,3 +71,6 @@ class SecurityTest(TestCase):
             return TestCase.assertIsNotNone(self, obj, msg)
 
         return self.assertTrue(obj is not None)
+
+    def get_message(self, key, **kwargs):
+        return self.app.config['SECURITY_MSG_' + key][0] % kwargs

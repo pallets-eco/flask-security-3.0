@@ -92,9 +92,7 @@ class LoginForm(Form, EmailFormMixin, PasswordFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-
-        if request.method == 'GET':
-            self.next.data = request.args.get('next', None)
+        self.next.data = request.args.get('next', None)
 
 
 class RegisterForm(Form,
