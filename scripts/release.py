@@ -20,7 +20,7 @@ _date_clean_re = re.compile(r'(\d+)(st|nd|rd|th)')
 
 
 def installed_libraries():
-    return set(Popen(['pip', 'freeze'], stdout=PIPE).communicate()[0].splitlines())
+    return Popen(['pip', 'freeze'], stdout=PIPE).communicate()[0]
 
 
 def has_library_installed(library):
@@ -91,7 +91,7 @@ def set_filename_version(filename, version_number, pattern):
 
 def set_init_version(version):
     info('Setting __init__.py version to %s', version)
-    set_filename_version('flask_security/__init__.py', version, '__version__')
+    set_filename_version('flask_principal/__init__.py', version, '__version__')
 
 
 def set_setup_version(version):
@@ -133,7 +133,6 @@ def make_git_commit(message, *args):
 def make_git_tag(tag):
     info('Tagging "%s"', tag)
     Popen(['git', 'tag', '-a', tag, '-m', '%s release' % tag]).wait()
-    Popen(['git', 'push', '--tags']).wait()
 
 
 def update_version(version):
@@ -161,6 +160,10 @@ def main():
 
     tags = get_git_tags()
 
+    for lib in ['Sphinx', 'Sphinx-PyPI-upload']:
+        if not has_library_installed(lib):
+            fail('Build requires that %s be installed', lib)
+
     if version in tags:
         fail('Version "%s" is already tagged', version)
     if release_date.date() != date.today():
@@ -171,10 +174,6 @@ def main():
 
     if not git_is_clean():
         fail('You have uncommitted changes in git')
-
-    for lib in ['Sphinx', 'Sphinx-PyPI-upload']:
-        if not has_library_installed(lib):
-            fail('Build requires that %s be installed', lib)
 
     info('Releasing %s (release date %s)',
          version, release_date.strftime('%d/%m/%Y'))
