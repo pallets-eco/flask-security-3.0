@@ -464,7 +464,7 @@ class PasswordlessTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESS': True,
-        'SECURITY_LOGIN_WITHIN': '1 seconds'
+        'SECURITY_LOGIN_WITHIN': '2 seconds'
     }
 
     def test_login_requset_for_inactive_user(self):
