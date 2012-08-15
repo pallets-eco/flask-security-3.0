@@ -18,7 +18,6 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.abspath('_themes'))
-#from setup import __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -50,7 +49,7 @@ copyright = u'2012, Matt Wright'
 # built documents.
 #
 # The short X.Y version.
-version = '1.2.1'
+version = '1.3.0-dev'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -99,7 +98,7 @@ html_theme = 'flask_small'
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'github_fork': 'mattupstate/flask-security', 
+    'github_fork': 'mattupstate/flask-security',
     'index_logo': False
 }
 

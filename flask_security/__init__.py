@@ -10,6 +10,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+__version__ = '1.3.0-dev'
+
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, \
      AuthenticationProvider, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore
