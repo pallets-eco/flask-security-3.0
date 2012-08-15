@@ -102,7 +102,6 @@ def _token_loader(token):
         user = _security.datastore.find_user(id=data[0])
         return user if md5(user.password) == data[1] else None
     except:
-        print 'word'
         return None
 
 
