@@ -464,7 +464,6 @@ class PasswordlessTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESS': True,
-        'SECURITY_LOGIN_WITHIN': '2 seconds'
     }
 
     def test_login_requset_for_inactive_user(self):
@@ -498,6 +497,19 @@ class PasswordlessTests(SecurityTest):
         r = self.client.get('/profile')
         self.assertIn('Profile Page', r.data)
 
+    def test_invalid_login_token(self):
+        msg = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
+        r = self._get('/auth/bogus', follow_redirects=True)
+        self.assertIn(msg, r.data)
+
+
+class ExpiredLoginTokenTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_LOGIN_WITHIN': '1 seconds'
+    }
+
     def test_expired_login_token_sends_email(self):
         e = 'matt@lp.com'
 
@@ -517,11 +529,6 @@ class PasswordlessTests(SecurityTest):
             expire_text = self.AUTH_CONFIG['SECURITY_LOGIN_WITHIN']
             msg = self.app.config['SECURITY_MSG_LOGIN_EXPIRED'][0] % dict(within=expire_text, email=e)
             self.assertIn(msg, r.data)
-
-    def test_invalid_login_token(self):
-        msg = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
-        r = self._get('/auth/bogus', follow_redirects=True)
-        self.assertIn(msg, r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
