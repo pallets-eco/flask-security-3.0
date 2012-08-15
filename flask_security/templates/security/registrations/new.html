@@ -1,9 +1,10 @@
+{% from "security/macros.html" import render_field_with_errors, render_field %}
 {% include "security/messages.html" %}
 <h1>Register</h1>
 <form action="{{ url_for('flask_security.register') }}" method="POST" name="register_user_form">
   {{ register_user_form.hidden_tag() }}
-  {{ register_user_form.email.label }} {{ register_user_form.email }}<br/>
-  {{ register_user_form.password.label }} {{ register_user_form.password }}<br/>
-  {{ register_user_form.password_confirm.label }} {{ register_user_form.password_confirm }}<br/>
-  {{ register_user_form.submit }}
+  {{ render_field_with_errors(register_user_form.email) }}
+  {{ render_field_with_errors(register_user_form.password) }}
+  {{ render_field_with_errors(register_user_form.password_confirm) }}
+  {{ render_field(register_user_form.submit) }}
 </form>

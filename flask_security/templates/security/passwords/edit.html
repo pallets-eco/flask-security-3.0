@@ -1,8 +1,9 @@
+{% from "security/macros.html" import render_field_with_errors, render_field %}
 {% include "security/messages.html" %}
 <h1>Change password</h1>
 <form action="{{ url_for('flask_security.reset_password', token=password_reset_token) }}" method="POST" name="reset_password_form">
   {{ reset_password_form.hidden_tag() }}
-  {{ reset_password_form.password.label }} {{ reset_password_form.password }}<br/>
-  {{ reset_password_form.password_confirm.label }} {{ reset_password_form.password_confirm }}<br/>
-  {{ reset_password_form.submit }}
+  {{ render_field_with_errors(reset_password_form.password) }}
+  {{ render_field_with_errors(reset_password_form.password_confirm) }}
+  {{ render_field(reset_password_form.submit) }}
 </form>

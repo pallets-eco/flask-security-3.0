@@ -1,10 +1,11 @@
+{% from "security/macros.html" import render_field_with_errors, render_field %}
 {% include "security/messages.html" %}
-<h1>Edit account</h1>
+<h1>Edit Account</h1>
 <form action="{{ url_for('flask_security.update_user') }}" method="POST" name="edit_user_form">
   {{ edit_user_form.hidden_tag() }}
-  {{ edit_user_form.email.label }} {{ edit_user_form.email }}<br/>
-  {{ edit_user_form.password.label }} {{ edit_user_form.password }}<br/>
-  {{ edit_user_form.password_confirm.label }} {{ edit_user_form.password_confirm }}<br/>
-  {{ edit_user_form.current_password.label }} {{ edit_user_form.current_password }}<br/>
-  {{ edit_user_form.submit }}
+  {{ render_field_with_errors(edit_user_form.email) }}
+  {{ render_field_with_errors(edit_user_form.password) }}
+  {{ render_field_with_errors(edit_user_form.password_confirm) }}
+  {{ render_field_with_errors(edit_user_form.current_password) }}
+  {{ render_field(edit_user_form.submit) }}
 </form>

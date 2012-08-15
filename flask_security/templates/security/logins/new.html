@@ -1,10 +1,11 @@
+{% from "security/macros.html" import render_field_with_errors, render_field %}
 {% include "security/messages.html" %}
 <h1>Login</h1>
 <form action="{{ url_for('flask_security.authenticate') }}" method="POST" name="login_form">
   {{ login_form.hidden_tag() }}
-  {{ login_form.email.label }} {{ login_form.email }}<br/>
-  {{ login_form.password.label }} {{ login_form.password }}<br/>
-  {{ login_form.remember.label }} {{ login_form.remember }}<br/>
-  {{ login_form.next }}
-  {{ login_form.submit }}
+  {{ render_field_with_errors(login_form.email) }}
+  {{ render_field_with_errors(login_form.password) }}
+  {{ render_field_with_errors(login_form.remember) }}
+  {{ render_field(login_form.next) }}
+  {{ render_field(login_form.submit) }}
 </form>
