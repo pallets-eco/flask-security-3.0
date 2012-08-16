@@ -256,11 +256,12 @@ class Security(object):
                                         template_folder='templates')
             app.register_blueprint(bp)
 
-        app.context_processor(lambda: dict(url_for_security=url_for_security))
-
         state = self._get_state(app, datastore or self.datastore)
 
         app.extensions['security'] = state
+
+        app.context_processor(lambda: dict(url_for_security=url_for_security,
+                                           security=state))
 
         return state
 
