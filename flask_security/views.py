@@ -96,9 +96,7 @@ def authenticate():
 
     do_flash(msg, 'error')
 
-    return redirect(request.referrer or
-                    confirm_url or
-                    url_for_security('login'))
+    return redirect(confirm_url or url_for_security('login'))
 
 
 @anonymous_user_required
