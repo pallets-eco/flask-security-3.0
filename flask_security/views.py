@@ -128,7 +128,7 @@ def register_user():
         return redirect(_security.post_register_view or
                         _security.post_login_view)
 
-    return render_template('security/registrations/new.html',
+    return render_template('security/register_user.html',
                            register_user_form=form)
 
 
@@ -143,7 +143,7 @@ def send_login():
     else:
         do_flash(*get_message('DISABLED_ACCOUNT'))
 
-    return render_template('security/logins/passwordless.html', login_form=form)
+    return render_template('security/send_login.html', login_form=form)
 
 
 def token_login(token):
@@ -182,7 +182,7 @@ def send_confirmation():
 
         do_flash(msg, cat)
 
-    return render_template('security/confirmations/new.html',
+    return render_template('security/send_confirmation.html',
                            reset_confirmation_form=form)
 
 
@@ -231,7 +231,7 @@ def forgot_password():
         for key, value in form.errors.items():
             do_flash(value[0], 'error')
 
-    return render_template('security/passwords/new.html',
+    return render_template('security/forgot_password.html',
                            forgot_password_form=form)
 
 
@@ -267,7 +267,7 @@ def reset_password(token):
 
             do_flash(msg, cat)
 
-    return render_template('security/passwords/edit.html',
+    return render_template('security/reset_password.html',
                            reset_password_form=form,
                            password_reset_token=token)
 

@@ -1,8 +1,0 @@
-{% from "security/macros.html" import render_field_with_errors, render_field %}
-{% include "security/messages.html" %}
-<h1>Send reset password instructions</h1>
-<form action="{{ url_for('flask_security.forgot_password') }}" method="POST" name="forgot_password_form">
-  {{ forgot_password_form.hidden_tag() }}
-  {{ render_field_with_errors(forgot_password_form.email) }} 
-  {{ render_field(forgot_password_form.submit) }}
-</form>

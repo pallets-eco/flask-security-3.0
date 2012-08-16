@@ -115,6 +115,21 @@ def get_url(endpoint_or_url):
         return endpoint_or_url
 
 
+def url_for_security(endpoint, **values):
+    """Return a URL for the security blueprint
+
+    :param endpoint: the endpoint of the URL (name of the function)
+    :param values: the variable arguments of the URL rule
+    :param _external: if set to `True`, an absolute URL is generated. Server
+      address can be changed via `SERVER_NAME` configuration variable which
+      defaults to `localhost`.
+    :param _anchor: if provided this is added as anchor to the URL.
+    :param _method: if provided this explicitly specifies an HTTP method.
+    """
+    endpoint = '%s.%s' % (_security.blueprint_name, endpoint)
+    return url_for(endpoint, **values)
+
+
 def get_post_login_redirect():
     """Returns the URL to redirect to after a user logs in successfully."""
     return (get_url(request.args.get('next')) or

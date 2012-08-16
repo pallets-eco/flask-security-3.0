@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from itsdangerous import URLSafeTimedSerializer, BadSignature
+from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
@@ -21,7 +21,8 @@ from werkzeug.local import LocalProxy
 
 from . import views, exceptions
 from .confirmable import requires_confirmation
-from .utils import config_value as cv, get_config, verify_password, md5
+from .utils import config_value as cv, get_config, verify_password, md5, \
+     url_for_security
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -29,6 +30,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 
 #: Default Flask-Security configuration
 _default_config = {
+    'BLUEPRINT_NAME': 'security',
     'URL_PREFIX': None,
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
@@ -246,10 +248,14 @@ class Security(object):
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
         if register_blueprint:
-            bp = views.create_blueprint(app, 'flask_security', __name__,
-                                        template_folder='templates',
-                                        url_prefix=cv('URL_PREFIX', app=app))
+            name = cv('BLUEPRINT_NAME', app=app)
+            url_prefix = cv('URL_PREFIX', app=app)
+            bp = views.create_blueprint(app, name, __name__,
+                                        url_prefix=url_prefix,
+                                        template_folder='templates')
             app.register_blueprint(bp)
+
+        app.context_processor(lambda: dict(url_for_security=url_for_security))
 
         state = self._get_state(app, datastore or self.datastore)
 

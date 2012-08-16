@@ -1,6 +1,6 @@
 {% include "_messages.html" %}
 {% include "_nav.html" %}
-<form action="{{ url_for('flask_security.authenticate') }}" method="POST" name="login_form">
+<form action="{{ url_for_security('authenticate') }}" method="POST" name="login_form">
   {{ form.hidden_tag() }}
   {{ form.email.label }} {{ form.email }}<br/>
   {{ form.password.label }} {{ form.password }}<br/>

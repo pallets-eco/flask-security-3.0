@@ -1,8 +1,0 @@
-{% from "security/macros.html" import render_field_with_errors, render_field %}
-{% include "security/messages.html" %}
-<h1>Resend confirmation instructions</h1>
-<form action="{{ url_for('flask_security.send_confirmation') }}" method="POST" name="reset_confirmation_form">
-  {{ reset_confirmation_form.hidden_tag() }}
-  {{ render_field_with_errors(reset_confirmation_form.email) }}
-  {{ render_field(reset_confirmation_form.submit) }}
-</form>

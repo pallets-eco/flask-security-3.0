@@ -1,7 +1,7 @@
-{% from "security/macros.html" import render_field_with_errors, render_field %}
-{% include "security/messages.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+{% include "security/_messages.html" %}
 <h1>Edit Account</h1>
-<form action="{{ url_for('flask_security.update_user') }}" method="POST" name="edit_user_form">
+<form action="{{ url_for_security('edit_user') }}" method="POST" name="edit_user_form">
   {{ edit_user_form.hidden_tag() }}
   {{ render_field_with_errors(edit_user_form.email) }}
   {{ render_field_with_errors(edit_user_form.password) }}

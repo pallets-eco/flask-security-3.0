@@ -9,13 +9,14 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import url_for, request, current_app as app
+from flask import request, current_app as app
 from itsdangerous import SignatureExpired, BadSignature
 from werkzeug.local import LocalProxy
 
 from .exceptions import PasswordlessLoginError
 from .signals import login_instructions_sent
-from .utils import send_mail, md5, get_max_age, login_user, get_message
+from .utils import send_mail, md5, get_max_age, login_user, get_message, \
+     url_for_security
 
 
 # Convenient references
@@ -32,7 +33,7 @@ def send_login_instructions(user, next):
     """
     token = generate_login_token(user, next)
 
-    url = url_for('flask_security.token_login', token=token)
+    url = url_for_security('token_login', token=token)
 
     login_link = request.url_root[:-1] + url
 

@@ -16,7 +16,7 @@ from flask import current_app as app, request, url_for
 from werkzeug.local import LocalProxy
 
 from .exceptions import ConfirmationError
-from .utils import send_mail, get_max_age, md5, get_message
+from .utils import send_mail, get_max_age, md5, get_message, url_for_security
 from .signals import user_confirmed, confirm_instructions_sent
 
 
@@ -32,7 +32,7 @@ def send_confirmation_instructions(user, token):
     :param user: The user to send the instructions to
     :param token: The confirmation token
     """
-    url = url_for('flask_security.confirm_email', token=token)
+    url = url_for_security('confirm_email', token=token)
 
     confirmation_link = request.url_root[:-1] + url
 

@@ -10,13 +10,14 @@
 """
 
 from itsdangerous import BadSignature, SignatureExpired
-from flask import current_app as app, request, url_for
+from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
 from .exceptions import ResetPasswordError, UserNotFoundError
 from .signals import password_reset, password_reset_requested, \
      reset_instructions_sent
-from .utils import send_mail, get_max_age, md5, get_message, encrypt_password
+from .utils import send_mail, get_max_age, md5, get_message, encrypt_password, \
+     url_for_security
 
 
 # Convenient references
@@ -30,8 +31,7 @@ def send_reset_password_instructions(user, reset_token):
 
     :param user: The user to send the instructions to
     """
-    url = url_for('flask_security.reset_password',
-                  token=reset_token)
+    url = url_for_security('reset_password', token=reset_token)
 
     reset_link = request.url_root[:-1] + url
 
