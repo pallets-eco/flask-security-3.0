@@ -93,6 +93,12 @@ def authenticate():
     return redirect(request.referrer or _security.login_manager.login_view)
 
 
+def login():
+    form = PasswordlessLoginForm() if _security.passwordless else LoginForm()
+    template = 'send_login' if _security.passwordless else 'login'
+    return render_template('security/%s.html' % template, login_form=form)
+
+
 def logout():
     """View function which handles a logout request."""
 
@@ -287,6 +293,9 @@ def create_blueprint(app, name, import_name, **kwargs):
         bp.route(config_value('AUTH_URL', app=app),
                  methods=['POST'],
                  endpoint='authenticate')(authenticate)
+
+    bp.route(config_value('LOGIN_URL', app=app),
+             endpoint='login')(login)
 
     bp.route(config_value('LOGOUT_URL', app=app),
              endpoint='logout')(login_required(logout))

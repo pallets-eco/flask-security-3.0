@@ -36,7 +36,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login')
-        self.assertIn('Login Page', r.data)
+        self.assertIn('<h1>Login</h1>', r.data)
 
     def test_authenticate(self):
         r = self.authenticate()

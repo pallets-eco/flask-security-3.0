@@ -56,17 +56,6 @@ def create_app(auth_config):
     def index():
         return render_template('index.html', content='Home Page')
 
-    @app.route('/login')
-    def login():
-        if app.config['SECURITY_PASSWORDLESS']:
-            form = PasswordlessLoginForm()
-            template = 'passwordless_login'
-        else:
-            form = LoginForm()
-            template = 'login'
-
-        return render_template(template + '.html', content='Login Page', form=form)
-
     @app.route('/custom_login')
     def custom_login():
         return render_template('login.html', content='Custom Login Page', form=LoginForm())

@@ -37,6 +37,7 @@ _default_config = {
     'PASSWORD_SALT': None,
     'PASSWORD_HMAC': False,
     'AUTH_URL': '/auth',
+    'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',
