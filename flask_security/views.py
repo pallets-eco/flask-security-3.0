@@ -26,7 +26,8 @@ from flask_security.recoverable import reset_by_token, \
      reset_password_reset_token
 from flask_security.signals import user_registered
 from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, config_value, login_user, logout_user, url_for_security
+     get_message, config_value, login_user, logout_user, url_for_security, \
+     anonymous_user_required
 
 
 # Convenient references
@@ -93,12 +94,14 @@ def authenticate():
     return redirect(request.referrer or url_for_security('login'))
 
 
+@anonymous_user_required
 def login():
     form = PasswordlessLoginForm() if _security.passwordless else LoginForm()
     template = 'send_login' if _security.passwordless else 'login'
     return render_template('security/%s.html' % template, login_form=form)
 
 
+@login_required
 def logout():
     """View function which handles a logout request."""
 
@@ -110,6 +113,7 @@ def logout():
                     get_url(_security.post_logout_view))
 
 
+@anonymous_user_required
 def register():
     """View function which handles a registration request."""
 
@@ -138,6 +142,7 @@ def register():
                            register_user_form=form)
 
 
+@anonymous_user_required
 def send_login():
     form = PasswordlessLoginForm()
 
@@ -152,10 +157,8 @@ def send_login():
     return render_template('security/send_login.html', login_form=form)
 
 
+@anonymous_user_required
 def token_login(token):
-    if current_user.is_authenticated():
-        return redirect(get_url(_security.post_login_view))
-
     try:
         user, next = login_by_token(token)
 
@@ -174,6 +177,7 @@ def token_login(token):
     return redirect(next or get_url(_security.post_login_view))
 
 
+@anonymous_user_required
 def send_confirmation():
     form = ResendConfirmationForm(csrf_enabled=not app.testing)
 
@@ -213,10 +217,13 @@ def confirm_email(token):
 
     do_flash(*get_message('EMAIL_CONFIRMED'))
 
+    login_user(user, True)
+
     return redirect(get_url(_security.post_confirm_view) or
                     get_url(_security.post_login_view))
 
 
+@anonymous_user_required
 def forgot_password():
     """View function that handles a forgotten password request."""
 
@@ -243,6 +250,7 @@ def forgot_password():
                            forgot_password_form=form)
 
 
+@anonymous_user_required
 def reset_password(token):
     """View function that handles a reset password request."""
 
@@ -300,7 +308,7 @@ def create_blueprint(app, name, import_name, **kwargs):
              endpoint='login')(login)
 
     bp.route(config_value('LOGOUT_URL', app=app),
-             endpoint='logout')(login_required(logout))
+             endpoint='logout')(logout)
 
     if config_value('REGISTERABLE', app=app):
         bp.route(config_value('REGISTER_URL', app=app),

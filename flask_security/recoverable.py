@@ -80,9 +80,6 @@ def reset_by_token(token, password):
         data = serializer.loads(token, max_age=max_age)
         user = _datastore.find_user(id=data[0])
 
-        if md5(user.password) != data[1]:
-            raise UserNotFoundError()
-
         user.password = encrypt_password(password,
                                          salt=_security.password_salt,
                                          use_hmac=_security.password_hmac)
@@ -101,9 +98,6 @@ def reset_by_token(token, password):
                                  user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
-        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN'))
-
-    except UserNotFoundError:
         raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN'))
 
 

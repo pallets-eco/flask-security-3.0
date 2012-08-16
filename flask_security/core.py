@@ -83,7 +83,7 @@ _default_messages = {
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token.', 'error'),
     'CONFIRMATION_REQUIRED': ('Email requires confirmation.', 'error'),
-    'CONFIRMATION_REQUEST': ('A new confirmation code has been sent to %(email)s.', 'info'),
+    'CONFIRMATION_REQUEST': ('Confirmation instructions have been sent to %(email)s.', 'info'),
     'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
     'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login to your account have been sent to %(email)s.', 'error'),
     'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s.', 'success'),
