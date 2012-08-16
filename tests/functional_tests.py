@@ -370,6 +370,8 @@ class RecoverableTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_RECOVERABLE': True,
+        'SECURITY_RESET_PASSWORD_ERROR_VIEW': '/',
+        'SECURITY_POST_FORGOT_VIEW': '/'
     }
 
     def test_forgot_post_sends_email(self):

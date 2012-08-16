@@ -246,8 +246,8 @@ def forgot_password():
 
         do_flash(*get_message('PASSWORD_RESET_REQUEST', email=user.email))
 
-        return redirect(get_url(_security.post_forgot_view))
-
+        if _security.post_forgot_view:
+            return redirect(get_url(_security.post_forgot_view))
     else:
         for key, value in form.errors.items():
             do_flash(value[0], 'error')
@@ -288,6 +288,9 @@ def reset_password(token):
                                   email=e.user.email)
 
             do_flash(*msg)
+
+            if _security.reset_password_error_view:
+                return redirect(get_url(_security.reset_password_error_view))
 
     return render_template('security/reset_password.html',
                            reset_password_form=form,
