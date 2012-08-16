@@ -76,6 +76,7 @@ _default_config = {
 #: Default Flask-Security messages
 _default_messages = {
     'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
+    'CONFIRM_REGISTRATION': ('Thank you. Confirmation instructions have been sent to %(email)s.', 'success'),
     'EMAIL_CONFIRMED': ('Your email has been confirmed. You may now log in.', 'success'),
     'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
     'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
@@ -85,8 +86,8 @@ _default_messages = {
     'CONFIRMATION_REQUIRED': ('Email requires confirmation.', 'error'),
     'CONFIRMATION_REQUEST': ('Confirmation instructions have been sent to %(email)s.', 'info'),
     'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
-    'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login to your account have been sent to %(email)s.', 'error'),
-    'LOGIN_EMAIL_SENT': ('Instructions to log in to your account have been sent to %(email)s.', 'success'),
+    'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login have been sent to %(email)s.', 'error'),
+    'LOGIN_EMAIL_SENT': ('Instructions to login have been sent to %(email)s.', 'success'),
     'INVALID_LOGIN_TOKEN': ('Invalid login token.', 'error'),
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),

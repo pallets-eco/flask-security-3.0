@@ -141,6 +141,9 @@ def register():
         if not _security.confirmable or _security.login_without_confirmation:
             login_user(u)
 
+        if _security.confirmable:
+            do_flash(*get_message('CONFIRM_REGISTRATION', email=u.email))
+
         return redirect(get_url(_security.post_register_view) or
                         get_url(_security.post_login_view))
 
