@@ -51,10 +51,15 @@ class PasswordConfirmFormMixin():
         validators=[EqualTo('password', message="Passwords do not match")])
 
 
-class ResendConfirmationForm(Form, UserEmailFormMixin):
+class SendConfirmationForm(Form, UserEmailFormMixin):
     """The default forgot password form"""
 
     submit = SubmitField("Resend Confirmation Instructions")
+
+    def __init__(self, *args, **kwargs):
+        super(SendConfirmationForm, self).__init__(*args, **kwargs)
+        if request.method == 'GET':
+            self.email.data = request.args.get('email', None)
 
     def to_dict(self):
         return dict(email=self.email.data)
@@ -77,7 +82,8 @@ class PasswordlessLoginForm(Form, EmailFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
-        self.next.data = request.args.get('next', None)
+        if request.method == 'GET':
+            self.next.data = request.args.get('next', None)
 
     def to_dict(self):
         return dict(email=self.email.data)

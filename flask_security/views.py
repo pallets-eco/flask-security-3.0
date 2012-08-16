@@ -15,12 +15,11 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from flask_security.confirmable import confirm_by_token, reset_confirmation_token
-from flask_security.core import current_user
 from flask_security.decorators import login_required
 from flask_security.exceptions import ConfirmationError, BadCredentialsError, \
      ResetPasswordError, PasswordlessLoginError
 from flask_security.forms import LoginForm, RegisterForm, ForgotPasswordForm, \
-     ResetPasswordForm, ResendConfirmationForm, PasswordlessLoginForm
+     ResetPasswordForm, SendConfirmationForm, PasswordlessLoginForm
 from flask_security.passwordless import send_login_instructions, login_by_token
 from flask_security.recoverable import reset_by_token, \
      reset_password_reset_token
@@ -84,7 +83,7 @@ def authenticate():
 
     except ConfirmationError, e:
         msg = str(e)
-        confirm_url = url_for_security('send_confirmation')
+        confirm_url = url_for_security('send_confirmation', email=e.user.email)
 
     except BadCredentialsError, e:
         msg = str(e)
@@ -189,7 +188,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    form = ResendConfirmationForm(csrf_enabled=not app.testing)
+    form = SendConfirmationForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
         user = _datastore.find_user(**form.to_dict())
