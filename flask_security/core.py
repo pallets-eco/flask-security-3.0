@@ -77,7 +77,7 @@ _default_config = {
 _default_messages = {
     'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
     'CONFIRM_REGISTRATION': ('Thank you. Confirmation instructions have been sent to %(email)s.', 'success'),
-    'EMAIL_CONFIRMED': ('Thakn you. Your email has been confirmed.', 'success'),
+    'EMAIL_CONFIRMED': ('Thank you. Your email has been confirmed.', 'success'),
     'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
     'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
