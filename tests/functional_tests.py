@@ -207,7 +207,7 @@ class ConfiguredSecurityTests(SecurityTest):
         'SECURITY_REGISTERABLE': True,
         'SECURITY_AUTH_URL': '/custom_auth',
         'SECURITY_LOGOUT_URL': '/custom_logout',
-        'SECURITY_LOGIN_VIEW': '/custom_login',
+        'SECURITY_LOGIN_URL': '/custom_login',
         'SECURITY_POST_LOGIN_VIEW': '/post_login',
         'SECURITY_POST_LOGOUT_VIEW': '/post_logout',
         'SECURITY_POST_REGISTER_VIEW': '/post_register',
@@ -217,7 +217,7 @@ class ConfiguredSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/custom_login')
-        self.assertIn("Custom Login Page", r.data)
+        self.assertIn("<h1>Login</h1>", r.data)
 
     def test_authenticate(self):
         r = self.authenticate(endpoint="/custom_auth")

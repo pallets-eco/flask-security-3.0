@@ -56,10 +56,6 @@ def create_app(auth_config):
     def index():
         return render_template('index.html', content='Home Page')
 
-    @app.route('/custom_login')
-    def custom_login():
-        return render_template('login.html', content='Custom Login Page', form=LoginForm())
-
     @app.route('/profile')
     @login_required
     def profile():

@@ -145,8 +145,6 @@ def find_redirect(key):
     result = (get_url(session.pop(key.lower(), None)) or
               get_url(current_app.config[key.upper()] or None) or '/')
 
-    session.pop(key.lower(), None)
-
     return result
 
 

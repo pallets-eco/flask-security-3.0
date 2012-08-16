@@ -43,11 +43,11 @@ _default_config = {
     'RESET_URL': '/reset',
     'CONFIRM_URL': '/confirm',
     'LOGIN_VIEW': '/login',
-    'CONFIRM_ERROR_VIEW': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
     'POST_FORGOT_VIEW': '/',
     'RESET_PASSWORD_ERROR_VIEW': '/',
+    'CONFIRM_ERROR_VIEW': None,
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
@@ -129,7 +129,7 @@ def _on_identity_loaded(sender, identity):
 def _get_login_manager(app):
     lm = LoginManager()
     lm.anonymous_user = AnonymousUser
-    lm.login_view = cv('LOGIN_VIEW', app=app)
+    lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
     lm.init_app(app)

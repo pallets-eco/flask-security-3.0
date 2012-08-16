@@ -26,7 +26,7 @@ from flask_security.recoverable import reset_by_token, \
      reset_password_reset_token
 from flask_security.signals import user_registered
 from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, config_value, login_user, logout_user
+     get_message, config_value, login_user, logout_user, url_for_security
 
 
 # Convenient references
@@ -90,7 +90,7 @@ def authenticate():
 
     do_flash(msg, 'error')
 
-    return redirect(request.referrer or _security.login_manager.login_view)
+    return redirect(request.referrer or url_for_security('login'))
 
 
 def login():
@@ -107,7 +107,7 @@ def logout():
     _logger.debug('User logged out')
 
     return redirect(request.args.get('next', None) or
-                    _security.post_logout_view)
+                    get_url(_security.post_logout_view))
 
 
 def register_user():
@@ -131,8 +131,8 @@ def register_user():
         if not _security.confirmable or _security.login_without_confirmation:
             login_user(u)
 
-        return redirect(_security.post_register_view or
-                        _security.post_login_view)
+        return redirect(get_url(_security.post_register_view) or
+                        get_url(_security.post_login_view))
 
     return render_template('security/register_user.html',
                            register_user_form=form)
@@ -154,7 +154,7 @@ def send_login():
 
 def token_login(token):
     if current_user.is_authenticated():
-        return redirect(_security.post_login_view)
+        return redirect(get_url(_security.post_login_view))
 
     try:
         user, next = login_by_token(token)
@@ -167,11 +167,11 @@ def token_login(token):
 
         do_flash(msg, cat)
 
-        return redirect(request.referrer or _security.login_manager.login_view)
+        return redirect(request.referrer or url_for_security('login'))
 
     do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
 
-    return redirect(next or _security.post_login_view)
+    return redirect(next or get_url(_security.post_login_view))
 
 
 def send_confirmation():
@@ -208,11 +208,13 @@ def confirm_email(token):
 
         do_flash(msg, cat)
 
-        return redirect(get_url(_security.confirm_error_view))
+        return redirect(get_url(_security.confirm_error_view) or
+                        url_for_security('send_confirmation'))
 
     do_flash(*get_message('EMAIL_CONFIRMED'))
 
-    return redirect(_security.post_confirm_view or _security.post_login_view)
+    return redirect(get_url(_security.post_confirm_view) or
+                    get_url(_security.post_login_view))
 
 
 def forgot_password():
@@ -231,7 +233,7 @@ def forgot_password():
 
         do_flash(msg, cat)
 
-        return redirect(_security.post_forgot_view)
+        return redirect(get_url(_security.post_forgot_view))
 
     else:
         for key, value in form.errors.items():
@@ -256,8 +258,8 @@ def reset_password(token):
 
             login_user(user)
 
-            return redirect(_security.post_reset_view or
-                            _security.post_login_view)
+            return redirect(get_url(_security.post_reset_view) or
+                            get_url(_security.post_login_view))
 
         except ResetPasswordError, e:
             msg, cat = str(e), 'error'
