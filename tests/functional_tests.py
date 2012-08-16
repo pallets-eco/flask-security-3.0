@@ -237,8 +237,15 @@ class ConfiguredSecurityTests(SecurityTest):
                     password='password',
                     password_confirm='password')
 
-        r = self.client.post('/register', data=data, follow_redirects=True)
+        r = self._post('/register', data=data, follow_redirects=True)
         self.assertIn('Post Register', r.data)
+
+    def test_register_existing_email(self):
+        data = dict(email='matt@lp.com',
+                    password='password',
+                    password_confirm='password')
+        r = self._post('/register', data=data, follow_redirects=True)
+        self.assertIn('matt@lp.com is already associated with an account', r.data)
 
     def test_unauthorized(self):
         self.authenticate("joe@lp.com", endpoint="/custom_auth")

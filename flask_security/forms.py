@@ -21,6 +21,14 @@ from .exceptions import UserNotFoundError
 _datastore = LocalProxy(lambda: app.extensions['security'].datastore)
 
 
+def unique_user_email(form, field):
+    try:
+        _datastore.find_user(email=field.data)
+        raise ValidationError('%s is already associated with an account' % field.data)
+    except UserNotFoundError:
+        pass
+
+
 def valid_user_email(form, field):
     try:
         _datastore.find_user(email=field.data)
@@ -39,6 +47,13 @@ class UserEmailFormMixin():
         validators=[Required(message="Email not provided"),
                     Email(message="Invalid email address"),
                     valid_user_email])
+
+
+class UniqueEmailFormMixin():
+    email = TextField("Email Address",
+        validators=[Required(message="Email not provided"),
+                    Email(message="Invalid email address"),
+                    unique_user_email])
 
 
 class PasswordFormMixin():
@@ -102,7 +117,7 @@ class LoginForm(Form, EmailFormMixin, PasswordFormMixin):
 
 
 class RegisterForm(Form,
-                   EmailFormMixin,
+                   UniqueEmailFormMixin,
                    PasswordFormMixin,
                    PasswordConfirmFormMixin):
     """The default register form"""
