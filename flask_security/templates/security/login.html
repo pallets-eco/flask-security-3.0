@@ -14,7 +14,7 @@
   {% if security.recoverable %}
   <a href="{{ url_for_security('forgot_password') }}">Forgot password</a><br/>
   {% endif %}
-  {% if security.confirmabled %}
+  {% if security.confirmable %}
   <a href="{{ url_for_security('send_confirmation') }}">Confirm account</a>
   {% endif %}
 </p>
