@@ -110,7 +110,7 @@ def logout():
                     get_url(_security.post_logout_view))
 
 
-def register_user():
+def register():
     """View function which handles a registration request."""
 
     form = RegisterForm(csrf_enabled=not app.testing)
@@ -134,7 +134,7 @@ def register_user():
         return redirect(get_url(_security.post_register_view) or
                         get_url(_security.post_login_view))
 
-    return render_template('security/register_user.html',
+    return render_template('security/register.html',
                            register_user_form=form)
 
 
@@ -305,7 +305,7 @@ def create_blueprint(app, name, import_name, **kwargs):
     if config_value('REGISTERABLE', app=app):
         bp.route(config_value('REGISTER_URL', app=app),
                  methods=['GET', 'POST'],
-                 endpoint='register')(register_user)
+                 endpoint='register')(register)
 
     if config_value('RECOVERABLE', app=app):
         bp.route(config_value('RESET_URL', app=app),
