@@ -73,7 +73,7 @@ def confirm_by_token(token):
         user = _datastore.find_user(id=data[0])
 
         if user.confirmed_at:
-            raise ConfirmationError(get_message('ALREADY_CONFIRMED'))
+            raise ConfirmationError(get_message('ALREADY_CONFIRMED')[0])
 
         user.confirmed_at = datetime.utcnow()
         _datastore._save_model(user)
@@ -91,7 +91,7 @@ def confirm_by_token(token):
         raise ConfirmationError(msg, user=user)
 
     except BadSignature:
-        raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN'))
+        raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN')[0])
 
 
 def reset_confirmation_token(user):

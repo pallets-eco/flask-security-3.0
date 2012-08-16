@@ -43,7 +43,7 @@ def _get_unauthorized_response(text=None, headers=None):
 
 def _get_unauthorized_view():
     cv = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
-    utils.do_flash(utils.get_message('UNAUTHORIZED'))
+    utils.do_flash(*utils.get_message('UNAUTHORIZED'))
     return redirect(cv or request.referrer or '/')
 
 

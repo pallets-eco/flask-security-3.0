@@ -98,7 +98,7 @@ def reset_by_token(token, password):
                                  user=_datastore.find_user(id=data[0]))
 
     except BadSignature:
-        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN'))
+        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN')[0])
 
 
 def reset_password_reset_token(user):

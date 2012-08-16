@@ -342,7 +342,7 @@ class AuthenticationProvider(object):
             raise exceptions.BadCredentialsError('Specified user does not exist.')
 
         if requires_confirmation(user):
-            raise exceptions.BadCredentialsError('Email requires confirmation.')
+            raise exceptions.ConfirmationError('Email requires confirmation.')
 
         # compare passwords
         if verify_password(password, user.password,

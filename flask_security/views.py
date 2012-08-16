@@ -67,6 +67,7 @@ def _json_auth_error(msg):
 
 def authenticate():
     """View function which handles an authentication request."""
+    confirm_url = None
     form_data = MultiDict(request.json) if request.json else request.form
     form = LoginForm(form_data)
 
@@ -81,6 +82,10 @@ def authenticate():
 
         raise BadCredentialsError(get_message('DISABLED_ACCOUNT')[0])
 
+    except ConfirmationError, e:
+        msg = str(e)
+        confirm_url = url_for_security('send_confirmation')
+
     except BadCredentialsError, e:
         msg = str(e)
 
@@ -91,11 +96,15 @@ def authenticate():
 
     do_flash(msg, 'error')
 
-    return redirect(request.referrer or url_for_security('login'))
+    return redirect(request.referrer or
+                    confirm_url or
+                    url_for_security('login'))
 
 
 @anonymous_user_required
 def login():
+    """View function for login view"""
+
     form = PasswordlessLoginForm() if _security.passwordless else LoginForm()
     template = 'send_login' if _security.passwordless else 'login'
     return render_template('security/%s.html' % template, login_form=form)
@@ -144,6 +153,7 @@ def register():
 
 @anonymous_user_required
 def send_login():
+    """View function that sends login instructions for passwordless login"""
     form = PasswordlessLoginForm()
 
     user = _datastore.find_user(**form.to_dict())
@@ -159,16 +169,16 @@ def send_login():
 
 @anonymous_user_required
 def token_login(token):
+    """View function that handles passwordless login via a token"""
+
     try:
         user, next = login_by_token(token)
 
     except PasswordlessLoginError, e:
-        msg, cat = str(e), 'error'
-
         if e.user:
             send_login_instructions(e.user, e.next)
 
-        do_flash(msg, cat)
+        do_flash(str(e), 'error')
 
         return redirect(request.referrer or url_for_security('login'))
 
@@ -179,6 +189,8 @@ def token_login(token):
 
 @anonymous_user_required
 def send_confirmation():
+    """View function which sends confirmation instructions."""
+
     form = ResendConfirmationForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
@@ -188,9 +200,7 @@ def send_confirmation():
 
         _logger.debug('%s request confirmation instructions' % user)
 
-        msg, cat = get_message('CONFIRMATION_REQUEST', email=user.email)
-
-        do_flash(msg, cat)
+        do_flash(*get_message('CONFIRMATION_REQUEST', email=user.email))
 
     return render_template('security/send_confirmation.html',
                            reset_confirmation_form=form)
@@ -198,19 +208,20 @@ def send_confirmation():
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
+
     try:
         user = confirm_by_token(token)
         _logger.debug('%s confirmed their email' % user)
 
     except ConfirmationError, e:
-        msg, cat = str(e), 'error'
+        msg = (str(e), 'error')
 
-        _logger.debug('Confirmation error: ' + msg)
+        _logger.debug('Confirmation error: ' + msg[0])
 
         if e.user:
             reset_confirmation_token(e.user)
 
-        do_flash(msg, cat)
+        do_flash(*msg)
 
         return redirect(get_url(_security.confirm_error_view) or
                         url_for_security('send_confirmation'))
@@ -236,9 +247,7 @@ def forgot_password():
 
         _logger.debug('%s requested to reset their password' % user)
 
-        msg, cat = get_message('PASSWORD_RESET_REQUEST', email=user.email)
-
-        do_flash(msg, cat)
+        do_flash(*get_message('PASSWORD_RESET_REQUEST', email=user.email))
 
         return redirect(get_url(_security.post_forgot_view))
 
@@ -270,18 +279,18 @@ def reset_password(token):
                             get_url(_security.post_login_view))
 
         except ResetPasswordError, e:
-            msg, cat = str(e), 'error'
+            msg = (str(e), 'error')
 
-            _logger.debug('Password reset error: ' + msg)
+            _logger.debug('Password reset error: ' + msg[0])
 
             if e.user:
                 reset_password_reset_token(e.user)
 
-                msg, cat = get_message('PASSWORD_RESET_EXPIRED',
-                                       within=_security.reset_password_within,
-                                       email=e.user.email)
+                msg = get_message('PASSWORD_RESET_EXPIRED',
+                                  within=_security.reset_password_within,
+                                  email=e.user.email)
 
-            do_flash(msg, cat)
+            do_flash(*msg)
 
     return render_template('security/reset_password.html',
                            reset_password_form=form,
@@ -289,6 +298,8 @@ def reset_password(token):
 
 
 def create_blueprint(app, name, import_name, **kwargs):
+    """Creates the security extension blueprint"""
+
     bp = Blueprint(name, import_name, **kwargs)
 
     if config_value('PASSWORDLESS', app=app):
