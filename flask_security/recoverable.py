@@ -32,7 +32,6 @@ def send_reset_password_instructions(user):
     """
     token = generate_reset_password_token(user)
     url = url_for_security('reset_password', token=token)
-
     reset_link = request.url_root[:-1] + url
 
     send_mail('Password reset instructions',
@@ -85,11 +84,8 @@ def reset_by_token(token, password):
                                          use_hmac=_security.password_hmac)
 
         _datastore._save_model(user)
-
         send_password_reset_notice(user)
-
         password_reset.send(user, app=app._get_current_object())
-
         return user
 
     except SignatureExpired:

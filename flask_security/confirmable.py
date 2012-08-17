@@ -12,7 +12,7 @@
 from datetime import datetime
 
 from itsdangerous import BadSignature, SignatureExpired
-from flask import current_app as app, request, url_for
+from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
 from .exceptions import ConfirmationError
@@ -34,16 +34,13 @@ def send_confirmation_instructions(user):
     """
     token = generate_confirmation_token(user)
     url = url_for_security('confirm_email', token=token)
-
     confirmation_link = request.url_root[:-1] + url
-
     ctx = dict(user=user, confirmation_link=confirmation_link)
 
     send_mail('Please confirm your email', user.email,
               'confirmation_instructions', ctx)
 
     confirm_instructions_sent.send(user, app=app._get_current_object())
-
     return token
 
 
@@ -80,9 +77,7 @@ def confirm_by_token(token):
 
         user.confirmed_at = datetime.utcnow()
         _datastore._save_model(user)
-
         user_confirmed.send(user, app=app._get_current_object())
-
         return user
 
     except SignatureExpired:

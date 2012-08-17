@@ -227,8 +227,7 @@ class _SecurityState(object):
             c[endpoint].append(fn)
 
     def _run_ctx_processor(self, endpoint):
-        fns = []
-        rv = {}
+        rv, fns = {}, []
 
         for g in ['all', endpoint]:
             if g in self.context_processors:
@@ -324,20 +323,16 @@ class Security(object):
                 ('principal', _get_principal(app)),
                 ('pwd_context', _get_pwd_context(app)),
                 ('remember_token_serializer', _get_remember_token_serializer(app)),
-                ('token_auth_serializer', _get_token_auth_serializer(app))]:
+                ('token_auth_serializer', _get_token_auth_serializer(app)),
+                ('context_processors', {})]:
             kwargs[key] = value
-
-        kwargs['context_processors'] = {}
 
         kwargs['login_serializer'] = (
             _get_login_serializer(app) if kwargs['passwordless'] else None)
-
         kwargs['reset_serializer'] = (
             _get_reset_serializer(app) if kwargs['recoverable'] else None)
-
         kwargs['confirm_serializer'] = (
             _get_confirm_serializer(app) if kwargs['confirmable'] else None)
-
         return _SecurityState(**kwargs)
 
     def __getattr__(self, name):

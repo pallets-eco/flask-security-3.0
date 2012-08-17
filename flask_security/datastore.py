@@ -83,7 +83,6 @@ class UserDatastore(object):
     def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
         kwargs.setdefault('roles', _security.default_roles)
-
         roles = kwargs.get('roles', [])
 
         for i, role in enumerate(roles):
@@ -92,7 +91,6 @@ class UserDatastore(object):
             roles[i] = self.find_role(rn)
 
         kwargs['roles'] = roles
-
         pwd_context = _security.pwd_context
         pw = kwargs['password']
 

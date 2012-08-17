@@ -12,9 +12,8 @@
 from functools import wraps
 
 from flask import current_app, Response, request, redirect
-from flask.ext.login import login_required, login_url, current_user
+from flask.ext.login import current_user
 from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
-from itsdangerous import BadSignature
 from werkzeug.local import LocalProxy
 
 from . import utils
@@ -50,19 +49,19 @@ def _get_unauthorized_view():
 def _check_token():
     header_key = _security.token_authentication_header
     args_key = _security.token_authentication_key
-
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
-
     serializer = _security.remember_token_serializer
+    rv = False
 
     try:
         data = serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
+        rv = utils.md5(user.password) == data[1]
     except:
-        return False
+        pass
 
-    return True if utils.md5(user.password) == data[1] else False
+    return rv
 
 
 def _check_http_auth():
@@ -70,18 +69,14 @@ def _check_http_auth():
 
     try:
         user = _security.datastore.find_user(email=auth.username)
+        if utils.verify_password(auth.password, user.password,
+                                 salt=_security.password_salt,
+                                 use_hmac=_security.password_hmac):
+            identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(user.id))
+            return True
     except UserNotFoundError:
         return False
-
-    rv = utils.verify_password(auth.password, user.password,
-                               salt=_security.password_salt,
-                               use_hmac=_security.password_hmac)
-
-    if rv:
-        identity_changed.send(current_app._get_current_object(),
-                              identity=Identity(user.id))
-
-    return rv
 
 
 def http_auth_required(realm):
@@ -95,17 +90,13 @@ def http_auth_required(realm):
         def wrapper(*args, **kwargs):
             if _check_http_auth():
                 return fn(*args, **kwargs)
-
             r = _security.default_http_auth_realm if callable(realm) else realm
             h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
-
             return _get_unauthorized_response(headers=h)
-
         return wrapper
 
     if callable(realm):
         return decorator(realm)
-
     return decorator
 
 
@@ -121,9 +112,7 @@ def auth_token_required(fn):
     def decorated(*args, **kwargs):
         if _check_token():
             return fn(*args, **kwargs)
-
         return _get_unauthorized_response()
-
     return decorated
 
 
@@ -142,22 +131,16 @@ def roles_required(*roles):
     :param args: The required roles.
     """
     def wrapper(fn):
-
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             perms = [Permission(RoleNeed(role)) for role in roles]
-
             for perm in perms:
                 if not perm.can():
                     _logger.debug('Identity does not provide the '
                                   'roles: %s' % [r for r in roles])
-
                     return _get_unauthorized_view()
-
             return fn(*args, **kwargs)
-
         return decorated_view
-
     return wrapper
 
 
@@ -176,22 +159,15 @@ def roles_accepted(*roles):
     :param args: The possible roles.
     """
     def wrapper(fn):
-
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             perm = Permission(*[RoleNeed(role) for role in roles])
-
             if perm.can():
                 return fn(*args, **kwargs)
-
             r1 = [r for r in roles]
             r2 = [r.name for r in current_user.roles]
-
             _logger.debug('Current user does not provide a required role. '
                           'Accepted: %s Provided: %s' % (r1, r2))
-
             return _get_unauthorized_view()
-
         return decorated_view
-
     return wrapper
