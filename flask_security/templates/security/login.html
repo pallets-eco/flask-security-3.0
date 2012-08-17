@@ -9,12 +9,4 @@
   {{ render_field(login_form.next) }}
   {{ render_field(login_form.submit) }}
 </form>
-<h2>Help</h2>
-<p>
-  {% if security.recoverable %}
-  <a href="{{ url_for_security('forgot_password') }}">Forgot password</a><br/>
-  {% endif %}
-  {% if security.confirmable %}
-  <a href="{{ url_for_security('send_confirmation') }}">Confirm account</a>
-  {% endif %}
-</p>
+{% include "security/_help.html" %}
