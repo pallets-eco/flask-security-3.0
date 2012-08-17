@@ -16,7 +16,7 @@ from werkzeug.local import LocalProxy
 from .exceptions import PasswordlessLoginError
 from .signals import login_instructions_sent
 from .utils import send_mail, md5, get_max_age, login_user, get_message, \
-     url_for_security
+     url_for_security, get_url
 
 
 # Convenient references
@@ -47,6 +47,7 @@ def send_login_instructions(user, next):
 
 
 def generate_login_token(user, next):
+    next = next or get_url(_security.post_login_view)
     data = [user.id, md5(user.password), next]
     return _security.login_serializer.dumps(data)
 
@@ -56,20 +57,19 @@ def login_by_token(token):
     max_age = get_max_age('LOGIN')
 
     try:
-        data = serializer.loads(token, max_age=max_age)
-        user = _datastore.find_user(id=data[0])
-
+        user_id, pw, next = serializer.loads(token, max_age=max_age)
+        user = _datastore.find_user(id=user_id)
         login_user(user, True)
-
-        return user, data[2]
+        return user, next
 
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
+        user_id, pw, next = data
         user = _datastore.find_user(id=data[0])
-        msg = get_message('LOGIN_EXPIRED',
-                          within=_security.login_within,
-                          email=user.email)[0]
-        raise PasswordlessLoginError(msg, user=user, next=data[2])
+        within = _security.login_within
+        msg = get_message('LOGIN_EXPIRED', within=within, email=user.email)
+        raise PasswordlessLoginError(msg[0], user=user, next=next)
 
     except BadSignature:
-        raise PasswordlessLoginError(get_message('INVALID_LOGIN_TOKEN')[0])
+        msg = get_message('INVALID_LOGIN_TOKEN')
+        raise PasswordlessLoginError(msg[0])

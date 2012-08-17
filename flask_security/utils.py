@@ -24,7 +24,7 @@ from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
 from .core import current_user
-from .signals import user_registered, password_reset_requested, \
+from .signals import user_registered, reset_password_instructions_sent, \
      login_instructions_sent
 
 
@@ -292,9 +292,9 @@ def capture_reset_password_requests(reset_password_sent_at=None):
     def _on(request, app):
         reset_requests.append(request)
 
-    password_reset_requested.connect(_on)
+    reset_password_instructions_sent.connect(_on)
 
     try:
         yield reset_requests
     finally:
-        password_reset_requested.disconnect(_on)
+        reset_password_instructions_sent.disconnect(_on)

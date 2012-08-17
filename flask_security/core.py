@@ -49,7 +49,6 @@ _default_config = {
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
-    'RESET_PASSWORD_ERROR_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'DEFAULT_ROLES': [],
     'CONFIRMABLE': False,

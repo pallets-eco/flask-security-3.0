@@ -26,12 +26,13 @@ _security = LocalProxy(lambda: app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def send_confirmation_instructions(user, token):
+def send_confirmation_instructions(user):
     """Sends the confirmation instructions email for the specified user.
 
     :param user: The user to send the instructions to
     :param token: The confirmation token
     """
+    token = generate_confirmation_token(user)
     url = url_for_security('confirm_email', token=token)
 
     confirmation_link = request.url_root[:-1] + url
@@ -42,6 +43,8 @@ def send_confirmation_instructions(user, token):
               'confirmation_instructions', ctx)
 
     confirm_instructions_sent.send(user, app=app._get_current_object())
+
+    return token
 
 
 def generate_confirmation_token(user):
@@ -92,19 +95,3 @@ def confirm_by_token(token):
 
     except BadSignature:
         raise ConfirmationError(get_message('INVALID_CONFIRMATION_TOKEN')[0])
-
-
-def reset_confirmation_token(user):
-    """Resets the specified user's confirmation token and sends the user
-    an email with instructions explaining next steps.
-
-    :param user: The user to work with
-    """
-    token = generate_confirmation_token(user)
-
-    user.confirmed_at = None
-    _datastore._save_model(user)
-
-    send_confirmation_instructions(user, token)
-
-    return token

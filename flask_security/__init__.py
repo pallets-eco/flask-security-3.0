@@ -20,6 +20,5 @@ from .decorators import auth_token_required, http_auth_required, \
 from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
      ResetPasswordForm, PasswordlessLoginForm
 from .signals import confirm_instructions_sent, password_reset, \
-     password_reset_requested, reset_instructions_sent, user_confirmed, \
-     user_registered
+     reset_password_instructions_sent, user_confirmed, user_registered
 from .utils import login_user, logout_user, url_for_security

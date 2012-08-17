@@ -13,9 +13,8 @@ from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
-from .exceptions import ResetPasswordError, UserNotFoundError
-from .signals import password_reset, password_reset_requested, \
-     reset_instructions_sent
+from .exceptions import ResetPasswordError
+from .signals import password_reset, reset_password_instructions_sent
 from .utils import send_mail, get_max_age, md5, get_message, encrypt_password, \
      url_for_security
 
@@ -26,12 +25,13 @@ _security = LocalProxy(lambda: app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def send_reset_password_instructions(user, reset_token):
+def send_reset_password_instructions(user):
     """Sends the reset password instructions email for the specified user.
 
     :param user: The user to send the instructions to
     """
-    url = url_for_security('reset_password', token=reset_token)
+    token = generate_reset_password_token(user)
+    url = url_for_security('reset_password', token=token)
 
     reset_link = request.url_root[:-1] + url
 
@@ -40,8 +40,8 @@ def send_reset_password_instructions(user, reset_token):
               'reset_instructions',
               dict(user=user, reset_link=reset_link))
 
-    reset_instructions_sent.send(dict(user=user, token=reset_token),
-                                 app=app._get_current_object())
+    reset_password_instructions_sent.send(dict(user=user, token=token),
+                                          app=app._get_current_object())
 
 
 def send_password_reset_notice(user):
@@ -99,19 +99,3 @@ def reset_by_token(token, password):
 
     except BadSignature:
         raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN')[0])
-
-
-def reset_password_reset_token(user):
-    """Resets the specified user's reset password token and sends the user
-    an email with instructions explaining next steps.
-
-    :param user: The user to work with
-    """
-    token = generate_reset_password_token(user)
-
-    send_reset_password_instructions(user, token)
-
-    password_reset_requested.send(dict(user=user, token=token),
-                                  app=app._get_current_object())
-
-    return token
