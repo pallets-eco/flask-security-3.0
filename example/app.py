@@ -41,6 +41,38 @@ def populate_data():
     create_users()
 
 
+def add_ctx_processors(app):
+    s = app.security
+
+    @s.context_processor
+    def for_all():
+        return dict()
+
+    @s.forgot_password_context_processor
+    def forgot_password():
+        return dict()
+
+    @s.login_context_processor
+    def login():
+        return dict()
+
+    @s.register_context_processor
+    def register():
+        return dict()
+
+    @s.reset_password_context_processor
+    def reset_password():
+        return dict()
+
+    @s.send_confirmation_context_processor
+    def send_confirmation():
+        return dict()
+
+    @s.send_login_context_processor
+    def send_login():
+        return dict()
+
+
 def create_app(auth_config):
     app = Flask(__name__)
     app.debug = True
@@ -192,6 +224,8 @@ def create_sqlalchemy_app(auth_config=None, register_blueprint=True):
         db.create_all()
         populate_data()
 
+    add_ctx_processors(app)
+
     return app
 
 
@@ -227,6 +261,8 @@ def create_mongoengine_app(auth_config=None):
         User.drop_collection()
         Role.drop_collection()
         populate_data()
+
+    add_ctx_processors(app)
 
     return app
 

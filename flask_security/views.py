@@ -104,7 +104,8 @@ def login():
 
     form = PasswordlessLoginForm() if _security.passwordless else LoginForm()
     template = 'send_login' if _security.passwordless else 'login'
-    return render_template('security/%s.html' % template, login_form=form)
+    return render_template('security/%s.html' % template, login_form=form,
+                           **_security._run_ctx_processor('login'))
 
 
 @login_required
@@ -148,7 +149,8 @@ def register():
                         get_url(_security.post_login_view))
 
     return render_template('security/register.html',
-                           register_user_form=form)
+                           register_user_form=form,
+                           **_security._run_ctx_processor('register'))
 
 
 @anonymous_user_required
@@ -164,7 +166,8 @@ def send_login():
     else:
         do_flash(*get_message('DISABLED_ACCOUNT'))
 
-    return render_template('security/send_login.html', login_form=form)
+    return render_template('security/send_login.html', login_form=form,
+                           **_security._run_ctx_processor('send_login'))
 
 
 @anonymous_user_required
@@ -203,7 +206,8 @@ def send_confirmation():
         do_flash(*get_message('CONFIRMATION_REQUEST', email=user.email))
 
     return render_template('security/send_confirmation.html',
-                           reset_confirmation_form=form)
+                           reset_confirmation_form=form,
+                           **_security._run_ctx_processor('send_confirmation'))
 
 
 def confirm_email(token):
@@ -256,7 +260,8 @@ def forgot_password():
             do_flash(value[0], 'error')
 
     return render_template('security/forgot_password.html',
-                           forgot_password_form=form)
+                           forgot_password_form=form,
+                           **_security._run_ctx_processor('forgot_password'))
 
 
 @anonymous_user_required
@@ -297,7 +302,8 @@ def reset_password(token):
 
     return render_template('security/reset_password.html',
                            reset_password_form=form,
-                           password_reset_token=token)
+                           reset_password_token=token,
+                           **_security._run_ctx_processor('reset_password'))
 
 
 def create_blueprint(app, name, import_name, **kwargs):

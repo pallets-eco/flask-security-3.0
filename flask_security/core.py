@@ -219,6 +219,49 @@ class _SecurityState(object):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
 
+    def _add_ctx_processor(self, endpoint, fn):
+        c = self.context_processors
+
+        if endpoint not in c:
+            c[endpoint] = []
+
+        if fn not in c[endpoint]:
+            c[endpoint].append(fn)
+
+    def _run_ctx_processor(self, endpoint):
+        fns = []
+        rv = {}
+
+        for g in ['all', endpoint]:
+            if g in self.context_processors:
+                fns += self.context_processors[g]
+
+        for fn in fns:
+            rv.update(fn())
+
+        return rv
+
+    def context_processor(self, fn):
+        self._add_ctx_processor('all', fn)
+
+    def forgot_password_context_processor(self, fn):
+        self._add_ctx_processor('forgot_password', fn)
+
+    def login_context_processor(self, fn):
+        self._add_ctx_processor('login', fn)
+
+    def register_context_processor(self, fn):
+        self._add_ctx_processor('register', fn)
+
+    def reset_password_context_processor(self, fn):
+        self._add_ctx_processor('reset_password', fn)
+
+    def send_confirmation_context_processor(self, fn):
+        self._add_ctx_processor('send_confirmation', fn)
+
+    def send_login_context_processor(self, fn):
+        self._add_ctx_processor('send_login', fn)
+
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
@@ -285,6 +328,8 @@ class Security(object):
                 ('remember_token_serializer', _get_remember_token_serializer(app)),
                 ('token_auth_serializer', _get_token_auth_serializer(app))]:
             kwargs[key] = value
+
+        kwargs['context_processors'] = {}
 
         kwargs['login_serializer'] = (
             _get_login_serializer(app) if kwargs['passwordless'] else None)

@@ -126,6 +126,10 @@ def get_url(endpoint_or_url):
         return endpoint_or_url
 
 
+def get_security_endpoint_name(endpoint):
+    return '%s.%s' % (_security.blueprint_name, endpoint)
+
+
 def url_for_security(endpoint, **values):
     """Return a URL for the security blueprint
 
@@ -137,7 +141,7 @@ def url_for_security(endpoint, **values):
     :param _anchor: if provided this is added as anchor to the URL.
     :param _method: if provided this explicitly specifies an HTTP method.
     """
-    endpoint = '%s.%s' % (_security.blueprint_name, endpoint)
+    endpoint = get_security_endpoint_name(endpoint)
     return url_for(endpoint, **values)
 
 
