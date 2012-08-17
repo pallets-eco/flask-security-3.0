@@ -42,7 +42,6 @@ _default_config = {
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',
     'CONFIRM_URL': '/confirm',
-    'LOGIN_VIEW': '/login',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
     'POST_FORGOT_VIEW': None,

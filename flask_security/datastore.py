@@ -155,7 +155,7 @@ class UserDatastore(object):
         """
         return self._save_model(self._do_add_role(user, role))
 
-    def remove_role_from_user(self, user, role, commit=True):
+    def remove_role_from_user(self, user, role):
         """Removes a role from a user if the user has the role. Returns the
         modified user.
 
@@ -171,7 +171,7 @@ class UserDatastore(object):
         """
         return self._save_model(self._do_deactive_user(user))
 
-    def activate_user(self, user, commit=True):
+    def activate_user(self, user):
         """Activates a user and returns the modified user.
 
         :param user: A User instance or a user identifier
