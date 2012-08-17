@@ -12,7 +12,7 @@
 from functools import wraps
 
 from flask import current_app, Response, request, redirect
-from flask.ext.login import current_user
+from flask.ext.login import current_user, login_required
 from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 
