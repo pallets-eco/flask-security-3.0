@@ -66,10 +66,8 @@ def login_user(user, remember=True):
         user.login_count = user.login_count + 1 if user.login_count else 1
 
     _datastore._save_model(user)
-
     identity_changed.send(current_app._get_current_object(),
                           identity=Identity(user.id))
-
     _logger.debug('User %s logged in' % user)
     return True
 
@@ -77,10 +75,8 @@ def login_user(user, remember=True):
 def logout_user():
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
-
     identity_changed.send(current_app._get_current_object(),
                           identity=AnonymousIdentity())
-
     _logout_user()
 
 
@@ -157,10 +153,9 @@ def find_redirect(key):
 
     :param key: The session or application configuration key to search for
     """
-    result = (get_url(session.pop(key.lower(), None)) or
-              get_url(current_app.config[key.upper()] or None) or '/')
-
-    return result
+    rv = (get_url(session.pop(key.lower(), None)) or
+          get_url(current_app.config[key.upper()] or None) or '/')
+    return rv
 
 
 def get_config(app):
@@ -238,10 +233,9 @@ def send_mail(subject, recipient, template, context=None):
                   sender=_security.email_sender,
                   recipients=[recipient])
 
-    base = 'security/email'
-    msg.body = render_template('%s/%s.txt' % (base, template), **context)
-    msg.html = render_template('%s/%s.html' % (base, template), **context)
-
+    ctx = ('security/email', template)
+    msg.body = render_template('%s/%s.txt' % ctx, **context)
+    msg.html = render_template('%s/%s.html' % ctx, **context)
     mail.send(msg)
 
 
