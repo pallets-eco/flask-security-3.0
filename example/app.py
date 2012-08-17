@@ -24,6 +24,7 @@ from flask.ext.security.exceptions import RoleNotFoundError
 def create_roles():
     for role in ('admin', 'editor', 'author'):
         current_app.security.datastore.create_role(name=role)
+    current_app.security.datastore._commit()
 
 
 def create_users():
@@ -34,6 +35,7 @@ def create_users():
                ('tiya@lp.com', 'password', [], False)):
         current_app.security.datastore.create_user(
             email=u[0], password=u[1], roles=u[2], active=u[3])
+    current_app.security.datastore._commit()
 
 
 def populate_data():

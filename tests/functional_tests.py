@@ -182,6 +182,7 @@ class DefaultSecurityTests(SecurityTest):
         with self.app.test_request_context('/'):
             user = self.app.security.datastore.find_user(email='matt@lp.com')
             self.app.security.datastore.delete_user(user)
+            self.app.security.datastore._commit()
 
         r = self._get('/')
         self.assertNotIn('Hello matt@lp.com', r.data)

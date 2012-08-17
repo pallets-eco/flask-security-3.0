@@ -10,7 +10,7 @@
 """
 
 from flask import current_app as app, redirect, request, \
-     render_template, jsonify, Blueprint
+     render_template, jsonify, after_this_request, Blueprint
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
@@ -64,11 +64,18 @@ def _json_auth_error(msg):
     return resp
 
 
+def _commit_data(response=None):
+    _datastore._commit()
+    return response
+
+
 def authenticate():
     """View function which handles an authentication request."""
     confirm_url = None
     form_data = MultiDict(request.json) if request.json else request.form
     form = LoginForm(form_data)
+
+    after_this_request(_commit_data)
 
     try:
         user = _security.auth_provider.authenticate(form)
@@ -129,6 +136,9 @@ def register():
     if form.validate_on_submit():
         # Create user
         u = _datastore.create_user(**form.to_dict())
+
+        # Save the user so the ID is created
+        _commit_data()
 
         # Send confirmation instructions if necessary
         t = reset_confirmation_token(u) if _security.confirmable else None
@@ -212,6 +222,7 @@ def send_confirmation():
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
+    after_this_request(_commit_data)
 
     try:
         user = confirm_by_token(token)

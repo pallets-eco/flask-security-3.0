@@ -33,6 +33,9 @@ class UserDatastore(object):
         self.user_model = user_model
         self.role_model = role_model
 
+    def _commit(self, *args, **kwargs):
+        pass
+
     def _save_model(self, model, **kwargs):
         raise NotImplementedError(
             "User datastore does not implement _save_model method")
@@ -218,15 +221,15 @@ class SQLAlchemyUserDatastore(UserDatastore):
 
         Security(app, SQLAlchemyUserDatastore(db, User, Role))
     """
+    def _commit(self, *args, **kwargs):
+        self.db.session.commit()
 
     def _save_model(self, model):
         self.db.session.add(model)
-        self.db.session.commit()
         return model
 
     def _delete_model(self, model):
         self.db.session.delete(model)
-        self.db.session.commit()
 
     def _do_find_user(self, **kwargs):
         return self.user_model.query.filter_by(**kwargs).first()
