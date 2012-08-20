@@ -95,9 +95,7 @@ class UserDatastore(object):
         pw = kwargs['password']
 
         if not pwd_context.identify(pw):
-            pwd_hash = utils.encrypt_password(pw,
-                                              salt=_security.password_salt,
-                                              use_hmac=_security.password_hmac)
+            pwd_hash = utils.encrypt_password(pw)
             kwargs['password'] = pwd_hash
 
         return kwargs

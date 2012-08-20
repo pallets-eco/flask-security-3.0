@@ -79,9 +79,7 @@ def reset_by_token(token, password):
         data = serializer.loads(token, max_age=max_age)
         user = _datastore.find_user(id=data[0])
 
-        user.password = encrypt_password(password,
-                                         salt=_security.password_salt,
-                                         use_hmac=_security.password_hmac)
+        user.password = encrypt_password(password)
 
         _datastore._save_model(user)
         send_password_reset_notice(user)

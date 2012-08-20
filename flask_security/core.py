@@ -378,9 +378,7 @@ class AuthenticationProvider(object):
             raise exceptions.ConfirmationError('Email requires confirmation.', user)
 
         # compare passwords
-        if verify_password(password, user.password,
-                           salt=_security.password_salt,
-                           use_hmac=_security.password_hmac):
+        if verify_password(password, user.password):
             return user
 
         # bad match

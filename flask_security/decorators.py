@@ -69,9 +69,7 @@ def _check_http_auth():
 
     try:
         user = _security.datastore.find_user(email=auth.username)
-        if utils.verify_password(auth.password, user.password,
-                                 salt=_security.password_salt,
-                                 use_hmac=_security.password_hmac):
+        if utils.verify_password(auth.password, user.password):
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(user.id))
             return True
