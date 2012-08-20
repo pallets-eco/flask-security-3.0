@@ -37,11 +37,10 @@ Password Encryption
 -------------------
 
 Password encryption is enabled with `passlib`_. Passwords are stored in plain
-text by default but you can easily configure the encryption algorithm and salt
-value in your application configuration. You should **always use an encryption
-algorithm** in your production environment. Bcrypt is a popular algorithm as
-of writing this documentation. Bear in mind passlib does not assume which
-algorithm you will choose and may require additional libraries to be installed.
+text by default but you can easily configure the encryption algorithm. You
+should **always use an encryption algorithm** in your production environment.
+You may also specify to use HMAC with a configured salt value in addition to the
+algorithm chosen. Bear in mind passlib does not assume which algorithm you will choose and may require additional libraries to be installed.
 
 
 .. basic-http-auth:
