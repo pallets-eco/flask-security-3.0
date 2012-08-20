@@ -92,14 +92,14 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'flask_small'
+html_theme = 'flask'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'github_fork': 'mattupstate/flask-security',
-    'index_logo': False
+    #'github_fork': 'mattupstate/flask-security',
+    #'index_logo': False
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

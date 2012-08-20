@@ -3,8 +3,7 @@ Flask-Security
 
 .. image:: https://secure.travis-ci.org/mattupstate/flask-security.png?branch=develop
 
-Flask-Security is a Flask extension that aims to add quick and simple security
-to your Flask applications.
+Flask-Security quickly adds security features to your Flask application.
 
 Resources
 ---------
