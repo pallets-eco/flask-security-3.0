@@ -85,19 +85,27 @@ def get_hmac(msg, salt=None, digestmod=None):
     return base64.b64encode(hmac.new(salt, msg, digestmod).digest())
 
 
-def verify_password(password, password_hash, salt=None, use_hmac=None):
-    salt = salt or _security.password_salt
+def verify_password(password, password_hash, use_hmac=None):
     if use_hmac is None:
         use_hmac = _security.password_hmac
-    hmac_value = get_hmac(password, salt) if use_hmac else password
+
+    if use_hmac:
+        hmac_value = get_hmac(password, _security.password_hmac_salt)
+    else:
+        hmac_value = password
+
     return _pwd_context.verify(hmac_value, password_hash)
 
 
 def encrypt_password(password, salt=None, use_hmac=None):
-    salt = salt or _security.password_salt
     if use_hmac is None:
         use_hmac = _security.password_hmac
-    hmac_value = get_hmac(password, salt) if use_hmac else password
+
+    if use_hmac:
+        hmac_value = get_hmac(password, _security.password_hmac_salt)
+    else:
+        hmac_value = password
+
     return _pwd_context.encrypt(hmac_value)
 
 
