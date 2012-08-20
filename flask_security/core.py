@@ -34,7 +34,6 @@ _default_config = {
     'URL_PREFIX': None,
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
-    'PASSWORD_SALT': None,
     'PASSWORD_HMAC': False,
     'AUTH_URL': '/auth',
     'LOGIN_URL': '/login',
@@ -63,9 +62,9 @@ _default_config = {
     'EMAIL_SENDER': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'X-Auth-Token',
+    'PASSWORD_SALT': None,
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
-    'AUTH_SALT': 'auth-salt',
     'LOGIN_SALT': 'login-salt',
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
@@ -161,10 +160,6 @@ def _get_reset_serializer(app):
 
 def _get_confirm_serializer(app):
     return _get_serializer(app, app.config['SECURITY_CONFIRM_SALT'])
-
-
-def _get_token_auth_serializer(app):
-    return _get_serializer(app, app.config['SECURITY_AUTH_SALT'])
 
 
 def _get_login_serializer(app):
@@ -323,7 +318,6 @@ class Security(object):
                 ('principal', _get_principal(app)),
                 ('pwd_context', _get_pwd_context(app)),
                 ('remember_token_serializer', _get_remember_token_serializer(app)),
-                ('token_auth_serializer', _get_token_auth_serializer(app)),
                 ('context_processors', {})]:
             kwargs[key] = value
 
