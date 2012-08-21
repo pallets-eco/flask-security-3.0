@@ -5,8 +5,6 @@ Flask-Security allows you to quickly add common security mechanisms to your
 Flask application. They include:
 
 
-.. session-based-auth:
-
 Session Based Authentication
 ----------------------------
 
@@ -16,8 +14,6 @@ based on a few of its own configuration values and uses Flask-Login's
 `alternative token`_ feature for remembering users when their session has
 expired.
 
-
-.. role-management:
 
 Role/Identity Based Access
 --------------------------
@@ -31,8 +27,6 @@ and all roles should be uniquely named. This feature is implemented using the
 control you can refer to the Flask-Princpal `documentation on this topic`_.
 
 
-.. password-encryption:
-
 Password Encryption
 -------------------
 
@@ -43,8 +37,6 @@ You may also specify to use HMAC with a configured salt value in addition to the
 algorithm chosen. Bear in mind passlib does not assume which algorithm you will choose and may require additional libraries to be installed.
 
 
-.. basic-http-auth:
-
 Basic HTTP Authentication
 -------------------------
 
@@ -52,8 +44,6 @@ Basic HTTP authentication is achievable using a simple view method decorator.
 This feature expects the incoming authentication information to identify a user
 in the system. This means that the username must be equal to their email address.
 
-
-.. token-authentication:
 
 Token Authentication
 --------------------
@@ -71,8 +61,6 @@ will become invalid. A new token will need to be retrieved using the user's new
 password.
 
 
-.. email-confirmation:
-
 Email Confirmation
 ------------------
 
@@ -84,7 +72,6 @@ if the user happens to try to use an expired token or has lost the previous
 email. Confirmation links can be configured to expire after a specified amount
 of time.
 
-.. password-recovery:
 
 Password Reset/Recovery
 -----------------------
@@ -96,8 +83,6 @@ logged in and can use the new password from then on. Password reset links  can
 be configured to expire after a specified amount of time.
 
 
-.. user-registration:
-
 User Registration
 -----------------
 
@@ -105,8 +90,6 @@ Flask-Security comes packaged with a basic user registration view. This view is
 very simple and new users need only supply an email address and their password.
 This view can be overrided if your registration process requires more fields.
 
-
-.. login-tracking:
 
 Login Tracking
 --------------
