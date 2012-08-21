@@ -15,10 +15,10 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from flask_security.confirmable import confirm_by_token, \
-     send_confirmation_instructions
+     send_confirmation_instructions, requires_confirmation
 from flask_security.decorators import login_required
-from flask_security.exceptions import ConfirmationError, BadCredentialsError, \
-     ResetPasswordError, PasswordlessLoginError
+from flask_security.exceptions import ConfirmationError, ResetPasswordError, \
+     PasswordlessLoginError
 from flask_security.forms import LoginForm, RegisterForm, ForgotPasswordForm, \
      ResetPasswordForm, SendConfirmationForm, PasswordlessLoginForm
 from flask_security.passwordless import send_login_instructions, login_by_token
@@ -27,7 +27,7 @@ from flask_security.recoverable import reset_by_token, \
 from flask_security.signals import user_registered
 from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
      get_message, config_value, login_user, logout_user, \
-     anonymous_user_required, url_for_security as url_for
+     anonymous_user_required, url_for_security as url_for, verify_password
 
 
 # Convenient references
@@ -77,37 +77,40 @@ def _ctx(endpoint):
 @anonymous_user_required
 def login():
     """View function for login view"""
-    form = LoginForm(request.form, csrf_enabled=not app.testing)
+
     user, msg, confirm_url = None, None, None
+    form = LoginForm(request.form, csrf_enabled=not app.testing)
 
     if request.json:
         form = LoginForm(MultiDict(request.json), csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
-        try:
-            user = _security.auth_provider.authenticate(form)
-        except ConfirmationError, e:
-            msg = str(e)
-            confirm_url = url_for('send_confirmation', email=e.user.email)
-        except BadCredentialsError, e:
-            msg = str(e)
-            form.password.errors.append(msg)
+        user = form.user
 
-        if user:
+        if requires_confirmation(user):
+            msg = get_message('CONFIRMATION_REQUIRED')
+            confirm_url = url_for('send_confirmation', email=user.email)
+            form.email.errors.append(msg[0])
+
+        elif verify_password(form.password.data, user.password):
             if login_user(user, remember=form.remember.data):
                 after_this_request(_commit)
                 if request.json:
                     return _json_auth_ok(user)
                 return redirect(get_post_login_redirect())
-            form.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            msg = get_message('DISABLED_ACCOUNT')
+            form.email.errors.append(msg[0])
+        else:
+            msg = get_message('PASSWORD_MISMATCH')
+            form.password.errors.append(msg[0])
 
-        _logger.debug('Unsuccessful authentication attempt: %s' % msg)
+        _logger.debug('Unsuccessful authentication attempt: %s' % msg[0])
 
         if request.json:
-            return _json_auth_error(msg)
+            return _json_auth_error(msg[0])
 
         if confirm_url:
-            do_flash(msg, 'error')
+            do_flash(*msg)
             return redirect(confirm_url)
 
     return render_template('security/login.html',

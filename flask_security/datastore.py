@@ -9,13 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app
-from werkzeug.local import LocalProxy
-
 from . import exceptions
-
-# Convenient references
-_security = LocalProxy(lambda: current_app.extensions['security'])
 
 
 class UserDatastore(object):
@@ -177,42 +171,8 @@ class UserDatastore(object):
 class SQLAlchemyUserDatastore(UserDatastore):
     """A SQLAlchemy datastore implementation for Flask-Security that assumes the
     use of the Flask-SQLAlchemy extension.
-
-    Example usage::
-
-        from flask import Flask
-        from flask.ext.security import Security, SQLAlchemyUserDatastore
-        from flask.ext.sqlalchemy import SQLAlchemy
-
-        app = Flask(__name__)
-        app.config['SECRET_KEY'] = 'secret'
-        app.config['SQLALCHEMY_DATABASE_URI'] = \
-            'sqlite:////tmp/flask_security_example.sqlite'
-
-        db = SQLAlchemy(app)
-
-        roles_users = db.Table('roles_users',
-            db.Column('user_id', db.Integer(), db.ForeignKey('role.id')),
-            db.Column('role_id', db.Integer(), db.ForeignKey('user.id')))
-
-        class Role(db.Model, RoleMixin):
-            id = db.Column(db.Integer(), primary_key=True)
-            name = db.Column(db.String(80), unique=True)
-
-        class User(db.Model, UserMixin):
-            id = db.Column(db.Integer, primary_key=True)
-            email = db.Column(db.String(255), unique=True)
-            password = db.Column(db.String(120))
-            first_name = db.Column(db.String(120))
-            last_name = db.Column(db.String(120))
-            active = db.Column(db.Boolean())
-            created_at = db.Column(db.DateTime())
-            modified_at = db.Column(db.DateTime())
-            roles = db.relationship('Role', secondary=roles_users,
-                backref=db.backref('users', lazy='dynamic'))
-
-        Security(app, SQLAlchemyUserDatastore(db, User, Role))
     """
+
     def _commit(self, *args, **kwargs):
         self.db.session.commit()
 
@@ -233,31 +193,6 @@ class SQLAlchemyUserDatastore(UserDatastore):
 class MongoEngineUserDatastore(UserDatastore):
     """A MongoEngine datastore implementation for Flask-Security that assumes
     the use of the Flask-MongoEngine extension.
-
-    Example usage::
-
-        from flask import Flask
-        from flask.ext.mongoengine import MongoEngine
-        from flask.ext.security import Security, MongoEngineUserDatastore
-
-        app = Flask(__name__)
-        app.config['SECRET_KEY'] = 'secret'
-        app.config['MONGODB_DB'] = 'flask_security_example'
-        app.config['MONGODB_HOST'] = 'localhost'
-        app.config['MONGODB_PORT'] = 27017
-
-        db = MongoEngine(app)
-
-        class Role(db.Document, RoleMixin):
-            name = db.StringField(required=True, unique=True, max_length=80)
-
-        class User(db.Document, UserMixin):
-            email = db.StringField(unique=True, max_length=255)
-            password = db.StringField(required=True, max_length=120)
-            active = db.BooleanField(default=True)
-            roles = db.ListField(db.ReferenceField(Role), default=[])
-
-        Security(app, MongoEngineUserDatastore(db, User, Role))
     """
 
     def _save_model(self, model):

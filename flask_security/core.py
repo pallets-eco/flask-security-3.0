@@ -76,6 +76,7 @@ _default_messages = {
     'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
     'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
     'ALREADY_CONFIRMED': ('This email has already been confirmed', 'info'),
+    'PASSWORD_MISMATCH': ('Password does not match', 'error'),
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token.', 'error'),
@@ -313,7 +314,6 @@ class Security(object):
         for key, value in [
                 ('app', app),
                 ('datastore', datastore),
-                ('auth_provider', AuthenticationProvider()),
                 ('login_manager', _get_login_manager(app)),
                 ('principal', _get_principal(app)),
                 ('pwd_context', _get_pwd_context(app)),
@@ -331,55 +331,3 @@ class Security(object):
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)
-
-
-class AuthenticationProvider(object):
-    """The default authentication provider implementation."""
-    def _get_user(self, username_or_email):
-        datastore = _security.datastore
-
-        try:
-            return datastore.find_user(email=username_or_email)
-        except exceptions.UserNotFoundError:
-            try:
-                return datastore.find_user(username=username_or_email)
-            except:
-                raise exceptions.UserNotFoundError()
-
-    def authenticate(self, form):
-        """Processes an authentication request and returns a user instance if
-        authentication is successful.
-
-        :param form: A populated WTForm instance that contains `email` and
-                     `password` form fields
-        """
-        if not form.validate():
-            if form.email.errors:
-                raise exceptions.BadCredentialsError(form.email.errors[0])
-            if form.password.errors:
-                raise exceptions.BadCredentialsError(form.password.errors[0])
-
-        return self.do_authenticate(form.email.data, form.password.data)
-
-    def do_authenticate(self, username_or_email, password):
-        """Returns the authenticated user if authentication is successfull. If
-        authentication fails an appropriate `AuthenticationError` is raised
-
-        :param username_or_email: The username or email address of the user
-        :param password: The password supplied by the authentication request
-        """
-
-        try:
-            user = self._get_user(username_or_email)
-        except exceptions.UserNotFoundError:
-            raise exceptions.BadCredentialsError('Specified user does not exist.')
-
-        if requires_confirmation(user):
-            raise exceptions.ConfirmationError('Email requires confirmation.', user)
-
-        # compare passwords
-        if verify_password(password, user.password):
-            return user
-
-        # bad match
-        raise exceptions.BadCredentialsError("Password does not match")

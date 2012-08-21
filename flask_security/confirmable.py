@@ -55,7 +55,7 @@ def generate_confirmation_token(user):
 
 def requires_confirmation(user):
     """Returns `True` if the user requires confirmation."""
-    return user.confirmed_at == None if _security.confirmable else False
+    return user.confirmed_at == None and _security.confirmable
 
 
 def confirm_by_token(token):

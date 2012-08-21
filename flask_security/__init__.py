@@ -12,8 +12,7 @@
 
 __version__ = '1.3.0-dev'
 
-from .core import Security, RoleMixin, UserMixin, AnonymousUser, \
-     AuthenticationProvider, current_user
+from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore
 from .decorators import auth_token_required, http_auth_required, \
      login_required, roles_accepted, roles_required

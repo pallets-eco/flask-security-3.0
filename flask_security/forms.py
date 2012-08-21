@@ -35,9 +35,9 @@ def unique_user_email(form, field):
 
 def valid_user_email(form, field):
     try:
-        _datastore.find_user(email=field.data)
+        form.user = _datastore.find_user(email=field.data)
     except UserNotFoundError:
-        raise ValidationError('Invalid email address')
+        raise ValidationError('Specified user does not exist')
 
 
 class EmailFormMixin():
@@ -47,6 +47,7 @@ class EmailFormMixin():
 
 
 class UserEmailFormMixin():
+    user = None
     email = TextField("Email Address",
         validators=[email_required,
                     email_validator,
@@ -108,7 +109,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return dict(email=self.email.data)
 
 
-class LoginForm(Form, EmailFormMixin, PasswordFormMixin):
+class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin):
     """The default login form"""
 
     remember = BooleanField("Remember Me")
