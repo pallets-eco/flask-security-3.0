@@ -20,8 +20,8 @@ from .exceptions import UserNotFoundError
 # Convenient reference
 _datastore = LocalProxy(lambda: app.extensions['security'].datastore)
 
-
 email_required = Required(message='Email not provided')
+
 email_validator = Email(message='Invalid email address')
 
 

@@ -43,7 +43,6 @@ _default_config = {
     'CONFIRM_URL': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
-    'POST_FORGOT_VIEW': None,
     'CONFIRM_ERROR_VIEW': None,
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,

@@ -91,6 +91,7 @@ def login():
             confirm_url = url_for('send_confirmation', email=e.user.email)
         except BadCredentialsError, e:
             msg = str(e)
+            form.password.errors.append(msg)
 
         if user:
             if login_user(user, remember=form.remember.data):
@@ -98,16 +99,15 @@ def login():
                 if request.json:
                     return _json_auth_ok(user)
                 return redirect(get_post_login_redirect())
-            msg = get_message('DISABLED_ACCOUNT')[0]
+            form.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
 
         _logger.debug('Unsuccessful authentication attempt: %s' % msg)
 
         if request.json:
             return _json_auth_error(msg)
 
-        do_flash(msg, 'error')
-
         if confirm_url:
+            do_flash(msg, 'error')
             return redirect(confirm_url)
 
     return render_template('security/login.html',
@@ -171,11 +171,9 @@ def send_login():
 
         if user.is_active():
             send_login_instructions(user, form.next.data)
-            msg = get_message('LOGIN_EMAIL_SENT', email=user.email)
+            do_flash(*get_message('LOGIN_EMAIL_SENT', email=user.email))
         else:
-            msg = get_message('DISABLED_ACCOUNT')
-
-        do_flash(*msg)
+            form.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
 
     return render_template('security/send_login.html',
                            login_form=form,
@@ -249,12 +247,6 @@ def forgot_password():
         _logger.debug('%s requested to reset their password' % user)
         do_flash(*get_message('PASSWORD_RESET_REQUEST', email=user.email))
 
-        if _security.post_forgot_view:
-            return redirect(get_url(_security.post_forgot_view))
-    else:
-        for key, value in form.errors.items():
-            do_flash(value[0], 'error')
-
     return render_template('security/forgot_password.html',
                            forgot_password_form=form,
                            **_ctx('forgot_password'))
@@ -264,7 +256,7 @@ def forgot_password():
 def reset_password(token):
     """View function that handles a reset password request."""
 
-    next, msg = None, None
+    next = None
     form = ResetPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
@@ -282,7 +274,7 @@ def reset_password(token):
                                   email=e.user.email)
             _logger.debug('Password reset error: ' + msg[0])
 
-    do_flash(*msg)
+        do_flash(*msg)
 
     if next:
         login_user(user)
