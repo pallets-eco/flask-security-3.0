@@ -204,9 +204,13 @@ def send_confirmation():
 
     if form.validate_on_submit():
         user = _datastore.find_user(**form.to_dict())
-        send_confirmation_instructions(user)
-        _logger.debug('%s request confirmation instructions' % user)
-        do_flash(*get_message('CONFIRMATION_REQUEST', email=user.email))
+        if user.confirmed_at is None:
+            send_confirmation_instructions(user)
+            msg = get_message('CONFIRMATION_REQUEST', email=user.email)
+            _logger.debug('%s request confirmation instructions' % user)
+        else:
+            msg = get_message('ALREADY_CONFIRMED')
+        do_flash(*msg)
 
     return render_template('security/send_confirmation.html',
                            reset_confirmation_form=form,

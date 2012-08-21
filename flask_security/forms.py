@@ -129,7 +129,8 @@ class RegisterForm(Form,
     submit = SubmitField("Register")
 
     def to_dict(self):
-        return dict(email=self.email.data, password=self.password.data)
+        return dict(email=self.email.data,
+                    password=self.password.data)
 
 
 class ResetPasswordForm(Form,

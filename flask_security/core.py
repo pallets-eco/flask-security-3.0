@@ -75,6 +75,7 @@ _default_messages = {
     'EMAIL_CONFIRMED': ('Thank you. Your email has been confirmed.', 'success'),
     'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
     'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
+    'ALREADY_CONFIRMED': ('This email has already been confirmed', 'info'),
     'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
     'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token.', 'error'),
@@ -273,6 +274,7 @@ class Security(object):
         :param app: The application.
         :param datastore: An instance of a user datastore.
         """
+        datastore = datastore or self.datastore
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
@@ -290,7 +292,7 @@ class Security(object):
                                         template_folder='templates')
             app.register_blueprint(bp)
 
-        state = self._get_state(app, datastore or self.datastore)
+        state = self._get_state(app, datastore)
 
         app.extensions['security'] = state
 

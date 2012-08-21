@@ -287,6 +287,18 @@ class ConfirmableTests(SecurityTest):
         r = self.authenticate(email=e)
         self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
 
+    def test_send_confirmation_of_already_confirmed_account(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            token = registrations[0]['confirm_token']
+
+        self.client.get('/confirm/' + token, follow_redirects=True)
+        self.logout()
+        r = self.client.post('/confirm', data=dict(email=e))
+        self.assertIn(self.get_message('ALREADY_CONFIRMED'), r.data)
+
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
         with self.app.mail.record_messages() as outbox:
