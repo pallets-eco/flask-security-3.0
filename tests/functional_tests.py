@@ -301,7 +301,7 @@ class ConfirmableTests(SecurityTest):
 
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
-        with self.app.mail.record_messages() as outbox:
+        with self.app.extensions['mail'].record_messages() as outbox:
             self.register(e)
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)
@@ -359,7 +359,7 @@ class ExpiredConfirmationTest(SecurityTest):
 
         time.sleep(3)
 
-        with self.app.mail.record_messages() as outbox:
+        with self.app.extensions['mail'].record_messages() as outbox:
             r = self.client.get('/confirm/' + token, follow_redirects=True)
 
             self.assertEqual(len(outbox), 1)
@@ -396,7 +396,7 @@ class RecoverableTests(SecurityTest):
 
     def test_forgot_post_sends_email(self):
         with capture_reset_password_requests():
-            with self.app.mail.record_messages() as outbox:
+            with self.app.extensions['mail'].record_messages() as outbox:
                 self.client.post('/reset', data=dict(email='joe@lp.com'))
                 self.assertEqual(len(outbox), 1)
 
@@ -506,7 +506,7 @@ class PasswordlessTests(SecurityTest):
         r, user, token = None, None, None
 
         with capture_passwordless_login_requests() as requests:
-            with self.app.mail.record_messages() as outbox:
+            with self.app.extensions['mail'].record_messages() as outbox:
                 r = self.client.post('/login', data=dict(email=e), follow_redirects=True)
 
                 self.assertEqual(len(outbox), 1)
@@ -560,7 +560,7 @@ class ExpiredLoginTokenTests(SecurityTest):
 
         time.sleep(3)
 
-        with self.app.mail.record_messages() as outbox:
+        with self.app.extensions['mail'].record_messages() as outbox:
             r = self.client.get('/login/' + token, follow_redirects=True)
 
             self.assertEqual(len(outbox), 1)

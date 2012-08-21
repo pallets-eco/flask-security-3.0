@@ -81,7 +81,8 @@ def create_app(auth_config):
     app.debug = True
     app.config['SECRET_KEY'] = 'secret'
 
-    app.mail = Mail(app)
+    mail = Mail(app)
+    app.extensions['mail'] = mail
 
     if auth_config:
         for key, value in auth_config.items():
