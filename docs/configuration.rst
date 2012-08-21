@@ -32,7 +32,6 @@ Flask-Security configuration options.
   user successfully confirms their account.
 * :attr:`SECURITY_UNAUTHORIZED_VIEW`: Specifies the URL to redirect to when a
   user attempts to access a view they don't have permission to view.
-* :attr:`SECURITY_DEFAULT_ROLES`: The default roles any new users should have.
 * :attr:`SECURITY_CONFIRMABLE`: Enables confirmation features. Defaults to
   `False`.
 * :attr:`SECURITY_REGISTERABLE`: Enables user registration features. Defaults to
