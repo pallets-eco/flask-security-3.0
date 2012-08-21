@@ -404,7 +404,7 @@ class RecoverableTests(SecurityTest):
         r = self.client.post('/reset',
                              data=dict(email='larry@lp.com'),
                              follow_redirects=True)
-        self.assertIn('Invalid email address', r.data)
+        self.assertIn("Specified user does not exist", r.data)
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:

@@ -88,8 +88,11 @@ def reset_by_token(token, password):
 
     except SignatureExpired:
         sig_okay, data = serializer.loads_unsafe(token)
-        raise ResetPasswordError('Password reset token expired',
-                                 user=_datastore.find_user(id=data[0]))
+        user = _datastore.find_user(id=data[0])
+        msg = get_message('PASSWORD_RESET_EXPIRED',
+                          within=_security.reset_password_within,
+                          email=user.email)
+        raise ResetPasswordError(msg[0], user=user)
 
     except BadSignature:
         raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN')[0])

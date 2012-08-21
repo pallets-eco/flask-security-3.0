@@ -79,10 +79,12 @@ def login():
     """View function for login view"""
 
     user, msg, confirm_url = None, None, None
-    form = LoginForm(request.form, csrf_enabled=not app.testing)
+    form_data = request.form
 
     if request.json:
-        form = LoginForm(MultiDict(request.json), csrf_enabled=not app.testing)
+        form_data = MultiDict(request.json)
+
+    form = LoginForm(form_data, csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
         user = form.user
@@ -276,9 +278,6 @@ def reset_password(token):
             msg = (str(e), 'error')
             if e.user:
                 send_reset_password_instructions(e.user)
-                msg = get_message('PASSWORD_RESET_EXPIRED',
-                                  within=_security.reset_password_within,
-                                  email=e.user.email)
             _logger.debug('Password reset error: ' + msg[0])
 
         do_flash(*msg)
