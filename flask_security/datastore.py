@@ -12,7 +12,7 @@
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-from . import exceptions, utils
+from . import exceptions
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
