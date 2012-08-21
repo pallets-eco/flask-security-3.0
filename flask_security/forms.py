@@ -15,7 +15,7 @@ from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
 from werkzeug.local import LocalProxy
 
 from .exceptions import UserNotFoundError
-
+from .utils import encrypt_password
 
 # Convenient reference
 _datastore = LocalProxy(lambda: app.extensions['security'].datastore)
@@ -131,7 +131,7 @@ class RegisterForm(Form,
 
     def to_dict(self):
         return dict(email=self.email.data,
-                    password=self.password.data)
+                    password=encrypt_password(self.password.data))
 
 
 class ResetPasswordForm(Form,
