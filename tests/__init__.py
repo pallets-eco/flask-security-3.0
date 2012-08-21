@@ -35,7 +35,7 @@ class SecurityTest(TestCase):
 
     def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):
         data = dict(email=email, password=password, remember='y')
-        r = self._post(endpoint or '/auth', data=data, **kwargs)
+        r = self._post(endpoint or '/login', data=data, **kwargs)
         return r
 
     def json_authenticate(self, email="matt@lp.com", password="password", endpoint=None):
@@ -45,7 +45,7 @@ class SecurityTest(TestCase):
     "password": "%s"
 }
 """
-        return self._post(endpoint or '/auth',
+        return self._post(endpoint or '/login',
                           content_type="application/json",
                           data=data % (email, password))
 

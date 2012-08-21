@@ -89,7 +89,7 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
         return dict(email=self.email.data)
 
 
-class PasswordlessLoginForm(Form, EmailFormMixin):
+class PasswordlessLoginForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
 
     next = HiddenField()

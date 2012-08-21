@@ -110,9 +110,10 @@ class DefaultSecurityTests(SecurityTest):
             self.authenticate(user)
             r = self._get("/admin_and_editor", follow_redirects=True)
             self.assertIsHomePage(r.data)
+            self._get('/logout')
 
         self.authenticate('dave@lp.com')
-        r = self._get("/admin_and_editor")
+        r = self._get("/admin_and_editor", follow_redirects=True)
         self.assertIn('Admin and Editor Page', r.data)
 
     def test_ok_json_auth(self):
@@ -206,7 +207,6 @@ class ConfiguredSecurityTests(SecurityTest):
         'SECURITY_PASSWORD_HMAC_SALT': 'so-salty',
         'SECURITY_PASSWORD_HMAC': True,
         'SECURITY_REGISTERABLE': True,
-        'SECURITY_AUTH_URL': '/custom_auth',
         'SECURITY_LOGOUT_URL': '/custom_logout',
         'SECURITY_LOGIN_URL': '/custom_login',
         'SECURITY_POST_LOGIN_VIEW': '/post_login',
@@ -221,11 +221,11 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn("<h1>Login</h1>", r.data)
 
     def test_authenticate(self):
-        r = self.authenticate(endpoint="/custom_auth")
+        r = self.authenticate(endpoint="/custom_login")
         self.assertIn('Post Login', r.data)
 
     def test_logout(self):
-        self.authenticate(endpoint="/custom_auth")
+        self.authenticate(endpoint="/custom_login")
         r = self.logout(endpoint="/custom_logout")
         self.assertIn('Post Logout', r.data)
 
@@ -484,9 +484,9 @@ class PasswordlessTests(SecurityTest):
         'SECURITY_PASSWORDLESS': True,
     }
 
-    def test_login_requset_for_inactive_user(self):
+    def test_login_request_for_inactive_user(self):
         msg = self.app.config['SECURITY_MSG_DISABLED_ACCOUNT'][0]
-        r = self.client.post('/auth', data=dict(email='tiya@lp.com'), follow_redirects=True)
+        r = self.client.post('/login', data=dict(email='tiya@lp.com'), follow_redirects=True)
         self.assertIn(msg, r.data)
 
     def test_request_login_token_sends_email_and_can_login(self):
@@ -495,7 +495,7 @@ class PasswordlessTests(SecurityTest):
 
         with capture_passwordless_login_requests() as requests:
             with self.app.mail.record_messages() as outbox:
-                r = self.client.post('/auth', data=dict(email=e), follow_redirects=True)
+                r = self.client.post('/login', data=dict(email=e), follow_redirects=True)
 
                 self.assertEqual(len(outbox), 1)
 
@@ -509,7 +509,7 @@ class PasswordlessTests(SecurityTest):
         msg = self.app.config['SECURITY_MSG_LOGIN_EMAIL_SENT'][0] % dict(email=user.email)
         self.assertIn(msg, r.data)
 
-        r = self.client.get('/auth/' + token, follow_redirects=True)
+        r = self.client.get('/login/' + token, follow_redirects=True)
         self.assertIn(self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'), r.data)
 
         r = self.client.get('/profile')
@@ -517,18 +517,18 @@ class PasswordlessTests(SecurityTest):
 
     def test_invalid_login_token(self):
         msg = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
-        r = self._get('/auth/bogus', follow_redirects=True)
+        r = self._get('/login/bogus', follow_redirects=True)
         self.assertIn(msg, r.data)
 
     def test_token_login_forwards_to_post_login_view_when_already_authenticated(self):
         with capture_passwordless_login_requests() as requests:
-            self.client.post('/auth', data=dict(email='matt@lp.com'), follow_redirects=True)
+            self.client.post('/login', data=dict(email='matt@lp.com'), follow_redirects=True)
             token = requests[0]['login_token']
 
-        r = self.client.get('/auth/' + token, follow_redirects=True)
+        r = self.client.get('/login/' + token, follow_redirects=True)
         self.assertIn(self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'), r.data)
 
-        r = self.client.get('/auth/' + token, follow_redirects=True)
+        r = self.client.get('/login/' + token, follow_redirects=True)
         self.assertNotIn(self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'), r.data)
 
 
@@ -543,13 +543,13 @@ class ExpiredLoginTokenTests(SecurityTest):
         e = 'matt@lp.com'
 
         with capture_passwordless_login_requests() as requests:
-            self.client.post('/auth', data=dict(email=e), follow_redirects=True)
+            self.client.post('/login', data=dict(email=e), follow_redirects=True)
             token = requests[0]['login_token']
 
         time.sleep(3)
 
         with self.app.mail.record_messages() as outbox:
-            r = self.client.get('/auth/' + token, follow_redirects=True)
+            r = self.client.get('/login/' + token, follow_redirects=True)
 
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)

@@ -74,51 +74,44 @@ def _ctx(endpoint):
     return _security._run_ctx_processor(endpoint)
 
 
-def authenticate():
-    """View function which handles an authentication request."""
-
-    form = LoginForm(request.form)
-    user, msg, confirm_url = None, None, None
-
-    if request.json:
-        form = LoginForm(MultiDict(request.json))
-
-    try:
-        user = _security.auth_provider.authenticate(form)
-    except ConfirmationError, e:
-        msg = str(e)
-        confirm_url = url_for('send_confirmation', email=e.user.email)
-    except BadCredentialsError, e:
-        msg = str(e)
-
-    if user:
-        if login_user(user, remember=form.remember.data):
-            after_this_request(_commit)
-            if request.json:
-                return _json_auth_ok(user)
-            return redirect(get_post_login_redirect())
-        msg = get_message('DISABLED_ACCOUNT')[0]
-
-    _logger.debug('Unsuccessful authentication attempt: %s' % msg)
-
-    if request.json:
-        return _json_auth_error(msg)
-
-    do_flash(msg, 'error')
-    return redirect(confirm_url or url_for('login'))
-
-
 @anonymous_user_required
 def login():
     """View function for login view"""
+    form = LoginForm(request.form, csrf_enabled=not app.testing)
+    user, msg, confirm_url = None, None, None
 
-    tmp, form = '', LoginForm
+    if request.json:
+        form = LoginForm(MultiDict(request.json), csrf_enabled=not app.testing)
 
-    if _security.passwordless:
-        tmp, form = 'send_', PasswordlessLoginForm
+    if form.validate_on_submit():
+        try:
+            user = _security.auth_provider.authenticate(form)
+        except ConfirmationError, e:
+            msg = str(e)
+            confirm_url = url_for('send_confirmation', email=e.user.email)
+        except BadCredentialsError, e:
+            msg = str(e)
 
-    return render_template('security/%slogin.html' % tmp,
-                           login_form=form(),
+        if user:
+            if login_user(user, remember=form.remember.data):
+                after_this_request(_commit)
+                if request.json:
+                    return _json_auth_ok(user)
+                return redirect(get_post_login_redirect())
+            msg = get_message('DISABLED_ACCOUNT')[0]
+
+        _logger.debug('Unsuccessful authentication attempt: %s' % msg)
+
+        if request.json:
+            return _json_auth_error(msg)
+
+        do_flash(msg, 'error')
+
+        if confirm_url:
+            return redirect(confirm_url)
+
+    return render_template('security/login.html',
+                           login_form=form,
                            **_ctx('login'))
 
 
@@ -171,16 +164,19 @@ def register():
 def send_login():
     """View function that sends login instructions for passwordless login"""
 
-    form = PasswordlessLoginForm()
-    user = _datastore.find_user(**form.to_dict())
+    form = PasswordlessLoginForm(csrf_enabled=not app.testing)
 
-    if user.is_active():
-        send_login_instructions(user, form.next.data)
-        msg = get_message('LOGIN_EMAIL_SENT', email=user.email)
-    else:
-        msg = get_message('DISABLED_ACCOUNT')
+    if form.validate_on_submit():
+        user = _datastore.find_user(**form.to_dict())
 
-    do_flash(*msg)
+        if user.is_active():
+            send_login_instructions(user, form.next.data)
+            msg = get_message('LOGIN_EMAIL_SENT', email=user.email)
+        else:
+            msg = get_message('DISABLED_ACCOUNT')
+
+        do_flash(*msg)
+
     return render_template('security/send_login.html',
                            login_form=form,
                            **_ctx('send_login'))
@@ -305,20 +301,17 @@ def create_blueprint(app, name, import_name, **kwargs):
     bp = Blueprint(name, import_name, **kwargs)
 
     if config_value('PASSWORDLESS', app=app):
-        bp.route(config_value('AUTH_URL', app=app),
-                 methods=['POST'],
-                 endpoint='send_login')(send_login)
+        bp.route(config_value('LOGIN_URL', app=app),
+                 methods=['GET', 'POST'],
+                 endpoint='login')(send_login)
 
-        bp.route(config_value('AUTH_URL', app=app) + '/<token>',
+        bp.route(config_value('LOGIN_URL', app=app) + '/<token>',
                  methods=['GET'],
                  endpoint='token_login')(token_login)
     else:
-        bp.route(config_value('AUTH_URL', app=app),
-                 methods=['POST'],
-                 endpoint='authenticate')(authenticate)
-
-    bp.route(config_value('LOGIN_URL', app=app),
-             endpoint='login')(login)
+        bp.route(config_value('LOGIN_URL', app=app),
+                 methods=['GET', 'POST'],
+                 endpoint='login')(login)
 
     bp.route(config_value('LOGOUT_URL', app=app),
              endpoint='logout')(logout)
