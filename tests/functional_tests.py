@@ -362,7 +362,6 @@ class ExpiredConfirmationTest(SecurityTest):
             r = self.client.get('/confirm/' + token, follow_redirects=True)
 
             self.assertEqual(len(outbox), 1)
-            self.assertIn(e, outbox[0].html)
             self.assertNotIn(token, outbox[0].html)
 
             expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']

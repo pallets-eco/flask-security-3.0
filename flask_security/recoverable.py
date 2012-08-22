@@ -34,10 +34,9 @@ def send_reset_password_instructions(user):
     url = url_for_security('reset_password', token=token)
     reset_link = request.url_root[:-1] + url
 
-    send_mail('Password reset instructions',
-              user.email,
+    send_mail('Password reset instructions', user.email,
               'reset_instructions',
-              dict(user=user, reset_link=reset_link))
+              user=user, reset_link=reset_link)
 
     reset_password_instructions_sent.send(dict(user=user, token=token),
                                           app=app._get_current_object())
@@ -48,10 +47,8 @@ def send_password_reset_notice(user):
 
     :param user: The user to send the notice to
     """
-    send_mail('Your password has been reset',
-              user.email,
-              'reset_notice',
-              dict(user=user))
+    send_mail('Your password has been reset', user.email,
+              'reset_notice', user=user)
 
 
 def generate_reset_password_token(user):

@@ -230,7 +230,7 @@ def get_within_delta(key, app=None):
     return timedelta(**{values[1]: int(values[0])})
 
 
-def send_mail(subject, recipient, template, context=None):
+def send_mail(subject, recipient, template, **context):
     """Send an email via the Flask-Mail extension.
 
     :param subject: Email subject
@@ -241,7 +241,7 @@ def send_mail(subject, recipient, template, context=None):
     from flask.ext.mail import Message
 
     mail = current_app.extensions.get('mail')
-    context = context or {}
+    context.setdefault('security', _security)
 
     msg = Message(subject,
                   sender=_security.email_sender,

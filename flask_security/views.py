@@ -14,8 +14,8 @@ from flask import current_app as app, redirect, request, \
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-from flask_security.confirmable import confirm_by_token, \
-     send_confirmation_instructions, requires_confirmation
+from flask_security.confirmable import generate_confirmation_link, \
+     send_confirmation_instructions, requires_confirmation, confirm_by_token
 from flask_security.decorators import login_required
 from flask_security.exceptions import ConfirmationError, ResetPasswordError, \
      PasswordlessLoginError
@@ -26,7 +26,7 @@ from flask_security.recoverable import reset_by_token, \
      send_reset_password_instructions
 from flask_security.signals import user_registered
 from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, config_value, login_user, logout_user, \
+     get_message, config_value, login_user, logout_user, send_mail, \
      anonymous_user_required, url_for_security as url_for, verify_password
 
 
@@ -142,16 +142,19 @@ def register():
                                register_user_form=form,
                                **_ctx('register'))
 
-    token = None
+    confirmation_link, token = None, None
     user = _datastore.create_user(**form.to_dict())
     _commit()
 
     if _security.confirmable:
-        token = send_confirmation_instructions(user)
+        confirmation_link, token = generate_confirmation_link(user)
         do_flash(*get_message('CONFIRM_REGISTRATION', email=user.email))
 
     user_registered.send(dict(user=user, confirm_token=token),
                          app=app._get_current_object())
+
+    send_mail('Welcome', user.email, 'welcome',
+              user=user, confirmation_link=confirmation_link)
 
     _logger.debug('User %s registered' % user)
 

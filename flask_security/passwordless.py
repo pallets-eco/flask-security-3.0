@@ -32,15 +32,11 @@ def send_login_instructions(user, next):
     :param token: The login token
     """
     token = generate_login_token(user, next)
-
     url = url_for_security('token_login', token=token)
-
     login_link = request.url_root[:-1] + url
 
-    ctx = dict(user=user, login_link=login_link)
-
     send_mail('Login Instructions', user.email,
-              'login_instructions', ctx)
+              'login_instructions', user=user, login_link=login_link)
 
     login_instructions_sent.send(dict(user=user, login_token=token),
                                  app=app._get_current_object())

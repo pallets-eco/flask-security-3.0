@@ -26,19 +26,24 @@ _security = LocalProxy(lambda: app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
+def generate_confirmation_link(user):
+    token = generate_confirmation_token(user)
+    url = url_for_security('confirm_email', token=token)
+    return request.url_root[:-1] + url, token
+
+
 def send_confirmation_instructions(user):
     """Sends the confirmation instructions email for the specified user.
 
     :param user: The user to send the instructions to
     :param token: The confirmation token
     """
-    token = generate_confirmation_token(user)
-    url = url_for_security('confirm_email', token=token)
-    confirmation_link = request.url_root[:-1] + url
-    ctx = dict(user=user, confirmation_link=confirmation_link)
+
+    confirmation_link, token = generate_confirmation_link(user)
 
     send_mail('Please confirm your email', user.email,
-              'confirmation_instructions', ctx)
+              'confirmation_instructions',
+              user=user, confirmation_link=confirmation_link)
 
     confirm_instructions_sent.send(user, app=app._get_current_object())
     return token
