@@ -253,6 +253,9 @@ class _SecurityState(object):
     def send_login_context_processor(self, fn):
         self._add_ctx_processor('send_login', fn)
 
+    def mail_context_processor(self, fn):
+        self._add_ctx_processor('mail', fn)
+
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
