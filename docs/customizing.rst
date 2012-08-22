@@ -85,7 +85,8 @@ Overriding these templates is simple:
 
 Each template is passed a template context object that includes values for any
 links that are required in the email. If you require more values in the
-templates you can specify an email context processor. For example::
+templates you can specify an email context processor with the
+``email_context_processor`` decorator. For example::
 
     security = Security(app, user_datastore)
 
