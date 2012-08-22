@@ -16,7 +16,6 @@ from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests, capture_passwordless_login_requests
 from werkzeug.utils import parse_cookie
 
-from example import app
 from tests import SecurityTest
 
 
@@ -590,4 +589,5 @@ class DefaultDatastoreTests(SecurityTest):
 class MongoEngineDatastoreTests(DefaultDatastoreTests):
 
     def _create_app(self, auth_config):
-        return app.create_mongoengine_app(auth_config)
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config)
