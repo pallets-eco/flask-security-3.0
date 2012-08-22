@@ -134,7 +134,7 @@ class DefaultSecurityTests(SecurityTest):
         r = self.json_authenticate()
         data = json.loads(r.data)
         token = data['response']['user']['authentication_token']
-        headers = {"X-Auth-Token": token}
+        headers = {"Authentication-Token": token}
         r = self._get('/token', headers=headers)
         self.assertIn('Token Authentication', r.data)
 
@@ -143,7 +143,7 @@ class DefaultSecurityTests(SecurityTest):
         self.assertEqual(401, r.status_code)
 
     def test_token_auth_via_header_invalid_token(self):
-        r = self._get('/token', headers={"X-Auth-Token": 'X'})
+        r = self._get('/token', headers={"Authentication-Token": 'X'})
         self.assertEqual(401, r.status_code)
 
     def test_http_auth(self):
