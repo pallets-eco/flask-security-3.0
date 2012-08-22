@@ -1,5 +1,5 @@
-Documentation
--------------
+Contents
+--------
 
 .. toctree::
    :maxdepth: 1
@@ -9,5 +9,6 @@ Documentation
    configuration
    quickstart
    models
+   customizing
    api
    changelog

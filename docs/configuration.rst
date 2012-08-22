@@ -1,62 +1,175 @@
 Configuration
 =============
 
-Flask-Security configuration options.
+The following configuration values are used by Flask-Security:
 
-* :attr:`SECURITY_URL_PREFIX`: Specifies the URL prefix for the Security
-  blueprint.
-* :attr:`SECURITY_FLASH_MESSAGES`: Specifies wether or not to flash messages
-  during security mechanisms.
-* :attr:`SECURITY_PASSWORD_HASH`: Specifies the encryption method to use. e.g.:
-  plaintext, bcrypt, etc.
-* :attr:`SECURITY_AUTH_URL`: Specifies the URL to to handle authentication.
-* :attr:`SECURITY_LOGOUT_URL`: Specifies the URL to process a logout request.
-* :attr:`SECURITY_REGISTER_URL`: Specifies the URL for user registrations.
-* :attr:`SECURITY_RESET_URL`: Specifies the URL for password resets.
-* :attr:`SECURITY_CONFIRM_URL`: Specifies the URL for account confirmations.
-* :attr:`SECURITY_LOGIN_VIEW`: Specifies the URL to redirect to when
-  authentication is required.
-* :attr:`SECURITY_CONFIRM_ERROR_VIEW`: Specifies the URL to redirect to when
-  an confirmation error occurs.
-* :attr:`SECURITY_POST_LOGIN_VIEW`: Specifies the URL to redirect to after a
-  user logins in.
-* :attr:`SECURITY_POST_LOGOUT_VIEW`: Specifies the URL to redirect to after a
-  user logs out.
-* :attr:`SECURITY_POST_FORGOT_VIEW`: Specifies the URL to redirect to after a
-  user requests password reset instructions.
-* :attr:`SECURITY_RESET_PASSWORD_ERROR_VIEW`: Specifies the URL to redirect to
-  after an error occurs during the password reset process.
-* :attr:`SECURITY_POST_REGISTER_VIEW`: Specifies the URL to redirect to after a
-  user successfully registers.
-* :attr:`SECURITY_POST_CONFIRM_VIEW`: Specifies the URL to redirect to after a
-  user successfully confirms their account.
-* :attr:`SECURITY_UNAUTHORIZED_VIEW`: Specifies the URL to redirect to when a
-  user attempts to access a view they don't have permission to view.
-* :attr:`SECURITY_CONFIRMABLE`: Enables confirmation features. Defaults to
-  `False`.
-* :attr:`SECURITY_REGISTERABLE`: Enables user registration features. Defaults to
-  `False`.
-* :attr:`SECURITY_RECOVERABLE`: Enables password reset/recovery features.
-  Defaults to `False`.
-* :attr:`SECURITY_TRACKABLE`: Enables login tracking features. Defaults to
-  `False`.
-* :attr:`SECURITY_CONFIRM_EMAIL_WITHIN`: Specifies the amount of time a user
-  has to confirm their account/email. Default is `5 days`.
-* :attr:`SECURITY_RESET_PASSWORD_WITHIN`: Specifies the amount of time a user
-  has to reset their password. Default is `5 days`.
-* :attr:`SECURITY_LOGIN_WITHOUT_CONFIRMATION`: Specifies if users can login
-  without first confirming their accounts. Defaults to `False`
-* :attr:`SECURITY_EMAIL_SENDER`: Specifies the email address to send emails on
-  behalf of. Defaults to `no-reply@localhost`.
-* :attr:`SECURITY_TOKEN_AUTHENTICATION_KEY`: Specifies the query string argument
-  to use during token authentication. Defaults to `auth_token`.
-* :attr:`SECURITY_TOKEN_AUTHENTICATION_HEADER`: Specifies the header name to use
-  during token authentication. Defaults to `X-Auth-Token`.
-* :attr:`SECURITY_CONFIRM_SALT`: Specifies the salt value to use for account
-  confirmation tokens. Defaults to `confirm-salt`.
-* :attr:`SECURITY_RESET_SALT`: Specifies the salt value to use for password
-  reset tokens. Defaults to `reset-salt`.
-* :attr:`SECURITY_AUTH_SALT`: Specifies the salt value to use for token based
-  authentication tokens. Defaults to `auth-salt`.
-* :attr:`SECURITY_DEFAULT_HTTP_AUTH_REALM`: Specifies the default basic HTTP
-  authentication realm. Defaults to `Login Required`.
+Core
+--------------
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+======================================== =======================================
+``SECURITY_BLUEPRINT_NAME``              Specifies the name for the
+                                         Flask-Security blueprint. Defaults to
+                                         ``security``.
+``SECURITY_URL_PREFIX``                  Specifies the URL prefix for the
+                                         Flask-Security blueprint. Defaults to
+                                         ``None``.
+``SECURITY_FLASH_MESSAGES``              Specifies wether or not to flash
+                                         messages during security procedures.
+                                         Defaults to ``True``.
+``SECURITY_PASSWORD_HASH``               Specifies the password hash algorith to
+                                         use when encrypting and decrypting
+                                         passwords. Recommended values for
+                                         production systems are ``bcrypt``,
+                                         ``sha512_crypt``, or ``pbkdf2_sha512``.
+                                         Defaults to ``plaintext``.
+``SECURITY_PASSWORD_HMAC``               Specifies if Flask-Security should also
+                                         use HMAC when encrypting and decrypting
+                                         passwords. If set to ``True`` be sure
+                                         to specify a salt value via the
+                                         ``SECURITY_PASSWORD_HMAC_SALT``
+                                         configuration option. Defaults to
+                                         ``False``.
+``SECURITY_PASSWORD_HMAC_SALT``          Specifies the HMAC salt. Defaults to
+                                         ``None``.
+``SECURITY_EMAIL_SENDER``                Specifies the email address to send
+                                         emails as. Defaults to
+                                         ``no-reply@localhost``.
+``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query sting parameter to
+                                         read when using token authentication.
+                                         Defaults to ``auth_token``.
+``SECURITY_TOKEN_AUTHENTICATION_HEADER`` Specifies the HTTP header to read when
+                                         using token authentication. Defaults to
+                                         ``Authentication-Token``.
+``SECURITY_DEFAULT_HTTP_AUTH_REALM``     Specifies the default authentication
+                                         realm when using basic HTTP auth.
+                                         Defaults to ``Login Required``
+======================================== =======================================
+
+
+URLs and Views
+--------------
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=============================== ================================================
+``SECURITY_LOGIN_URL``          Specifies the login URL. Defaults to ``/login``.
+``SECURITY_LOGOUT_URL``         Specifies the logout URL. Defaults to
+                                ``/logout``.
+``SECURITY_REGISTER_URL``       Specifies the register URL. Defaults to
+                                ``/register``.
+``SECURITY_RESET_URL``          Specifies the password reset URL. Defaults to
+                                ``/reset``.
+``SECURITY_CONFIRM_URL``        Specifies the email confirmation URL. Defaults
+                                to ``/confirm``.
+``SECURITY_POST_LOGIN_VIEW``    Specifies the default view to redirect to after
+                                a user logs in. This value can be set to a URL
+                                or an endpoint name. Defaults to ``/``.
+``SECURITY_POST_LOGOUT_VIEW``   Specifies the default view to redirect to after
+                                a user logs out. This value can be set to a URL
+                                or an endpoint name. Defaults to ``/``.
+``SECURITY_CONFIRM_ERROR_VIEW`` Specifies the view to redirect to if a
+                                confirmation error occurs. This value can be set
+                                to a URL or an endpoint name. If this value is
+                                ``None`` the user is presented the default view
+                                to resend a confirmation link. Defaults to
+                                ``None``.
+``SECURITY_POST_REGISTER_VIEW`` Specifies the view to redirect to after a user
+                                successfully registers. This value can be set to
+                                a URL or an endpoint name. If this value is
+                                ``None`` the user is redirected to the value of
+                                ``SECURITY_POST_LOGIN_VIEW``. Defaults to
+                                ``None``.
+``SECURITY_POST_CONFIRM_VIEW``  Specifies the view to redirect to after a user
+                                successfully confirms their email. This value
+                                can be set to a URL or an endpoint name. If this
+                                value is ``None`` the user is redirected  to the
+                                value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
+                                to ``None``.
+``SECURITY_POST_RESET_VIEW``    Specifies the view to redirect to after a user
+                                successfully resets their password. This value
+                                can be set to a URL or an endpoint name. If this
+                                value is ``None`` the user is redirected  to the
+                                value of ``SECURITY_POST_LOGIN_VIEW``. Defaults to
+                                ``None``.
+``SECURITY_UNAUTHORIZED_VIEW``  Specifies the view to redirect to if a user
+                                attempts to access a URL/endpoint that they do
+                                not have permission to access. If this value is
+                                ``None`` the user is presented with a default
+                                HTTP 403 response. Defaults to ``None``.
+=============================== ================================================
+
+
+Feature Flags
+-------------
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+========================= ======================================================
+``SECURITY_CONFIRMABLE``  Specifies if users are required to confirm their email
+                          address when registering a new account. If this value
+                          is `True` Flask-Security creates an endpoint to handle
+                          confirmations and requests to resend confirmation
+                          instructions. The URL for this endpoint is specified
+                          by the ``SECURITY_CONFIRM_URL`` configuration option.
+                          Defaults to ``False``.
+``SECURITY_REGISTERABLE`` Specifies if Flask-Security should create a user
+                          registration endpoint. The URL for this endpoint is
+                          specified by the ``SECURITY_REGISTER_URL``
+                          configuration option. Defaults to ``False``.
+``SECURITY_RECOVERABLE``  Specifies if Flask-Security should create a password
+                          reset/recover endpoint. The URL for this endpoint is
+                          specified by the ``SECURITY_RESET_URL`` configuration
+                          option. Defaults to ``False``.
+``SECURITY_TRACKABLE``    Specifies if Flask-Security should track basic user
+                          login statistics. If set to ``True`` ensure your
+                          models have the required fields/attribues. Defaults to
+                          ``False``
+``SECURITY_PASSWORDLESS`` Specifies if Flask-Security should enable the
+                          passwordless login feature. If set to ``True`` users
+                          are not required to enter a password to login but are
+                          sent an email with a login link. This feature is
+                          experimental and should be used with caution. Defaults
+                          to ``False``.
+========================= ======================================================
+
+
+Miscellaneous
+-------------
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+======================================= ========================================
+``SECURITY_CONFIRM_EMAIL_WITHIN``       Specifies the amount of time a user has
+                                        before their confirmation link expires.
+                                        Always pluralized the time unit for this
+                                        value. Defaults to ``5 days``.
+``SECURITY_RESET_PASSWORD_WITHIN``      Specifies the amount of time a user has
+                                        before their password reset link
+                                        expires. Always pluralized the time unit
+                                        for this value. Defaults to ``5 days``.
+``SECURITY_LOGIN_WITHIN``               Specifies the amount of time a user has
+                                        before a login link expires. This is
+                                        only used when the passwordless login
+                                        feature is enabled. Always pluralized
+                                        the time unit for this value. Defaults
+                                        to ``1 days``.
+``SECURITY_LOGIN_WITHOUT_CONFIRMATION`` Specifies if a user may login before
+                                        confirming their email when the value
+                                        of ``SECURITY_CONFIRMABLE`` is set to
+                                        ``True``. Defaults to ``False``.
+``SECURITY_CONFIRM_SALT``               Specifies the salt value when generating
+                                        confirmation links/tokens. Defaults to
+                                        ``confirm-salt``.
+``SECURITY_RESET_SALT``                 Specifies the salt value when generating
+                                        password reset links/tokens. Defaults to
+                                        ``reset-salt``.
+``SECURITY_LOGIN_SALT``                 Specifies the salt value when generating
+                                        login links/tokens. Defaults to
+                                        ``login-salt``.
+``SECURITY_REMEMBER_SALT``              Specifies the salt value when generating
+                                        remember tokens. Remember tokens are
+                                        used instead of user ID's as it is more
+                                        secure. Defaults to ``remember-salt``.
+======================================= ========================================

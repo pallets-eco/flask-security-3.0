@@ -5,29 +5,14 @@ Quick Start
 Installation
 ------------
 
-First, install Flask-Security::
+Install requirements:
 
     $ mkvirtualenv <your-app-name>
-    $ pip install flask-security
-
-Then install your datastore requirement.
-
-**SQLAlchemy**::
-
-    $ pip install flask-sqlalchemy
-
-**MongoEngine**::
-
-    $ pip install flask-mongoengine
-
-And lastly install any password encryption library that you may need. For
-example::
-
-    $ pip install py-bcrypt
+    $ pip install flask-security, flask-sqlalchemy
 
 
-Application Code
-----------------
+Basic Application
+-----------------
 
 The following code sample illustrates how to get started as quickly as possible
 using SQLAlchemy.::
