@@ -22,8 +22,6 @@ class UserDatastore(object):
     :param user_model: A user model class definition
     :param role_model: A role model class definition
     """
-    pwd_context = None
-    default_roles = []
 
     def __init__(self, db, user_model, role_model):
         self.db = db
