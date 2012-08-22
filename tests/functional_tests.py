@@ -560,7 +560,8 @@ class ExpiredLoginTokenTests(SecurityTest):
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
     def _create_app(self, auth_config):
-        return app.create_mongoengine_app(auth_config)
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config)
 
 
 class DefaultDatastoreTests(SecurityTest):
