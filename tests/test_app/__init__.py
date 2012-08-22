@@ -160,3 +160,7 @@ def add_context_processors(s):
     @s.send_login_context_processor
     def send_login():
         return dict()
+
+    @s.mail_context_processor
+    def mail():
+        return dict()
