@@ -115,8 +115,8 @@ def login():
             do_flash(*msg)
             return redirect(confirm_url)
 
-    return render_template('security/login.html',
-                           login_form=form,
+    return render_template('security/login_user.html',
+                           login_user_form=form,
                            **_ctx('login'))
 
 
@@ -138,7 +138,7 @@ def register():
     form = RegisterForm(csrf_enabled=not app.testing)
 
     if not form.validate_on_submit():
-        return render_template('security/register.html',
+        return render_template('security/register_user.html',
                                register_user_form=form,
                                **_ctx('register'))
 
@@ -184,7 +184,7 @@ def send_login():
             form.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
 
     return render_template('security/send_login.html',
-                           login_form=form,
+                           send_login_form=form,
                            **_ctx('send_login'))
 
 
@@ -221,7 +221,7 @@ def send_confirmation():
         do_flash(*msg)
 
     return render_template('security/send_confirmation.html',
-                           reset_confirmation_form=form,
+                           send_confirmation_form=form,
                            **_ctx('send_confirmation'))
 
 
