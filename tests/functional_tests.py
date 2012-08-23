@@ -590,3 +590,22 @@ class MongoEngineDatastoreTests(DefaultDatastoreTests):
     def _create_app(self, auth_config):
         from tests.test_app.mongoengine import create_app
         return create_app(auth_config)
+
+
+class AsyncMailTaskTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
+    }
+
+    def setUp(self):
+        super(AsyncMailTaskTests, self).setUp()
+        self.mail_sent = False
+
+    def test_send_email_task_is_called(self):
+        @self.app.security.send_mail_task
+        def send_email(msg):
+            self.mail_sent = True
+
+        self.client.post('/reset', data=dict(email='joe@lp.com'))
+        self.assertTrue(self.mail_sent)

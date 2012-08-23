@@ -210,6 +210,7 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
+        self._send_mail_task = None
 
     def _add_ctx_processor(self, endpoint, fn):
         c = self.context_processors
@@ -256,6 +257,9 @@ class _SecurityState(object):
     def mail_context_processor(self, fn):
         self._add_ctx_processor('mail', fn)
 
+    def send_mail_task(self, fn):
+        self._send_mail_task = fn
+
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
@@ -270,7 +274,7 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True):
+    def init_app(self, app, datastore=None, register_blueprint=True, **kwargs):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -295,7 +299,7 @@ class Security(object):
                                         template_folder='templates')
             app.register_blueprint(bp)
 
-        state = self._get_state(app, datastore)
+        state = self._get_state(app, datastore, **kwargs)
 
         app.extensions['security'] = state
 
@@ -304,11 +308,9 @@ class Security(object):
 
         return state
 
-    def _get_state(self, app, datastore):
+    def _get_state(self, app, datastore, **kwargs):
         assert app is not None
         assert datastore is not None
-
-        kwargs = {}
 
         for key, value in get_config(app).items():
             kwargs[key.lower()] = value
@@ -329,6 +331,7 @@ class Security(object):
             _get_reset_serializer(app) if kwargs['recoverable'] else None)
         kwargs['confirm_serializer'] = (
             _get_confirm_serializer(app) if kwargs['confirmable'] else None)
+
         return _SecurityState(**kwargs)
 
     def __getattr__(self, name):

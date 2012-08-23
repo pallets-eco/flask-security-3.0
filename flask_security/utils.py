@@ -20,6 +20,7 @@ from flask import url_for, flash, current_app, request, session, redirect, \
      render_template
 from flask.ext.login import login_user as _login_user, \
      logout_user as _logout_user
+from flask.ext.mail import Message
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from werkzeug.local import LocalProxy
 
@@ -238,9 +239,7 @@ def send_mail(subject, recipient, template, **context):
     :param template: The name of the email template
     :param context: The context to render the template with
     """
-    from flask.ext.mail import Message
 
-    mail = current_app.extensions.get('mail')
     context.setdefault('security', _security)
     context.update(_security._run_ctx_processor('mail'))
 
@@ -251,6 +250,12 @@ def send_mail(subject, recipient, template, **context):
     ctx = ('security/email', template)
     msg.body = render_template('%s/%s.txt' % ctx, **context)
     msg.html = render_template('%s/%s.html' % ctx, **context)
+
+    if _security._send_mail_task:
+        _security._send_mail_task(msg)
+        return
+
+    mail = current_app.extensions.get('mail')
     mail.send(msg)
 
 
