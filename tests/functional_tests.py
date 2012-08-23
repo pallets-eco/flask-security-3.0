@@ -317,20 +317,6 @@ class ConfirmableTests(SecurityTest):
         msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
         self.assertIn(msg, r.data)
 
-    def test_confirm_email_twice_flashes_already_confirmed_message(self):
-        e = 'dude@lp.com'
-
-        with capture_registrations() as registrations:
-            self.register(e)
-            token = registrations[0]['confirm_token']
-
-        url = '/confirm/' + token
-        self.client.get(url, follow_redirects=True)
-        r = self.client.get(url, follow_redirects=True)
-
-        msg = self.app.config['SECURITY_MSG_ALREADY_CONFIRMED'][0]
-        self.assertIn(msg, r.data)
-
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)

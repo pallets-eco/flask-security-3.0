@@ -170,6 +170,7 @@ def send_confirmation():
                            **_ctx('send_confirmation'))
 
 
+@anonymous_user_required
 def confirm_email(token):
     """View function which handles a email confirmation request."""
     after_this_request(_commit)
