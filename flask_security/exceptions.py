@@ -22,12 +22,6 @@ class BadCredentialsError(SecurityError):
     """
 
 
-class AuthenticationError(SecurityError):
-    """Raised when an authentication attempt fails due to invalid configuration
-    or an unknown reason.
-    """
-
-
 class UserNotFoundError(SecurityError):
     """Raised by a user datastore when there is an attempt to find a user by
     their identifier, often username or email, and the user is not found.
@@ -37,21 +31,6 @@ class UserNotFoundError(SecurityError):
 class RoleNotFoundError(SecurityError):
     """Raised by a user datastore when there is an attempt to find a role and
     the role cannot be found.
-    """
-
-
-class UserDatastoreError(SecurityError):
-    """Raised when a user datastore experiences an unexpected error
-    """
-
-
-class UserCreationError(SecurityError):
-    """Raised when an error occurs when creating a user
-    """
-
-
-class RoleCreationError(SecurityError):
-    """Raised when an error occurs when creating a role
     """
 
 
