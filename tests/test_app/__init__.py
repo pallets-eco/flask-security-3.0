@@ -5,7 +5,6 @@ from flask.ext.mail import Mail
 from flask.ext.security import login_required, roles_required, roles_accepted
 from flask.ext.security.decorators import http_auth_required, \
      auth_token_required
-from flask.ext.security.exceptions import RoleNotFoundError
 from flask.ext.security.utils import encrypt_password
 from werkzeug.local import LocalProxy
 
@@ -105,10 +104,7 @@ def create_app(config):
 
     @app.route('/coverage/invalid_role')
     def invalid_role():
-        try:
-            ds.find_role('bogus')
-        except RoleNotFoundError:
-            return 'success'
+        return 'success' if ds.find_role('bogus') is None else 'failure'
 
     return app
 

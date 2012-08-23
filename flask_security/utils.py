@@ -22,6 +22,7 @@ from flask.ext.login import login_user as _login_user, \
      logout_user as _logout_user
 from flask.ext.mail import Message
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
+from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
 from .core import current_user
@@ -51,8 +52,7 @@ def anonymous_user_required(f):
 def login_user(user, remember=True):
     """Performs the login and sends the appropriate signal."""
 
-    if not _login_user(user, remember):
-        return False
+    _login_user(user, remember)
 
     if _security.trackable:
         old_current, new_current = user.current_login_at, datetime.utcnow()
@@ -69,8 +69,6 @@ def login_user(user, remember=True):
     _datastore._save_model(user)
     identity_changed.send(current_app._get_current_object(),
                           identity=Identity(user.id))
-    _logger.debug('User %s logged in' % user)
-    return True
 
 
 def logout_user():
@@ -257,6 +255,27 @@ def send_mail(subject, recipient, template, **context):
 
     mail = current_app.extensions.get('mail')
     mail.send(msg)
+
+
+def get_token_status(token, serializer, max_age=None):
+    serializer = getattr(_security, serializer + '_serializer')
+    max_age = get_max_age(max_age)
+    user, data = None, None
+    expired, invalid = False, False
+
+    try:
+        data = serializer.loads(token, max_age=max_age)
+    except SignatureExpired:
+        d, data = serializer.loads_unsafe(token)
+        expired = True
+    except BadSignature:
+        invalid = True
+
+    if data:
+        user = _datastore.find_user(id=data[0])
+
+    expired = expired and (user is not None)
+    return expired, invalid, user
 
 
 @contextmanager

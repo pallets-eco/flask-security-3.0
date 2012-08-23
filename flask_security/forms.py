@@ -16,7 +16,6 @@ from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .exceptions import UserNotFoundError
 from .utils import verify_password, get_message
 
 # Convenient reference
@@ -30,17 +29,14 @@ password_required = Required(message="Password not provided")
 
 
 def unique_user_email(form, field):
-    try:
-        _datastore.find_user(email=field.data)
-        raise ValidationError(field.data + ' is already associated with an account')
-    except UserNotFoundError:
-        pass
+    if _datastore.find_user(email=field.data) is not None:
+        raise ValidationError(field.data +
+                              ' is already associated with an account')
 
 
 def valid_user_email(form, field):
-    try:
-        form.user = _datastore.find_user(email=field.data)
-    except UserNotFoundError:
+    form.user = _datastore.find_user(email=field.data)
+    if form.user is None:
         raise ValidationError('Specified user does not exist')
 
 
@@ -106,28 +102,20 @@ class SendConfirmationForm(Form, UserEmailFormMixin):
             return False
         return True
 
-    def to_dict(self):
-        return dict(email=self.email.data)
-
 
 class ForgotPasswordForm(Form, UserEmailFormMixin):
     """The default forgot password form"""
 
     submit = SubmitField("Recover Password")
 
-    def to_dict(self):
-        return dict(email=self.email.data)
 
-
-class PasswordlessLoginForm(Form, UserEmailFormMixin, NextFormMixin):
+class PasswordlessLoginForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
 
     submit = SubmitField("Send Login Link")
 
     def __init__(self, *args, **kwargs):
         super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
-        if request.method == 'GET':
-            self.next.data = request.args.get('next', None)
 
     def validate(self):
         if not super(PasswordlessLoginForm, self).validate():
@@ -136,9 +124,6 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin, NextFormMixin):
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
-
-    def to_dict(self):
-        return dict(user=self.user, next=self.next.data)
 
 
 class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
@@ -149,7 +134,6 @@ class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.next.data = request.args.get('next', None)
 
     def validate(self):
         if not super(LoginForm, self).validate():
@@ -181,6 +165,3 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     """The default reset password form"""
 
     submit = SubmitField("Reset Password")
-
-    def to_dict(self):
-        return dict(password=self.password.data)

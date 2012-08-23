@@ -9,14 +9,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from itsdangerous import BadSignature, SignatureExpired
 from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
-from .exceptions import ResetPasswordError
 from .signals import password_reset, reset_password_instructions_sent
-from .utils import send_mail, get_max_age, md5, get_message, encrypt_password, \
-     url_for_security
+from .utils import send_mail, md5, encrypt_password, url_for_security, \
+     get_token_status
 
 
 # Convenient references
@@ -60,36 +58,23 @@ def generate_reset_password_token(user):
     return _security.reset_serializer.dumps(data)
 
 
-def reset_by_token(token, password):
-    """Resets the password of the user given the specified token, email and
-    password. If the token is invalid a `ResetPasswordError` error will be
-    raised. If the token is expired a `TokenExpiredError` error will be raised.
+def reset_password_token_status(token):
+    """Returns the expired status, invalid status, and user of a password reset
+    token. For example::
 
-    :param token: The user's reset password token
-    :param email: The user's email address
-    :param password: The user's new password
+        expired, invalid, user = reset_password_token_status('...')
+
+    :param token: The password reset token
     """
-    serializer = _security.reset_serializer
-    max_age = get_max_age('RESET_PASSWORD')
+    return get_token_status(token, 'reset', 'RESET_PASSWORD')
 
-    try:
-        data = serializer.loads(token, max_age=max_age)
-        user = _datastore.find_user(id=data[0])
+def update_password(user, password):
+    """Update the specified user's password
 
-        user.password = encrypt_password(password)
-
-        _datastore._save_model(user)
-        send_password_reset_notice(user)
-        password_reset.send(user, app=app._get_current_object())
-        return user
-
-    except SignatureExpired:
-        sig_okay, data = serializer.loads_unsafe(token)
-        user = _datastore.find_user(id=data[0])
-        msg = get_message('PASSWORD_RESET_EXPIRED',
-                          within=_security.reset_password_within,
-                          email=user.email)
-        raise ResetPasswordError(msg[0], user=user)
-
-    except BadSignature:
-        raise ResetPasswordError(get_message('INVALID_RESET_PASSWORD_TOKEN')[0])
+    :param user: The user to update_password
+    :param password: The unencrypted new password
+    """
+    user.password = encrypt_password(password)
+    _datastore._save_model(user)
+    send_password_reset_notice(user)
+    password_reset.send(user, app=app._get_current_object())

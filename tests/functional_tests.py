@@ -321,6 +321,10 @@ class ConfirmableTests(SecurityTest):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)
 
+    def test_send_confirmation_with_invalid_email(self):
+        r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
+        self.assertIn('Specified user does not exist', r.data)
+
     def test_resend_confirmation(self):
         e = 'dude@lp.com'
         self.register(e)
@@ -377,6 +381,15 @@ class RecoverableTests(SecurityTest):
         'SECURITY_RESET_PASSWORD_ERROR_VIEW': '/',
         'SECURITY_POST_FORGOT_VIEW': '/'
     }
+
+    def test_reset_view(self):
+        with capture_reset_password_requests() as requests:
+            r = self.client.post('/reset',
+                                 data=dict(email='joe@lp.com'),
+                                 follow_redirects=True)
+            t = requests[0]['token']
+        r = self._get('/reset/' + t)
+        self.assertIn('<h1>Reset password</h1>', r.data)
 
     def test_forgot_post_sends_email(self):
         with capture_reset_password_requests():
@@ -511,6 +524,10 @@ class PasswordlessTests(SecurityTest):
 
         r = self.client.get('/login/' + token, follow_redirects=True)
         self.assertNotIn(self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'), r.data)
+
+    def test_send_login_with_invalid_email(self):
+        r = self._post('/login', data=dict(email='bogus@bogus.com'))
+        self.assertIn('Specified user does not exist', r.data)
 
 
 class ExpiredLoginTokenTests(SecurityTest):

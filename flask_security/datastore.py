@@ -9,9 +9,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from . import exceptions
-
-
 class UserDatastore(object):
     """Abstracted user datastore. Always extend this class and implement the
     :attr:`_save_model`, :attr:`_delete_model`, :attr:`_do_find_user`,  and
@@ -93,20 +90,14 @@ class UserDatastore(object):
 
         :param user: User identifier, usually email address
         """
-        user = self._do_find_user(**kwargs)
-        if user:
-            return user
-        raise exceptions.UserNotFoundError('Parameters=%s' % kwargs)
+        return self._do_find_user(**kwargs)
 
     def find_role(self, role):
         """Returns a role based on its name.
 
         :param role: Role name
         """
-        role = self._do_find_role(role)
-        if role:
-            return role
-        raise exceptions.RoleNotFoundError()
+        return self._do_find_role(role)
 
     def create_role(self, **kwargs):
         """Creates and returns a new role.

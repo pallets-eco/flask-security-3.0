@@ -17,7 +17,6 @@ from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 
 from . import utils
-from .exceptions import UserNotFoundError
 
 
 # Convenient references
@@ -52,29 +51,25 @@ def _check_token():
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
     serializer = _security.remember_token_serializer
-    rv = False
 
     try:
         data = serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
-        rv = utils.md5(user.password) == data[1]
+        return utils.md5(user.password) == data[1]
     except:
-        pass
-
-    return rv
+        return False
 
 
 def _check_http_auth():
     auth = request.authorization or dict(username=None, password=None)
+    user = _security.datastore.find_user(email=auth.username)
 
-    try:
-        user = _security.datastore.find_user(email=auth.username)
-        if utils.verify_password(auth.password, user.password):
-            identity_changed.send(current_app._get_current_object(),
-                                  identity=Identity(user.id))
-            return True
-    except UserNotFoundError:
-        return False
+    if user and utils.verify_password(auth.password, user.password):
+        app = current_app._get_current_object()
+        identity_changed.send(app, identity=Identity(user.id))
+        return True
+
+    return False
 
 
 def http_auth_required(realm):

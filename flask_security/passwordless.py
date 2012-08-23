@@ -10,13 +10,10 @@
 """
 
 from flask import request, current_app as app
-from itsdangerous import SignatureExpired, BadSignature
 from werkzeug.local import LocalProxy
 
-from .exceptions import PasswordlessLoginError
 from .signals import login_instructions_sent
-from .utils import send_mail, md5, get_max_age, login_user, get_message, \
-     url_for_security, get_url
+from .utils import send_mail, url_for_security, get_token_status
 
 
 # Convenient references
@@ -25,13 +22,13 @@ _security = LocalProxy(lambda: app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def send_login_instructions(user, next):
+def send_login_instructions(user):
     """Sends the login instructions email for the specified user.
 
     :param user: The user to send the instructions to
     :param token: The login token
     """
-    token = generate_login_token(user, next)
+    token = generate_login_token(user)
     url = url_for_security('token_login', token=token)
     login_link = request.url_root[:-1] + url
 
@@ -42,30 +39,20 @@ def send_login_instructions(user, next):
                                  app=app._get_current_object())
 
 
-def generate_login_token(user, next):
-    next = next or get_url(_security.post_login_view)
-    data = [user.id, md5(user.password), next]
-    return _security.login_serializer.dumps(data)
+def generate_login_token(user):
+    """Generates a unique login token for the specified user.
+
+    :param user: The user the token belongs to
+    """
+    return _security.login_serializer.dumps([user.id])
 
 
-def login_by_token(token):
-    serializer = _security.login_serializer
-    max_age = get_max_age('LOGIN')
+def login_token_status(token):
+    """Returns the expired status, invalid status, and user of a login token.
+    For example::
 
-    try:
-        user_id, pw, next = serializer.loads(token, max_age=max_age)
-        user = _datastore.find_user(id=user_id)
-        login_user(user, True)
-        return user, next
+        expired, invalid, user = login_token_status('...')
 
-    except SignatureExpired:
-        sig_okay, data = serializer.loads_unsafe(token)
-        user_id, pw, next = data
-        user = _datastore.find_user(id=data[0])
-        within = _security.login_within
-        msg = get_message('LOGIN_EXPIRED', within=within, email=user.email)
-        raise PasswordlessLoginError(msg[0], user=user, next=next)
-
-    except BadSignature:
-        msg = get_message('INVALID_LOGIN_TOKEN')
-        raise PasswordlessLoginError(msg[0])
+    :param token: The login token
+    """
+    return get_token_status(token, 'login', 'LOGIN')

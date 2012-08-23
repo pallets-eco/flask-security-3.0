@@ -19,10 +19,8 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from . import views, exceptions
-from .confirmable import requires_confirmation
-from .utils import config_value as cv, get_config, verify_password, md5, \
-     url_for_security
+from .utils import config_value as cv, get_config, md5, url_for_security
+from .views import create_blueprint
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -92,19 +90,19 @@ _default_messages = {
 
 
 def _user_loader(user_id):
-    try:
-        return _security.datastore.find_user(id=user_id)
-    except:
-        return None
+    return _security.datastore.find_user(id=user_id)
 
 
 def _token_loader(token):
     try:
         data = _security.remember_token_serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
-        return user if md5(user.password) == data[1] else None
+        if user and md5(user.password) == data[1]:
+            return user
     except:
-        return None
+        pass
+
+    return None
 
 
 def _identity_loader():
@@ -294,9 +292,9 @@ class Security(object):
         if register_blueprint:
             name = cv('BLUEPRINT_NAME', app=app)
             url_prefix = cv('URL_PREFIX', app=app)
-            bp = views.create_blueprint(app, name, __name__,
-                                        url_prefix=url_prefix,
-                                        template_folder='templates')
+            bp = create_blueprint(app, name, __name__,
+                                  url_prefix=url_prefix,
+                                  template_folder='templates')
             app.register_blueprint(bp)
 
         state = self._get_state(app, datastore, **kwargs)

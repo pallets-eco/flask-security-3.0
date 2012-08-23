@@ -15,16 +15,15 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from flask_security.confirmable import send_confirmation_instructions, \
-     confirm_by_token
+     confirm_user, confirm_email_token_status
 from flask_security.decorators import login_required
-from flask_security.exceptions import ConfirmationError, ResetPasswordError, \
-     PasswordlessLoginError
 from flask_security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
      ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
      PasswordlessLoginForm
-from flask_security.passwordless import send_login_instructions, login_by_token
-from flask_security.recoverable import reset_by_token, \
-     send_reset_password_instructions
+from flask_security.passwordless import send_login_instructions, \
+     login_token_status
+from flask_security.recoverable import reset_password_token_status, \
+     send_reset_password_instructions, update_password
 from flask_security.registerable import register_user
 from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
      get_message, config_value, login_user, logout_user, \
@@ -64,10 +63,10 @@ def _ctx(endpoint):
 def login():
     """View function for login view"""
 
-    form_data = request.form
-
     if request.json:
         form_data = MultiDict(request.json)
+    else:
+        form_data = request.form
 
     form = LoginForm(form_data, csrf_enabled=not app.testing)
 
@@ -131,7 +130,7 @@ def send_login():
     form = PasswordlessLoginForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
-        send_login_instructions(**form.to_dict())
+        send_login_instructions(form.user)
         do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
 
     return render_template('security/send_login.html',
@@ -142,17 +141,22 @@ def send_login():
 @anonymous_user_required
 def token_login(token):
     """View function that handles passwordless login via a token"""
+    expired, invalid, user = login_token_status(token)
 
-    try:
-        user, next = login_by_token(token)
-    except PasswordlessLoginError, e:
-        if e.user:
-            send_login_instructions(e.user, e.next)
-        do_flash(str(e), 'error')
-        return redirect(request.referrer or url_for('login'))
+    if invalid:
+        do_flash(*get_message('INVALID_LOGIN_TOKEN'))
+    if expired:
+        send_login_instructions(user)
+        do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
+                              within=_security.login_within))
+    if invalid or expired:
+        return redirect(url_for('login'))
 
+    login_user(user, True)
+    after_this_request(_commit)
     do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
-    return redirect(next)
+
+    return redirect(get_post_login_redirect())
 
 
 @anonymous_user_required
@@ -173,22 +177,26 @@ def send_confirmation():
 @anonymous_user_required
 def confirm_email(token):
     """View function which handles a email confirmation request."""
-    after_this_request(_commit)
 
-    try:
-        user = confirm_by_token(token)
-    except ConfirmationError, e:
-        if e.user:
-            send_confirmation_instructions(e.user)
-        do_flash(str(e), 'error')
-        confirm_error_url = get_url(_security.confirm_error_view)
-        return redirect(confirm_error_url or url_for('send_confirmation'))
+    expired, invalid, user = confirm_email_token_status(token)
 
-    do_flash(*get_message('EMAIL_CONFIRMED'))
+    if invalid:
+        do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
+    if expired:
+        send_confirmation_instructions(user)
+        do_flash(*get_message('CONFIRMATION_EXPIRED', email=user.email,
+                              within=_security.confirm_email_within))
+    if invalid or expired:
+        return redirect(get_url(_security.confirm_error_view) or
+                        url_for('send_confirmation'))
+
+    confirm_user(user)
     login_user(user, True)
-    post_confirm_url = get_url(_security.post_confirm_view)
-    post_login_url = get_url(_security.post_login_view)
-    return redirect(post_confirm_url or post_login_url)
+    after_this_request(_commit)
+    do_flash(*get_message('EMAIL_CONFIRMED'))
+
+    return redirect(get_url(_security.post_confirm_view) or
+                    get_url(_security.post_login_view))
 
 
 @anonymous_user_required
@@ -210,25 +218,24 @@ def forgot_password():
 def reset_password(token):
     """View function that handles a reset password request."""
 
-    next = None
-    form = ResetPasswordForm(reset_token=token, csrf_enabled=not app.testing)
+    expired, invalid, user = reset_password_token_status(token)
+
+    if invalid:
+        do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+    if expired:
+        do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
+                              within=_security.reset_password_within))
+    if invalid or expired:
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm(csrf_enabled=not app.testing)
 
     if form.validate_on_submit():
-        try:
-            user = reset_by_token(token=token, **form.to_dict())
-            msg = get_message('PASSWORD_RESET')
-            next = (get_url(_security.post_reset_view) or
-                    get_url(_security.post_login_view))
-        except ResetPasswordError, e:
-            msg = (str(e), 'error')
-            if e.user:
-                send_reset_password_instructions(e.user)
-
-        do_flash(*msg)
-
-    if next:
-        login_user(user)
-        return redirect(next)
+        update_password(user, form.password.data)
+        do_flash(*get_message('PASSWORD_RESET'))
+        login_user(user, True)
+        return redirect(get_url(_security.post_reset_view) or
+                        get_url(_security.post_login_view))
 
     return render_template('security/reset_password.html',
                            reset_password_form=form,
