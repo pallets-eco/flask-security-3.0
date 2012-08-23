@@ -59,7 +59,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_bad_password(self):
         r = self.authenticate(password="bogus")
-        self.assertIn("Password does not match", r.data)
+        self.assertIn("Invalid password", r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")

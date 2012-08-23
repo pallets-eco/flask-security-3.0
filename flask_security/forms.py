@@ -11,11 +11,13 @@
 
 from flask import request, current_app as app
 from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
-     HiddenField, Required, BooleanField, EqualTo, Email, ValidationError
+     HiddenField, Required, BooleanField, EqualTo, Email, ValidationError, \
+     Length
 from werkzeug.local import LocalProxy
 
+from .confirmable import requires_confirmation
 from .exceptions import UserNotFoundError
-from .utils import encrypt_password
+from .utils import verify_password, get_message
 
 # Convenient reference
 _datastore = LocalProxy(lambda: app.extensions['security'].datastore)
@@ -23,6 +25,8 @@ _datastore = LocalProxy(lambda: app.extensions['security'].datastore)
 email_required = Required(message='Email not provided')
 
 email_validator = Email(message='Invalid email address')
+
+password_required = Required(message="Password not provided")
 
 
 def unique_user_email(form, field):
@@ -63,12 +67,25 @@ class UniqueEmailFormMixin():
 
 class PasswordFormMixin():
     password = PasswordField("Password",
-        validators=[Required(message="Password not provided")])
+        validators=[password_required])
 
+
+class NewPasswordFormMixin():
+    password = PasswordField("Password",
+        validators=[password_required,
+                    Length(min=6, max=128)])
 
 class PasswordConfirmFormMixin():
     password_confirm = PasswordField("Retype Password",
         validators=[EqualTo('password', message="Passwords do not match")])
+
+
+class NextFormMixin():
+    next = HiddenField()
+
+
+class RegisterFormMixin():
+    submit = SubmitField("Register")
 
 
 class SendConfirmationForm(Form, UserEmailFormMixin):
@@ -80,6 +97,14 @@ class SendConfirmationForm(Form, UserEmailFormMixin):
         super(SendConfirmationForm, self).__init__(*args, **kwargs)
         if request.method == 'GET':
             self.email.data = request.args.get('email', None)
+
+    def validate(self):
+        if not super(SendConfirmationForm, self).validate():
+            return False
+        if self.user.confirmed_at is not None:
+            self.email.errors.append(get_message('ALREADY_CONFIRMED')[0])
+            return False
+        return True
 
     def to_dict(self):
         return dict(email=self.email.data)
@@ -94,10 +119,9 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
         return dict(email=self.email.data)
 
 
-class PasswordlessLoginForm(Form, UserEmailFormMixin):
+class PasswordlessLoginForm(Form, UserEmailFormMixin, NextFormMixin):
     """The passwordless login form"""
 
-    next = HiddenField()
     submit = SubmitField("Send Login Link")
 
     def __init__(self, *args, **kwargs):
@@ -105,38 +129,55 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         if request.method == 'GET':
             self.next.data = request.args.get('next', None)
 
+    def validate(self):
+        if not super(PasswordlessLoginForm, self).validate():
+            return False
+        if not self.user.is_active():
+            self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            return False
+        return True
+
     def to_dict(self):
-        return dict(email=self.email.data)
+        return dict(user=self.user, next=self.next.data)
 
 
-class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin):
+class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
     """The default login form"""
 
     remember = BooleanField("Remember Me")
-    next = HiddenField()
     submit = SubmitField("Login")
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.next.data = request.args.get('next', None)
 
+    def validate(self):
+        if not super(LoginForm, self).validate():
+            return False
+        if not verify_password(self.password.data, self.user.password):
+            self.password.errors.append('Invalid password')
+            return False
+        if requires_confirmation(self.user):
+            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            return False
+        if not self.user.is_active():
+            self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            return False
+        return True
 
-class RegisterForm(Form,
-                   UniqueEmailFormMixin,
-                   PasswordFormMixin,
-                   PasswordConfirmFormMixin):
-    """The default register form"""
 
-    submit = SubmitField("Register")
-
+class ConfirmRegisterForm(Form, RegisterFormMixin,
+                          UniqueEmailFormMixin, NewPasswordFormMixin):
     def to_dict(self):
         return dict(email=self.email.data,
-                    password=encrypt_password(self.password.data))
+                    password=self.password.data)
 
 
-class ResetPasswordForm(Form,
-                        PasswordFormMixin,
-                        PasswordConfirmFormMixin):
+class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
+    pass
+
+
+class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     """The default reset password form"""
 
     submit = SubmitField("Reset Password")
