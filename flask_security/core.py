@@ -142,25 +142,34 @@ def _get_pwd_context(app):
     return CryptContext(schemes=[pw_hash], default=pw_hash)
 
 
-def _get_serializer(app, salt):
-    secret_key = app.config.get('SECRET_KEY', 'secret-key')
+def _get_serializer(app, name):
+    secret_key = app.config.get('SECRET_KEY')
+    salt = app.config.get('SECURITY_%s_SALT' % name.upper())
     return URLSafeTimedSerializer(secret_key=secret_key, salt=salt)
 
 
-def _get_remember_token_serializer(app):
-    return _get_serializer(app, app.config['SECURITY_REMEMBER_SALT'])
+def _get_state(app, datastore, **kwargs):
+    for key, value in get_config(app).items():
+        kwargs[key.lower()] = value
+
+    kwargs.update(dict(
+        app=app,
+        datastore=datastore,
+        login_manager=_get_login_manager(app),
+        principal=_get_principal(app),
+        pwd_context=_get_pwd_context(app),
+        context_processors={},
+        remember_token_serializer=_get_serializer(app, 'remember'),
+        login_serializer=_get_serializer(app, 'login'),
+        reset_serializer=_get_serializer(app, 'reset'),
+        confirm_serializer=_get_serializer(app, 'confirm')
+    ))
+
+    return _SecurityState(**kwargs)
 
 
-def _get_reset_serializer(app):
-    return _get_serializer(app, app.config['SECURITY_RESET_SALT'])
-
-
-def _get_confirm_serializer(app):
-    return _get_serializer(app, app.config['SECURITY_CONFIRM_SALT'])
-
-
-def _get_login_serializer(app):
-    return _get_serializer(app, app.config['SECURITY_LOGIN_SALT'])
+def _context_processor():
+    return dict(url_for_security=url_for_security, security=_security)
 
 
 class RoleMixin(object):
@@ -272,7 +281,7 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True, **kwargs):
+    def init_app(self, app, datastore=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -289,48 +298,12 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        if register_blueprint:
-            name = cv('BLUEPRINT_NAME', app=app)
-            url_prefix = cv('URL_PREFIX', app=app)
-            bp = create_blueprint(app, name, __name__,
-                                  url_prefix=url_prefix,
-                                  template_folder='templates')
-            app.register_blueprint(bp)
-
-        state = self._get_state(app, datastore, **kwargs)
-
+        state = _get_state(app, datastore)
+        app.register_blueprint(create_blueprint(state, __name__))
+        app.context_processor(_context_processor)
         app.extensions['security'] = state
 
-        app.context_processor(lambda: dict(url_for_security=url_for_security,
-                                           security=state))
-
         return state
-
-    def _get_state(self, app, datastore, **kwargs):
-        assert app is not None
-        assert datastore is not None
-
-        for key, value in get_config(app).items():
-            kwargs[key.lower()] = value
-
-        for key, value in [
-                ('app', app),
-                ('datastore', datastore),
-                ('login_manager', _get_login_manager(app)),
-                ('principal', _get_principal(app)),
-                ('pwd_context', _get_pwd_context(app)),
-                ('remember_token_serializer', _get_remember_token_serializer(app)),
-                ('context_processors', {})]:
-            kwargs[key] = value
-
-        kwargs['login_serializer'] = (
-            _get_login_serializer(app) if kwargs['passwordless'] else None)
-        kwargs['reset_serializer'] = (
-            _get_reset_serializer(app) if kwargs['recoverable'] else None)
-        kwargs['confirm_serializer'] = (
-            _get_confirm_serializer(app) if kwargs['confirmable'] else None)
-
-        return _SecurityState(**kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)

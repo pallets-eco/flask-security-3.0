@@ -243,45 +243,45 @@ def reset_password(token):
                            **_ctx('reset_password'))
 
 
-def create_blueprint(app, name, import_name, **kwargs):
+def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
 
-    bp = Blueprint(name, import_name, **kwargs)
+    bp = Blueprint(state.blueprint_name, import_name,
+                   url_prefix=state.url_prefix,
+                   template_folder='templates')
 
-    if config_value('PASSWORDLESS', app=app):
-        bp.route(config_value('LOGIN_URL', app=app),
+    bp.route(state.logout_url, endpoint='logout')(logout)
+
+    if state.passwordless:
+        bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
-
-        bp.route(config_value('LOGIN_URL', app=app) + '/<token>',
+        bp.route(state.login_url + '/<token>',
                  methods=['GET'],
                  endpoint='token_login')(token_login)
     else:
-        bp.route(config_value('LOGIN_URL', app=app),
+        bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(login)
 
-    bp.route(config_value('LOGOUT_URL', app=app),
-             endpoint='logout')(logout)
-
-    if config_value('REGISTERABLE', app=app):
-        bp.route(config_value('REGISTER_URL', app=app),
+    if state.registerable:
+        bp.route(state.register_url,
                  methods=['GET', 'POST'],
                  endpoint='register')(register)
 
-    if config_value('RECOVERABLE', app=app):
-        bp.route(config_value('RESET_URL', app=app),
+    if state.recoverable:
+        bp.route(state.reset_url,
                  methods=['GET', 'POST'],
                  endpoint='forgot_password')(forgot_password)
-        bp.route(config_value('RESET_URL', app=app) + '/<token>',
+        bp.route(state.reset_url + '/<token>',
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
 
-    if config_value('CONFIRMABLE', app=app):
-        bp.route(config_value('CONFIRM_URL', app=app),
+    if state.confirmable:
+        bp.route(state.confirm_url,
                  methods=['GET', 'POST'],
                  endpoint='send_confirmation')(send_confirmation)
-        bp.route(config_value('CONFIRM_URL', app=app) + '/<token>',
+        bp.route(state.confirm_url + '/<token>',
                  methods=['GET', 'POST'],
                  endpoint='confirm_email')(confirm_email)
 

@@ -37,9 +37,6 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
-_logger = LocalProxy(lambda: current_app.logger)
-
-
 def anonymous_user_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):

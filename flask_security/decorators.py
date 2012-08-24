@@ -22,8 +22,6 @@ from . import utils
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
 
-_logger = LocalProxy(lambda: current_app.logger)
-
 
 _default_unauthorized_html = """
     <h1>Unauthorized</h1>
@@ -129,8 +127,6 @@ def roles_required(*roles):
             perms = [Permission(RoleNeed(role)) for role in roles]
             for perm in perms:
                 if not perm.can():
-                    _logger.debug('Identity does not provide the '
-                                  'roles: %s' % [r for r in roles])
                     return _get_unauthorized_view()
             return fn(*args, **kwargs)
         return decorated_view
@@ -157,10 +153,6 @@ def roles_accepted(*roles):
             perm = Permission(*[RoleNeed(role) for role in roles])
             if perm.can():
                 return fn(*args, **kwargs)
-            r1 = [r for r in roles]
-            r2 = [r.name for r in current_user.roles]
-            _logger.debug('Current user does not provide a required role. '
-                          'Accepted: %s Provided: %s' % (r1, r2))
             return _get_unauthorized_view()
         return decorated_view
     return wrapper
