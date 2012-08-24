@@ -10,16 +10,16 @@ and `Role` model should include the following fields:
 
 **User**
 
-* id
-* email
-* password
-* active
+* ``id``
+* ``email``
+* ``password``
+* ``active``
 
 **Role**
 
-* id
-* name
-* description
+* ``id``
+* ``name``
+* ``description``
 
 
 Additional Functionality
@@ -35,7 +35,7 @@ If you enable account confirmation by setting your application's
 `SECURITY_CONFIRMABLE` configuration value to `True` your `User` model will
 require the following additional field:
 
-* confirmed_at
+* ``confirmed_at``
 
 Trackable
 ^^^^^^^^^
@@ -44,8 +44,8 @@ If you enable user tracking by setting your application's `SECURITY_TRACKABLE`
 configuration value to `True` your `User` model will require the following
 additional fields:
 
-* last_login_at
-* current_login_at
-* last_login_ip
-* current_login_ip
-* login_count
+* ``last_login_at``
+* ``current_login_at``
+* ``last_login_ip``
+* ``current_login_ip``
+* ``login_count``

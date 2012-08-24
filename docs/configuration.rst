@@ -24,15 +24,10 @@ Core
                                          production systems are ``bcrypt``,
                                          ``sha512_crypt``, or ``pbkdf2_sha512``.
                                          Defaults to ``plaintext``.
-``SECURITY_PASSWORD_HMAC``               Specifies if Flask-Security should also
-                                         use HMAC when encrypting and decrypting
-                                         passwords. If set to ``True`` be sure
-                                         to specify a salt value via the
-                                         ``SECURITY_PASSWORD_HMAC_SALT``
-                                         configuration option. Defaults to
-                                         ``False``.
-``SECURITY_PASSWORD_HMAC_SALT``          Specifies the HMAC salt. Defaults to
-                                         ``None``.
+``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
+                                         used if the password hash type is set
+                                         to something other than plain text.
+                                         Defaults to ``None``.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to
                                          ``no-reply@localhost``.
