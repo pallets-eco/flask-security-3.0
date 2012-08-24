@@ -3,18 +3,16 @@
 import unittest
 
 from flask_security import RoleMixin, UserMixin, AnonymousUser
-from flask_security.datastore import UserDatastore
+from flask_security.datastore import Datastore, UserDatastore
 
 
 class Role(RoleMixin):
-    def __init__(self, name, description=None):
+    def __init__(self, name):
         self.name = name
-        self.description = description
 
 
 class User(UserMixin):
-    def __init__(self, username, email, roles):
-        self.username = username
+    def __init__(self, email, roles):
         self.email = email
         self.roles = roles
 
@@ -22,7 +20,7 @@ admin = Role('admin')
 admin2 = Role('admin')
 editor = Role('editor')
 
-user = User('matt', 'matt@lp.com', [admin, editor])
+user = User('matt@lp.com', [admin, editor])
 
 
 class SecurityEntityTests(unittest.TestCase):
@@ -45,11 +43,46 @@ class SecurityEntityTests(unittest.TestCase):
         self.assertFalse(au.has_role('admin'))
 
 
-class UserDatastoreTests(unittest.TestCase):
+class DatastoreTests(unittest.TestCase):
 
-    def test_unimplemented(self):
-        ds = UserDatastore(None, None, None)
-        self.assertRaises(NotImplementedError, ds._save_model, None)
-        self.assertRaises(NotImplementedError, ds._delete_model, None)
-        self.assertRaises(NotImplementedError, ds._do_find_user)
-        self.assertRaises(NotImplementedError, ds._do_find_role)
+    def setUp(self):
+        super(DatastoreTests, self).setUp()
+        self.ds = UserDatastore(None, None)
+
+    def test_unimplemented_datastore_methods(self):
+        ds = Datastore(None)
+        self.assertRaises(NotImplementedError, ds.put, None)
+        self.assertRaises(NotImplementedError, ds.delete, None)
+
+    def test_unimplemented_user_datastore_methods(self):
+        self.assertRaises(NotImplementedError, self.ds.find_user)
+        self.assertRaises(NotImplementedError, self.ds.find_role)
+
+    def test_toggle_active(self):
+        user.active = True
+        rv = self.ds.toggle_active(user)
+        self.assertTrue(rv)
+        self.assertFalse(user.active)
+        rv = self.ds.toggle_active(user)
+        self.assertTrue(rv)
+        self.assertTrue(user.active)
+
+    def test_deactivate_user(self):
+        user.active = True
+        rv = self.ds.deactivate_user(user)
+        self.assertTrue(rv)
+        self.assertFalse(user.active)
+
+    def test_activate_user(self):
+        ds = UserDatastore(None, None)
+        user.active = False
+        ds.activate_user(user)
+        self.assertTrue(user.active)
+
+    def test_deactivate_returns_false_if_already_false(self):
+        user.active = False
+        self.assertFalse(self.ds.deactivate_user(user))
+
+    def test_activate_returns_false_if_already_true(self):
+        user.active = True
+        self.assertFalse(self.ds.activate_user(user))

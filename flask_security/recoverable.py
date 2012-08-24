@@ -75,6 +75,6 @@ def update_password(user, password):
     :param password: The unencrypted new password
     """
     user.password = encrypt_password(password)
-    _datastore._save_model(user)
+    _datastore.put(user)
     send_password_reset_notice(user)
     password_reset.send(user, app=app._get_current_object())

@@ -32,7 +32,7 @@ def pprint(obj):
 def commit(fn):
     def wrapper(*args, **kwargs):
         fn(*args, **kwargs)
-        _datastore._commit()
+        _datastore.commit()
     return wrapper
 
 

@@ -175,10 +175,12 @@ def _context_processor():
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
-        return self.name == other or self.name == getattr(other, 'name', None)
+        return (self.name == other or \
+                self.name == getattr(other, 'name', None))
 
     def __ne__(self, other):
-        return self.name != other and self.name != getattr(other, 'name', None)
+        return (self.name != other and
+                self.name != getattr(other, 'name', None))
 
 
 class UserMixin(BaseUserMixin):

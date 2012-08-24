@@ -64,7 +64,7 @@ def login_user(user, remember=True):
 
         user.login_count = user.login_count + 1 if user.login_count else 1
 
-    _datastore._save_model(user)
+    _datastore.put(user)
     identity_changed.send(current_app._get_current_object(),
                           identity=Identity(user.id))
 

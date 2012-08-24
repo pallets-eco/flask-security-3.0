@@ -51,7 +51,7 @@ def _render_json(form):
 
 
 def _commit(response=None):
-    _datastore._commit()
+    _datastore.commit()
     return response
 
 

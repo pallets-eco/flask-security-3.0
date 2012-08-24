@@ -26,7 +26,7 @@ def register_user(**kwargs):
     confirmation_link, token = None, None
     kwargs['password'] = encrypt_password(kwargs['password'])
     user = _datastore.create_user(**kwargs)
-    _datastore._commit()
+    _datastore.commit()
 
     if _security.confirmable:
         confirmation_link, token = generate_confirmation_link(user)

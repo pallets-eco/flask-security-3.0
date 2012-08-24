@@ -111,8 +111,7 @@ def create_app(config):
 def create_roles():
     for role in ('admin', 'editor', 'author'):
         ds.create_role(name=role)
-    ds._commit()
-
+    ds.commit()
 
 def create_users():
     for u in  (('matt@lp.com', 'password', ['admin'], True),
@@ -122,7 +121,7 @@ def create_users():
                ('tiya@lp.com', 'password', [], False)):
         ds.create_user(email=u[0], password=encrypt_password(u[1]),
                        roles=u[2], active=u[3])
-    ds._commit()
+    ds.commit()
 
 def populate_data():
     create_roles()
