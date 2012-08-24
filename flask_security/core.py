@@ -158,11 +158,12 @@ def _get_state(app, datastore, **kwargs):
         login_manager=_get_login_manager(app),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
-        context_processors={},
         remember_token_serializer=_get_serializer(app, 'remember'),
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),
-        confirm_serializer=_get_serializer(app, 'confirm')
+        confirm_serializer=_get_serializer(app, 'confirm'),
+        _context_processors={},
+        _send_mail_task=None
     ))
 
     return _SecurityState(**kwargs)
@@ -217,31 +218,20 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
-        self._send_mail_task = None
 
     def _add_ctx_processor(self, endpoint, fn):
-        c = self.context_processors
-
-        if endpoint not in c:
-            c[endpoint] = []
-
-        if fn not in c[endpoint]:
-            c[endpoint].append(fn)
+        group = self._context_processors.setdefault(endpoint, [])
+        fn not in group and group.append(fn)
 
     def _run_ctx_processor(self, endpoint):
         rv, fns = {}, []
-
-        for g in ['all', endpoint]:
-            if g in self.context_processors:
-                fns += self.context_processors[g]
-
-        for fn in fns:
-            rv.update(fn())
-
+        for g in [None, endpoint]:
+            for fn in self._context_processors.setdefault(g, []):
+                rv.update(fn())
         return rv
 
     def context_processor(self, fn):
-        self._add_ctx_processor('all', fn)
+        self._add_ctx_processor(None, fn)
 
     def forgot_password_context_processor(self, fn):
         self._add_ctx_processor('forgot_password', fn)
