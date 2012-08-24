@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+
+sys.path.pop(0)
+sys.path.insert(0, os.getcwd())
 
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.security import Security, UserMixin, RoleMixin, \

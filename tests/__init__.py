@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
 from tests.test_app.sqlalchemy import create_app
 
