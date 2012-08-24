@@ -204,7 +204,6 @@ class ConfiguredSecurityTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_PASSWORD_HASH': 'bcrypt',
         'SECURITY_PASSWORD_SALT': 'so-salty',
-        'SECURITY_PASSWORD_HMAC': True,
         'SECURITY_REGISTERABLE': True,
         'SECURITY_LOGOUT_URL': '/custom_logout',
         'SECURITY_LOGIN_URL': '/custom_login',
@@ -260,6 +259,16 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="Custom Realm"', r.headers['WWW-Authenticate'])
+
+
+class BadConfiguredSecurityTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+    }
+
+    def test_bad_configuration_raises_runtimer_error(self):
+        self.assertRaises(RuntimeError, self.authenticate)
 
 
 class RegisterableTests(SecurityTest):
