@@ -12,6 +12,7 @@
 import base64
 import hashlib
 import hmac
+import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import wraps
@@ -76,33 +77,18 @@ def logout_user():
     _logout_user()
 
 
-def get_hmac(msg, salt=None, digestmod=None):
-    digestmod = digestmod or hashlib.sha512
-    return base64.b64encode(hmac.new(salt, msg, digestmod).digest())
+def get_hmac(password):
+    if _security.password_hash == 'plaintext':
+        return password
+    h = hmac.new(_security.password_salt, password, hashlib.sha512)
+    return base64.b64encode(h.digest())
+
+def verify_password(password, password_hash):
+    return _pwd_context.verify(get_hmac(password), password_hash)
 
 
-def verify_password(password, password_hash, use_hmac=None):
-    if use_hmac is None:
-        use_hmac = _security.password_hmac
-
-    if use_hmac:
-        hmac_value = get_hmac(password, _security.password_hmac_salt)
-    else:
-        hmac_value = password
-
-    return _pwd_context.verify(hmac_value, password_hash)
-
-
-def encrypt_password(password, salt=None, use_hmac=None):
-    if use_hmac is None:
-        use_hmac = _security.password_hmac
-
-    if use_hmac:
-        hmac_value = get_hmac(password, _security.password_hmac_salt)
-    else:
-        hmac_value = password
-
-    return _pwd_context.encrypt(hmac_value)
+def encrypt_password(password):
+    return _pwd_context.encrypt(get_hmac(password))
 
 
 def md5(data):

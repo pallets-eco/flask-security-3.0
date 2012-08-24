@@ -203,7 +203,7 @@ class ConfiguredSecurityTests(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_PASSWORD_HASH': 'bcrypt',
-        'SECURITY_PASSWORD_HMAC_SALT': 'so-salty',
+        'SECURITY_PASSWORD_SALT': 'so-salty',
         'SECURITY_PASSWORD_HMAC': True,
         'SECURITY_REGISTERABLE': True,
         'SECURITY_LOGOUT_URL': '/custom_logout',
