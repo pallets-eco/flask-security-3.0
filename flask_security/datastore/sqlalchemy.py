@@ -33,6 +33,7 @@ class SQLAlchemyUserDatastore(UserDatastore):
 
     def get_models(self):
         db = self.db
+        user_account_mixin = self.user_account_mixin
 
         roles_users = db.Table('roles_users',
             db.Column('user_id', db.Integer(), db.ForeignKey('role.id')),
@@ -63,16 +64,15 @@ class SQLAlchemyUserDatastore(UserDatastore):
             roles = db.relationship('Role', secondary=roles_users,
                                     backref=db.backref('users', lazy='dynamic'))
 
-            def __init__(self, username=None, email=None, password=None,
-                         active=True, roles=None,
-                         created_at=None, modified_at=None):
-                self.username = username
-                self.email = email
-                self.password = password
-                self.active = active
-                self.roles = roles or []
-                self.created_at = created_at
-                self.modified_at = modified_at
+            def __init__(self, **kwargs):
+                if not issubclass(user_account_mixin, object):
+                    user_account_mixin.__init__(self, **kwargs)
+
+                for field in ['username', 'email', 'password', 'created_at', 'modified_at']:
+                    setattr(self, field, kwargs.get(field, None))
+
+                self.active = kwargs.get('active', True)
+                self.roles = kwargs.get('roles') or []
 
         return User, Role
 
