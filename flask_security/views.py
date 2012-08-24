@@ -257,7 +257,6 @@ def create_blueprint(state, import_name):
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
         bp.route(state.login_url + '/<token>',
-                 methods=['GET'],
                  endpoint='token_login')(token_login)
     else:
         bp.route(state.login_url,
