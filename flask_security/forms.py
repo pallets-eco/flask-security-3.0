@@ -9,17 +9,17 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import request, current_app as app
-from flask.ext.wtf import Form, TextField, PasswordField, SubmitField, \
-     HiddenField, Required, BooleanField, EqualTo, Email, ValidationError, \
-     Length
+from flask import request, current_app
+from flask.ext.wtf import Form as BaseForm, TextField, PasswordField, \
+     SubmitField, HiddenField, Required, BooleanField, EqualTo, Email, \
+     ValidationError, Length
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
 from .utils import verify_password, get_message
 
 # Convenient reference
-_datastore = LocalProxy(lambda: app.extensions['security'].datastore)
+_datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 email_required = Required(message='Email not provided')
 
@@ -39,6 +39,11 @@ def valid_user_email(form, field):
     if form.user is None:
         raise ValidationError('Specified user does not exist')
 
+
+class Form(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super(Form, self).__init__(csrf_enabled=not current_app.testing,
+                                   *args, **kwargs)
 
 class EmailFormMixin():
     email = TextField("Email Address",

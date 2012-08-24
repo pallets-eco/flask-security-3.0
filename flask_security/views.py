@@ -9,29 +9,29 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app as app, redirect, request, \
-     render_template, jsonify, after_this_request, Blueprint
+from flask import current_app, redirect, request, render_template, jsonify, \
+     after_this_request, Blueprint
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-from flask_security.confirmable import send_confirmation_instructions, \
+from .confirmable import send_confirmation_instructions, \
      confirm_user, confirm_email_token_status
-from flask_security.decorators import login_required
-from flask_security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+from .decorators import login_required
+from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
      ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
      PasswordlessLoginForm
-from flask_security.passwordless import send_login_instructions, \
+from .passwordless import send_login_instructions, \
      login_token_status
-from flask_security.recoverable import reset_password_token_status, \
+from .recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
-from flask_security.registerable import register_user
-from flask_security.utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, config_value, login_user, logout_user, \
-     anonymous_user_required, url_for_security as url_for
+from .registerable import register_user
+from .utils import get_url, get_post_login_redirect, do_flash, \
+     get_message, login_user, logout_user, anonymous_user_required, \
+     url_for_security as url_for
 
 
 # Convenient references
-_security = LocalProxy(lambda: app.extensions['security'])
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 _datastore = LocalProxy(lambda: _security.datastore)
 
@@ -64,11 +64,9 @@ def login():
     """View function for login view"""
 
     if request.json:
-        form_data = MultiDict(request.json)
+        form = LoginForm(MultiDict(request.json))
     else:
-        form_data = request.form
-
-    form = LoginForm(form_data, csrf_enabled=not app.testing)
+        form = LoginForm()
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
@@ -100,11 +98,9 @@ def register():
     """View function which handles a registration request."""
 
     if _security.confirmable:
-        form = ConfirmRegisterForm
+        form = ConfirmRegisterForm()
     else:
-        form = RegisterForm
-
-    form = form(csrf_enabled=not app.testing)
+        form = RegisterForm()
 
     if form.validate_on_submit():
         user = register_user(**form.to_dict())
@@ -127,7 +123,7 @@ def register():
 def send_login():
     """View function that sends login instructions for passwordless login"""
 
-    form = PasswordlessLoginForm(csrf_enabled=not app.testing)
+    form = PasswordlessLoginForm()
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
@@ -163,7 +159,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    form = SendConfirmationForm(csrf_enabled=not app.testing)
+    form = SendConfirmationForm()
 
     if form.validate_on_submit():
         send_confirmation_instructions(form.user)
@@ -203,7 +199,7 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    form = ForgotPasswordForm(csrf_enabled=not app.testing)
+    form = ForgotPasswordForm()
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
@@ -228,7 +224,7 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = ResetPasswordForm(csrf_enabled=not app.testing)
+    form = ResetPasswordForm()
 
     if form.validate_on_submit():
         update_password(user, form.password.data)

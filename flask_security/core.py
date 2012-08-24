@@ -9,12 +9,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
      UserMixin as BaseUserMixin, LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
      identity_loaded
+from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
