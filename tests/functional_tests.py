@@ -424,6 +424,7 @@ class RecoverableTests(SecurityTest):
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
 
+        r = self.logout()
         r = self.authenticate('joe@lp.com', 'newpassword')
         self.assertIn('Hello joe@lp.com', r.data)
 
