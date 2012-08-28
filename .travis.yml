@@ -1,14 +1,12 @@
 language: python
 
 python:
-  - "2.5"
   - "2.6"
   - "2.7"
 
 install:
   - pip install . --quiet --use-mirrors
   - "if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then pip install importlib simplejson --quiet --use-mirrors; fi"
-  - "if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install mongoengine==0.6.5 --quiet --use-mirrors; fi"
   - pip install nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt MySQL-python --quiet --use-mirrors
   - pip install https://github.com/rduplain/flask-mail/tarball/master
 
