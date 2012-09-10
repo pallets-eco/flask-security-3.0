@@ -36,8 +36,6 @@ def unique_user_email(form, field):
 
 def valid_user_email(form, field):
     form.user = _datastore.find_user(email=field.data)
-    if form.user is None:
-        raise ValidationError('Specified user does not exist')
 
 
 class Form(BaseForm):
@@ -143,8 +141,9 @@ class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
     def validate(self):
         if not super(LoginForm, self).validate():
             return False
-        if not verify_password(self.password.data, self.user.password):
-            self.password.errors.append('Invalid password')
+        if not self.user or not verify_password(self.password.data, self.user.password):
+            self.email.errors.append('Invalid email or password')
+            self.password.errors.append('Invalid email or password')
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
