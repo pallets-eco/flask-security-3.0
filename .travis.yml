@@ -7,8 +7,7 @@ python:
 install:
   - pip install . --quiet --use-mirrors
   - "if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then pip install importlib simplejson --quiet --use-mirrors; fi"
-  - pip install nose Flask-SQLAlchemy Flask-MongoEngine py-bcrypt MySQL-python --quiet --use-mirrors
-  - pip install https://github.com/rduplain/flask-mail/tarball/master
+  - pip install nose Flask-SQLAlchemy Flask-MongoEngine Flask-Mail py-bcrypt MySQL-python --quiet --use-mirrors
 
 before_script:
   - mysql -e 'create database flask_security_test;'
