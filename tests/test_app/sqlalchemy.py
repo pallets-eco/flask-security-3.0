@@ -14,7 +14,7 @@ from flask.ext.security import Security, UserMixin, RoleMixin, \
 from tests.test_app import create_app as create_base_app, populate_data, \
      add_context_processors
 
-def create_app(config):
+def create_app(config, register_blueprint=True):
     app = create_base_app(config)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
@@ -50,7 +50,8 @@ def create_app(config):
         db.create_all()
         populate_data()
 
-    app.security = Security(app, SQLAlchemyUserDatastore(db, User, Role))
+    app.security = Security(app, SQLAlchemyUserDatastore(db, User, Role),
+                            register_blueprint=register_blueprint)
 
     add_context_processors(app.security)
 

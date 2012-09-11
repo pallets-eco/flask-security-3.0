@@ -622,3 +622,19 @@ class AsyncMailTaskTests(SecurityTest):
 
         self.client.post('/reset', data=dict(email='joe@lp.com'))
         self.assertTrue(self.mail_sent)
+
+
+class NoBlueprintTests(SecurityTest):
+
+    def _create_app(self, auth_config):
+        return super(NoBlueprintTests, self)._create_app(auth_config, False)
+
+    def test_login_endpoint_is_404(self):
+        r = self._get('/login')
+        self.assertEqual(404, r.status_code)
+
+    def test_http_auth_without_blueprint(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+        })
+        self.assertIn('HTTP Authentication', r.data)

@@ -17,8 +17,8 @@ class SecurityTest(TestCase):
         self.app = app
         self.client = app.test_client()
 
-    def _create_app(self, auth_config):
-        return create_app(auth_config)
+    def _create_app(self, auth_config, register_blueprint=True):
+        return create_app(auth_config, register_blueprint)
 
     def _get(self, route, content_type=None, follow_redirects=None, headers=None):
         return self.client.get(route, follow_redirects=follow_redirects,

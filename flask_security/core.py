@@ -272,7 +272,7 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None):
+    def init_app(self, app, datastore=None, register_blueprint=True):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -290,8 +290,11 @@ class Security(object):
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
         state = _get_state(app, datastore)
-        app.register_blueprint(create_blueprint(state, __name__))
-        app.context_processor(_context_processor)
+
+        if register_blueprint:
+            app.register_blueprint(create_blueprint(state, __name__))
+            app.context_processor(_context_processor)
+
         app.extensions['security'] = state
 
         return state

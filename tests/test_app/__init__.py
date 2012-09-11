@@ -38,7 +38,7 @@ def create_app(config):
     @app.route('/http')
     @http_auth_required
     def http():
-        return render_template('index.html', content='HTTP Authentication')
+        return 'HTTP Authentication'
 
     @app.route('/http_custom_realm')
     @http_auth_required('My Realm')
