@@ -35,9 +35,13 @@ def unique_user_email(form, field):
 
 
 def valid_user_email(form, field):
-    form.user = _datastore.find_user(email=field.data)
+    load_user_email(form, field)
     if form.user is None:
         raise ValidationError('Specified user does not exist')
+
+
+def load_user_email(form, field):
+    form.user = _datastore.find_user(email=field.data)
 
 
 class Form(BaseForm):
@@ -57,6 +61,14 @@ class UserEmailFormMixin():
         validators=[email_required,
                     email_validator,
                     valid_user_email])
+
+
+class UserEmailLoginFormMixin():
+    user = None
+    email = TextField("Email Address",
+        validators=[email_required,
+                    email_validator,
+                    load_user_email])
 
 
 class UniqueEmailFormMixin():
@@ -131,7 +143,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return True
 
 
-class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
+class LoginForm(Form, UserEmailLoginFormMixin, PasswordFormMixin, NextFormMixin):
     """The default login form"""
 
     remember = BooleanField("Remember Me")
@@ -143,8 +155,8 @@ class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
     def validate(self):
         if not super(LoginForm, self).validate():
             return False
-        if not verify_password(self.password.data, self.user.password):
-            self.password.errors.append('Invalid password')
+        if not self.user or not verify_password(self.password.data, self.user.password):
+            self.password.errors.append('Invalid email address or password')
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])

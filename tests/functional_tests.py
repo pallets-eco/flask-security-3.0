@@ -55,11 +55,11 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_invalid_user(self):
         r = self.authenticate(email="bogus@bogus.com")
-        self.assertIn("Specified user does not exist", r.data)
+        self.assertIn("Invalid email address or password", r.data)
 
     def test_bad_password(self):
         r = self.authenticate(password="bogus")
-        self.assertIn("Invalid password", r.data)
+        self.assertIn("Invalid email address or password", r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")
