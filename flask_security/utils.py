@@ -41,7 +41,7 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 def anonymous_user_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if request.json:
+        if request.json or _security.login_without_confirmation:
             return f(*args, **kwargs)
         if current_user.is_authenticated():
             return redirect(get_url(_security.post_login_view))
