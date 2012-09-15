@@ -228,6 +228,8 @@ def send_mail(subject, recipient, template, **context):
     :param template: The name of the email template
     :param context: The context to render the template with
     """
+    if _security.send_mail_function:
+        return _security.send_mail_function(subject, recipient, template, **context)
 
     context.setdefault('security', _security)
     context.update(_security._run_ctx_processor('mail'))
