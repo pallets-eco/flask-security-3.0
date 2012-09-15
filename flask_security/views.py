@@ -98,8 +98,14 @@ def register():
     """View function which handles a registration request."""
 
     if _security.confirmable:
+        if request.json:
+            form = ConfirmRegisterForm(MultiDict(request.json))
+        else:
         form = ConfirmRegisterForm()
     else:
+        if request.json:
+            form = RegisterForm(MultiDict(request.json))
+        else:
         form = RegisterForm()
 
     if form.validate_on_submit():
@@ -109,10 +115,13 @@ def register():
             after_this_request(_commit)
             login_user(user)
 
-        post_register_url = get_url(_security.post_register_view)
-        post_login_url = get_url(_security.post_login_view)
+        if not request.json:
+            post_register_url = get_url(_security.post_register_view)
+            post_login_url = get_url(_security.post_login_view)
+            return redirect(post_register_url or post_login_url)
 
-        return redirect(post_register_url or post_login_url)
+    if request.json:
+        return _render_json(form)
 
     return render_template('security/register_user.html',
                            register_user_form=form,
