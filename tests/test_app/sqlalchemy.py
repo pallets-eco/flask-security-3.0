@@ -2,6 +2,12 @@
 
 import sys
 import os
+from os import path as op
+
+ROOTDIR = op.abspath(
+    op.dirname(
+        op.dirname(
+            op.dirname(__file__))))
 
 sys.path.pop(0)
 sys.path.insert(0, os.getcwd())
@@ -17,7 +23,7 @@ from tests.test_app import create_app as create_base_app, populate_data, \
 def create_app(config, register_blueprint=True):
     app = create_base_app(config)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + op.join(ROOTDIR, 'flask_security_test.db')
 
     db = SQLAlchemy(app)
 
