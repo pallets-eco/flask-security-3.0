@@ -48,7 +48,7 @@ def create_app(config, register_blueprint=True):
     def before_first_request():
         db.drop_all()
         db.create_all()
-        populate_data()
+        populate_data(app.config.get('USER_COUNT', None))
 
     app.security = Security(app, SQLAlchemyUserDatastore(db, User, Role),
                             register_blueprint=register_blueprint)

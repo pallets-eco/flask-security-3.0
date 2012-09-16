@@ -12,13 +12,10 @@
 import base64
 import hashlib
 import hmac
-import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from functools import wraps
 
-from flask import url_for, flash, current_app, request, session, redirect, \
-     render_template
+from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.login import login_user as _login_user, \
      logout_user as _logout_user
 from flask.ext.mail import Message
@@ -26,7 +23,6 @@ from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
-from .core import current_user
 from .signals import user_registered, reset_password_instructions_sent, \
      login_instructions_sent
 
@@ -37,14 +33,6 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
-
-def anonymous_user_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if current_user.is_authenticated():
-            return redirect(get_url(_security.post_login_view))
-        return f(*args, **kwargs)
-    return wrapper
 
 
 def login_user(user, remember=True):

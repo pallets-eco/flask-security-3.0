@@ -113,19 +113,23 @@ def create_roles():
         ds.create_role(name=role)
     ds.commit()
 
-def create_users():
-    for u in  (('matt@lp.com', 'password', ['admin'], True),
-               ('joe@lp.com', 'password', ['editor'], True),
-               ('dave@lp.com', 'password', ['admin', 'editor'], True),
-               ('jill@lp.com', 'password', ['author'], True),
-               ('tiya@lp.com', 'password', [], False)):
-        ds.create_user(email=u[0], password=encrypt_password(u[1]),
+def create_users(count=None):
+    users = [('matt@lp.com', 'password', ['admin'], True),
+             ('joe@lp.com', 'password', ['editor'], True),
+             ('dave@lp.com', 'password', ['admin', 'editor'], True),
+             ('jill@lp.com', 'password', ['author'], True),
+             ('tiya@lp.com', 'password', [], False)]
+    count = count or len(users)
+
+    for u in users[:count]:
+        pw = encrypt_password(u[1])
+        ds.create_user(email=u[0], password=pw,
                        roles=u[2], active=u[3])
     ds.commit()
 
-def populate_data():
+def populate_data(user_count=None):
     create_roles()
-    create_users()
+    create_users(user_count)
 
 def add_context_processors(s):
     @s.context_processor

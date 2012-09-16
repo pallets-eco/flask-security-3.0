@@ -174,7 +174,7 @@ def confirm_email(token):
     """View function which handles a email confirmation request."""
 
     expired, invalid, user = confirm_email_token_status(token)
-
+    print expired, invalid, user
     if invalid:
         do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
     if expired:

@@ -42,7 +42,7 @@ def create_app(config):
     def before_first_request():
         User.drop_collection()
         Role.drop_collection()
-        populate_data()
+        populate_data(app.config.get('USER_COUNT', None))
 
     app.security = Security(app, MongoEngineUserDatastore(db, User, Role))
 
