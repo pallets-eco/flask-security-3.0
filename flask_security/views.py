@@ -101,12 +101,12 @@ def register():
         if request.json:
             form = ConfirmRegisterForm(MultiDict(request.json))
         else:
-        form = ConfirmRegisterForm()
+            form = ConfirmRegisterForm()
     else:
         if request.json:
             form = RegisterForm(MultiDict(request.json))
         else:
-        form = RegisterForm()
+            form = RegisterForm()
 
     if form.validate_on_submit():
         user = register_user(**form.to_dict())
