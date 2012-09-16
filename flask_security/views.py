@@ -16,7 +16,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import send_confirmation_instructions, \
      confirm_user, confirm_email_token_status
-from .decorators import login_required
+from .decorators import login_required, anonymous_user_required
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
      ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
      PasswordlessLoginForm
@@ -26,8 +26,7 @@ from .recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
 from .registerable import register_user
 from .utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, login_user, logout_user, anonymous_user_required, \
-     url_for_security as url_for
+     get_message, login_user, logout_user, url_for_security as url_for
 
 
 # Convenient references

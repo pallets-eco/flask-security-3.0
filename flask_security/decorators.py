@@ -52,10 +52,15 @@ def _check_token():
 
     try:
         data = serializer.loads(token)
-        user = _security.datastore.find_user(id=data[0])
-        return utils.md5(user.password) == data[1]
     except:
         return False
+
+    user = _security.datastore.find_user(id=data[0])
+
+    if utils.md5(user.password) == data[1]:
+        app = current_app._get_current_object()
+        identity_changed.send(app, identity=Identity(user.id))
+        return True
 
 
 def _check_http_auth():
@@ -155,4 +160,13 @@ def roles_accepted(*roles):
                 return fn(*args, **kwargs)
             return _get_unauthorized_view()
         return decorated_view
+    return wrapper
+
+
+def anonymous_user_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if current_user.is_authenticated():
+            return redirect(utils.get_url(_security.post_login_view))
+        return f(*args, **kwargs)
     return wrapper

@@ -89,6 +89,7 @@ def get_hmac(password):
     h = hmac.new(_security.password_salt, password, hashlib.sha512)
     return base64.b64encode(h.digest())
 
+
 def verify_password(password, password_hash):
     return _pwd_context.verify(get_hmac(password), password_hash)
 
