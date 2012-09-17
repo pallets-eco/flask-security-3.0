@@ -104,7 +104,7 @@ def register():
     if request.json:
         form_data = MultiDict(request.json)
     else:
-        form_data = None
+        form_data = request.form
 
     form = form_class(form_data)
 

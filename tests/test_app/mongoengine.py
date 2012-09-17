@@ -16,9 +16,11 @@ from tests.test_app import create_app as create_base_app, populate_data, \
 def create_app(config):
     app = create_base_app(config)
 
-    app.config['MONGODB_DB'] = 'flask_security_test'
-    app.config['MONGODB_HOST'] = 'localhost'
-    app.config['MONGODB_PORT'] = 27017
+    app.config['MONGODB_SETTINGS'] = dict(
+        db='flask_security_test',
+        host='localhost',
+        port=27017
+    )
 
     db = MongoEngine(app)
 
