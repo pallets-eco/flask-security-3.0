@@ -132,6 +132,7 @@ def register():
 
 def send_login():
     """View function that sends login instructions for passwordless login"""
+
     if request.json:
         form = PasswordlessLoginForm(MultiDict(request.json))
     else:
@@ -151,6 +152,7 @@ def send_login():
 @anonymous_user_required
 def token_login(token):
     """View function that handles passwordless login via a token"""
+
     expired, invalid, user = login_token_status(token)
 
     if invalid:
@@ -171,6 +173,7 @@ def token_login(token):
 
 def send_confirmation():
     """View function which sends confirmation instructions."""
+
     if request.json:
         form = SendConfirmationForm(MultiDict(request.json))
     else:
