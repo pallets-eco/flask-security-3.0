@@ -96,22 +96,33 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable:
-        form = ConfirmRegisterForm()
+    if _security.confirmable or request.json:
+        form_class = ConfirmRegisterForm
     else:
-        form = RegisterForm()
+        form_class = RegisterForm
+
+    if request.json:
+        form_data = MultiDict(request.json)
+    else:
+        form_data = None
+
+    form = form_class(form_data)
 
     if form.validate_on_submit():
         user = register_user(**form.to_dict())
+        form.user = user
 
         if not _security.confirmable or _security.login_without_confirmation:
             after_this_request(_commit)
             login_user(user)
 
-        post_register_url = get_url(_security.post_register_view)
-        post_login_url = get_url(_security.post_login_view)
+        if not request.json:
+            post_register_url = get_url(_security.post_register_view)
+            post_login_url = get_url(_security.post_login_view)
+            return redirect(post_register_url or post_login_url)
 
-        return redirect(post_register_url or post_login_url)
+    if request.json:
+        return _render_json(form)
 
     return render_template('security/register_user.html',
                            register_user_form=form,
@@ -174,7 +185,7 @@ def confirm_email(token):
     """View function which handles a email confirmation request."""
 
     expired, invalid, user = confirm_email_token_status(token)
-    print expired, invalid, user
+
     if invalid:
         do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
     if expired:

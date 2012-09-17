@@ -117,7 +117,9 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_ok_json_auth(self):
         r = self.json_authenticate()
-        self.assertIn('"code": 200', r.data)
+        data = json.loads(r.data)
+        self.assertEquals(data['meta']['code'], 200)
+        self.assertIn('authentication_token', data['response']['user'])
 
     def test_invalid_json_auth(self):
         r = self.json_authenticate(password='junk')
@@ -249,6 +251,15 @@ class ConfiguredSecurityTests(SecurityTest):
 
         r = self._post('/register', data=data, follow_redirects=True)
         self.assertIn('Post Register', r.data)
+
+    def test_register_json(self):
+        r = self._post('/register',
+                       data='{ "email": "dude@lp.com", "password": "password" }',
+                       content_type='application/json')
+        data = json.loads(r.data)
+        print data
+        self.assertEquals(data['meta']['code'], 200)
+        self.assertIn('authentication_token', data['response']['user'])
 
     def test_register_existing_email(self):
         data = dict(email='matt@lp.com',
