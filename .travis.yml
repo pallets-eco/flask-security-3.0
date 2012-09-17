@@ -12,6 +12,8 @@ install:
 before_script:
   - mysql -e 'create database flask_security_test;'
 
+services: mongodb:
+
 script: nosetests
 
 branches:
