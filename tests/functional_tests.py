@@ -257,7 +257,6 @@ class ConfiguredSecurityTests(SecurityTest):
                        data='{ "email": "dude@lp.com", "password": "password" }',
                        content_type='application/json')
         data = json.loads(r.data)
-        print data
         self.assertEquals(data['meta']['code'], 200)
         self.assertIn('authentication_token', data['response']['user'])
 
