@@ -131,9 +131,10 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return True
 
 
-class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
+class LoginForm(Form, NextFormMixin):
     """The default login form"""
-
+    email = TextField('Email Address', validators=[Email()])
+    password = PasswordField('Password')
     remember = BooleanField("Remember Me")
     submit = SubmitField("Login")
 
@@ -142,6 +143,11 @@ class LoginForm(Form, UserEmailFormMixin, PasswordFormMixin, NextFormMixin):
 
     def validate(self):
         if not super(LoginForm, self).validate():
+            return False
+        self.user = _datastore.find_user(email=self.email.data)
+
+        if self.user is None:
+            self.email.errors.append('Specified user does not exist')
             return False
         if not verify_password(self.password.data, self.user.password):
             self.password.errors.append('Invalid password')
