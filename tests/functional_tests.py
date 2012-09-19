@@ -49,10 +49,6 @@ class DefaultSecurityTests(SecurityTest):
         r = self.authenticate(password="")
         self.assertIn("Password not provided", r.data)
 
-    def test_invalid_email(self):
-        r = self.authenticate(email="bogus")
-        self.assertIn("Invalid email address", r.data)
-
     def test_invalid_user(self):
         r = self.authenticate(email="bogus@bogus.com")
         self.assertIn("Specified user does not exist", r.data)

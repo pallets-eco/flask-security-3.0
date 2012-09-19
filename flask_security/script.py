@@ -43,7 +43,6 @@ class CreateUserCommand(Command):
         Option('-e', '--email',    dest='email',    default=None),
         Option('-p', '--password', dest='password', default=None),
         Option('-a', '--active',   dest='active',   default=''),
-        Option('-r', '--roles',    dest='roles',    default=''),
     )
 
     @commit
@@ -52,16 +51,20 @@ class CreateUserCommand(Command):
         ai = re.sub(r'\s', '', str(kwargs['active']))
         kwargs['active'] = ai.lower() in ['', 'y', 'yes', '1', 'active']
 
-        # sanitize role input a bit
-        ri = re.sub(r'\s', '', kwargs['roles'])
-        kwargs['roles'] = [] if ri == '' else ri.split(',')
-        kwargs['password'] = encrypt_password(kwargs['password'])
+        from flask_security.forms import ConfirmRegisterForm
+        from werkzeug.datastructures import MultiDict
 
-        _datastore.create_user(**kwargs)
+        form = ConfirmRegisterForm(MultiDict(kwargs), csrf_enabled=False)
 
-        print 'User created successfully.'
-        kwargs['password'] = '****'
-        pprint(kwargs)
+        if form.validate():
+            kwargs['password'] = encrypt_password(kwargs['password'])
+            _datastore.create_user(**kwargs)
+            print 'User created successfully.'
+            kwargs['password'] = '****'
+            pprint(kwargs)
+        else:
+            print 'Error creating user'
+            pprint(form.errors)
 
 
 class CreateRoleCommand(Command):
