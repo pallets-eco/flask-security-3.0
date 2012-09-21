@@ -32,10 +32,10 @@ def register_user(**kwargs):
         confirmation_link, token = generate_confirmation_link(user)
         do_flash(*get_message('CONFIRM_REGISTRATION', email=user.email))
 
-    user_registered.send(dict(user=user, confirm_token=token),
-                         app=app._get_current_object())
+        user_registered.send(dict(user=user, confirm_token=token),
+                             app=app._get_current_object())
 
-    send_mail('Welcome', user.email, 'welcome',
-              user=user, confirmation_link=confirmation_link)
+        send_mail('Welcome', user.email, 'welcome',
+                  user=user, confirmation_link=confirmation_link)
 
     return user
