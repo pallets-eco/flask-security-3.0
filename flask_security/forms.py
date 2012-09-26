@@ -150,7 +150,7 @@ class LoginForm(Form, NextFormMixin):
             return False
 
         if self.password.data.strip() == '':
-            self.email.errors.append('Password not provided')
+            self.password.errors.append('Password not provided')
             return False
 
         self.user = _datastore.find_user(email=self.email.data)
