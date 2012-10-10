@@ -36,7 +36,7 @@ setup(
     install_requires=[
         'Flask>=0.9',
         'Flask-Login>=0.1.3',
-        'Flask-Mail>=0.6.1',
+        'Flask-Mail>=0.7.0',
         'Flask-Principal>=0.3',
         'Flask-WTF>=0.5.4',
         'itsdangerous>=0.15',
@@ -47,7 +47,8 @@ setup(
         'nose',
         'Flask-SQLAlchemy',
         'Flask-MongoEngine',
-        'py-bcrypt'
+        'py-bcrypt',
+        'simplejson'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

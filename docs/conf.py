@@ -100,6 +100,8 @@ html_theme = 'flask'
 html_theme_options = {
     #'github_fork': 'mattupstate/flask-security',
     #'index_logo': False
+    'touch_icon':   'touch-icon.png',
+    'index_logo':   'logo-full.png'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -135,7 +137,11 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html'],
+    '**':       ['sidebarlogo.html', 'localtoc.html', 'relations.html',
+                 'sourcelink.html', 'searchbox.html']
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

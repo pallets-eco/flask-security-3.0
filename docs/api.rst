@@ -50,27 +50,6 @@ Datastores
     :inherited-members:
 
 
-Exceptions
-----------
-.. autoexception:: flask_security.exceptions.BadCredentialsError
-
-.. autoexception:: flask_security.exceptions.AuthenticationError
-
-.. autoexception:: flask_security.exceptions.UserNotFoundError
-
-.. autoexception:: flask_security.exceptions.RoleNotFoundError
-
-.. autoexception:: flask_security.exceptions.UserDatastoreError
-
-.. autoexception:: flask_security.exceptions.UserCreationError
-
-.. autoexception:: flask_security.exceptions.RoleCreationError
-
-.. autoexception:: flask_security.exceptions.ConfirmationError
-
-.. autoexception:: flask_security.exceptions.ResetPasswordError
-
-
 Signals
 -------
 See the documentation for the signals provided by the Flask-Login and
