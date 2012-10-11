@@ -1,0 +1,11 @@
+{% include "_messages.html" %}
+{% include "_nav.html" %}
+<h1>Register</h1>
+<form action="{{ url_for_security('register') }}" method="POST" name="register_form">
+  {{ register_user_form.hidden_tag() }}
+  {{ register_user_form.email.label }} {{ register_user_form.email }}<br/>
+  {{ register_user_form.password.label }} {{ register_user_form.password }}<br/>
+  {{ register_user_form.password_confirm.label }} {{ register_user_form.password_confirm }}<br/>
+  {{ register_user_form.submit }}
+</form>
+<p>{{ content }}</p>

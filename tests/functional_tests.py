@@ -1,138 +1,236 @@
-import unittest
-from example import app
+# -*- coding: utf-8 -*-
+
+from __future__ import with_statement
+
+import base64
+import simplejson as json
+from cookielib import Cookie
+
+from werkzeug.utils import parse_cookie
+
+from tests import SecurityTest
 
 
-class SecurityTest(unittest.TestCase):
-
-    AUTH_CONFIG = None
-
-    def setUp(self):
-        super(SecurityTest, self).setUp()
-
-        self.app = self._create_app(self.AUTH_CONFIG or None)
-        self.app.debug = False
-        self.app.config['TESTING'] = True
-
-        self.client = self.app.test_client()
-
-    def _create_app(self, auth_config):
-        return app.create_sqlalchemy_app(auth_config)
-
-    def _get(self, route, content_type=None, follow_redirects=None):
-        return self.client.get(route, follow_redirects=follow_redirects,
-                content_type=content_type or 'text/html')
-
-    def _post(self, route, data=None, content_type=None, follow_redirects=True):
-        return self.client.post(route, data=data,
-                follow_redirects=follow_redirects,
-                content_type=content_type or 'text/html')
-
-    def authenticate(self, username, password, endpoint=None):
-        data = dict(username=username, password=password)
-        return self._post(endpoint or '/auth', data=data,
-                content_type='application/x-www-form-urlencoded')
-
-    def logout(self, endpoint=None):
-        return self._get(endpoint or '/logout', follow_redirects=True)
+def get_cookies(rv):
+    cookies = {}
+    for value in rv.headers.get_all("Set-Cookie"):
+        cookies.update(parse_cookie(value))
+    return cookies
 
 
 class DefaultSecurityTests(SecurityTest):
 
+    def test_instance(self):
+        self.assertIsNotNone(self.app)
+        self.assertIsNotNone(self.app.security)
+        self.assertIsNotNone(self.app.security.pwd_context)
+
     def test_login_view(self):
         r = self._get('/login')
-        assert 'Login Page' in r.data
+        self.assertIn('<h1>Login</h1>', r.data)
 
     def test_authenticate(self):
-        r = self.authenticate("matt", "password")
-        assert 'Home Page' in r.data
+        r = self.authenticate()
+        self.assertIn('Hello matt@lp.com', r.data)
 
     def test_unprovided_username(self):
-        r = self.authenticate("", "password")
-        assert "Username not provided" in r.data
+        r = self.authenticate("")
+        self.assertIn("Email not provided", r.data)
 
     def test_unprovided_password(self):
-        r = self.authenticate("matt", "")
-        assert "Password not provided" in r.data
+        r = self.authenticate(password="")
+        self.assertIn("Password not provided", r.data)
 
     def test_invalid_user(self):
-        r = self.authenticate("bogus", "password")
-        assert "Specified user does not exist" in r.data
+        r = self.authenticate(email="bogus@bogus.com")
+        self.assertIn("Specified user does not exist", r.data)
 
     def test_bad_password(self):
-        r = self.authenticate("matt", "bogus")
-        assert "Password does not match" in r.data
+        r = self.authenticate(password="bogus")
+        self.assertIn("Invalid password", r.data)
 
     def test_inactive_user(self):
-        r = self.authenticate("tiya", "password")
-        assert "Inactive user" in r.data
+        r = self.authenticate("tiya@lp.com", "password")
+        self.assertIn("Account is disabled", r.data)
 
     def test_logout(self):
-        self.authenticate("matt", "password")
+        self.authenticate()
         r = self.logout()
-        assert 'Home Page' in r.data
+        self.assertIsHomePage(r.data)
 
     def test_unauthorized_access(self):
         r = self._get('/profile', follow_redirects=True)
-        assert 'Please log in to access this page' in r.data
+        self.assertIn('Please log in to access this page', r.data)
 
     def test_authorized_access(self):
-        self.authenticate("matt", "password")
+        self.authenticate()
         r = self._get("/profile")
-        assert 'profile' in r.data
+        self.assertIn('profile', r.data)
 
     def test_valid_admin_role(self):
-        self.authenticate("matt", "password")
+        self.authenticate()
         r = self._get("/admin")
-        assert 'Admin Page' in r.data
+        self.assertIn('Admin Page', r.data)
 
     def test_invalid_admin_role(self):
-        self.authenticate("joe", "password")
+        self.authenticate("joe@lp.com")
         r = self._get("/admin", follow_redirects=True)
-        assert 'Home Page' in r.data
+        self.assertIsHomePage(r.data)
 
     def test_roles_accepted(self):
-        for user in ("matt", "joe"):
-            self.authenticate(user, "password")
+        for user in ("matt@lp.com", "joe@lp.com"):
+            self.authenticate(user)
             r = self._get("/admin_or_editor")
             self.assertIn('Admin or Editor Page', r.data)
             self.logout()
 
-        self.authenticate("jill", "password")
+        self.authenticate("jill@lp.com")
         r = self._get("/admin_or_editor", follow_redirects=True)
-        self.assertIn('Home Page', r.data)
+        self.assertIsHomePage(r.data)
 
     def test_unauthenticated_role_required(self):
         r = self._get('/admin', follow_redirects=True)
-        self.assertIn('<input id="next"', r.data)
+        self.assertIn(self.get_message('UNAUTHORIZED'), r.data)
 
+    def test_multiple_role_required(self):
+        for user in ("matt@lp.com", "joe@lp.com"):
+            self.authenticate(user)
+            r = self._get("/admin_and_editor", follow_redirects=True)
+            self.assertIsHomePage(r.data)
+            self._get('/logout')
 
-class ConfiguredSecurityTests(SecurityTest):
+        self.authenticate('dave@lp.com')
+        r = self._get("/admin_and_editor", follow_redirects=True)
+        self.assertIn('Admin and Editor Page', r.data)
 
-    AUTH_CONFIG = {
-        'SECURITY_PASSWORD_HASH': 'bcrypt',
-        'SECURITY_USER_DATASTORE': 'custom_datastore_name',
-        'SECURITY_AUTH_URL': '/custom_auth',
-        'SECURITY_LOGOUT_URL': '/custom_logout',
-        'SECURITY_LOGIN_VIEW': '/custom_login',
-        'SECURITY_POST_LOGIN': '/post_login',
-        'SECURITY_POST_LOGOUT': '/post_logout'
-    }
+    def test_ok_json_auth(self):
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        self.assertEquals(data['meta']['code'], 200)
+        self.assertIn('authentication_token', data['response']['user'])
 
-    def test_login_view(self):
-        r = self._get('/custom_login')
-        assert "Custom Login Page" in r.data
+    def test_invalid_json_auth(self):
+        r = self.json_authenticate(password='junk')
+        self.assertIn('"code": 400', r.data)
 
-    def test_authenticate(self):
-        r = self.authenticate("matt", "password", endpoint="/custom_auth")
-        assert 'Post Login' in r.data
+    def test_token_auth_via_querystring_valid_token(self):
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        r = self._get('/token?auth_token=' + token)
+        self.assertIn('Token Authentication', r.data)
 
-    def test_logout(self):
-        self.authenticate("matt", "password", endpoint="/custom_auth")
-        r = self.logout(endpoint="/custom_logout")
-        assert 'Post Logout' in r.data
+    def test_token_auth_via_header_valid_token(self):
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        headers = {"Authentication-Token": token}
+        r = self._get('/token', headers=headers)
+        self.assertIn('Token Authentication', r.data)
+
+    def test_token_auth_via_querystring_invalid_token(self):
+        r = self._get('/token?auth_token=X')
+        self.assertEqual(401, r.status_code)
+
+    def test_token_auth_via_header_invalid_token(self):
+        r = self._get('/token', headers={"Authentication-Token": 'X'})
+        self.assertEqual(401, r.status_code)
+
+    def test_http_auth(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+        })
+        self.assertIn('HTTP Authentication', r.data)
+
+    def test_invalid_http_auth_invalid_username(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("bogus:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="Login Required"',
+                          r.headers['WWW-Authenticate'])
+
+    def test_invalid_http_auth_bad_password(self):
+        r = self._get('/http', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="Login Required"',
+                          r.headers['WWW-Authenticate'])
+
+    def test_custom_http_auth_realm(self):
+        r = self._get('/http_custom_realm', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+        })
+        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertEquals('Basic realm="My Realm"',
+                          r.headers['WWW-Authenticate'])
+
+    def test_user_deleted_during_session_reverts_to_anonymous_user(self):
+        self.authenticate()
+
+        with self.app.test_request_context('/'):
+            user = self.app.security.datastore.find_user(email='matt@lp.com')
+            self.app.security.datastore.delete_user(user)
+            self.app.security.datastore.commit()
+
+        r = self._get('/')
+        self.assertNotIn('Hello matt@lp.com', r.data)
+
+    def test_remember_token(self):
+        r = self.authenticate(follow_redirects=False)
+        self.client.cookie_jar.clear_session_cookies()
+        r = self._get('/profile')
+        self.assertIn('profile', r.data)
+
+    def test_token_loader_does_not_fail_with_invalid_token(self):
+        c = Cookie(version=0, name='remember_token', value='None', port=None,
+                   port_specified=False, domain='www.example.com',
+                   domain_specified=False, domain_initial_dot=False, path='/',
+                   path_specified=True, secure=False, expires=None,
+                   discard=True, comment=None, comment_url=None,
+                   rest={'HttpOnly': None}, rfc2109=False)
+
+        self.client.cookie_jar.set_cookie(c)
+        r = self._get('/')
+        self.assertNotIn('BadSignature', r.data)
 
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
     def _create_app(self, auth_config):
-        return app.create_mongoengine_app(auth_config)
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config)
+
+
+class DefaultDatastoreTests(SecurityTest):
+
+    def test_add_role_to_user(self):
+        r = self._get('/coverage/add_role_to_user')
+        self.assertIn('success', r.data)
+
+    def test_remove_role_from_user(self):
+        r = self._get('/coverage/remove_role_from_user')
+        self.assertIn('success', r.data)
+
+    def test_activate_user(self):
+        r = self._get('/coverage/activate_user')
+        self.assertIn('success', r.data)
+
+    def test_deactivate_user(self):
+        r = self._get('/coverage/deactivate_user')
+        self.assertIn('success', r.data)
+
+    def test_invalid_role(self):
+        r = self._get('/coverage/invalid_role')
+        self.assertIn('success', r.data)
+
+
+class MongoEngineDatastoreTests(DefaultDatastoreTests):
+
+    def _create_app(self, auth_config):
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config)

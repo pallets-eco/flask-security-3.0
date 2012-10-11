@@ -12,9 +12,9 @@
   {% endif -%}
   <li>
     {%- if current_user.is_authenticated() -%}
-      <a href="{{ url_for('auth.logout') }}">Log out</a>
+      <a href="{{ url_for('security.logout') }}">Log out</a>
     {%- else -%}
-      <a href="{{ url_for('login') }}">Log in</a>
+      <a href="{{ url_for('security.login') }}">Log in</a>
     {%- endif -%}
   </li>
 </ul>

@@ -3,17 +3,26 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.5.0
+-------------
+
+Released October 11th 2012
+
+- Major release. Upgrading from previous versions will require a bit of work to
+  accomodate API changes. See documentation for a list of new features and for
+  help on how to upgrade.
+
 Version 1.2.3
 -------------
 
-Released June 12th, 2012
+Released June 12th 2012
 
 - Fixed a bug in the RoleMixin eq/ne functions
 
 Version 1.2.2
 -------------
 
-Released April 27th, 2012
+Released April 27th 2012
 
 - Fixed bug where `roles_required` and `roles_accepted` did not pass the next
   argument to the login view
@@ -21,7 +30,7 @@ Released April 27th, 2012
 Version 1.2.1
 -------------
 
-Released March 28th, 2012
+Released March 28th 2012
 
 - Added optional user model mixin parameter for datastores
 - Added CreateRoleCommand to available Flask-Script commands
@@ -29,7 +38,7 @@ Released March 28th, 2012
 Version 1.2.0
 -------------
 
-Released March 12th, 2012
+Released March 12th 2012
 
 - Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to a 
   boolean value to specify if Flask-Security should flash messages or not.
