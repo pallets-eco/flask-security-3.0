@@ -148,7 +148,8 @@ class DefaultSecurityTests(SecurityTest):
         })
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
-        self.assertEquals('Basic realm="Login Required"', r.headers['WWW-Authenticate'])
+        self.assertEquals('Basic realm="Login Required"',
+                          r.headers['WWW-Authenticate'])
 
     def test_invalid_http_auth_bad_password(self):
         r = self._get('/http', headers={
@@ -156,7 +157,8 @@ class DefaultSecurityTests(SecurityTest):
         })
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
-        self.assertEquals('Basic realm="Login Required"', r.headers['WWW-Authenticate'])
+        self.assertEquals('Basic realm="Login Required"',
+                          r.headers['WWW-Authenticate'])
 
     def test_custom_http_auth_realm(self):
         r = self._get('/http_custom_realm', headers={
@@ -164,7 +166,8 @@ class DefaultSecurityTests(SecurityTest):
         })
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
-        self.assertEquals('Basic realm="My Realm"', r.headers['WWW-Authenticate'])
+        self.assertEquals('Basic realm="My Realm"',
+                          r.headers['WWW-Authenticate'])
 
     def test_user_deleted_during_session_reverts_to_anonymous_user(self):
         self.authenticate()
@@ -184,7 +187,14 @@ class DefaultSecurityTests(SecurityTest):
         self.assertIn('profile', r.data)
 
     def test_token_loader_does_not_fail_with_invalid_token(self):
-        self.client.cookie_jar.set_cookie(Cookie(version=0, name='remember_token', value='None', port=None, port_specified=False, domain='www.example.com', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False))
+        c = Cookie(version=0, name='remember_token', value='None', port=None,
+                   port_specified=False, domain='www.example.com',
+                   domain_specified=False, domain_initial_dot=False, path='/',
+                   path_specified=True, secure=False, expires=None,
+                   discard=True, comment=None, comment_url=None,
+                   rest={'HttpOnly': None}, rfc2109=False)
+
+        self.client.cookie_jar.set_cookie(c)
         r = self._get('/')
         self.assertNotIn('BadSignature', r.data)
 

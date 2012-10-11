@@ -62,19 +62,18 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('Post Register', r.data)
 
     def test_register_json(self):
-        r = self._post('/register',
-                       data='{ "email": "dude@lp.com", "password": "password" }',
-                       content_type='application/json')
+        data = '{ "email": "dude@lp.com", "password": "password" }'
+        r = self._post('/register', data=data, content_type='application/json')
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
-        self.assertIn('authentication_token', data['response']['user'])
 
     def test_register_existing_email(self):
         data = dict(email='matt@lp.com',
                     password='password',
                     password_confirm='password')
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn('matt@lp.com is already associated with an account', r.data)
+        msg = 'matt@lp.com is already associated with an account'
+        self.assertIn(msg, r.data)
 
     def test_unauthorized(self):
         self.authenticate("joe@lp.com", endpoint="/custom_auth")
@@ -166,6 +165,11 @@ class ConfirmableTests(SecurityTest):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertIn('Invalid confirmation token', r.data)
 
+    def test_send_confirmation_json(self):
+        r = self._post('/confirm', data='{"email": "matt@lp.com"}',
+                       content_type='application/json')
+        self.assertEquals(r.status_code, 200)
+
     def test_send_confirmation_with_invalid_email(self):
         r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
         self.assertIn('Specified user does not exist', r.data)
@@ -246,6 +250,11 @@ class RecoverableTests(SecurityTest):
             with self.app.extensions['mail'].record_messages() as outbox:
                 self.client.post('/reset', data=dict(email='joe@lp.com'))
                 self.assertEqual(len(outbox), 1)
+
+    def test_forgot_password_json(self):
+        r = self.client.post('/reset', data='{"email": "matt@lp.com"}',
+                             content_type="application/json")
+        self.assertEquals(r.status_code, 200)
 
     def test_forgot_password_invalid_email(self):
         r = self.client.post('/reset',
@@ -336,6 +345,17 @@ class PasswordlessTests(SecurityTest):
                              data=dict(email='tiya@lp.com'),
                              follow_redirects=True)
         self.assertIn(msg, r.data)
+
+    def test_request_login_token_with_json_and_valid_email(self):
+        data = '{"email": "matt@lp.com", "password": "password"}'
+        r = self.client.post('/login', data=data, content_type='application/json')
+        self.assertEquals(r.status_code, 200)
+        self.assertNotIn('error', r.data)
+
+    def test_request_login_token_with_json_and_invalid_email(self):
+        data = '{"email": "nobody@lp.com", "password": "password"}'
+        r = self.client.post('/login', data=data, content_type='application/json')
+        self.assertIn('errors', r.data)
 
     def test_request_login_token_sends_email_and_can_login(self):
         e = 'matt@lp.com'

@@ -35,7 +35,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def _render_json(form, include_auth_token=True):
+def _render_json(form, include_auth_token=False):
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -77,7 +77,7 @@ def login():
             return redirect(get_post_login_redirect())
 
     if request.json:
-        return _render_json(form)
+        return _render_json(form, True)
 
     return render_template('security/login_user.html',
                            login_user_form=form,
@@ -140,9 +140,11 @@ def send_login():
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
-        if request.json:
-            return _render_json(form, False)
-        do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
+        if request.json is None:
+            do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
+
+    if request.json:
+        return _render_json(form)
 
     return render_template('security/send_login.html',
                            send_login_form=form,
@@ -181,9 +183,11 @@ def send_confirmation():
 
     if form.validate_on_submit():
         send_confirmation_instructions(form.user)
-        if request.json:
-            return _render_json(form, False)
-        do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
+        if request.json is None:
+            do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
+
+    if request.json:
+        return _render_json(form)
 
     return render_template('security/send_confirmation.html',
                            send_confirmation_form=form,
@@ -225,9 +229,11 @@ def forgot_password():
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
-        if request.json:
-            return _render_json(form, False)
-        do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+        if request.json is None:
+            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+
+    if request.json:
+        return _render_json(form)
 
     return render_template('security/forgot_password.html',
                            forgot_password_form=form,
