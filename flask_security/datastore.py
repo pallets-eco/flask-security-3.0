@@ -57,7 +57,8 @@ class UserDatastore(object):
 
     def _prepare_role_modify_args(self, user, role):
         role = role.name if isinstance(role, self.role_model) else role
-        return self.find_user(email=user.email), self.find_role(role)
+        user = user.email if isinstance(user, self.user_model) else user
+        return self.find_user(email=user), self.find_role(role)
 
     def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
