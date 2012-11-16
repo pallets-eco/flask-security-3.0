@@ -68,3 +68,33 @@ using SQLAlchemy.::
 
     if __name__ == '__main__':
         app.run()
+
+Mail Configuration
+------------------
+
+Flask-Security integrates with Flask-Mail to handle all email communications
+between user and site, so it's important to configure Flask-Mail with your
+email server details so Flask-Security can talk with Flask-Mail correctly.
+
+The following code illustrates a basic setup, which could be added to the
+basic application code in the previous section::
+
+    # At top of file
+    from flask_mail import Mail
+
+    # After 'Create app'
+    app.config['MAIL_SERVER'] = 'smtp.example.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_USERNAME'] = 'username'
+    app.config['MAIL_PASSWORD'] = 'password'
+    mail = Mail(app)
+
+To learn more about the various Flask-Mail settings to configure it to work
+with your particular email server configuration, please see the
+`Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_
+
+
+
+
+
