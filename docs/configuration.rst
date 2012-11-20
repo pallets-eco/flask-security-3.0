@@ -129,6 +129,27 @@ Feature Flags
                           to ``False``.
 ========================= ======================================================
 
+Email
+----------
+
+.. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
+
+=========================================== ====================================
+``SECURITY_EMAIL_SUBJECT_REGISTER``         Sets the subject for the
+                                            confirmation email. Defaults to
+                                            ``Welcome``
+``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``     Sets the subject for the
+                                            passwordless feature. Defaults to
+                                            ``Login instructions``
+``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``  Sets subject for the password
+                                            notice. Defaults to
+                                            ``Your password has been reset``
+``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``   Sets the subject for the password
+                                            reset. Defaults to
+                                            ``Password reset instructions``
+``SECURITY_EMAIL_SUBJECT_CONFIRM``          Sets the subject for the email
+                                            confirmation message. Defaults to
+                                            ``Please confirm your email``
 
 Miscellaneous
 -------------
