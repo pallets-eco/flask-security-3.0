@@ -14,7 +14,8 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import generate_confirmation_link
 from .signals import user_registered
-from .utils import do_flash, get_message, send_mail, encrypt_password
+from .utils import do_flash, get_message, send_mail, encrypt_password, \
+     config_value
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -35,7 +36,7 @@ def register_user(**kwargs):
     user_registered.send(dict(user=user, confirm_token=token),
                          app=app._get_current_object())
 
-    send_mail('Welcome', user.email, 'welcome',
+    send_mail(config_value('EMAIL_SUBJECT_REGISTER'), user.email, 'welcome',
               user=user, confirmation_link=confirmation_link)
 
     return user
