@@ -3,6 +3,15 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.5.1
+-------------
+
+Released November 26th 2012
+
+- Fixed bug with `next` form variable
+- Added better documentation regarding Flask-Mail configuration
+- Added ability to configure email subjects
+
 Version 1.5.0
 -------------
 
