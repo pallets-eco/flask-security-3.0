@@ -150,6 +150,7 @@ Email
 ``SECURITY_EMAIL_SUBJECT_CONFIRM``          Sets the subject for the email
                                             confirmation message. Defaults to
                                             ``Please confirm your email``
+=========================================== ====================================
 
 Miscellaneous
 -------------
