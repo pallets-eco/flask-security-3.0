@@ -121,6 +121,7 @@ class ConfirmableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
         'SECURITY_REGISTERABLE': True,
+        'SECURITY_EMAIL_SUBJECT_REGISTER': 'Custom welcome subject',
         'USER_COUNT': 1
     }
 
@@ -148,6 +149,7 @@ class ConfirmableTests(SecurityTest):
             self.register(e)
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)
+            self.assertEqual('Custom welcome subject', outbox[0].subject)
 
     def test_confirm_email(self):
         e = 'dude@lp.com'
