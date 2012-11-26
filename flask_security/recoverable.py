@@ -54,7 +54,7 @@ def generate_reset_password_token(user):
 
     :param user: The user to work with
     """
-    data = [user.id, md5(user.password)]
+    data = [str(user.id), md5(user.password)]
     return _security.reset_serializer.dumps(data)
 
 

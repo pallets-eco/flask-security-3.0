@@ -53,7 +53,7 @@ def generate_confirmation_token(user):
 
     :param user: The user to work with
     """
-    data = [user.id, md5(user.email)]
+    data = [str(user.id), md5(user.email)]
     return _security.confirm_serializer.dumps(data)
 
 

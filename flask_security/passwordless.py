@@ -45,7 +45,7 @@ def generate_login_token(user):
 
     :param user: The user the token belongs to
     """
-    return _security.login_serializer.dumps([user.id])
+    return _security.login_serializer.dumps([str(user.id)])
 
 
 def login_token_status(token):
