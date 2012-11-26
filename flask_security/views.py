@@ -76,6 +76,9 @@ def login():
         if not request.json:
             return redirect(get_post_login_redirect())
 
+    form.next.data = get_url(request.args.get('next')) \
+                     or get_url(request.form.get('next')) or ''
+
     if request.json:
         return _render_json(form, True)
 
