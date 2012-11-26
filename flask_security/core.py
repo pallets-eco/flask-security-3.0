@@ -61,7 +61,12 @@ _default_config = {
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
     'REMEMBER_SALT': 'remember-salt',
-    'DEFAULT_HTTP_AUTH_REALM': 'Login Required'
+    'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
+    'EMAIL_SUBJECT_REGISTER': 'Welcome',
+    'EMAIL_SUBJECT_CONFIRM': 'Please confirm your email',
+    'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
+    'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
+    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions'
 }
 
 #: Default Flask-Security messages
