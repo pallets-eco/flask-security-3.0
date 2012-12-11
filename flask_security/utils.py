@@ -38,23 +38,25 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 def login_user(user, remember=True):
     """Performs the login and sends the appropriate signal."""
 
-    _login_user(user, remember)
+    if not _login_user(user, remember):
+        return False
 
     if _security.trackable:
-        old_current, new_current = user.current_login_at, datetime.utcnow()
-        user.last_login_at = old_current or new_current
-        user.current_login_at = new_current
-
+        old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
         remote_addr = request.remote_addr or 'untrackable'
-        old_current, new_current = user.current_login_ip, remote_addr
-        user.last_login_ip = old_current or new_current
-        user.current_login_ip = new_current
+        old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 
+        user.last_login_at = old_current_login or new_current_login
+        user.current_login_at = new_current_login
+        user.last_login_ip = old_current_ip or new_current_ip
+        user.current_login_ip = new_current_ip
         user.login_count = user.login_count + 1 if user.login_count else 1
 
-    _datastore.put(user)
+        _datastore.put(user)
+
     identity_changed.send(current_app._get_current_object(),
                           identity=Identity(user.id))
+    return True
 
 
 def logout_user():
