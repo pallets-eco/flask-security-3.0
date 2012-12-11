@@ -3,6 +3,13 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.5.2
+-------------
+
+Released December 11th 2012
+
+- Fix a small bug in `flask_security.utils.login_user` method
+
 Version 1.5.1
 -------------
 
