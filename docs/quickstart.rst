@@ -1,26 +1,34 @@
 Quick Start
 ===========
 
+-  `Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_
+-  `Basic MongoEngine Application <#basic-mongoengine-application>`_
+-  `Mail Configuration <#mail-configuration>`_
 
-Installation
-------------
+Basic SQLAlchemy Application
+=============================
 
-Install requirements:
+SQLAlchemy Install requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    $ mkvirtualenv <your-app-name>
-    $ pip install flask-security, flask-sqlalchemy
+::
+
+     $ mkvirtualenv <your-app-name>
+     $ pip install flask-security flask-sqlalchemy
 
 
-Basic Application
------------------
+SQLAlchemy Application
+~~~~~~~~~~~~~~~~~~~~~~
 
-The following code sample illustrates how to get started as quickly as possible
-using SQLAlchemy.::
+The following code sample illustrates how to get started as quickly as
+possible using SQLAlchemy.
+
+::
 
     from flask import Flask, render_template
     from flask.ext.sqlalchemy import SQLAlchemy
     from flask.ext.security import Security, SQLAlchemyUserDatastore, \
-         UserMixin, RoleMixin
+        UserMixin, RoleMixin, login_required
 
     # Create app
     app = Flask(__name__)
@@ -63,21 +71,89 @@ using SQLAlchemy.::
 
     # Views
     @app.route('/')
+    @login_required
     def home():
         return render_template('index.html')
 
     if __name__ == '__main__':
         app.run()
 
+
+Basic MongoEngine Application
+==============================
+
+MongoEngine Install requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    $ mkvirtualenv <your-app-name>
+    $ pip install flask-security flask-mongoengine
+
+MongoEngine Application
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following code sample illustrates how to get started as quickly as
+possible using MongoEngine::
+
+    from flask import Flask, render_template
+    from flask.ext.mongoengine import MongoEngine
+    from flask.ext.security import Security, MongoEngineUserDatastore, \
+        UserMixin, RoleMixin, login_required
+
+    # Create app
+    app = Flask(__name__)
+    app.config['DEBUG'] = True
+    app.config['SECRET_KEY'] = 'super-secret'
+
+    # MongoDB Config
+    app.config['MONGODB_DB'] = 'mydatabase'
+    app.config['MONGODB_HOST'] = 'localhost'
+    app.config['MONGODB_PORT'] = 27017
+
+    # Create database connection object
+    db = MongoEngine(app)
+
+    class Role(db.Document, RoleMixin):
+        name = db.StringField(max_length=80, unique=True)
+        description = db.StringField(max_length=255)
+
+    class User(db.Document, UserMixin):
+        email = db.StringField(max_length=255)
+        password = db.StringField(max_length=255)
+        active = db.BooleanField(default=True)
+        confirmed_at = db.DateTimeField()
+        roles = db.ListField(db.ReferenceField(Role), default=[])
+
+    # Setup Flask-Security
+    user_datastore = MongoEngineUserDatastore(db, User, Role)
+    security = Security(app, user_datastore)
+
+    # Create a user to test with
+    @app.before_first_request
+    def create_user():
+        user_datastore.create_user(email='matt@nobien.net', password='password')
+
+    # Views
+    @app.route('/')
+    @login_required
+    def home():
+        return render_template('index.html')
+
+    if __name__ == '__main__':
+        app.run()
+
+
 Mail Configuration
-------------------
+===================
 
-Flask-Security integrates with Flask-Mail to handle all email communications
-between user and site, so it's important to configure Flask-Mail with your
-email server details so Flask-Security can talk with Flask-Mail correctly.
+Flask-Security integrates with Flask-Mail to handle all email
+communications between user and site, so it's important to configure
+Flask-Mail with your email server details so Flask-Security can talk
+with Flask-Mail correctly.
 
-The following code illustrates a basic setup, which could be added to the
-basic application code in the previous section::
+The following code illustrates a basic setup, which could be added to
+the basic application code in the previous section::
 
     # At top of file
     from flask_mail import Mail
@@ -90,11 +166,6 @@ basic application code in the previous section::
     app.config['MAIL_PASSWORD'] = 'password'
     mail = Mail(app)
 
-To learn more about the various Flask-Mail settings to configure it to work
-with your particular email server configuration, please see the
-`Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_
-
-
-
-
-
+To learn more about the various Flask-Mail settings to configure it to
+work with your particular email server configuration, please see the
+`Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_.
