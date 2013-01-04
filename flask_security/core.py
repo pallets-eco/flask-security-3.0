@@ -167,6 +167,7 @@ def _get_state(app, datastore, **kwargs):
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
         _context_processors={},
+        _form_fns={},
         _send_mail_task=None
     ))
 
@@ -236,6 +237,9 @@ class _SecurityState(object):
                 rv.update(fn())
         return rv
 
+    def _get_form_cls(self, endpoint):
+        return self._form_fns.get(endpoint, lambda: None)()
+
     def context_processor(self, fn):
         self._add_ctx_processor(None, fn)
 
@@ -262,6 +266,27 @@ class _SecurityState(object):
 
     def send_mail_task(self, fn):
         self._send_mail_task = fn
+
+    def login_form(self, fn):
+        self._form_fns['login_form'] = fn
+
+    def confirm_register_form(self, fn):
+        self._form_fns['confirm_register_form'] = fn
+
+    def register_form(self, fn):
+        self._form_fns['register_form'] = fn
+
+    def forgot_password_form(self, fn):
+        self._form_fns['forgot_password_form'] = fn
+
+    def reset_password_form(self, fn):
+        self._form_fns['reset_password_form'] = fn
+
+    def send_confirmation_form(self, fn):
+        self._form_fns['send_confirmation_form'] = fn
+
+    def passwordless_login_form(self, fn):
+        self._form_fns['passwordless_login_form'] = fn
 
 
 class Security(object):
