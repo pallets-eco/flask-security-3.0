@@ -92,7 +92,10 @@ class RegisterFormMixin():
     submit = SubmitField("Register")
 
     def to_dict(form):
-        fields = inspect.getmembers(form, lambda member: isinstance(member, Field))
+        def is_field_and_user_attr(member):
+            return isinstance(member, Field) and hasattr(_datastore.user_model, member.name)
+
+        fields = inspect.getmembers(form, is_field_and_user_attr)
         return dict((key, value.data) for key, value in fields)
 
 
