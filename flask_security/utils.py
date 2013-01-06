@@ -10,6 +10,8 @@
 """
 
 import base64
+import blinker
+import functools
 import hashlib
 import hmac
 from contextlib import contextmanager
@@ -23,9 +25,9 @@ from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
-from .signals import user_registered, reset_password_instructions_sent, \
-     login_instructions_sent
-
+from .signals import user_registered, user_confirmed, \
+    confirm_instructions_sent, login_instructions_sent, \
+    password_reset, reset_password_instructions_sent
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -311,3 +313,57 @@ def capture_reset_password_requests(reset_password_sent_at=None):
         yield reset_requests
     finally:
         reset_password_instructions_sent.disconnect(_on)
+
+
+class CaptureSignals(object):
+    """Testing utility for capturing blinker signals.
+
+    Context manager which mocks out selected signals and registers which are `sent` on and what
+    arguments were sent. Instantiate with a list of blinker `NamedSignals` to patch. Each signal
+    has it's `send` mocked out.
+    """
+    def __init__(self, signals):
+        """Patch all given signals and make them available as attributes.
+
+        :param signals: list of signals
+        """
+        self._records = {}
+        self._receivers = {}
+        for signal in signals:
+            self._records[signal] = []
+            self._receivers[signal] = functools.partial(self._record, signal)
+
+    def __getitem__(self, signal):
+        """All captured signals are available via `ctxt[signal]`.
+        """
+        if isinstance(signal, blinker.base.NamedSignal):
+            return self._records[signal]
+        else:
+            super(CaptureSignals, self).__setitem__(signal)
+
+    def _record(self, signal, *args, **kwargs):
+        self._records[signal].append((args, kwargs))
+
+    def __enter__(self):
+        for signal, receiver in self._receivers.iteritems():
+            signal.connect(receiver)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        for signal, receiver in self._receivers.iteritems():
+            signal.disconnect(receiver)
+
+    def signals_sent(self):
+        """Return a set of the signals sent.
+        :rtype: list of blinker `NamedSignals`.
+        """
+        return set([signal for signal, _ in self._records.iteritems() if self._records[signal]])
+
+
+def capture_signals():
+    """Factory method that creates a `CaptureSignals` with all the flask_security signals."""
+    return CaptureSignals([user_registered, user_confirmed,
+                           confirm_instructions_sent, login_instructions_sent,
+                           password_reset, reset_password_instructions_sent])
+
+
