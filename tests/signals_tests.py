@@ -34,6 +34,12 @@ class RegisterableSignalsTests(SecurityTest):
         self.assertIn('confirm_token', args[0])
         self.assertEqual(kwargs['app'], self.app)
 
+    def test_register(self):
+        e = 'dude@lp.com'
+        with capture_signals() as mocks:
+            self.register(e, password='')
+        self.assertEqual(mocks.signals_sent(), set())
+
 
 class ConfirmableSignalsTests(SecurityTest):
 
@@ -75,13 +81,8 @@ class ConfirmableSignalsTests(SecurityTest):
         self.logout()
         with capture_signals() as mocks:
             self.client.get('/confirm/' + token, follow_redirects=True)
-        # TODO: this refires the signal (len==1 instead of 0), is that the desired behaviour?
         self.assertEqual(mocks.signals_sent(), set([user_confirmed]))
-
-    def test_send_confirmation_bad_email(self):
-        with capture_signals() as mocks:
-            self._post('/confirm', data=dict(email='bogus@bogus.com'))
-        self.assertEqual(mocks.signals_sent(), set())
+        # TODO: is that the desired behaviour?
 
     def test_resend_confirmation(self):
         e = 'dude@lp.com'
@@ -96,6 +97,11 @@ class ConfirmableSignalsTests(SecurityTest):
         self.assertTrue(compare_user(args[0], user))
         self.assertEqual(kwargs['app'], self.app)
 
+    def test_send_confirmation_bad_email(self):
+        with capture_signals() as mocks:
+            self._post('/confirm', data=dict(email='bogus@bogus.com'))
+        self.assertEqual(mocks.signals_sent(), set())
+
 
 class RecoverableSignalsTests(SecurityTest):
 
@@ -105,7 +111,7 @@ class RecoverableSignalsTests(SecurityTest):
         'SECURITY_POST_FORGOT_VIEW': '/'
     }
 
-    def test_reset_password(self):
+    def test_reset_password_request(self):
         with capture_signals() as mocks:
             self.client.post('/reset',
                              data=dict(email='joe@lp.com'),
@@ -118,6 +124,40 @@ class RecoverableSignalsTests(SecurityTest):
         self.assertTrue(compare_user(args[0]['user'], user))
         self.assertIn('token', args[0])
         self.assertEqual(kwargs['app'], self.app)
+
+    def test_reset_password(self):
+        with capture_reset_password_requests() as requests:
+            self.client.post('/reset',
+                                 data=dict(email='joe@lp.com'),
+                                 follow_redirects=True)
+            token = requests[0]['token']
+        with capture_signals() as mocks:
+            self.client.post('/reset/' + token,
+                             data=dict(password='newpassword',
+                                       password_confirm='newpassword'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set([password_reset]))
+        user = self.app.security.datastore.find_user(email='joe@lp.com')
+        calls = mocks[password_reset]
+        self.assertEqual(len(calls), 1)
+        args, kwargs = calls[0]
+        self.assertTrue(compare_user(args[0], user))
+        self.assertEqual(kwargs['app'], self.app)
+
+    def test_reset_password_invalid_emails(self):
+        with capture_signals() as mocks:
+            self.client.post('/reset',
+                             data=dict(email='nobody@lp.com'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
+
+    def test_reset_password_invalid_token(self):
+        with capture_signals() as mocks:
+            self.client.post('/reset/bogus',
+                             data=dict(password='newpassword',
+                                       password_confirm='newpassword'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
 
 
 class PasswordlessTests(SecurityTest):
@@ -133,6 +173,12 @@ class PasswordlessTests(SecurityTest):
                              follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())
 
+    def test_login_request_for_invalid_email(self):
+        with capture_signals() as mocks:
+            self.client.post('/login',
+                             data=dict(email='nobody@lp.com'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
 
     def test_request_login_token_sends_email_and_can_login(self):
         e = 'matt@lp.com'
