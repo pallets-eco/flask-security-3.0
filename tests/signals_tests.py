@@ -10,7 +10,7 @@ from tests import SecurityTest
 
 
 def compare_user(a, b):
-    """ Helper to compare two users."""
+    """Helper to compare two users."""
     return a.id == b.id and a.email == b.email and a.password == b.password
 
 
