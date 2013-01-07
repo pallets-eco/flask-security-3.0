@@ -468,12 +468,13 @@ class AsyncMailTaskTests(SecurityTest):
 
 class NoBlueprintTests(SecurityTest):
 
+    APP_KWARGS = {
+        'register_blueprint': False,
+    }
+
     AUTH_CONFIG = {
         'USER_COUNT': 1
     }
-
-    def _create_app(self, auth_config):
-        return super(NoBlueprintTests, self)._create_app(auth_config, False)
 
     def test_login_endpoint_is_404(self):
         r = self._get('/login')
@@ -483,3 +484,18 @@ class NoBlueprintTests(SecurityTest):
         auth = 'Basic ' + base64.b64encode("matt@lp.com:password")
         r = self._get('/http', headers={'Authorization': auth})
         self.assertIn('HTTP Authentication', r.data)
+
+
+class ExtendFormsTest(SecurityTest):
+
+    APP_KWARGS = {
+    }
+
+    AUTH_CONFIG = {
+        'SECURITY_REGISTERABLE': True,
+    }
+
+    def test_register(self):
+        r = self._get('/register')
+        self.assertIn('<h1>Register</h1>', r.data)
+
