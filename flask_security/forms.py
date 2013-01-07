@@ -42,7 +42,11 @@ def valid_user_email(form, field):
 
 class Form(BaseForm):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('csrf_enabled', not current_app.testing)
+        if current_app.testing:
+            csrf_enabled = False
+        else:
+            csrf_enabled = request.json is None
+        kwargs.setdefault('csrf_enabled', csrf_enabled)
         super(Form, self).__init__(*args, **kwargs)
 
 
