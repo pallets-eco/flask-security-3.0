@@ -52,6 +52,45 @@ Datastores
 
 Signals
 -------
+See the `Flask documentation on signals`_ for information on how to use these
+signals in your code.
+
 See the documentation for the signals provided by the Flask-Login and
-Flask-Principal extensions. Flask-Security does not provide any additional
-signals.
+Flask-Principal extensions. In addition to those signals, Flask-Security
+sends the following signals.
+
+.. data:: user_registered
+
+   Sent when a user registers on the site. It is passed a dict with
+   the `user` and `confirm_token`, the user being logged in and the
+   (if so configured) the confirmation token issued.
+
+.. data:: user_confirmed
+
+   Sent when a user is confirmed. It is passed `user`, which is the
+   user being confirmed.
+
+.. data:: confirm_instructions_sent
+
+   Sent when a user requests confirmation instructions. It is passed
+   the `user`.
+
+.. data:: login_instructions_sent
+
+   Sent when passwordless login is used and user logs in. It is passed
+   a dict with the `user` and `login_token`, the user being logged in
+   and the (if so configured) the login token issued.
+
+.. data:: password_reset
+
+   Sent when a user completes a password. It is passed the `user`.
+
+.. data:: reset_password_instructions_sent
+
+   Sent when a user requests a password reset. It is passed a dict
+   with the `user` and `token`, the user being logged in and
+   the (if so configured) the reset token issued.
+
+All signals are also passed a `app` keyword argument, which is the current application.
+
+.. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/
