@@ -6,6 +6,10 @@ import simplejson as json
 
 from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests, capture_passwordless_login_requests
+from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
+     PasswordlessLoginForm
+
 
 from tests import SecurityTest
 
@@ -488,12 +492,20 @@ class NoBlueprintTests(SecurityTest):
 
 class ExtendFormsTest(SecurityTest):
 
+    class MyLoginForm(LoginForm):
+        hidden_tag = 'not-so-secret'
+
     APP_KWARGS = {
+        'login_form': MyLoginForm,
     }
 
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
     }
+
+    def test_login_view(self):
+        r = self._get('/login')
+        self.assertIn("<h1>Login</h1>", r.data)
 
     def test_register(self):
         r = self._get('/register')

@@ -21,6 +21,9 @@ from werkzeug.local import LocalProxy
 
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
+from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
+     PasswordlessLoginForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -90,6 +93,17 @@ _default_messages = {
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success')
+}
+
+
+_default_forms = {
+    'login_form': LoginForm,
+    'confirm_register_form': ConfirmRegisterForm,
+    'register_form': RegisterForm,
+    'forgot_password_form': ForgotPasswordForm,
+    'reset_password_form': ResetPasswordForm,
+    'send_confirmation_form': SendConfirmationForm,
+    'passwordless_login_form': PasswordlessLoginForm,
 }
 
 
@@ -167,9 +181,10 @@ def _get_state(app, datastore, **kwargs):
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
         _context_processors={},
-        _form_fns={},
         _send_mail_task=None
     ))
+
+    kwargs.update(_default_forms)
 
     return _SecurityState(**kwargs)
 
@@ -237,9 +252,6 @@ class _SecurityState(object):
                 rv.update(fn())
         return rv
 
-    def _get_form_cls(self, endpoint):
-        return self._form_fns.get(endpoint, lambda: None)()
-
     def context_processor(self, fn):
         self._add_ctx_processor(None, fn)
 
@@ -267,27 +279,6 @@ class _SecurityState(object):
     def send_mail_task(self, fn):
         self._send_mail_task = fn
 
-    def login_form(self, fn):
-        self._form_fns['login_form'] = fn
-
-    def confirm_register_form(self, fn):
-        self._form_fns['confirm_register_form'] = fn
-
-    def register_form(self, fn):
-        self._form_fns['register_form'] = fn
-
-    def forgot_password_form(self, fn):
-        self._form_fns['forgot_password_form'] = fn
-
-    def reset_password_form(self, fn):
-        self._form_fns['reset_password_form'] = fn
-
-    def send_confirmation_form(self, fn):
-        self._form_fns['send_confirmation_form'] = fn
-
-    def passwordless_login_form(self, fn):
-        self._form_fns['passwordless_login_form'] = fn
-
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
@@ -302,12 +293,13 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True):
+    def init_app(self, app, datastore=None, register_blueprint=True, **kwargs):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
+        :param register_blueprint: to register the Security blueprint or not.
         """
         datastore = datastore or self.datastore
 
