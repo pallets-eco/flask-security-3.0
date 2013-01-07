@@ -89,7 +89,9 @@ _default_messages = {
     'INVALID_LOGIN_TOKEN': ('Invalid login token.', 'error'),
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
-    'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success')
+    'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
+    'LOGIN': ('Please log in to access this page.', 'info'),
+    'REFRESH': ('Please reauthenticate to access this page.', 'info')
 }
 
 
@@ -131,6 +133,10 @@ def _get_login_manager(app):
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
+    lm.login_message = cv('MSG_LOGIN', app=app)
+    lm.login_message_category = 'info'
+    lm.needs_refresh_message = cv('MSG_REFRESH', app=app)
+    lm.needs_refresh_message_category = 'info'
     lm.init_app(app)
     return lm
 
