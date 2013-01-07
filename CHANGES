@@ -3,6 +3,15 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+
+Version 1.5.4
+-------------
+
+Released January 6th 2013
+
+- Fix bug in forms with `csrf_enabled` parameter not accounting attempts to login using JSON data
+
+
 Version 1.5.3
 -------------
 
