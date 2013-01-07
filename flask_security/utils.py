@@ -82,8 +82,12 @@ def get_hmac(password):
     return base64.b64encode(h.digest())
 
 
-def verify_password(password, password_hash):
-    return _pwd_context.verify(get_hmac(password), password_hash)
+def verify_password(password, user):
+    verify, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
+    if verify and new_password:
+        user.password = new_password
+        _datastore.put(user)
+    return verify
 
 
 def encrypt_password(password):

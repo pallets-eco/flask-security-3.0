@@ -162,7 +162,7 @@ class LoginForm(Form, NextFormMixin):
         if self.user is None:
             self.email.errors.append('Specified user does not exist')
             return False
-        if not verify_password(self.password.data, self.user.password):
+        if not verify_password(self.password.data, self.user):
             self.password.errors.append('Invalid password')
             return False
         if requires_confirmation(self.user):
