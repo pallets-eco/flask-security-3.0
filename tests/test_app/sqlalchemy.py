@@ -17,8 +17,7 @@ from tests.test_app import create_app as create_base_app, populate_data, \
 def create_app(config, **kwargs):
     app = create_base_app(config)
 
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/flask_security_test'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql://root@localhost/flask_security_test')
 
     db = SQLAlchemy(app)
 
