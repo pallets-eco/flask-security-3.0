@@ -5,20 +5,24 @@ from tests.test_app.sqlalchemy import create_app
 
 class SecurityTest(TestCase):
 
+    APP_KWARGS = {
+        'register_blueprint': True,
+    }
     AUTH_CONFIG = None
 
     def setUp(self):
         super(SecurityTest, self).setUp()
 
-        app = self._create_app(self.AUTH_CONFIG or {})
+        app_kwargs = self.APP_KWARGS
+        app = self._create_app(self.AUTH_CONFIG or {}, **app_kwargs)
         app.debug = False
         app.config['TESTING'] = True
 
         self.app = app
         self.client = app.test_client()
 
-    def _create_app(self, auth_config, register_blueprint=True):
-        return create_app(auth_config, register_blueprint)
+    def _create_app(self, auth_config, **kwargs):
+        return create_app(auth_config, **kwargs)
 
     def _get(self, route, content_type=None, follow_redirects=None, headers=None):
         return self.client.get(route, follow_redirects=follow_redirects,

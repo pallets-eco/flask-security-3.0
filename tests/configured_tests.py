@@ -6,6 +6,11 @@ import simplejson as json
 
 from flask.ext.security.utils import capture_registrations, \
      capture_reset_password_requests, capture_passwordless_login_requests
+from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
+     PasswordlessLoginForm
+from flask.ext.security.forms import TextField, SubmitField, valid_user_email
+
 
 from tests import SecurityTest
 
@@ -468,12 +473,13 @@ class AsyncMailTaskTests(SecurityTest):
 
 class NoBlueprintTests(SecurityTest):
 
+    APP_KWARGS = {
+        'register_blueprint': False,
+    }
+
     AUTH_CONFIG = {
         'USER_COUNT': 1
     }
-
-    def _create_app(self, auth_config):
-        return super(NoBlueprintTests, self)._create_app(auth_config, False)
 
     def test_login_endpoint_is_404(self):
         r = self._get('/login')
@@ -483,3 +489,109 @@ class NoBlueprintTests(SecurityTest):
         auth = 'Basic ' + base64.b64encode("matt@lp.com:password")
         r = self._get('/http', headers={'Authorization': auth})
         self.assertIn('HTTP Authentication', r.data)
+
+
+class ExtendFormsTest(SecurityTest):
+
+    class MyLoginForm(LoginForm):
+        email = TextField('My Login Email Address Field')
+
+    class MyRegisterForm(RegisterForm):
+        email = TextField('My Register Email Address Field')
+
+    APP_KWARGS = {
+        'login_form': MyLoginForm,
+        'register_form': MyRegisterForm,
+    }
+
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': False,
+        'SECURITY_REGISTERABLE': True,
+    }
+
+    def test_login_view(self):
+        r = self._get('/login', follow_redirects=True)
+        self.assertIn("My Login Email Address Field", r.data)
+
+    def test_register(self):
+        r = self._get('/register', follow_redirects=True)
+        self.assertIn("My Register Email Address Field", r.data)
+
+
+class RecoverableExtendFormsTest(SecurityTest):
+
+    class MyForgotPasswordForm(ForgotPasswordForm):
+        email = TextField('My Forgot Password Email Address Field',
+                          validators=[valid_user_email])
+
+    class MyResetPasswordForm(ResetPasswordForm):
+        submit = SubmitField("My Reset Password Submit Field")
+
+    APP_KWARGS = {
+        'forgot_password_form': MyForgotPasswordForm,
+        'reset_password_form': MyResetPasswordForm,
+    }
+
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
+    }
+
+    def test_forgot_password(self):
+        r = self._get('/reset', follow_redirects=True)
+        self.assertIn("My Forgot Password Email Address Field", r.data)
+
+    def test_reset_password(self):
+        with capture_reset_password_requests() as requests:
+            self.client.post('/reset',
+                             data=dict(email='joe@lp.com'),
+                             follow_redirects=True)
+            token = requests[0]['token']
+        r = self._get('/reset/' + token)
+        self.assertIn("My Reset Password Submit Field", r.data)
+
+
+class PasswordlessExtendFormsTest(SecurityTest):
+
+    class MyPasswordlessLoginForm(PasswordlessLoginForm):
+        email = TextField('My Passwordless Login Email Address Field')
+
+    APP_KWARGS = {
+        'passwordless_login_form': MyPasswordlessLoginForm,
+    }
+
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORDLESS': True,
+    }
+
+    def test_passwordless_login(self):
+        r = self._get('/login', follow_redirects=True)
+        self.assertIn("My Passwordless Login Email Address Field", r.data)
+
+
+class ConfirmableExtendFormsTest(SecurityTest):
+
+    class MyConfirmRegisterForm(ConfirmRegisterForm):
+        email = TextField('My Confirm Register Email Address Field')
+
+    class MySendConfirmationForm(SendConfirmationForm):
+        email = TextField('My Send Confirmation Email Address Field')
+
+    APP_KWARGS = {
+        'confirm_register_form': MyConfirmRegisterForm,
+        'send_confirmation_form': MySendConfirmationForm,
+    }
+
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True,
+    }
+
+    def test_register(self):
+        r = self._get('/register', follow_redirects=True)
+        self.assertIn("My Confirm Register Email Address Field", r.data)
+
+
+    def test_send_confirmation(self):
+        r = self._get('/confirm', follow_redirects=True)
+        self.assertIn("My Send Confirmation Email Address Field", r.data)
+

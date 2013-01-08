@@ -59,6 +59,37 @@ The following is a list of all the available context processor decorators:
 * ``send_login_context_processor``: Send login view
 
 
+Forms
+-----
+
+All forms can be overridden in much the same way as context
+processors. For each form used, you can specify a function that
+returns the form class. This allows you to override/extend forms. For
+example, to add extra fields to the register form::
+
+    security = Security(app, user_datastore)
+
+    from flask_security.forms import RegisterForm
+
+    class ExtendedRegisterForm(RegisterForm):
+        first_name = TextField('First Name', [Required()])
+        last_name = TextField('Last Name', [Required()])
+
+    @security.register_form
+    def security_register_form():
+        return ExtendedRegisterForm
+
+The following is a list of all the available form override decorators:
+
+* ``login_form``: Login form
+* ``confirm_register_form``: Confirmable register form
+* ``register_form``: Register form
+* ``forgot_password_form``: Forgot password form
+* ``reset_password_form``: Reset password form
+* ``send_confirmation_form``: Send confirmation form
+* ``passwordless_login_form``: Passwordless login form
+
+
 Emails
 ------
 

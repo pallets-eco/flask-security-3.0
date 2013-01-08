@@ -201,9 +201,9 @@ class DefaultSecurityTests(SecurityTest):
 
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
-    def _create_app(self, auth_config):
+    def _create_app(self, auth_config, **kwargs):
         from tests.test_app.mongoengine import create_app
-        return create_app(auth_config)
+        return create_app(auth_config, **kwargs)
 
 
 class DefaultDatastoreTests(SecurityTest):
@@ -231,6 +231,6 @@ class DefaultDatastoreTests(SecurityTest):
 
 class MongoEngineDatastoreTests(DefaultDatastoreTests):
 
-    def _create_app(self, auth_config):
+    def _create_app(self, auth_config, **kwargs):
         from tests.test_app.mongoengine import create_app
-        return create_app(auth_config)
+        return create_app(auth_config, **kwargs)

@@ -21,6 +21,9 @@ from werkzeug.local import LocalProxy
 
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
+from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
+     PasswordlessLoginForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -105,6 +108,17 @@ _allowed_password_hash_schemes = [
     'plaintext'
 ]
 
+_default_forms = {
+    'login_form': LoginForm,
+    'confirm_register_form': ConfirmRegisterForm,
+    'register_form': RegisterForm,
+    'forgot_password_form': ForgotPasswordForm,
+    'reset_password_form': ResetPasswordForm,
+    'send_confirmation_form': SendConfirmationForm,
+    'passwordless_login_form': PasswordlessLoginForm,
+}
+
+
 def _user_loader(user_id):
     return _security.datastore.find_user(id=user_id)
 
@@ -188,6 +202,10 @@ def _get_state(app, datastore, **kwargs):
         _context_processors={},
         _send_mail_task=None
     ))
+
+    for key, value in _default_forms.items():
+        if key not in kwargs or not kwargs[key]:
+            kwargs[key] = value
 
     return _SecurityState(**kwargs)
 
@@ -296,12 +314,17 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True):
+    def init_app(self, app, datastore=None, register_blueprint=True,
+        login_form=None, confirm_register_form=None,
+        register_form=None, forgot_password_form=None,
+        reset_password_form=None, send_confirmation_form=None,
+        passwordless_login_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
+        :param register_blueprint: to register the Security blueprint or not.
         """
         datastore = datastore or self.datastore
 
@@ -313,7 +336,14 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore)
+        state = _get_state(app, datastore,
+                           login_form=login_form,
+                           confirm_register_form=confirm_register_form,
+                           register_form=register_form,
+                           forgot_password_form=forgot_password_form,
+                           reset_password_form=reset_password_form,
+                           send_confirmation_form=send_confirmation_form,
+                           passwordless_login_form=passwordless_login_form)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
