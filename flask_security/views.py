@@ -17,9 +17,6 @@ from werkzeug.local import LocalProxy
 from .confirmable import send_confirmation_instructions, \
      confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
-from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
-     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-     PasswordlessLoginForm
 from .passwordless import send_login_instructions, \
      login_token_status
 from .recoverable import reset_password_token_status, \
@@ -64,10 +61,12 @@ def _ctx(endpoint):
 def login():
     """View function for login view"""
 
+    form_class = _security.login_form
+
     if request.json:
-        form = LoginForm(MultiDict(request.json))
+        form = form_class(MultiDict(request.json))
     else:
-        form = LoginForm()
+        form = form_class()
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
@@ -101,9 +100,9 @@ def register():
     """View function which handles a registration request."""
 
     if _security.confirmable or request.json:
-        form_class = ConfirmRegisterForm
+        form_class = _security.confirm_register_form
     else:
-        form_class = RegisterForm
+        form_class = _security.register_form
 
     if request.json:
         form_data = MultiDict(request.json)
@@ -136,10 +135,12 @@ def register():
 def send_login():
     """View function that sends login instructions for passwordless login"""
 
+    form_class = _security.passwordless_login_form
+
     if request.json:
-        form = PasswordlessLoginForm(MultiDict(request.json))
+        form = form_class(MultiDict(request.json))
     else:
-        form = PasswordlessLoginForm()
+        form = form_class()
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
@@ -179,10 +180,12 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
+    form_class = _security.send_confirmation_form
+
     if request.json:
-        form = SendConfirmationForm(MultiDict(request.json))
+        form = form_class(MultiDict(request.json))
     else:
-        form = SendConfirmationForm()
+        form = form_class()
 
     if form.validate_on_submit():
         send_confirmation_instructions(form.user)
@@ -225,10 +228,12 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
+    form_class = _security.forgot_password_form
+
     if request.json:
-        form = ForgotPasswordForm(MultiDict(request.json))
+        form = form_class(MultiDict(request.json))
     else:
-        form = ForgotPasswordForm()
+        form = form_class()
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
@@ -257,7 +262,7 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = ResetPasswordForm()
+    form = _security.reset_password_form()
 
     if form.validate_on_submit():
         after_this_request(_commit)

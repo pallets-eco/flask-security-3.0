@@ -9,10 +9,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import inspect
+
 from flask import request, current_app
 from flask.ext.wtf import Form as BaseForm, TextField, PasswordField, \
      SubmitField, HiddenField, Required, BooleanField, EqualTo, Email, \
-     ValidationError, Length
+     ValidationError, Length, Field
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
@@ -92,6 +94,13 @@ class NextFormMixin():
 
 class RegisterFormMixin():
     submit = SubmitField("Register")
+
+    def to_dict(form):
+        def is_field_and_user_attr(member):
+            return isinstance(member, Field) and hasattr(_datastore.user_model, member.name)
+
+        fields = inspect.getmembers(form, is_field_and_user_attr)
+        return dict((key, value.data) for key, value in fields)
 
 
 class SendConfirmationForm(Form, UserEmailFormMixin):
@@ -176,10 +185,7 @@ class LoginForm(Form, NextFormMixin):
 
 class ConfirmRegisterForm(Form, RegisterFormMixin,
                           UniqueEmailFormMixin, NewPasswordFormMixin):
-    def to_dict(self):
-        return dict(email=self.email.data,
-                    password=self.password.data)
-
+    pass
 
 class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
     pass

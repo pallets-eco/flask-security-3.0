@@ -13,7 +13,7 @@ from flask.ext.security import Security, UserMixin, RoleMixin, \
 from tests.test_app import create_app as create_base_app, populate_data, \
      add_context_processors
 
-def create_app(config):
+def create_app(config, **kwargs):
     app = create_base_app(config)
 
     app.config['MONGODB_SETTINGS'] = dict(
@@ -46,7 +46,7 @@ def create_app(config):
         Role.drop_collection()
         populate_data(app.config.get('USER_COUNT', None))
 
-    app.security = Security(app, MongoEngineUserDatastore(db, User, Role))
+    app.security = Security(app, datastore=MongoEngineUserDatastore(db, User, Role), **kwargs)
 
     add_context_processors(app.security)
 
