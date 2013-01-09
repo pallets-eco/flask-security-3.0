@@ -196,7 +196,7 @@ def config_value(key, app=None, default=None):
 def get_max_age(key, app=None):
     now = datetime.utcnow()
     expires = now + get_within_delta(key + '_WITHIN', app)
-    return int(expires.strftime('%s')) - int(now.strftime('%s'))
+    return (expires - now).total_seconds()
 
 
 def get_within_delta(key, app=None):
