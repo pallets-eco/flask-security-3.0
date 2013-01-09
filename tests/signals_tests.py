@@ -1,7 +1,5 @@
 from __future__ import with_statement
 
-from mock import (patch, call)
-
 from flask_security.utils import (capture_registrations, capture_reset_password_requests, capture_signals)
 from flask_security.signals import (user_registered, user_confirmed,
                                     confirm_instructions_sent, login_instructions_sent,
