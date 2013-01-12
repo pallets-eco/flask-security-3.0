@@ -11,6 +11,7 @@
 
 from flask import current_app, redirect, request, render_template, jsonify, \
      after_this_request, Blueprint
+from flask.ext.login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
@@ -290,11 +291,10 @@ def change_password():
         form = form_class()
 
     if form.validate_on_submit():
-        #send_reset_password_instructions(form.user)
-        print 'VALID'
+        after_this_request(_commit)
+        update_password(current_user, form.new_password.data)
         if request.json is None:
-            #do_flash(*get_message('PASSWORD_CHANGE'))
-            do_flash('dicks')
+            do_flash(*get_message('PASSWORD_CHANGE'))
 
     if request.json:
         return _render_json(form)
