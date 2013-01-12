@@ -200,8 +200,8 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     submit = SubmitField("Reset Password")
 
 
-class ChangePasswordForm(Form, PasswordFormMixin):
-    """The default Change password form"""
+class ChangePasswordForm(Form, NextFormMixin, PasswordFormMixin):
+    """The default change password form"""
 
     new_password = PasswordField("New Password",
         validators=[password_required,
@@ -213,7 +213,8 @@ class ChangePasswordForm(Form, PasswordFormMixin):
     submit = SubmitField("Change Password")
 
     def validate(self):
-        super(ChangePasswordForm, self).validate()
+        if not super(ChangePasswordForm, self).validate():
+            return False
 
         if self.password.data.strip() == '':
             self.password.errors.append('Password not provided')

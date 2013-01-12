@@ -337,7 +337,7 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'newpassword',
             'new_password_confirm': 'newpassword'
         }, follow_redirects=True)
-        print r
+        self.assertNotIn('You successfully changed your password', r.data)
         self.assertIn('Invalid password', r.data)
 
     def test_change_password_mismatch(self):
@@ -347,6 +347,7 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'newpassword',
             'new_password_confirm': 'notnewpassword'
         }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
         self.assertIn('Passwords do not match', r.data)
 
     def test_change_password_success(self):
