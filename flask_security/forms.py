@@ -195,3 +195,13 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     """The default reset password form"""
 
     submit = SubmitField("Reset Password")
+
+
+class ChangePasswordForm(Form, PasswordFormMixin, PasswordConfirmFormMixin):
+    """The default Change password form"""
+
+    new_password = PasswordField("New Password",
+        validators=[password_required,
+                    Length(min=6, max=128)])
+
+    submit = SubmitField("Change Password")

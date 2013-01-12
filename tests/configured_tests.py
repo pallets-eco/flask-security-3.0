@@ -318,6 +318,24 @@ class ExpiredResetPasswordTest(SecurityTest):
         self.assertIn('You did not reset your password within', r.data)
 
 
+class ChangePasswordTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': True,
+        'SECURITY_POST_CHANGE_VIEW': '/',
+    }
+
+    def test_change_password(self):
+        self.authenticate()
+        r = self.client.post('/change/' + t, data={
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }, follow_redirects=True)
+
+        self.assertIn('You successfully changed your password', r.data)
+
+
 class TrackableTests(SecurityTest):
 
     AUTH_CONFIG = {

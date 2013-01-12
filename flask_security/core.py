@@ -22,8 +22,8 @@ from werkzeug.local import LocalProxy
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
-     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-     PasswordlessLoginForm
+     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
+     SendConfirmationForm, PasswordlessLoginForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -40,6 +40,7 @@ _default_config = {
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',
+    'CHANGE_URL': '/change',
     'CONFIRM_URL': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
@@ -47,12 +48,14 @@ _default_config = {
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
+    'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
     'PASSWORDLESS': False,
+    'CHANGEABLE': False,
     'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
@@ -63,6 +66,7 @@ _default_config = {
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
+    'CHANGE_SALT': 'change-salt',
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
     'EMAIL_SUBJECT_REGISTER': 'Welcome',
@@ -93,6 +97,7 @@ _default_messages = {
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
+    'PASSWORD_CHANGE': ('You successfully changes your password.', 'success'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info')
 }
@@ -114,6 +119,7 @@ _default_forms = {
     'register_form': RegisterForm,
     'forgot_password_form': ForgotPasswordForm,
     'reset_password_form': ResetPasswordForm,
+    'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
 }
