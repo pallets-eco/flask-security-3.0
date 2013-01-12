@@ -278,6 +278,32 @@ def reset_password(token):
                            **_ctx('reset_password'))
 
 
+@login_required
+def change_password():
+    """View function which handles a change password request."""
+
+    form_class = _security.change_password_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
+
+    if form.validate_on_submit():
+        #send_reset_password_instructions(form.user)
+        print 'VALID'
+        if request.json is None:
+            #do_flash(*get_message('PASSWORD_CHANGE'))
+            do_flash('dicks')
+
+    if request.json:
+        return _render_json(form)
+
+    return render_template('security/change_password.html',
+                           change_password_form=form,
+                           **_ctx('change_password'))
+
+
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
 
@@ -310,6 +336,11 @@ def create_blueprint(state, import_name):
         bp.route(state.reset_url + '/<token>',
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
+
+    if state.changeable:
+        bp.route(state.change_url,
+                 methods=['GET', 'POST'],
+                 endpoint='change_password')(change_password)
 
     if state.confirmable:
         bp.route(state.confirm_url,

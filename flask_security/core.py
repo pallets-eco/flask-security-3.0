@@ -97,7 +97,8 @@ _default_messages = {
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
-    'PASSWORD_CHANGE': ('You successfully changes your password.', 'success'),
+    'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
+    'INVALID_PASSWORD': ('Invalid password', 'error'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info')
 }
@@ -294,6 +295,9 @@ class _SecurityState(object):
     def reset_password_context_processor(self, fn):
         self._add_ctx_processor('reset_password', fn)
 
+    def change_password_context_processor(self, fn):
+        self._add_ctx_processor('change_password', fn)
+
     def send_confirmation_context_processor(self, fn):
         self._add_ctx_processor('send_confirmation', fn)
 
@@ -323,8 +327,8 @@ class Security(object):
     def init_app(self, app, datastore=None, register_blueprint=True,
         login_form=None, confirm_register_form=None,
         register_form=None, forgot_password_form=None,
-        reset_password_form=None, send_confirmation_form=None,
-        passwordless_login_form=None):
+        reset_password_form=None, change_password_form=None,
+        send_confirmation_form=None, passwordless_login_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -348,6 +352,7 @@ class Security(object):
                            register_form=register_form,
                            forgot_password_form=forgot_password_form,
                            reset_password_form=reset_password_form,
+                           change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form)
 

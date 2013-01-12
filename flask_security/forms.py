@@ -15,10 +15,11 @@ from flask import request, current_app
 from flask.ext.wtf import Form as BaseForm, TextField, PasswordField, \
      SubmitField, HiddenField, Required, BooleanField, EqualTo, Email, \
      ValidationError, Length, Field
+from flask.ext.login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message
+from .utils import verify_password, verify_and_update_password, get_message
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -83,6 +84,7 @@ class NewPasswordFormMixin():
         validators=[password_required,
                     Length(min=6, max=128)])
 
+
 class PasswordConfirmFormMixin():
     password_confirm = PasswordField("Retype Password",
         validators=[EqualTo('password', message="Passwords do not match")])
@@ -97,7 +99,8 @@ class RegisterFormMixin():
 
     def to_dict(form):
         def is_field_and_user_attr(member):
-            return isinstance(member, Field) and hasattr(_datastore.user_model, member.name)
+            return isinstance(member, Field) and \
+                hasattr(_datastore.user_model, member.name)
 
         fields = inspect.getmembers(form, is_field_and_user_attr)
         return dict((key, value.data) for key, value in fields)
@@ -172,7 +175,7 @@ class LoginForm(Form, NextFormMixin):
             self.email.errors.append('Specified user does not exist')
             return False
         if not verify_and_update_password(self.password.data, self.user):
-            self.password.errors.append('Invalid password')
+            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
@@ -197,11 +200,25 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     submit = SubmitField("Reset Password")
 
 
-class ChangePasswordForm(Form, PasswordFormMixin, PasswordConfirmFormMixin):
+class ChangePasswordForm(Form, PasswordFormMixin):
     """The default Change password form"""
 
     new_password = PasswordField("New Password",
         validators=[password_required,
                     Length(min=6, max=128)])
 
+    new_password_confirm = PasswordField("Retype Password",
+        validators=[EqualTo('new_password', message="Passwords do not match")])
+
     submit = SubmitField("Change Password")
+
+    def validate(self):
+        super(ChangePasswordForm, self).validate()
+
+        if self.password.data.strip() == '':
+            self.password.errors.append('Password not provided')
+            return False
+        if not verify_and_update_password(self.password.data, current_user):
+            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
+            return False
+        return True

@@ -327,12 +327,35 @@ class ChangePasswordTest(SecurityTest):
 
     def test_change_password(self):
         self.authenticate()
-        r = self.client.post('/change/' + t, data={
+        r = self.client.get('/change', follow_redirects=True)
+        self.assertIn('Change password', r.data)
+
+    def test_change_password_invalid(self):
+        self.authenticate()
+        r = self.client.post('/change', data={
+            'password': 'notpassword',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }, follow_redirects=True)
+        print r
+        self.assertIn('Invalid password', r.data)
+
+    def test_change_password_mismatch(self):
+        self.authenticate()
+        r = self.client.post('/change', data={
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'notnewpassword'
+        }, follow_redirects=True)
+        self.assertIn('Passwords do not match', r.data)
+
+    def test_change_password_success(self):
+        self.authenticate()
+        r = self.client.post('/change', data={
             'password': 'password',
             'new_password': 'newpassword',
             'new_password_confirm': 'newpassword'
         }, follow_redirects=True)
-
         self.assertIn('You successfully changed your password', r.data)
 
 
