@@ -76,9 +76,9 @@ register form or override validators::
              register_form=ExtendedRegisterForm)
 
 For the ``register_form`` and ``confirm_register_form``, each field is
-passed to the user model when a user is created. In the above case,
-the ``first_name`` and ``last_name`` fields are passed directly to the
-model, so the model should look like::
+passed to the user model (as kwargs) when a user is created. In the
+above case, the ``first_name`` and ``last_name`` fields are passed
+directly to the model, so the model should look like::
 
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
