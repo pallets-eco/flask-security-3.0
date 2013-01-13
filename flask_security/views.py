@@ -11,7 +11,7 @@
 
 from flask import current_app, redirect, request, render_template, jsonify, \
      after_this_request, Blueprint
-from flask.ext.login import current_user
+from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
@@ -22,6 +22,7 @@ from .passwordless import send_login_instructions, \
      login_token_status
 from .recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
+from .changeable import change_user_password
 from .registerable import register_user
 from .utils import get_url, get_post_login_redirect, do_flash, \
      get_message, login_user, logout_user, url_for_security as url_for
@@ -292,7 +293,7 @@ def change_password():
 
     if form.validate_on_submit():
         after_this_request(_commit)
-        update_password(current_user, form.new_password.data)
+        change_user_password(current_user, form.new_password.data)
         if request.json is None:
             do_flash(*get_message('PASSWORD_CHANGE'))
 

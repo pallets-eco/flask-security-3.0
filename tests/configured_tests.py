@@ -350,6 +350,16 @@ class ChangePasswordTest(SecurityTest):
         self.assertNotIn('You successfully changed your password', r.data)
         self.assertIn('Passwords do not match', r.data)
 
+    def test_change_password_bad_password(self):
+        self.authenticate()
+        r = self.client.post('/change', data={
+            'password': 'password',
+            'new_password': 'a',
+            'new_password_confirm': 'a'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Field must be between', r.data)
+
     def test_change_password_success(self):
         self.authenticate()
         r = self.client.post('/change', data={

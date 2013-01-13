@@ -18,6 +18,7 @@ following is a list of view templates:
 * `security/login_user.html`
 * `security/register_user.html`
 * `security/reset_password.html`
+* `security/change_password.html`
 * `security/send_confirmation.html`
 * `security/send_login.html`
 
@@ -55,6 +56,7 @@ The following is a list of all the available context processor decorators:
 * ``login_context_processor``: Login view
 * ``register_context_processor``: Register view
 * ``reset_password_context_processor``: Reset password view
+* ``change_password_context_processor``: Reset password view
 * ``send_confirmation_context_processor``: Send confirmation view
 * ``send_login_context_processor``: Send login view
 
@@ -82,6 +84,7 @@ The following is a list of all the available form overrides:
 * ``register_form``: Register form
 * ``forgot_password_form``: Forgot password form
 * ``reset_password_form``: Reset password form
+* ``change_password_form``: Reset password form
 * ``send_confirmation_form``: Send confirmation form
 * ``passwordless_login_form``: Passwordless login form
 
@@ -100,6 +103,8 @@ The following is a list of email templates:
 * `security/mail/reset_instructions.html`
 * `security/mail/reset_instructions.txt`
 * `security/mail/reset_notice.html`
+* `security/mail/change_notice.txt`
+* `security/mail/change_notice.html`
 * `security/mail/reset_notice.txt`
 * `security/mail/welcome.html`
 * `security/mail/welcome.txt`
