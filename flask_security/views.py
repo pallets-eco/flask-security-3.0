@@ -296,6 +296,8 @@ def change_password():
         change_user_password(current_user, form.new_password.data)
         if request.json is None:
             do_flash(*get_message('PASSWORD_CHANGE'))
+            return redirect(get_url(_security.post_change_view) or
+                            get_url(_security.post_login_view))
 
     if request.json:
         return _render_json(form)

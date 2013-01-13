@@ -321,8 +321,8 @@ class ExpiredResetPasswordTest(SecurityTest):
 class ChangePasswordTest(SecurityTest):
 
     AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
         'SECURITY_CHANGEABLE': True,
-        'SECURITY_POST_CHANGE_VIEW': '/',
     }
 
     def test_change_password(self):
@@ -362,12 +362,37 @@ class ChangePasswordTest(SecurityTest):
 
     def test_change_password_success(self):
         self.authenticate()
-        r = self.client.post('/change', data={
-            'password': 'password',
-            'new_password': 'newpassword',
-            'new_password_confirm': 'newpassword'
-        }, follow_redirects=True)
+        with self.app.extensions['mail'].record_messages() as outbox:
+            r = self.client.post('/change', data={
+                    'password': 'password',
+                    'new_password': 'newpassword',
+                    'new_password_confirm': 'newpassword'
+                    }, follow_redirects=True)
+
         self.assertIn('You successfully changed your password', r.data)
+        self.assertIn('Home Page', r.data)
+
+        self.assertEqual(len(outbox), 1)
+        self.assertIn("Your password has been changed", outbox[0].html)
+        self.assertIn("/reset", outbox[0].html)
+
+
+class ChangePasswordPostViewTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': True,
+        'SECURITY_POST_CHANGE_VIEW': '/profile',
+    }
+
+    def test_change_password_success(self):
+        self.authenticate()
+        r = self.client.post('/change', data={
+                'password': 'password',
+                'new_password': 'newpassword',
+                'new_password_confirm': 'newpassword'
+                }, follow_redirects=True)
+
+        self.assertIn('Profile Page', r.data)
 
 
 class TrackableTests(SecurityTest):

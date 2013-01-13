@@ -200,7 +200,7 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     submit = SubmitField("Reset Password")
 
 
-class ChangePasswordForm(Form, NextFormMixin, PasswordFormMixin):
+class ChangePasswordForm(Form, PasswordFormMixin):
     """The default change password form"""
 
     new_password = PasswordField("New Password",
