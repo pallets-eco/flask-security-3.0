@@ -157,10 +157,8 @@ def _get_login_manager(app):
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
-    lm.login_message = cv('MSG_LOGIN', app=app)
-    lm.login_message_category = 'info'
-    lm.needs_refresh_message = cv('MSG_REFRESH', app=app)
-    lm.needs_refresh_message_category = 'info'
+    lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
+    lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
     lm.init_app(app)
     return lm
 
