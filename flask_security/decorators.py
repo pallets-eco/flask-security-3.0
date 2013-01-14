@@ -137,8 +137,9 @@ def auth_required(*auth_methods):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             mechanisms = [login_mechanisms.get(method) for method in auth_methods]
-            if any(mechanisms):
-                return fn(*args, **kwargs)
+            for mechanism in mechanisms:
+                if mechanism and mechanism():
+                    return fn(*args, **kwargs)
             return _get_unauthorized_response()
         return decorated_view
     return wrapper
