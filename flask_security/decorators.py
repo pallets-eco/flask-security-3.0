@@ -48,6 +48,8 @@ def _check_token():
     args_key = _security.token_authentication_key
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
+    if request.json:
+        token = request.json.get(args_key, token)
     serializer = _security.remember_token_serializer
 
     try:
