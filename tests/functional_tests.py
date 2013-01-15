@@ -169,6 +169,24 @@ class DefaultSecurityTests(SecurityTest):
         self.assertEquals('Basic realm="My Realm"',
                           r.headers['WWW-Authenticate'])
 
+    def test_multi_auth_basic(self):
+        r = self._get('/multi_auth', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+        })
+        self.assertIn('Basic', r.data)
+
+    def test_multi_auth_token(self):
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        r = self._get('/multi_auth?auth_token=' + token)
+        self.assertIn('Token', r.data)
+
+    def test_multi_auth_session(self):
+        self.authenticate()
+        r = self._get('/multi_auth')
+        self.assertIn('Session', r.data)
+
     def test_user_deleted_during_session_reverts_to_anonymous_user(self):
         self.authenticate()
 
