@@ -395,6 +395,18 @@ class ChangePasswordPostViewTest(SecurityTest):
         self.assertIn('Profile Page', r.data)
 
 
+class ChangePasswordDisabledTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': False,
+    }
+
+    def test_change_password_endpoint_is_404(self):
+        self.authenticate()
+        r = self.client.get('/change', follow_redirects=True)
+        self.assertEqual(404, r.status_code)
+
+
 class TrackableTests(SecurityTest):
 
     AUTH_CONFIG = {
