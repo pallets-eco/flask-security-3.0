@@ -3,6 +3,7 @@ Quick Start
 
 -  `Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_
 -  `Basic MongoEngine Application <#basic-mongoengine-application>`_
+-  `Basic Peewee Application <#basic-peewee-application>`_
 -  `Mail Configuration <#mail-configuration>`_
 
 Basic SQLAlchemy Application
@@ -21,7 +22,7 @@ SQLAlchemy Application
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The following code sample illustrates how to get started as quickly as
-possible using SQLAlchemy.
+possible using SQLAlchemy:
 
 ::
 
@@ -94,7 +95,9 @@ MongoEngine Application
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 The following code sample illustrates how to get started as quickly as
-possible using MongoEngine::
+possible using MongoEngine:
+
+::
 
     from flask import Flask, render_template
     from flask.ext.mongoengine import MongoEngine
@@ -132,6 +135,79 @@ possible using MongoEngine::
     # Create a user to test with
     @app.before_first_request
     def create_user():
+        user_datastore.create_user(email='matt@nobien.net', password='password')
+
+    # Views
+    @app.route('/')
+    @login_required
+    def home():
+        return render_template('index.html')
+
+    if __name__ == '__main__':
+        app.run()
+
+
+Basic Peewee Application
+========================
+
+Peewee Install requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    $ mkvirtualenv <your-app-name>
+    $ pip install flask-security flask-peewee
+
+Peewee Application
+~~~~~~~~~~~~~~~~~~
+
+The following code sample illustrates how to get started as quickly as
+possible using Peewee:
+
+::
+
+    from flask import Flask, render_template
+    from flask_peewee.db import Database
+    from peewee import *
+    from flask.ext.security import Security, PeeweeUserDatastore, \
+        UserMixin, RoleMixin, login_required
+
+    # Create app
+    app = Flask(__name__)
+    app.config['DEBUG'] = True
+    app.config['SECRET_KEY'] = 'super-secret'
+    app.config['DATABASE'] = {
+        'name': 'example.db',
+        'engine': 'peewee.SqliteDatabase',
+    }
+
+    # Create database connection object
+    db = Database(app)
+
+    class Role(Model, RoleMixin):
+        name = TextField(unique=True)
+        description = TextField(null=True)
+
+    class User(Model, UserMixin):
+        email = TextField()
+        password = TextField()
+        active = BooleanField(default=True)
+        confirmed_at = DateTimeField(null=True)
+
+    class UserRoles(Model):
+        user = ForeignKeyField(User, related_name='roles')
+        role = ForeignKeyField(Role, related_name='users')
+
+    # Setup Flask-Security
+    user_datastore = PeeweeUserDatastore(db, User, Role)
+    security = Security(app, user_datastore)
+
+    # Create a user to test with
+    @app.before_first_request
+    def create_user():
+        for Model in (Role, User, UserRoles):
+            Model.drop_table(fail_silently=True)
+            Model.create_table(fail_silently=True)
         user_datastore.create_user(email='matt@nobien.net', password='password')
 
     # Views
