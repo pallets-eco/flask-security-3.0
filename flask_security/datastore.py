@@ -44,6 +44,15 @@ class MongoEngineDatastore(Datastore):
         model.delete()
 
 
+class PeeweeDatastore(Datastore):
+    def put(self, model):
+        model.save()
+        return model
+
+    def delete(self, model):
+        model.delete_instance()
+
+
 class UserDatastore(object):
     """Abstracted user datastore.
 
@@ -179,3 +188,66 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
+
+
+class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
+    """A PeeweeD datastore implementation for Flask-Security that assumes
+    the use of the Flask-Peewee extension.
+
+    :param user_model: A user model class definition
+    :param role_model: A role model class definition
+    :param role_link: A model implementing the many-to-many user-role relation
+    """
+    def __init__(self, db, user_model, role_model, role_link):
+        PeeweeDatastore.__init__(self, db)
+        UserDatastore.__init__(self, user_model, role_model)
+        self.UserRole = role_link
+
+    def find_user(self, **kwargs):
+        try:
+            return self.user_model.filter(**kwargs).get()
+        except self.user_model.DoesNotExist:
+            return None
+
+    def find_role(self, role):
+        try:
+            return self.role_model.filter(name=role).get()
+        except self.role_model.DoesNotExist:
+            return None
+
+    def create_user(self, **kwargs):
+        """Creates and returns a new user from the given parameters."""
+        roles = kwargs.pop('roles', [])
+        user = self.user_model(**self._prepare_create_user_args(**kwargs))
+        user = self.put(user)
+        for role in roles:
+            self.add_role_to_user(user, role)
+        return user
+
+
+    def add_role_to_user(self, user, role):
+        """Adds a role tp a user
+
+        :param user: The user to manipulate
+        :param role: The role to add to the user
+        """
+        user, role = self._prepare_role_modify_args(user, role)
+        if self.UserRole.select().where(self.UserRole.user==user, self.UserRole.role==role).count():
+            return False
+        else:
+            self.UserRole.create(user=user, role=role)
+            return True
+
+    def remove_role_from_user(self, user, role):
+        """Removes a role from a user
+
+        :param user: The user to manipulate
+        :param role: The role to remove from the user
+        """
+        user, role = self._prepare_role_modify_args(user, role)
+        if self.UserRole.select().where(self.UserRole.user==user, self.UserRole.role==role).count():
+            self.UserRole.delete().where(self.UserRole.user==user, self.UserRole.role==role)
+            return True
+        else:
+            return False
+
