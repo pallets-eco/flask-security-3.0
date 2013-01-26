@@ -184,17 +184,17 @@ possible using Peewee:
     # Create database connection object
     db = Database(app)
 
-    class Role(Model, RoleMixin):
+    class Role(db.Model, RoleMixin):
         name = TextField(unique=True)
         description = TextField(null=True)
 
-    class User(Model, UserMixin):
+    class User(db.Model, UserMixin):
         email = TextField()
         password = TextField()
         active = BooleanField(default=True)
         confirmed_at = DateTimeField(null=True)
 
-    class UserRoles(Model):
+    class UserRoles(db.Model):
         # Because peewee does not come with built-in many-to-many
         # relationships, we need this intermediary class to link
         # user to roles.
