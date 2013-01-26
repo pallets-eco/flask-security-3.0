@@ -195,11 +195,16 @@ possible using Peewee:
         confirmed_at = DateTimeField(null=True)
 
     class UserRoles(Model):
+        # Because peewee does not come with built-in many-to-many
+        # relationships, we need this intermediary class to link
+        # user to roles.
         user = ForeignKeyField(User, related_name='roles')
         role = ForeignKeyField(Role, related_name='users')
+        name = property(lambda self: self.role.name)
+        description = property(lambda self: self.role.description)
 
     # Setup Flask-Security
-    user_datastore = PeeweeUserDatastore(db, User, Role)
+    user_datastore = PeeweeUserDatastore(db, User, Role, UserRoles)
     security = Security(app, user_datastore)
 
     # Create a user to test with
