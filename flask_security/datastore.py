@@ -82,11 +82,11 @@ class UserDatastore(object):
         return kwargs
 
     def find_user(self, **kwargs):
-        """Returns a user matching the provided paramters."""
+        """Returns a user matching the provided parameters."""
         raise NotImplementedError
 
-    def find_role(self, **kwargs):
-        """Returns a role matching the provided paramters."""
+    def find_role(self, name):
+        """Returns a role matching the provided name."""
         raise NotImplementedError
 
     def add_role_to_user(self, user, role):
