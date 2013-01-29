@@ -150,7 +150,7 @@ class UserDatastore(object):
         """Returns a role matching the given name or creates it with any
         additionally provided parameters
         """
-        kwrags["name"] = name
+        kwargs["name"] = name
         return self.find_role(name) or self.create_role(**kwargs)
 
     def create_user(self, **kwargs):
