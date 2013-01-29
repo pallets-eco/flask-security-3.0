@@ -146,6 +146,13 @@ class UserDatastore(object):
         role = self.role_model(**kwargs)
         return self.put(role)
 
+    def find_or_create_role(self, name, **kwargs):
+        """Returns a role matching the given name or creates it with any
+        additionally provided parameters
+        """
+        kwrags["name"] = name
+        return self.find_role(name) or self.create_role(**kwargs)
+
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
 
