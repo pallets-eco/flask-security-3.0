@@ -26,9 +26,11 @@ Overriding these templates is simple:
 1. Create a folder named ``security`` within your application's templates folder
 2. Create a template with the same name for the template you wish to override
 
+You can also specify custom template file paths in the :doc:`configuration <configuration>`.
+
 Each template is passed a template context object that includes the following,
 including the objects/values that are passed to the template by the main
-Flask application context processory:
+Flask application context processor:
 
 * ``<template_name>_form``: A form object for the view
 * ``security``: The Flask-Security extension object

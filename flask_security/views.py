@@ -23,7 +23,8 @@ from .recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
 from .registerable import register_user
 from .utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, login_user, logout_user, url_for_security as url_for
+     get_message, login_user, logout_user, url_for_security as url_for, \
+     config_value
 
 
 # Convenient references
@@ -81,7 +82,7 @@ def login():
     if request.json:
         return _render_json(form, True)
 
-    return render_template('security/login_user.html',
+    return render_template(config_value('LOGIN_USER_TEMPLATE'),
                            login_user_form=form,
                            **_ctx('login'))
 
@@ -127,7 +128,7 @@ def register():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/register_user.html',
+    return render_template(config_value('REGISTER_USER_TEMPLATE'),
                            register_user_form=form,
                            **_ctx('register'))
 
@@ -150,7 +151,7 @@ def send_login():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/send_login.html',
+    return render_template(config_value('SEND_LOGIN_TEMPLATE'),
                            send_login_form=form,
                            **_ctx('send_login'))
 
@@ -195,7 +196,7 @@ def send_confirmation():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/send_confirmation.html',
+    return render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
                            send_confirmation_form=form,
                            **_ctx('send_confirmation'))
 
@@ -243,7 +244,7 @@ def forgot_password():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/forgot_password.html',
+    return render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
                            forgot_password_form=form,
                            **_ctx('forgot_password'))
 
@@ -272,7 +273,7 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    return render_template('security/reset_password.html',
+    return render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                            reset_password_form=form,
                            reset_password_token=token,
                            **_ctx('reset_password'))

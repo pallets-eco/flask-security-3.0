@@ -107,6 +107,79 @@ class BadConfiguredSecurityTests(SecurityTest):
         self.assertRaises(RuntimeError, self.authenticate)
 
 
+class DefaultTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
+    }
+
+
+    def test_login_user_template(self):
+        r = self._get('/login')
+
+        self.assertIn('CUSTOM LOGIN USER', r.data)
+
+
+class RegisterableTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_REGISTERABLE': True,
+        'SECURITY_REGISTER_USER_TEMPLATE': 'custom_security/register_user.html'
+    }
+
+    def test_register_user_template(self):
+        r = self._get('/register')
+
+        self.assertIn('CUSTOM REGISTER USER', r.data)
+
+
+class RecoverableTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
+        'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html',
+        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
+    }
+
+    def test_forgot_password_template(self):
+        r = self._get('/reset')
+
+        self.assertIn('CUSTOM FORGOT PASSWORD', r.data)
+
+    def test_reset_password_template(self):
+        with capture_reset_password_requests() as requests:
+            r = self.client.post('/reset',
+                data=dict(email='joe@lp.com'),
+                follow_redirects=True)
+            t = requests[0]['token']
+
+        r = self._get('/reset/' + t)
+
+        self.assertIn('CUSTOM RESET PASSWORD', r.data)
+
+
+class ConfirmableTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/send_confirmation.html'
+    }
+
+    def test_send_confirmation_template(self):
+        r = self._get('/confirm')
+
+        self.assertIn('CUSTOM SEND CONFIRMATION', r.data)
+
+
+class PasswordlessTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html'
+    }
+
+    def test_send_login_template(self):
+        r = self._get('/login')
+
+        self.assertIn('CUSTOM SEND LOGIN', r.data)
+
+
+
 class RegisterableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
