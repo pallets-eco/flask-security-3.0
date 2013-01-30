@@ -179,7 +179,6 @@ class PasswordlessTemplatePathTests(SecurityTest):
         self.assertIn('CUSTOM SEND LOGIN', r.data)
 
 
-
 class RegisterableTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
