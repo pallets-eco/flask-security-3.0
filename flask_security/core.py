@@ -22,8 +22,8 @@ from werkzeug.local import LocalProxy
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
-     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-     PasswordlessLoginForm
+     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
+     SendConfirmationForm, PasswordlessLoginForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -40,6 +40,7 @@ _default_config = {
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',
+    'CHANGE_URL': '/change',
     'CONFIRM_URL': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
@@ -47,12 +48,14 @@ _default_config = {
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
+    'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
     'PASSWORDLESS': False,
+    'CHANGEABLE': False,
     'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
@@ -63,12 +66,14 @@ _default_config = {
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
+    'CHANGE_SALT': 'change-salt',
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
     'EMAIL_SUBJECT_REGISTER': 'Welcome',
     'EMAIL_SUBJECT_CONFIRM': 'Please confirm your email',
     'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
+    'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions'
 }
 
@@ -97,6 +102,8 @@ _default_messages = {
     'INVALID_PASSWORD': ('Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
+    'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
+    'INVALID_PASSWORD': ('Invalid password', 'error'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info'),
 }
@@ -118,6 +125,7 @@ _default_forms = {
     'register_form': RegisterForm,
     'forgot_password_form': ForgotPasswordForm,
     'reset_password_form': ResetPasswordForm,
+    'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
 }
@@ -290,6 +298,9 @@ class _SecurityState(object):
     def reset_password_context_processor(self, fn):
         self._add_ctx_processor('reset_password', fn)
 
+    def change_password_context_processor(self, fn):
+        self._add_ctx_processor('change_password', fn)
+
     def send_confirmation_context_processor(self, fn):
         self._add_ctx_processor('send_confirmation', fn)
 
@@ -319,8 +330,8 @@ class Security(object):
     def init_app(self, app, datastore=None, register_blueprint=True,
         login_form=None, confirm_register_form=None,
         register_form=None, forgot_password_form=None,
-        reset_password_form=None, send_confirmation_form=None,
-        passwordless_login_form=None):
+        reset_password_form=None, change_password_form=None,
+        send_confirmation_form=None, passwordless_login_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -344,6 +355,7 @@ class Security(object):
                            register_form=register_form,
                            forgot_password_form=forgot_password_form,
                            reset_password_form=reset_password_form,
+                           change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form)
 

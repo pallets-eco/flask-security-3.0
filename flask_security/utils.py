@@ -27,7 +27,7 @@ from werkzeug.local import LocalProxy
 
 from .signals import user_registered, user_confirmed, \
     confirm_instructions_sent, login_instructions_sent, \
-    password_reset, reset_password_instructions_sent
+    password_reset, password_changed, reset_password_instructions_sent
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -373,6 +373,7 @@ def capture_signals():
     """Factory method that creates a `CaptureSignals` with all the flask_security signals."""
     return CaptureSignals([user_registered, user_confirmed,
                            confirm_instructions_sent, login_instructions_sent,
-                           password_reset, reset_password_instructions_sent])
+                           password_reset, password_changed,
+                           reset_password_instructions_sent])
 
 
