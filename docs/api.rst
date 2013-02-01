@@ -49,6 +49,10 @@ Datastores
     :members:
     :inherited-members:
 
+.. autoclass:: flask_security.datastore.PeeweeUserDatastore
+    :members:
+    :inherited-members:
+
 
 Signals
 -------

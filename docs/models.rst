@@ -1,12 +1,12 @@
 Models
 ======
 
-Flask-Security assumes you'll be using libraries such as SQLAlchemy or
-MongoEngine to define a data model that includes a `User` and `Role` model. The
-fields on your models must follow a particular convention depending on the
-functionality your app requires. Aside from this, you're free to add any
-additional fields to your model(s) if you want. At the bear minimum your `User`
-and `Role` model should include the following fields:
+Flask-Security assumes you'll be using libraries such as SQLAlchemy,
+MongoEngine or Peewee to define a data model that includes a `User` and
+`Role` model. The fields on your models must follow a particular convention
+depending on the functionality your app requires. Aside from this, you're
+free to add any additional fields to your model(s) if you want. At the bear
+minimum your `User` and `Role` model should include the following fields:
 
 **User**
 
