@@ -45,10 +45,7 @@ def valid_user_email(form, field):
 class Form(BaseForm):
     def __init__(self, *args, **kwargs):
         if current_app.testing:
-            csrf_enabled = False
-        else:
-            csrf_enabled = request.json is None
-        kwargs.setdefault('csrf_enabled', csrf_enabled)
+            self.TIME_LIMIT = None
         super(Form, self).__init__(*args, **kwargs)
 
 
@@ -82,6 +79,7 @@ class NewPasswordFormMixin():
     password = PasswordField("Password",
         validators=[password_required,
                     Length(min=6, max=128)])
+
 
 class PasswordConfirmFormMixin():
     password_confirm = PasswordField("Retype Password",
@@ -147,6 +145,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
+
     email = TextField('Email Address')
     password = PasswordField('Password')
     remember = BooleanField("Remember Me")
@@ -156,7 +155,8 @@ class LoginForm(Form, NextFormMixin):
         super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        super(LoginForm, self).validate()
+        if not super(LoginForm, self).validate():
+            return False
 
         if self.email.data.strip() == '':
             self.email.errors.append('Email not provided')
@@ -186,6 +186,7 @@ class LoginForm(Form, NextFormMixin):
 class ConfirmRegisterForm(Form, RegisterFormMixin,
                           UniqueEmailFormMixin, NewPasswordFormMixin):
     pass
+
 
 class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
     pass
