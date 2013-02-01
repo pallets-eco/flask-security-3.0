@@ -91,10 +91,14 @@ _default_messages = {
     'LOGIN_EMAIL_SENT': ('Instructions to login have been sent to %(email)s.', 'success'),
     'INVALID_LOGIN_TOKEN': ('Invalid login token.', 'error'),
     'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
+    'EMAIL_NOT_PROVIDED': ('Email not provided', 'error'),
+    'PASSWORD_NOT_PROVIDED': ('Password not provided', 'error'),
+    'USER_DOES_NOT_EXIST': ('Specified user does not exist', 'error'),
+    'INVALID_PASSWORD': ('Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
     'LOGIN': ('Please log in to access this page.', 'info'),
-    'REFRESH': ('Please reauthenticate to access this page.', 'info')
+    'REFRESH': ('Please reauthenticate to access this page.', 'info'),
 }
 
 _allowed_password_hash_schemes = [
