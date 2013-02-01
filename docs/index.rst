@@ -10,7 +10,7 @@ Flask application. They include:
 4. Basic HTTP authentication
 5. Token based authentication
 6. Token based account activation (optional)
-7. Token based password recovery/resetting (optional)
+7. Token based password recovery / resetting (optional)
 8. User registration (optional)
 9. Login tracking (optional)
 
@@ -27,10 +27,11 @@ and libraries. They include:
 
 Additionally, it assumes you'll be using a common library for your database
 connections and model definitions. Flask-Security supports the following Flask
-extensions out of the box for data persistance:
+extensions out of the box for data persistence:
 
-1. `Flask-SQLAlchemy <http://packages.python.org/Flask-SQLAlchemy/>`_
-2. `Flask-MongoEngine <http://packages.python.org/Flask-MongoEngine/>`_
+1. `Flask-SQLAlchemy <http://pypi.python.org/pypi/flask-sqlalchemy/>`_
+2. `Flask-MongoEngine <http://pypi.python.org/pypi/flask-mongoengine/>`_
+3. `Flask-Peewee <http://pypi.python.org/pypi/flask-peewee/>`_
 
 
 .. include:: contents.rst.inc
