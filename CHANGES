@@ -12,6 +12,7 @@ Not yet released
 - Password hashing is now more flexible and can be changed
 - Flask-Login messages are configurable
 - AJAX requests must now send a CSRF token for security reasons
+- Login form messages are now configurable
 
 
 Version 1.5.4
