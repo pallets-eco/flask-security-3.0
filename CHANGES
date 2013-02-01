@@ -4,6 +4,16 @@ Flask-Security Changelog
 Here you can see the full list of changes between each Flask-Security release.
 
 
+Version 1.5.5
+-------------
+
+Not yet released
+
+- Password hashing is now more flexible and can be changed
+- Flask-Login messages are configurable
+- AJAX requests must now send a CSRF token for security reasons
+
+
 Version 1.5.4
 -------------
 
