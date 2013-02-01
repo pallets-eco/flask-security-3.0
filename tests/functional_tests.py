@@ -224,11 +224,11 @@ class MongoEngineSecurityTests(DefaultSecurityTests):
         return create_app(auth_config, **kwargs)
 
 
-class PeeweeSecurityTests(DefaultSecurityTests):
+# class PeeweeSecurityTests(DefaultSecurityTests):
 
-    def _create_app(self, auth_config, **kwargs):
-        from tests.test_app.peewee_app import create_app
-        return create_app(auth_config, **kwargs)
+#     def _create_app(self, auth_config, **kwargs):
+#         from tests.test_app.peewee_app import create_app
+#         return create_app(auth_config, **kwargs)
 
 
 class DefaultDatastoreTests(SecurityTest):

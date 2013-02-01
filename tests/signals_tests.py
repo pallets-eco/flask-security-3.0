@@ -165,7 +165,8 @@ class ChangeableSignalsTests(SecurityTest):
                 client.post('/change',
                             data=dict(password='password',
                                       new_password='newpassword',
-                                      new_password_confirm='newpassword'))
+                                      new_password_confirm='newpassword',
+                                      csrf_token=self.csrf_token))
                 self.assertEqual(mocks.signals_sent(), set([password_changed]))
                 user = self.app.security.datastore.find_user(email='joe@lp.com')
                 calls = mocks[password_changed]

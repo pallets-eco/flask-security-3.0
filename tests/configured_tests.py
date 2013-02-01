@@ -331,7 +331,7 @@ class ChangePasswordTest(SecurityTest):
 
     def test_change_password_invalid(self):
         self.authenticate()
-        r = self.client.post('/change', data={
+        r = self._post('/change', data={
             'password': 'notpassword',
             'new_password': 'newpassword',
             'new_password_confirm': 'newpassword'
@@ -341,7 +341,7 @@ class ChangePasswordTest(SecurityTest):
 
     def test_change_password_mismatch(self):
         self.authenticate()
-        r = self.client.post('/change', data={
+        r = self._post('/change', data={
             'password': 'password',
             'new_password': 'newpassword',
             'new_password_confirm': 'notnewpassword'
@@ -351,7 +351,7 @@ class ChangePasswordTest(SecurityTest):
 
     def test_change_password_bad_password(self):
         self.authenticate()
-        r = self.client.post('/change', data={
+        r = self._post('/change', data={
             'password': 'password',
             'new_password': 'a',
             'new_password_confirm': 'a'
@@ -362,7 +362,7 @@ class ChangePasswordTest(SecurityTest):
     def test_change_password_success(self):
         self.authenticate()
         with self.app.extensions['mail'].record_messages() as outbox:
-            r = self.client.post('/change', data={
+            r = self._post('/change', data={
                     'password': 'password',
                     'new_password': 'newpassword',
                     'new_password_confirm': 'newpassword'
@@ -385,7 +385,7 @@ class ChangePasswordPostViewTest(SecurityTest):
 
     def test_change_password_success(self):
         self.authenticate()
-        r = self.client.post('/change', data={
+        r = self._post('/change', data={
                 'password': 'password',
                 'new_password': 'newpassword',
                 'new_password_confirm': 'newpassword'
