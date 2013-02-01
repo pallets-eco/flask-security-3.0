@@ -35,23 +35,23 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_unprovided_username(self):
         r = self.authenticate("")
-        self.assertIn("Email not provided", r.data)
+        self.assertIn(self.get_message('EMAIL_NOT_PROVIDED'), r.data)
 
     def test_unprovided_password(self):
         r = self.authenticate(password="")
-        self.assertIn("Password not provided", r.data)
+        self.assertIn(self.get_message('PASSWORD_NOT_PROVIDED'), r.data)
 
     def test_invalid_user(self):
         r = self.authenticate(email="bogus@bogus.com")
-        self.assertIn("Specified user does not exist", r.data)
+        self.assertIn(self.get_message('USER_DOES_NOT_EXIST'), r.data)
 
     def test_bad_password(self):
         r = self.authenticate(password="bogus")
-        self.assertIn("Invalid password", r.data)
+        self.assertIn(self.get_message('INVALID_PASSWORD'), r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")
-        self.assertIn("Account is disabled", r.data)
+        self.assertIn(self.get_message('DISABLED_ACCOUNT'), r.data)
 
     def test_logout(self):
         self.authenticate()
