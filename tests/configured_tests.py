@@ -148,7 +148,7 @@ class RecoverableTemplatePathTests(SecurityTest):
             r = self._post('/reset',
                 data=dict(email='joe@lp.com'),
                 follow_redirects=True)
-            
+
             t = requests[0]['token']
 
         r = self._get('/reset/' + t)
