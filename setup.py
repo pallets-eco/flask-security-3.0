@@ -48,6 +48,7 @@ setup(
         'nose',
         'Flask-SQLAlchemy',
         'Flask-MongoEngine',
+        'Flask-Peewee',
         'py-bcrypt',
         'simplejson'
     ],

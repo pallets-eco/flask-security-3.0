@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import hmac
+
+from hashlib import sha1
 from unittest import TestCase
+
 from tests.test_app.sqlalchemy import create_app
+
 
 class SecurityTest(TestCase):
 
@@ -21,6 +26,13 @@ class SecurityTest(TestCase):
         self.app = app
         self.client = app.test_client()
 
+        with self.client.session_transaction() as session:
+            session['csrf'] = 'csrf_token'
+
+        csrf_hmac = hmac.new(self.app.config['SECRET_KEY'],
+                'csrf_token'.encode('utf8'), digestmod=sha1)
+        self.csrf_token = '##' + csrf_hmac.hexdigest()
+
     def _create_app(self, auth_config, **kwargs):
         return create_app(auth_config, **kwargs)
 
@@ -30,30 +42,30 @@ class SecurityTest(TestCase):
                 headers=headers)
 
     def _post(self, route, data=None, content_type=None, follow_redirects=True, headers=None):
+        if isinstance(data, dict):
+            data['csrf_token'] = self.csrf_token
+
         return self.client.post(route, data=data,
                 follow_redirects=follow_redirects,
                 content_type=content_type or 'application/x-www-form-urlencoded',
                 headers=headers)
 
     def register(self, email, password='password'):
-        data = dict(email=email, password=password)
+        data = dict(email=email, password=password, csrf_token=self.csrf_token)
         return self.client.post('/register', data=data, follow_redirects=True)
 
     def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):
         data = dict(email=email, password=password, remember='y')
-        r = self._post(endpoint or '/login', data=data, **kwargs)
-        return r
+        return self._post(endpoint or '/login', data=data, **kwargs)
 
     def json_authenticate(self, email="matt@lp.com", password="password", endpoint=None):
-        data = """
-{
-    "email": "%s",
-    "password": "%s"
-}
-"""
-        return self._post(endpoint or '/login',
-                          content_type="application/json",
-                          data=data % (email, password))
+        data = """{
+            "email": "%s",
+            "password": "%s",
+            "csrf_token": "%s"
+        }"""
+        return self._post(endpoint or '/login', content_type="application/json",
+                          data=data % (email, password, self.csrf_token))
 
     def logout(self, endpoint=None):
         return self._get(endpoint or '/logout', follow_redirects=True)

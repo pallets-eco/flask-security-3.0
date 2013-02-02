@@ -67,7 +67,7 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('Post Register', r.data)
 
     def test_register_json(self):
-        data = '{ "email": "dude@lp.com", "password": "password" }'
+        data = '{ "email": "dude@lp.com", "password": "password", "csrf_token":"%s" }' % self.csrf_token
         r = self._post('/register', data=data, content_type='application/json')
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
@@ -145,9 +145,10 @@ class RecoverableTemplatePathTests(SecurityTest):
 
     def test_reset_password_template(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/reset',
+            r = self._post('/reset',
                 data=dict(email='joe@lp.com'),
                 follow_redirects=True)
+            
             t = requests[0]['token']
 
         r = self._get('/reset/' + t)
@@ -189,7 +190,7 @@ class RegisterableTests(SecurityTest):
         data = dict(email='dude@lp.com',
                     password='password',
                     password_confirm='password')
-        self.client.post('/register', data=data, follow_redirects=True)
+        self._post('/register', data=data, follow_redirects=True)
         r = self.authenticate('dude@lp.com')
         self.assertIn('Hello dude@lp.com', r.data)
 
@@ -217,7 +218,7 @@ class ConfirmableTests(SecurityTest):
 
         self.client.get('/confirm/' + token, follow_redirects=True)
         self.logout()
-        r = self.client.post('/confirm', data=dict(email=e))
+        r = self._post('/confirm', data=dict(email=e))
         self.assertIn(self.get_message('ALREADY_CONFIRMED'), r.data)
 
     def test_register_sends_confirmation_email(self):
@@ -303,7 +304,7 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         e = 'dude@lp.com'
         p = 'password'
         data = dict(email=e, password=p, password_confirm=p)
-        r = self.client.post('/register', data=data, follow_redirects=True)
+        r = self._post('/register', data=data, follow_redirects=True)
         self.assertIn(e, r.data)
 
 
@@ -317,7 +318,7 @@ class RecoverableTests(SecurityTest):
 
     def test_reset_view(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/reset',
+            r = self._post('/reset',
                                  data=dict(email='joe@lp.com'),
                                  follow_redirects=True)
             t = requests[0]['token']
@@ -327,23 +328,23 @@ class RecoverableTests(SecurityTest):
     def test_forgot_post_sends_email(self):
         with capture_reset_password_requests():
             with self.app.extensions['mail'].record_messages() as outbox:
-                self.client.post('/reset', data=dict(email='joe@lp.com'))
+                self._post('/reset', data=dict(email='joe@lp.com'))
                 self.assertEqual(len(outbox), 1)
 
     def test_forgot_password_json(self):
-        r = self.client.post('/reset', data='{"email": "matt@lp.com"}',
+        r = self._post('/reset', data='{"email": "matt@lp.com"}',
                              content_type="application/json")
         self.assertEquals(r.status_code, 200)
 
     def test_forgot_password_invalid_email(self):
-        r = self.client.post('/reset',
+        r = self._post('/reset',
                              data=dict(email='larry@lp.com'),
                              follow_redirects=True)
         self.assertIn("Specified user does not exist", r.data)
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/reset',
+            r = self._post('/reset',
                                  data=dict(email='joe@lp.com'),
                                  follow_redirects=True)
             t = requests[0]['token']
@@ -375,19 +376,107 @@ class ExpiredResetPasswordTest(SecurityTest):
 
     def test_reset_password_with_expired_token(self):
         with capture_reset_password_requests() as requests:
-            r = self.client.post('/reset',
-                                 data=dict(email='joe@lp.com'),
-                                 follow_redirects=True)
+            r = self._post('/reset', data=dict(email='joe@lp.com'),
+                           follow_redirects=True)
             t = requests[0]['token']
 
         time.sleep(1)
 
-        r = self.client.post('/reset/' + t, data={
+        r = self._post('/reset/' + t, data={
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
 
         self.assertIn('You did not reset your password within', r.data)
+
+
+class ChangePasswordTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_RECOVERABLE': True,
+        'SECURITY_CHANGEABLE': True,
+    }
+
+    def test_change_password(self):
+        self.authenticate()
+        r = self.client.get('/change', follow_redirects=True)
+        self.assertIn('Change password', r.data)
+
+    def test_change_password_invalid(self):
+        self.authenticate()
+        r = self._post('/change', data={
+            'password': 'notpassword',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Invalid password', r.data)
+
+    def test_change_password_mismatch(self):
+        self.authenticate()
+        r = self._post('/change', data={
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'notnewpassword'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Passwords do not match', r.data)
+
+    def test_change_password_bad_password(self):
+        self.authenticate()
+        r = self._post('/change', data={
+            'password': 'password',
+            'new_password': 'a',
+            'new_password_confirm': 'a'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Field must be between', r.data)
+
+    def test_change_password_success(self):
+        self.authenticate()
+        with self.app.extensions['mail'].record_messages() as outbox:
+            r = self._post('/change', data={
+                    'password': 'password',
+                    'new_password': 'newpassword',
+                    'new_password_confirm': 'newpassword'
+                    }, follow_redirects=True)
+
+        self.assertIn('You successfully changed your password', r.data)
+        self.assertIn('Home Page', r.data)
+
+        self.assertEqual(len(outbox), 1)
+        self.assertIn("Your password has been changed", outbox[0].html)
+        self.assertIn("/reset", outbox[0].html)
+
+
+class ChangePasswordPostViewTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': True,
+        'SECURITY_POST_CHANGE_VIEW': '/profile',
+    }
+
+    def test_change_password_success(self):
+        self.authenticate()
+        r = self._post('/change', data={
+                'password': 'password',
+                'new_password': 'newpassword',
+                'new_password_confirm': 'newpassword'
+                }, follow_redirects=True)
+
+        self.assertIn('Profile Page', r.data)
+
+
+class ChangePasswordDisabledTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': False,
+    }
+
+    def test_change_password_endpoint_is_404(self):
+        self.authenticate()
+        r = self.client.get('/change', follow_redirects=True)
+        self.assertEqual(404, r.status_code)
 
 
 class TrackableTests(SecurityTest):
@@ -420,20 +509,19 @@ class PasswordlessTests(SecurityTest):
 
     def test_login_request_for_inactive_user(self):
         msg = self.app.config['SECURITY_MSG_DISABLED_ACCOUNT'][0]
-        r = self.client.post('/login',
-                             data=dict(email='tiya@lp.com'),
-                             follow_redirects=True)
+        r = self._post('/login', data=dict(email='tiya@lp.com'),
+                       follow_redirects=True)
         self.assertIn(msg, r.data)
 
     def test_request_login_token_with_json_and_valid_email(self):
-        data = '{"email": "matt@lp.com", "password": "password"}'
-        r = self.client.post('/login', data=data, content_type='application/json')
+        data = '{"email": "matt@lp.com", "password": "password", "csrf_token":"%s"}' % self.csrf_token
+        r = self._post('/login', data=data, content_type='application/json')
         self.assertEquals(r.status_code, 200)
         self.assertNotIn('error', r.data)
 
     def test_request_login_token_with_json_and_invalid_email(self):
         data = '{"email": "nobody@lp.com", "password": "password"}'
-        r = self.client.post('/login', data=data, content_type='application/json')
+        r = self._post('/login', data=data, content_type='application/json')
         self.assertIn('errors', r.data)
 
     def test_request_login_token_sends_email_and_can_login(self):
@@ -442,9 +530,8 @@ class PasswordlessTests(SecurityTest):
 
         with capture_passwordless_login_requests() as requests:
             with self.app.extensions['mail'].record_messages() as outbox:
-                r = self.client.post('/login',
-                                     data=dict(email=e),
-                                     follow_redirects=True)
+                r = self._post('/login', data=dict(email=e),
+                               follow_redirects=True)
 
                 self.assertEqual(len(outbox), 1)
 
@@ -473,9 +560,8 @@ class PasswordlessTests(SecurityTest):
 
     def test_token_login_when_already_authenticated(self):
         with capture_passwordless_login_requests() as requests:
-            self.client.post('/login',
-                             data=dict(email='matt@lp.com'),
-                             follow_redirects=True)
+            self._post('/login', data=dict(email='matt@lp.com'),
+                       follow_redirects=True)
             token = requests[0]['login_token']
 
         r = self.client.get('/login/' + token, follow_redirects=True)
@@ -503,9 +589,7 @@ class ExpiredLoginTokenTests(SecurityTest):
         e = 'matt@lp.com'
 
         with capture_passwordless_login_requests() as requests:
-            self.client.post('/login',
-                             data=dict(email=e),
-                             follow_redirects=True)
+            self._post('/login', data=dict(email=e), follow_redirects=True)
             token = requests[0]['login_token']
 
         time.sleep(1.25)
@@ -539,7 +623,7 @@ class AsyncMailTaskTests(SecurityTest):
         def send_email(msg):
             self.mail_sent = True
 
-        self.client.post('/reset', data=dict(email='matt@lp.com'))
+        self._post('/reset', data=dict(email='matt@lp.com'))
         self.assertTrue(self.mail_sent)
 
 
@@ -614,9 +698,8 @@ class RecoverableExtendFormsTest(SecurityTest):
 
     def test_reset_password(self):
         with capture_reset_password_requests() as requests:
-            self.client.post('/reset',
-                             data=dict(email='joe@lp.com'),
-                             follow_redirects=True)
+            self._post('/reset', data=dict(email='joe@lp.com'),
+                       follow_redirects=True)
             token = requests[0]['token']
         r = self._get('/reset/' + token)
         self.assertIn("My Reset Password Submit Field", r.data)

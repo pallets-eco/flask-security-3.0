@@ -4,7 +4,7 @@ from flask import Flask, render_template, current_app
 from flask.ext.mail import Mail
 from flask.ext.security import login_required, roles_required, roles_accepted
 from flask.ext.security.decorators import http_auth_required, \
-     auth_token_required
+     auth_token_required, auth_required
 from flask.ext.security.utils import encrypt_password
 from werkzeug.local import LocalProxy
 
@@ -49,6 +49,11 @@ def create_app(config):
     @auth_token_required
     def token():
         return render_template('index.html', content='Token Authentication')
+
+    @app.route('/multi_auth')
+    @auth_required('session', 'token', 'basic')
+    def multi_auth():
+        return render_template('index.html', content='Session, Token, Basic auth')
 
     @app.route('/post_logout')
     def post_logout():

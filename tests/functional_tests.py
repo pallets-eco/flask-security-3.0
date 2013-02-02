@@ -35,23 +35,23 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_unprovided_username(self):
         r = self.authenticate("")
-        self.assertIn("Email not provided", r.data)
+        self.assertIn(self.get_message('EMAIL_NOT_PROVIDED'), r.data)
 
     def test_unprovided_password(self):
         r = self.authenticate(password="")
-        self.assertIn("Password not provided", r.data)
+        self.assertIn(self.get_message('PASSWORD_NOT_PROVIDED'), r.data)
 
     def test_invalid_user(self):
         r = self.authenticate(email="bogus@bogus.com")
-        self.assertIn("Specified user does not exist", r.data)
+        self.assertIn(self.get_message('USER_DOES_NOT_EXIST'), r.data)
 
     def test_bad_password(self):
         r = self.authenticate(password="bogus")
-        self.assertIn("Invalid password", r.data)
+        self.assertIn(self.get_message('INVALID_PASSWORD'), r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")
-        self.assertIn("Account is disabled", r.data)
+        self.assertIn(self.get_message('DISABLED_ACCOUNT'), r.data)
 
     def test_logout(self):
         self.authenticate()
@@ -169,6 +169,24 @@ class DefaultSecurityTests(SecurityTest):
         self.assertEquals('Basic realm="My Realm"',
                           r.headers['WWW-Authenticate'])
 
+    def test_multi_auth_basic(self):
+        r = self._get('/multi_auth', headers={
+            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+        })
+        self.assertIn('Basic', r.data)
+
+    def test_multi_auth_token(self):
+        r = self.json_authenticate()
+        data = json.loads(r.data)
+        token = data['response']['user']['authentication_token']
+        r = self._get('/multi_auth?auth_token=' + token)
+        self.assertIn('Token', r.data)
+
+    def test_multi_auth_session(self):
+        self.authenticate()
+        r = self._get('/multi_auth')
+        self.assertIn('Session', r.data)
+
     def test_user_deleted_during_session_reverts_to_anonymous_user(self):
         self.authenticate()
 
@@ -204,6 +222,13 @@ class MongoEngineSecurityTests(DefaultSecurityTests):
     def _create_app(self, auth_config, **kwargs):
         from tests.test_app.mongoengine import create_app
         return create_app(auth_config, **kwargs)
+
+
+# class PeeweeSecurityTests(DefaultSecurityTests):
+
+#     def _create_app(self, auth_config, **kwargs):
+#         from tests.test_app.peewee_app import create_app
+#         return create_app(auth_config, **kwargs)
 
 
 class DefaultDatastoreTests(SecurityTest):

@@ -11,6 +11,7 @@
 
 from flask import current_app, redirect, request, render_template, jsonify, \
      after_this_request, Blueprint
+from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
@@ -21,6 +22,7 @@ from .passwordless import send_login_instructions, \
      login_token_status
 from .recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
+from .changeable import change_user_password
 from .registerable import register_user
 from .utils import get_url, get_post_login_redirect, do_flash, \
      get_message, login_user, logout_user, url_for_security as url_for, \
@@ -279,6 +281,33 @@ def reset_password(token):
                            **_ctx('reset_password'))
 
 
+@login_required
+def change_password():
+    """View function which handles a change password request."""
+
+    form_class = _security.change_password_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
+
+    if form.validate_on_submit():
+        after_this_request(_commit)
+        change_user_password(current_user, form.new_password.data)
+        if request.json is None:
+            do_flash(*get_message('PASSWORD_CHANGE'))
+            return redirect(get_url(_security.post_change_view) or
+                            get_url(_security.post_login_view))
+
+    if request.json:
+        return _render_json(form)
+
+    return render_template('security/change_password.html',
+                           change_password_form=form,
+                           **_ctx('change_password'))
+
+
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
 
@@ -311,6 +340,11 @@ def create_blueprint(state, import_name):
         bp.route(state.reset_url + '/<token>',
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
+
+    if state.changeable:
+        bp.route(state.change_url,
+                 methods=['GET', 'POST'],
+                 endpoint='change_password')(change_password)
 
     if state.confirmable:
         bp.route(state.confirm_url,

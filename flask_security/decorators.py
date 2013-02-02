@@ -48,6 +48,8 @@ def _check_token():
     args_key = _security.token_authentication_key
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
+    if request.json:
+        token = request.json.get(args_key, token)
     serializer = _security.remember_token_serializer
 
     try:
@@ -111,6 +113,36 @@ def auth_token_required(fn):
             return fn(*args, **kwargs)
         return _get_unauthorized_response()
     return decorated
+
+
+def auth_required(*auth_methods):
+    """
+    Decorator that protects enpoints through multiple mechanisms
+    Example::
+
+        @app.route('/dashboard')
+        @auth_required('token', 'session')
+        def dashboard():
+            return 'Dashboard'
+
+    :param auth_methods: Specified mechanisms.
+    """
+    login_mechanisms = {
+        'token': lambda: _check_token(),
+        'basic': lambda: _check_http_auth(),
+        'session': lambda: current_user.is_authenticated()
+    }
+
+    def wrapper(fn):
+        @wraps(fn)
+        def decorated_view(*args, **kwargs):
+            mechanisms = [login_mechanisms.get(method) for method in auth_methods]
+            for mechanism in mechanisms:
+                if mechanism and mechanism():
+                    return fn(*args, **kwargs)
+            return _get_unauthorized_response()
+        return decorated_view
+    return wrapper
 
 
 def roles_required(*roles):

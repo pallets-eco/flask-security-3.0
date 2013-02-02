@@ -49,6 +49,10 @@ Datastores
     :members:
     :inherited-members:
 
+.. autoclass:: flask_security.datastore.PeeweeUserDatastore
+    :members:
+    :inherited-members:
+
 
 Signals
 -------
@@ -83,7 +87,13 @@ sends the following signals.
 
 .. data:: password_reset
 
-   Sent when a user completes a password. It is passed the `user`.
+   Sent when a user completes a password reset. It is passed the
+   `user`.
+
+.. data:: password_changed
+
+   Sent when a user completes a password change. It is passed the
+   `user`.
 
 .. data:: reset_password_instructions_sent
 
@@ -91,6 +101,7 @@ sends the following signals.
    with the `user` and `token`, the user being logged in and
    the (if so configured) the reset token issued.
 
-All signals are also passed a `app` keyword argument, which is the current application.
+All signals are also passed a `app` keyword argument, which is the
+current application.
 
 .. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/

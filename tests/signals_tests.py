@@ -3,7 +3,8 @@ from __future__ import with_statement
 from flask_security.utils import (capture_registrations, capture_reset_password_requests, capture_signals)
 from flask_security.signals import (user_registered, user_confirmed,
                                     confirm_instructions_sent, login_instructions_sent,
-                                    password_reset, reset_password_instructions_sent)
+                                    password_reset, password_changed,
+                                    reset_password_instructions_sent)
 from tests import SecurityTest
 
 
@@ -32,7 +33,7 @@ class RegisterableSignalsTests(SecurityTest):
         self.assertIn('confirm_token', args[0])
         self.assertEqual(kwargs['app'], self.app)
 
-    def test_register(self):
+    def test_register_without_password(self):
         e = 'dude@lp.com'
         with capture_signals() as mocks:
             self.register(e, password='')
@@ -111,9 +112,8 @@ class RecoverableSignalsTests(SecurityTest):
 
     def test_reset_password_request(self):
         with capture_signals() as mocks:
-            self.client.post('/reset',
-                             data=dict(email='joe@lp.com'),
-                             follow_redirects=True)
+            self._post('/reset', data=dict(email='joe@lp.com'),
+                       follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set([reset_password_instructions_sent]))
         user = self.app.security.datastore.find_user(email='joe@lp.com')
         calls = mocks[reset_password_instructions_sent]
@@ -125,15 +125,12 @@ class RecoverableSignalsTests(SecurityTest):
 
     def test_reset_password(self):
         with capture_reset_password_requests() as requests:
-            self.client.post('/reset',
-                                 data=dict(email='joe@lp.com'),
-                                 follow_redirects=True)
+            self._post('/reset', data=dict(email='joe@lp.com'),
+                       follow_redirects=True)
             token = requests[0]['token']
         with capture_signals() as mocks:
-            self.client.post('/reset/' + token,
-                             data=dict(password='newpassword',
-                                       password_confirm='newpassword'),
-                             follow_redirects=True)
+            data = dict(password='newpassword', password_confirm='newpassword')
+            self._post('/reset/' + token, data, follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set([password_reset]))
         user = self.app.security.datastore.find_user(email='joe@lp.com')
         calls = mocks[password_reset]
@@ -144,16 +141,64 @@ class RecoverableSignalsTests(SecurityTest):
 
     def test_reset_password_invalid_emails(self):
         with capture_signals() as mocks:
-            self.client.post('/reset',
-                             data=dict(email='nobody@lp.com'),
-                             follow_redirects=True)
+            self._post('/reset', data=dict(email='nobody@lp.com'),
+                       follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())
 
     def test_reset_password_invalid_token(self):
         with capture_signals() as mocks:
-            self.client.post('/reset/bogus',
-                             data=dict(password='newpassword',
-                                       password_confirm='newpassword'),
+            data = dict(password='newpassword', password_confirm='newpassword')
+            self._post('/reset/bogus', data, follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
+
+
+class ChangeableSignalsTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_CHANGEABLE': True,
+    }
+
+    def test_change_password(self):
+        self.authenticate('joe@lp.com')
+        with capture_signals() as mocks:
+            with self.client as client:
+                client.post('/change',
+                            data=dict(password='password',
+                                      new_password='newpassword',
+                                      new_password_confirm='newpassword',
+                                      csrf_token=self.csrf_token))
+                self.assertEqual(mocks.signals_sent(), set([password_changed]))
+                user = self.app.security.datastore.find_user(email='joe@lp.com')
+                calls = mocks[password_changed]
+                self.assertEqual(len(calls), 1)
+                args, kwargs = calls[0]
+                self.assertTrue(compare_user(args[0], user))
+                self.assertEqual(kwargs['app'], self.app)
+
+    def test_change_password_invalid_password(self):
+        with capture_signals() as mocks:
+            self.client.post('/change',
+                             data=dict(password='notpassword',
+                                       new_password='newpassword',
+                                       new_password_confirm='newpassword'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
+
+    def test_change_password_bad_password(self):
+        with capture_signals() as mocks:
+            self.client.post('/change',
+                             data=dict(password='notpassword',
+                                       new_password='a',
+                                       new_password_confirm='a'),
+                             follow_redirects=True)
+        self.assertEqual(mocks.signals_sent(), set())
+
+    def test_change_password_mismatch_password(self):
+        with capture_signals() as mocks:
+            self.client.post('/change',
+                             data=dict(password='password',
+                                       new_password='newpassword',
+                                       new_password_confirm='notnewpassword'),
                              follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())
 
@@ -166,25 +211,22 @@ class PasswordlessTests(SecurityTest):
 
     def test_login_request_for_inactive_user(self):
         with capture_signals() as mocks:
-            self.client.post('/login',
-                             data=dict(email='tiya@lp.com'),
-                             follow_redirects=True)
+            self._post('/login', data=dict(email='tiya@lp.com'),
+                       follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())
 
     def test_login_request_for_invalid_email(self):
         with capture_signals() as mocks:
-            self.client.post('/login',
-                             data=dict(email='nobody@lp.com'),
-                             follow_redirects=True)
+            self._post('/login', data=dict(email='nobody@lp.com'),
+                       follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())
 
     def test_request_login_token_sends_email_and_can_login(self):
         e = 'matt@lp.com'
 
         with capture_signals() as mocks:
-            self.client.post('/login',
-                             data=dict(email=e),
-                             follow_redirects=True)
+            self._post('/login', data=dict(email=e), follow_redirects=True)
+
         self.assertEqual(mocks.signals_sent(), set([login_instructions_sent]))
         user = self.app.security.datastore.find_user(email='matt@lp.com')
         calls = mocks[login_instructions_sent]
@@ -193,4 +235,3 @@ class PasswordlessTests(SecurityTest):
         self.assertTrue(compare_user(args[0]['user'], user))
         self.assertIn('login_token', args[0])
         self.assertEqual(kwargs['app'], self.app)
-

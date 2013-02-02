@@ -18,6 +18,7 @@ following is a list of view templates:
 * `security/login_user.html`
 * `security/register_user.html`
 * `security/reset_password.html`
+* `security/change_password.html`
 * `security/send_confirmation.html`
 * `security/send_login.html`
 
@@ -57,6 +58,7 @@ The following is a list of all the available context processor decorators:
 * ``login_context_processor``: Login view
 * ``register_context_processor``: Register view
 * ``reset_password_context_processor``: Reset password view
+* ``change_password_context_processor``: Reset password view
 * ``send_confirmation_context_processor``: Send confirmation view
 * ``send_login_context_processor``: Send login view
 
@@ -77,6 +79,18 @@ register form or override validators::
     security = Security(app, user_datastore,
              register_form=ExtendedRegisterForm)
 
+For the ``register_form`` and ``confirm_register_form``, each field is
+passed to the user model (as kwargs) when a user is created. In the
+above case, the ``first_name`` and ``last_name`` fields are passed
+directly to the model, so the model should look like::
+
+    class User(db.Model, UserMixin):
+        id = db.Column(db.Integer, primary_key=True)
+        email = db.Column(db.String(255), unique=True)
+        password = db.Column(db.String(255))
+        first_name = db.Column(db.String(255))
+        last_name = db.Column(db.String(255))
+
 The following is a list of all the available form overrides:
 
 * ``login_form``: Login form
@@ -84,6 +98,7 @@ The following is a list of all the available form overrides:
 * ``register_form``: Register form
 * ``forgot_password_form``: Forgot password form
 * ``reset_password_form``: Reset password form
+* ``change_password_form``: Reset password form
 * ``send_confirmation_form``: Send confirmation form
 * ``passwordless_login_form``: Passwordless login form
 
@@ -102,6 +117,8 @@ The following is a list of email templates:
 * `security/mail/reset_instructions.html`
 * `security/mail/reset_instructions.txt`
 * `security/mail/reset_notice.html`
+* `security/mail/change_notice.txt`
+* `security/mail/change_notice.html`
 * `security/mail/reset_notice.txt`
 * `security/mail/welcome.html`
 * `security/mail/welcome.txt`

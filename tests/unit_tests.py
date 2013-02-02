@@ -55,8 +55,8 @@ class DatastoreTests(unittest.TestCase):
         self.assertRaises(NotImplementedError, ds.delete, None)
 
     def test_unimplemented_user_datastore_methods(self):
-        self.assertRaises(NotImplementedError, self.ds.find_user)
-        self.assertRaises(NotImplementedError, self.ds.find_role)
+        self.assertRaises(NotImplementedError, self.ds.find_user, None)
+        self.assertRaises(NotImplementedError, self.ds.find_role, None)
 
     def test_toggle_active(self):
         user.active = True
