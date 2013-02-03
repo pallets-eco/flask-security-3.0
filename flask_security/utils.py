@@ -78,7 +78,7 @@ def get_hmac(password):
             'must not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
-    h = hmac.new(_security.password_salt, password, hashlib.sha512)
+    h = hmac.new(_security.password_salt, password.encode('utf-8'), hashlib.sha512)
     return base64.b64encode(h.digest())
 
 
