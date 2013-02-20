@@ -56,6 +56,7 @@ _default_config = {
     'TRACKABLE': False,
     'PASSWORDLESS': False,
     'CHANGEABLE': False,
+    'SEND_REGISTER_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
