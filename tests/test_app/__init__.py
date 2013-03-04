@@ -10,10 +10,12 @@ from werkzeug.local import LocalProxy
 
 ds = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
+
 def create_app(config):
     app = Flask(__name__)
     app.debug = True
     app.config['SECRET_KEY'] = 'secret'
+    app.config['TESTING'] = True
 
     for key, value in config.items():
         app.config[key] = value
@@ -113,10 +115,12 @@ def create_app(config):
 
     return app
 
+
 def create_roles():
     for role in ('admin', 'editor', 'author'):
         ds.create_role(name=role)
     ds.commit()
+
 
 def create_users(count=None):
     users = [('matt@lp.com', 'password', ['admin'], True),
@@ -132,9 +136,11 @@ def create_users(count=None):
                        roles=u[2], active=u[3])
     ds.commit()
 
+
 def populate_data(user_count=None):
     create_roles()
     create_users(user_count)
+
 
 def add_context_processors(s):
     @s.context_processor
