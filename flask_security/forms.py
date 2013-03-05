@@ -10,6 +10,7 @@
 """
 
 import inspect
+import urlparse
 
 from flask import request, current_app
 from flask.ext.wtf import Form as BaseForm, TextField, PasswordField, \
@@ -89,6 +90,13 @@ class PasswordConfirmFormMixin():
 
 class NextFormMixin():
     next = HiddenField()
+
+    def validate_next(self, field):
+        url_next = urlparse.urlsplit(field.data)
+        url_base = urlparse.urlsplit(request.host_url)
+        if url_next.netloc and url_next.netloc != url_base.netloc:
+            field.data = ''
+            raise ValidationError('Redirections outside the domain are forbidden')
 
 
 class RegisterFormMixin():
