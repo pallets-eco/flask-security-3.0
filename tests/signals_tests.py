@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import with_statement
 
-from flask_security.utils import (capture_registrations, capture_reset_password_requests, capture_signals)
-from flask_security.signals import (user_registered, user_confirmed,
-                                    confirm_instructions_sent, login_instructions_sent,
-                                    password_reset, password_changed,
-                                    reset_password_instructions_sent)
+from flask_security.utils import capture_registrations, \
+    capture_reset_password_requests, capture_signals
+from flask_security.signals import user_registered, user_confirmed, \
+    confirm_instructions_sent, login_instructions_sent, \
+    password_reset, password_changed, reset_password_instructions_sent
 from tests import SecurityTest
 
 
@@ -64,9 +66,8 @@ class ConfirmableSignalsTests(SecurityTest):
 
     def test_confirm_bad_token(self):
         e = 'dude@lp.com'
-        with capture_registrations() as registrations:
+        with capture_registrations():
             self.register(e)
-            token = registrations[0]['confirm_token']
         with capture_signals() as mocks:
             self.client.get('/confirm/bogus', follow_redirects=True)
         self.assertEqual(mocks.signals_sent(), set())

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import with_statement
 
 import base64
@@ -5,10 +7,10 @@ import time
 import simplejson as json
 
 from flask.ext.security.utils import capture_registrations, \
-     capture_reset_password_requests, capture_passwordless_login_requests
+    capture_reset_password_requests, capture_passwordless_login_requests
 from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
-     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-     PasswordlessLoginForm
+    ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
+    PasswordlessLoginForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
 
 
