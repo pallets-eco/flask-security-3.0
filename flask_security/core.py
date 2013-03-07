@@ -110,7 +110,6 @@ _default_messages = {
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
     'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
-    'INVALID_PASSWORD': ('Invalid password', 'error'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info'),
 }
