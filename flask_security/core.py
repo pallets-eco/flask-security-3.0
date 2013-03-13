@@ -33,6 +33,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _default_config = {
     'BLUEPRINT_NAME': 'security',
     'URL_PREFIX': None,
+    'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'PASSWORD_SALT': None,
