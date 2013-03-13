@@ -11,7 +11,7 @@
 
 from functools import wraps
 
-from flask import current_app, Response, request, redirect
+from flask import current_app, Response, request, redirect, _request_ctx_stack
 from flask.ext.login import current_user, login_required
 from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
@@ -61,6 +61,7 @@ def _check_token():
 
     if utils.md5(user.password) == data[1]:
         app = current_app._get_current_object()
+        _request_ctx_stack.top.user = user
         identity_changed.send(app, identity=Identity(user.id))
         return True
 
@@ -72,6 +73,7 @@ def _check_http_auth():
     if user and utils.verify_and_update_password(auth.password, user):
         _security.datastore.commit()
         app = current_app._get_current_object()
+        _request_ctx_stack.top.user = user
         identity_changed.send(app, identity=Identity(user.id))
         return True
 
