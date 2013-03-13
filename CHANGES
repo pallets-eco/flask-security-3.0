@@ -7,14 +7,22 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 1.6.0
 -------------
 
-Not yet released
+Released March 13th 2013
 
-- Password hashing is now more flexible and can be changed
+- Added Flask-Pewee support
+- Password hashing is now more flexible and can be changed to a different type at will
 - Flask-Login messages are configurable
 - AJAX requests must now send a CSRF token for security reasons
-- Login form messages are now configurable
+- Form messages are now configurable
 - Forms can now be extended with more fields
 - Added change password endpoint
+- Added the user to the request context when successfully authenticated via http basic and token auth
+- The Flask-Security blueprint subdomain is now configurable
+- Redirects to other domains are now not allowed during requests that may redirect
+- Template paths can be configured
+- The welcome/register email can now optionally be sent to the user
+- Passwords can now contain non-latin characters
+- Fixed a bug when confirming an account but the account has been deleted
 
 
 Version 1.5.4
