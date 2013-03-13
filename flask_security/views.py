@@ -313,6 +313,7 @@ def create_blueprint(state, import_name):
 
     bp = Blueprint(state.blueprint_name, import_name,
                    url_prefix=state.url_prefix,
+                   subdomain=state.subdomain,
                    template_folder='templates')
 
     bp.route(state.logout_url, endpoint='logout')(logout)
