@@ -245,7 +245,8 @@ class ConfirmableTests(SecurityTest):
 
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
-        self.assertIn('Invalid confirmation token', r.data)
+        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
+        self.assertIn(msg, r.data)
 
     def test_send_confirmation_json(self):
         r = self._post('/confirm', data='{"email": "matt@lp.com"}',
@@ -254,7 +255,8 @@ class ConfirmableTests(SecurityTest):
 
     def test_send_confirmation_with_invalid_email(self):
         r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
-        self.assertIn('Specified user does not exist', r.data)
+        msg = self.app.config['USER_DOES_NOT_EXIST'][0]
+        self.assertIn(msg, r.data)
 
     def test_resend_confirmation(self):
         e = 'dude@lp.com'
@@ -262,6 +264,23 @@ class ConfirmableTests(SecurityTest):
         r = self._post('/confirm', data={'email': e})
 
         msg = self.get_message('CONFIRMATION_REQUEST', email=e)
+        self.assertIn(msg, r.data)
+
+    def test_user_deleted_before_confirmation(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            user = registrations[0]['user']
+            token = registrations[0]['confirm_token']
+
+        with self.app.app_context():
+            from flask_security.core import _security
+            _security.datastore.delete(user)
+            _security.datastore.commit()
+
+        r = self.client.get('/confirm/' + token, follow_redirects=True)
+        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
         self.assertIn(msg, r.data)
 
 
