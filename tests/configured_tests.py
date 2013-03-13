@@ -255,7 +255,7 @@ class ConfirmableTests(SecurityTest):
 
     def test_send_confirmation_with_invalid_email(self):
         r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
-        msg = self.app.config['USER_DOES_NOT_EXIST'][0]
+        msg = self.app.config['SECURITY_MSG_USER_DOES_NOT_EXIST'][0]
         self.assertIn(msg, r.data)
 
     def test_resend_confirmation(self):
