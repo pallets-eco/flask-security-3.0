@@ -12,36 +12,79 @@
 import inspect
 import urlparse
 
+import flask_wtf as wtf
+
 from flask import request, current_app
-from flask.ext.wtf import Form as BaseForm, TextField, PasswordField, \
-     SubmitField, HiddenField, Required, BooleanField, EqualTo, Email, \
-     ValidationError, Length, Field
-from flask.ext.login import current_user
+from flask_wtf import Form as BaseForm, TextField, PasswordField, \
+     SubmitField, HiddenField, BooleanField, ValidationError, Field
+from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_password, verify_and_update_password, get_message
+from .utils import verify_and_update_password, get_message
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
-email_required = Required(message='Email not provided')
+_default_field_labels = {
+    'email': 'Email Address',
+    'password': 'Password',
+    'remember_me': 'Remember Me',
+    'login': 'Login',
+    'retype_password': 'Retype Password',
+    'register': 'Register',
+    'send_confirmation': 'Resend Confirmation Instructions',
+    'recover_password': 'Recover Password',
+    'reset_password': 'Reset Password',
+    'retype_password': 'Retype Password',
+    'new_password': 'New Password',
+    'change_password': 'Change Password',
+    'send_login_link': 'Send Login Link'
+}
 
-email_validator = Email(message='Invalid email address')
 
-password_required = Required(message="Password not provided")
+class ValidatorMixin(object):
+    def __call__(self, form, field):
+        if self.message and self.message.isupper():
+            self.message = get_message(self.message)[0]
+        return super(ValidatorMixin, self).__call__(form, field)
+
+
+class EqualTo(ValidatorMixin, wtf.EqualTo):
+    pass
+
+
+class Required(ValidatorMixin, wtf.Required):
+    pass
+
+
+class Email(ValidatorMixin, wtf.Email):
+    pass
+
+
+class Length(ValidatorMixin, wtf.Length):
+    pass
+
+
+email_required = Required(message='EMAIL_NOT_PROVIDED')
+email_validator = Email(message='INVALID_EMAIL_ADDRESS')
+password_required = Required(message='PASSWORD_NOT_PROVIDED')
+
+
+def get_form_field_label(key):
+    return _default_field_labels.get(key, '')
 
 
 def unique_user_email(form, field):
     if _datastore.find_user(email=field.data) is not None:
-        raise ValidationError(field.data +
-                              ' is already associated with an account')
+        msg = get_message('EMAIL_ALREADY_ASSOCIATED', email=field.data)[0]
+        raise ValidationError(msg)
 
 
 def valid_user_email(form, field):
     form.user = _datastore.find_user(email=field.data)
     if form.user is None:
-        raise ValidationError('Specified user does not exist')
+        raise ValidationError(get_message('USER_DOES_NOT_EXIST')[0])
 
 
 class Form(BaseForm):
@@ -52,40 +95,41 @@ class Form(BaseForm):
 
 
 class EmailFormMixin():
-    email = TextField("Email Address",
+    email = TextField(get_form_field_label('email'),
         validators=[email_required,
                     email_validator])
 
 
 class UserEmailFormMixin():
     user = None
-    email = TextField("Email Address",
+    email = TextField(get_form_field_label('email'),
         validators=[email_required,
                     email_validator,
                     valid_user_email])
 
 
 class UniqueEmailFormMixin():
-    email = TextField("Email Address",
+    email = TextField(get_form_field_label('email'),
         validators=[email_required,
                     email_validator,
                     unique_user_email])
 
 
 class PasswordFormMixin():
-    password = PasswordField("Password",
+    password = PasswordField(get_form_field_label('password'),
         validators=[password_required])
 
 
 class NewPasswordFormMixin():
-    password = PasswordField("Password",
+    password = PasswordField(get_form_field_label('password'),
         validators=[password_required,
                     Length(min=6, max=128)])
 
 
 class PasswordConfirmFormMixin():
-    password_confirm = PasswordField("Retype Password",
-        validators=[EqualTo('password', message="Passwords do not match")])
+    password_confirm = PasswordField(
+        get_form_field_label('retype_password'),
+        validators=[EqualTo('password', message='RETYPE_PASSWORD_MISMATCH')])
 
 
 class NextFormMixin():
@@ -96,11 +140,11 @@ class NextFormMixin():
         url_base = urlparse.urlsplit(request.host_url)
         if url_next.netloc and url_next.netloc != url_base.netloc:
             field.data = ''
-            raise ValidationError('Redirections outside the domain are forbidden')
+            raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
 class RegisterFormMixin():
-    submit = SubmitField("Register")
+    submit = SubmitField(get_form_field_label('register'))
 
     def to_dict(form):
         def is_field_and_user_attr(member):
@@ -114,7 +158,7 @@ class RegisterFormMixin():
 class SendConfirmationForm(Form, UserEmailFormMixin):
     """The default forgot password form"""
 
-    submit = SubmitField("Resend Confirmation Instructions")
+    submit = SubmitField(get_form_field_label('send_confirmation'))
 
     def __init__(self, *args, **kwargs):
         super(SendConfirmationForm, self).__init__(*args, **kwargs)
@@ -133,13 +177,13 @@ class SendConfirmationForm(Form, UserEmailFormMixin):
 class ForgotPasswordForm(Form, UserEmailFormMixin):
     """The default forgot password form"""
 
-    submit = SubmitField("Recover Password")
+    submit = SubmitField(get_form_field_label('recover_password'))
 
 
 class PasswordlessLoginForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
 
-    submit = SubmitField("Send Login Link")
+    submit = SubmitField(get_form_field_label('send_login_link'))
 
     def __init__(self, *args, **kwargs):
         super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
@@ -156,10 +200,10 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = TextField('Email Address')
-    password = PasswordField('Password')
-    remember = BooleanField("Remember Me")
-    submit = SubmitField("Login")
+    email = TextField(get_form_field_label('email'))
+    password = PasswordField(get_form_field_label('password'))
+    remember = BooleanField(get_form_field_label('remember_me'))
+    submit = SubmitField(get_form_field_label('login'))
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
@@ -205,27 +249,27 @@ class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
 class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
     """The default reset password form"""
 
-    submit = SubmitField("Reset Password")
+    submit = SubmitField(get_form_field_label('reset_password'))
 
 
 class ChangePasswordForm(Form, PasswordFormMixin):
     """The default change password form"""
 
-    new_password = PasswordField("New Password",
+    new_password = PasswordField(get_form_field_label('new_password'),
         validators=[password_required,
                     Length(min=6, max=128)])
 
-    new_password_confirm = PasswordField("Retype Password",
-        validators=[EqualTo('new_password', message="Passwords do not match")])
+    new_password_confirm = PasswordField(get_form_field_label('retype_password'),
+        validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
 
-    submit = SubmitField("Change Password")
+    submit = SubmitField(get_form_field_label('change_password'))
 
     def validate(self):
         if not super(ChangePasswordForm, self).validate():
             return False
 
         if self.password.data.strip() == '':
-            self.password.errors.append('Password not provided')
+            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
         if not verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
