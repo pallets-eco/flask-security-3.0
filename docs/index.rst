@@ -21,7 +21,7 @@ and libraries. They include:
 2. `Flask-Mail <http://packages.python.org/Flask-Mail/>`_
 3. `Flask-Principal <http://packages.python.org/Flask-Principal/>`_
 4. `Flask-Script <http://packages.python.org/Flask-Script/>`_
-5. `Flask-WTF <http://packages.python.org/Flask-Mail/>`_
+5. `Flask-WTF <http://packages.python.org/Flask-WTF/>`_
 6. `itsdangerous <http://packages.python.org/itsdangerous/>`_
 7. `passlib <http://packages.python.org/passlib/>`_
 
