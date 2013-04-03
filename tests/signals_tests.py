@@ -31,9 +31,9 @@ class RegisterableSignalsTests(SecurityTest):
         calls = mocks[user_registered]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertTrue(compare_user(args[0]['user'], user))
-        self.assertIn('confirm_token', args[0])
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
+        self.assertIn('confirm_token', kwargs)
+        self.assertEqual(args[0], self.app)
 
     def test_register_without_password(self):
         e = 'dude@lp.com'
@@ -61,8 +61,8 @@ class ConfirmableSignalsTests(SecurityTest):
         calls = mocks[user_confirmed]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertEqual(args[0].id, user.id)
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertEqual(args[0], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
 
     def test_confirm_bad_token(self):
         e = 'dude@lp.com'
@@ -94,8 +94,8 @@ class ConfirmableSignalsTests(SecurityTest):
         calls = mocks[confirm_instructions_sent]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertTrue(compare_user(args[0], user))
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
+        self.assertEqual(args[0], self.app)
 
     def test_send_confirmation_bad_email(self):
         with capture_signals() as mocks:
@@ -120,9 +120,9 @@ class RecoverableSignalsTests(SecurityTest):
         calls = mocks[reset_password_instructions_sent]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertTrue(compare_user(args[0]['user'], user))
-        self.assertIn('token', args[0])
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
+        self.assertIn('token', kwargs)
+        self.assertEqual(args[0], self.app)
 
     def test_reset_password(self):
         with capture_reset_password_requests() as requests:
@@ -137,8 +137,8 @@ class RecoverableSignalsTests(SecurityTest):
         calls = mocks[password_reset]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertTrue(compare_user(args[0], user))
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
+        self.assertEqual(args[0], self.app)
 
     def test_reset_password_invalid_emails(self):
         with capture_signals() as mocks:
@@ -233,6 +233,6 @@ class PasswordlessTests(SecurityTest):
         calls = mocks[login_instructions_sent]
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
-        self.assertTrue(compare_user(args[0]['user'], user))
-        self.assertIn('login_token', args[0])
-        self.assertEqual(kwargs['app'], self.app)
+        self.assertTrue(compare_user(kwargs['user'], user))
+        self.assertIn('login_token', kwargs)
+        self.assertEqual(args[0], self.app)
