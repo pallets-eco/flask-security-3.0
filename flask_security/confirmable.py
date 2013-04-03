@@ -44,7 +44,7 @@ def send_confirmation_instructions(user):
               'confirmation_instructions', user=user,
               confirmation_link=confirmation_link)
 
-    confirm_instructions_sent.send(user, app=app._get_current_object())
+    confirm_instructions_sent.send(app._get_current_object(), user=user)
     return token
 
 
@@ -80,4 +80,4 @@ def confirm_user(user):
     """
     user.confirmed_at = datetime.utcnow()
     _datastore.put(user)
-    user_confirmed.send(user, app=app._get_current_object())
+    user_confirmed.send(app._get_current_object(), user=user)

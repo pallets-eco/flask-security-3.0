@@ -36,8 +36,8 @@ def send_reset_password_instructions(user):
               'reset_instructions',
               user=user, reset_link=reset_link)
 
-    reset_password_instructions_sent.send(dict(user=user, token=token),
-                                          app=app._get_current_object())
+    reset_password_instructions_sent.send(app._get_current_object(),
+                                          user=user, token=token)
 
 
 def send_password_reset_notice(user):
@@ -77,4 +77,4 @@ def update_password(user, password):
     user.password = encrypt_password(password)
     _datastore.put(user)
     send_password_reset_notice(user)
-    password_reset.send(user, app=app._get_current_object())
+    password_reset.send(app._get_current_object(), user=user)
