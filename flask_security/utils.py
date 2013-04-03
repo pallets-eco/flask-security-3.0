@@ -273,7 +273,7 @@ def get_token_status(token, serializer, max_age=None):
 def capture_passwordless_login_requests():
     login_requests = []
 
-    def _on(data, app):
+    def _on(app, **data):
         login_requests.append(data)
 
     login_instructions_sent.connect(_on)
@@ -293,7 +293,7 @@ def capture_registrations():
     """
     registrations = []
 
-    def _on(data, app):
+    def _on(app, **data):
         registrations.append(data)
 
     user_registered.connect(_on)
@@ -313,8 +313,8 @@ def capture_reset_password_requests(reset_password_sent_at=None):
     """
     reset_requests = []
 
-    def _on(request, app):
-        reset_requests.append(request)
+    def _on(app, **data):
+        reset_requests.append(data)
 
     reset_password_instructions_sent.connect(_on)
 
