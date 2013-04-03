@@ -3,6 +3,13 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.6.1
+-------------
+
+Released April 3rd 2013
+
+- Fixed bug with signals
+
 
 Version 1.6.0
 -------------
