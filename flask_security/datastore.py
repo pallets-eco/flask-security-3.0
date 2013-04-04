@@ -191,7 +191,10 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
 
     def find_user(self, **kwargs):
-        return self.user_model.objects(**kwargs).first()
+        from mongoengine.queryset import Q, QCombination
+        queries = map(lambda i: Q(**{i[0]: i[1]}), kwargs.items())
+        query = QCombination(QCombination.AND, queries)
+        return self.user_model.objects(query).first()
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
