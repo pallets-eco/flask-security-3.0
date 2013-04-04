@@ -95,12 +95,11 @@ class UserDatastore(object):
         :param user: The user to manipulate
         :param role: The role to add to the user
         """
-        rv = False
         user, role = self._prepare_role_modify_args(user, role)
         if role not in user.roles:
-            rv = True
             user.roles.append(role)
-        return rv
+            return True
+        return False
 
     def remove_role_from_user(self, user, role):
         """Removes a role from a user
@@ -220,10 +219,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
             return None
 
     def find_role(self, role):
-        try:
-            return self.role_model.filter(name=role).get()
-        except self.role_model.DoesNotExist:
-            return None
+        return self.role_model.filter(name=role).get()
 
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
@@ -242,11 +238,11 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         """
         user, role = self._prepare_role_modify_args(user, role)
         result = self.UserRole.select() \
-            .where(self.UserRole.user == user, self.UserRole.role == role)
+            .where(self.UserRole.user == user.id, self.UserRole.role == role.id)
         if result.count():
             return False
         else:
-            self.UserRole.create(user=user, role=role)
+            self.UserRole.create(user=user.id, role=role.id)
             return True
 
     def remove_role_from_user(self, user, role):

@@ -14,11 +14,12 @@ from flask.ext.security import Security, UserMixin, RoleMixin, \
 from tests.test_app import create_app as create_base_app, populate_data, \
      add_context_processors
 
+
 def create_app(config, **kwargs):
     app = create_base_app(config)
     app.config['DATABASE'] = {
         'name': 'example2.db',
-        'engine': 'peewee.SqliteDatabase',
+        'engine': 'peewee.SqliteDatabase'
     }
     db = Database(app)
 
