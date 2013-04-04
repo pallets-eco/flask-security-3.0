@@ -20,7 +20,7 @@ from flask_wtf import Form as BaseForm, TextField, PasswordField, \
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
-from .confirmable import requires_confirmation
+from user_core.confirmable import requires_confirmation
 from .utils import verify_and_update_password, get_message
 
 # Convenient reference

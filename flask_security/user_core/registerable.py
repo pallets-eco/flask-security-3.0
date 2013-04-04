@@ -13,8 +13,8 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .confirmable import generate_confirmation_link
-from .signals import user_registered
-from .utils import do_flash, get_message, send_mail, encrypt_password, \
+from ..signals import user_registered
+from ..utils import do_flash, get_message, send_mail, encrypt_password, \
      config_value
 
 # Convenient references
