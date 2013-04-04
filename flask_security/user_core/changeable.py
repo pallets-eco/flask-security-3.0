@@ -13,8 +13,8 @@
 from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
-from .signals import password_changed
-from .utils import send_mail, encrypt_password, url_for_security, \
+from ..signals import password_changed
+from ..utils import send_mail, encrypt_password, url_for_security, \
     config_value
 
 
