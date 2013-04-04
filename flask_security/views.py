@@ -15,15 +15,15 @@ from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-from .confirmable import send_confirmation_instructions, \
+from user_core.confirmable import send_confirmation_instructions, \
      confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
-from .passwordless import send_login_instructions, \
+from user_core.passwordless import send_login_instructions, \
      login_token_status
-from .recoverable import reset_password_token_status, \
+from user_core.recoverable import reset_password_token_status, \
      send_reset_password_instructions, update_password
-from .changeable import change_user_password
-from .registerable import register_user
+from user_core.changeable import change_user_password
+from user_core.registerable import register_user
 from .utils import get_url, get_post_login_redirect, do_flash, \
      get_message, login_user, logout_user, url_for_security as url_for, \
      config_value

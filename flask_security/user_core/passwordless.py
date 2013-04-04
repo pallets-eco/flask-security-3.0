@@ -12,8 +12,8 @@
 from flask import request, current_app as app
 from werkzeug.local import LocalProxy
 
-from .signals import login_instructions_sent
-from .utils import send_mail, url_for_security, get_token_status, \
+from ..signals import login_instructions_sent
+from ..utils import send_mail, url_for_security, get_token_status, \
      config_value
 
 
