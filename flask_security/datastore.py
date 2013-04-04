@@ -234,7 +234,6 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
             self.add_role_to_user(user, role)
         return user
 
-
     def add_role_to_user(self, user, role):
         """Adds a role tp a user
 
@@ -242,7 +241,9 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         :param role: The role to add to the user
         """
         user, role = self._prepare_role_modify_args(user, role)
-        if self.UserRole.select().where(self.UserRole.user==user, self.UserRole.role==role).count():
+        result = self.UserRole.select() \
+            .where(self.UserRole.user == user, self.UserRole.role == role)
+        if result.count():
             return False
         else:
             self.UserRole.create(user=user, role=role)
@@ -255,9 +256,11 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         :param role: The role to remove from the user
         """
         user, role = self._prepare_role_modify_args(user, role)
-        if self.UserRole.select().where(self.UserRole.user==user, self.UserRole.role==role).count():
-            self.UserRole.delete().where(self.UserRole.user==user, self.UserRole.role==role)
+        result = self.UserRole.select() \
+            .where(self.UserRole.user == user, self.UserRole.role == role)
+        if result.count():
+            self.UserRole.delete().where(
+                self.UserRole.user == user, self.UserRole.role == role)
             return True
         else:
             return False
-
