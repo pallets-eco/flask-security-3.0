@@ -67,7 +67,9 @@ def _check_token():
 
 
 def _check_http_auth():
-    auth = request.authorization or dict(username=None, password=None)
+    from collections import namedtuple
+    Auth = namedtuple('Auth', 'username, password')
+    auth = request.authorization or Auth(username=None, password=None)
     user = _security.datastore.find_user(email=auth.username)
 
     if user and utils.verify_and_update_password(auth.password, user):
