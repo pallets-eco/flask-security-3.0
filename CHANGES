@@ -3,6 +3,14 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.6.2
+-------------
+
+Released April 4th 2013
+
+- Fixed bug with http basic auth
+
+
 Version 1.6.1
 -------------
 

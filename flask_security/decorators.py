@@ -9,6 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from collections import namedtuple
 from functools import wraps
 
 from flask import current_app, Response, request, redirect, _request_ctx_stack
@@ -29,6 +30,8 @@ _default_unauthorized_html = """
     requested. You either supplied the wrong credentials (e.g. a bad password),
     or your browser doesn't understand how to supply the credentials required.</p>
     """
+
+BasicAuth = namedtuple('BasicAuth', 'username, password')
 
 
 def _get_unauthorized_response(text=None, headers=None):
@@ -67,9 +70,7 @@ def _check_token():
 
 
 def _check_http_auth():
-    from collections import namedtuple
-    Auth = namedtuple('Auth', 'username, password')
-    auth = request.authorization or Auth(username=None, password=None)
+    auth = request.authorization or BasicAuth(username=None, password=None)
     user = _security.datastore.find_user(email=auth.username)
 
     if user and utils.verify_and_update_password(auth.password, user):
