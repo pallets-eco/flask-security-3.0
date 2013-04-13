@@ -241,8 +241,7 @@ class RoleMixin(object):
                 self.name == getattr(other, 'name', None))
 
     def __ne__(self, other):
-        return (self.name != other and
-                self.name != getattr(other, 'name', None))
+        return not self.__eq__(other)
 
 
 class UserMixin(BaseUserMixin):
@@ -261,7 +260,10 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
-        return role in self.roles
+        if isinstance(role, basestring):
+            return role in (role.name for role in self.roles)
+        else:
+            return role in self.roles
 
 
 class AnonymousUser(AnonymousUserBase):
