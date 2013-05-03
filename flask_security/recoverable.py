@@ -29,8 +29,7 @@ def send_reset_password_instructions(user):
     :param user: The user to send the instructions to
     """
     token = generate_reset_password_token(user)
-    url = url_for_security('reset_password', token=token)
-    reset_link = request.url_root[:-1] + url
+    reset_link = url_for_security('reset_password', token=token, _external=True)
 
     send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'), user.email,
               'reset_instructions',
