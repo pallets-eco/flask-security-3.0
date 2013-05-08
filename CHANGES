@@ -3,6 +3,15 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+
+Version 1.6.3
+-------------
+
+Released May 8th 2013
+
+- Fixed bug in regards to imports with latest version of MongoEngine
+
+
 Version 1.6.2
 -------------
 
