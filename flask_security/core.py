@@ -11,9 +11,9 @@
 
 from flask import current_app
 from flask.ext.login import AnonymousUser as AnonymousUserBase, \
-     UserMixin as BaseUserMixin, LoginManager, current_user
+    UserMixin as BaseUserMixin, LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
-     identity_loaded
+    identity_loaded
 from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
@@ -22,8 +22,8 @@ from werkzeug.local import LocalProxy
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
-     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-     SendConfirmationForm, PasswordlessLoginForm
+    ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
+    SendConfirmationForm, PasswordlessLoginForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])

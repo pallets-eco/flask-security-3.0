@@ -14,12 +14,13 @@ import blinker
 import functools
 import hashlib
 import hmac
+
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask.ext.login import login_user as _login_user, \
-     logout_user as _logout_user
+    logout_user as _logout_user
 from flask.ext.mail import Message
 from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired

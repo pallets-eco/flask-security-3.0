@@ -16,7 +16,7 @@ import flask_wtf as wtf
 
 from flask import request, current_app
 from flask_wtf import Form as BaseForm, TextField, PasswordField, \
-     SubmitField, HiddenField, BooleanField, ValidationError, Field
+    SubmitField, HiddenField, BooleanField, ValidationError, Field
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
