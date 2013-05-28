@@ -144,11 +144,18 @@ def url_for_security(endpoint, **values):
     return url_for(endpoint, **values)
 
 
-def get_post_login_redirect():
-    """Returns the URL to redirect to after a user logs in successfully."""
+def get_post_action_redirect(config_key):
     return (get_url(request.args.get('next')) or
             get_url(request.form.get('next')) or
-            find_redirect('SECURITY_POST_LOGIN_VIEW'))
+            find_redirect(config_key))
+
+
+def get_post_login_redirect():
+    return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW')
+
+
+def get_post_register_redirect():
+    return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW')
 
 
 def find_redirect(key):

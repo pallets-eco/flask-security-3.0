@@ -68,6 +68,14 @@ class ConfiguredSecurityTests(SecurityTest):
         r = self._post('/register', data=data, follow_redirects=True)
         self.assertIn('Post Register', r.data)
 
+    def test_register_with_next_querystring_argument(self):
+        data = dict(email='dude@lp.com',
+                    password='password',
+                    password_confirm='password')
+
+        r = self._post('/register?next=/page1', data=data, follow_redirects=True)
+        self.assertIn('Page 1', r.data)
+
     def test_register_json(self):
         data = '{ "email": "dude@lp.com", "password": "password", "csrf_token":"%s" }' % self.csrf_token
         r = self._post('/register', data=data, content_type='application/json')

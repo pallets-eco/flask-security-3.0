@@ -113,6 +113,10 @@ def create_app(config):
     def invalid_role():
         return 'success' if ds.find_role('bogus') is None else 'failure'
 
+    @app.route('/page1')
+    def page_1():
+        return 'Page 1'
+
     return app
 
 

@@ -10,24 +10,23 @@
 """
 
 from flask import current_app, redirect, request, render_template, jsonify, \
-     after_this_request, Blueprint
+    after_this_request, Blueprint
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
 from .confirmable import send_confirmation_instructions, \
-     confirm_user, confirm_email_token_status
+    confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
 from .passwordless import send_login_instructions, \
-     login_token_status
+    login_token_status
 from .recoverable import reset_password_token_status, \
-     send_reset_password_instructions, update_password
+    send_reset_password_instructions, update_password
 from .changeable import change_user_password
 from .registerable import register_user
-from .utils import get_url, get_post_login_redirect, do_flash, \
-     get_message, login_user, logout_user, url_for_security as url_for, \
-     config_value
-
+from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
+    get_post_register_redirect, get_message, login_user, logout_user, \
+    url_for_security as url_for
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -123,9 +122,7 @@ def register():
             login_user(user)
 
         if not request.json:
-            post_register_url = get_url(_security.post_register_view)
-            post_login_url = get_url(_security.post_login_view)
-            return redirect(post_register_url or post_login_url)
+            return redirect(get_post_register_redirect())
 
     if request.json:
         return _render_json(form)
