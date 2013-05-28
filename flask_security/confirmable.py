@@ -15,7 +15,7 @@ from flask import current_app as app, request
 from werkzeug.local import LocalProxy
 
 from .utils import send_mail, md5, url_for_security, get_token_status,\
-     config_value
+    config_value
 from .signals import user_confirmed, confirm_instructions_sent
 
 
@@ -27,8 +27,7 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 def generate_confirmation_link(user):
     token = generate_confirmation_token(user)
-    url = url_for_security('confirm_email', token=token)
-    return request.url_root[:-1] + url, token
+    return url_for_security('confirm_email', token=token, _extenal=True), token
 
 
 def send_confirmation_instructions(user):

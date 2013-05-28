@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 
 from .signals import password_reset, reset_password_instructions_sent
 from .utils import send_mail, md5, encrypt_password, url_for_security, \
-     get_token_status, config_value
+    get_token_status, config_value
 
 
 # Convenient references
@@ -29,8 +29,7 @@ def send_reset_password_instructions(user):
     :param user: The user to send the instructions to
     """
     token = generate_reset_password_token(user)
-    url = url_for_security('reset_password', token=token)
-    reset_link = request.url_root[:-1] + url
+    reset_link = url_for_security('reset_password', token=token, _external=True)
 
     send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'), user.email,
               'reset_instructions',

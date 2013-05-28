@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 
 from .signals import login_instructions_sent
 from .utils import send_mail, url_for_security, get_token_status, \
-     config_value
+    config_value
 
 
 # Convenient references
@@ -30,8 +30,7 @@ def send_login_instructions(user):
     :param token: The login token
     """
     token = generate_login_token(user)
-    url = url_for_security('token_login', token=token)
-    login_link = request.url_root[:-1] + url
+    login_link = url_for_security('token_login', token=token, _external=True)
 
     send_mail(config_value('EMAIL_SUBJECT_PASSWORDLESS'), user.email,
               'login_instructions', user=user, login_link=login_link)
