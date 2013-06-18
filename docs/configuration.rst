@@ -220,4 +220,7 @@ Miscellaneous
                                         remember tokens. Remember tokens are
                                         used instead of user ID's as it is more
                                         secure. Defaults to ``remember-salt``.
+``SECURITY_DEFAULT_REMEMBER_ME``        Specifies the default "remember me"
+                                        value used when logging in a user.
+                                        Defaults to ``False``.
 ======================================= ========================================
