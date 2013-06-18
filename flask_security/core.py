@@ -10,7 +10,7 @@
 """
 
 from flask import current_app
-from flask.ext.login import AnonymousUser as AnonymousUserBase, \
+from flask.ext.login import AnonymousUserMixin as AnonymousUserBase, \
     UserMixin as BaseUserMixin, LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
     identity_loaded
