@@ -15,7 +15,14 @@ def compare_user(a, b):
     return a.id == b.id and a.email == b.email and a.password == b.password
 
 
-class RegisterableSignalsTests(SecurityTest):
+class SignalTest(SecurityTest):
+
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config, **kwargs)
+
+
+class RegisterableSignalsTests(SignalTest):
 
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
@@ -42,7 +49,7 @@ class RegisterableSignalsTests(SecurityTest):
         self.assertEqual(mocks.signals_sent(), set())
 
 
-class ConfirmableSignalsTests(SecurityTest):
+class ConfirmableSignalsTests(SignalTest):
 
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
@@ -103,7 +110,7 @@ class ConfirmableSignalsTests(SecurityTest):
         self.assertEqual(mocks.signals_sent(), set())
 
 
-class RecoverableSignalsTests(SecurityTest):
+class RecoverableSignalsTests(SignalTest):
 
     AUTH_CONFIG = {
         'SECURITY_RECOVERABLE': True,
@@ -153,7 +160,7 @@ class RecoverableSignalsTests(SecurityTest):
         self.assertEqual(mocks.signals_sent(), set())
 
 
-class ChangeableSignalsTests(SecurityTest):
+class ChangeableSignalsTests(SignalTest):
 
     AUTH_CONFIG = {
         'SECURITY_CHANGEABLE': True,
@@ -204,7 +211,7 @@ class ChangeableSignalsTests(SecurityTest):
         self.assertEqual(mocks.signals_sent(), set())
 
 
-class PasswordlessTests(SecurityTest):
+class PasswordlessTests(SignalTest):
 
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESS': True

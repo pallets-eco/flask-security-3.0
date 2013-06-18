@@ -170,7 +170,7 @@ def token_login(token):
     if invalid or expired:
         return redirect(url_for('login'))
 
-    login_user(user, True)
+    login_user(user)
     after_this_request(_commit)
     do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
 
@@ -218,7 +218,7 @@ def confirm_email(token):
                         url_for('send_confirmation'))
 
     confirm_user(user)
-    login_user(user, True)
+    login_user(user)
     after_this_request(_commit)
     do_flash(*get_message('EMAIL_CONFIRMED'))
 
@@ -269,7 +269,7 @@ def reset_password(token):
         after_this_request(_commit)
         update_password(user, form.password.data)
         do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user, True)
+        login_user(user)
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 

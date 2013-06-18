@@ -38,8 +38,11 @@ _datastore = LocalProxy(lambda: _security.datastore)
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
 
-def login_user(user, remember=True):
+def login_user(user, remember=None):
     """Performs the login and sends the appropriate signal."""
+
+    if remember is None:
+        remember = config_value('DEFAULT_REMEMBER_ME')
 
     if not _login_user(user, remember):
         return False

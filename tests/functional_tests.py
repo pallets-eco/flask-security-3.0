@@ -60,7 +60,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_unauthorized_access(self):
         r = self._get('/profile', follow_redirects=True)
-        self.assertIn('<li class="message">Please log in to access this page.</li>', r.data)
+        self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
 
     def test_authorized_access(self):
         self.authenticate()

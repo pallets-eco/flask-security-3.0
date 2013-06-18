@@ -7,8 +7,10 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 1.6.4
 -------------
 
-Not yet released
+Released June 18th 2013
 
+- Added `SECURITY_DEFAULT_REMEMBER_ME` configuration value to unify behavior between endpoints
+- Fixed Flask-Login dependency problem
 - Added optional `next` parameter to registration endpoint, similar to that of login
 
 

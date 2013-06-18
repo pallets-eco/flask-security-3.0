@@ -10,8 +10,8 @@
 """
 
 from flask import current_app
-from flask.ext.login import AnonymousUser as AnonymousUserBase, \
-    UserMixin as BaseUserMixin, LoginManager, current_user
+from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
+    LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
@@ -76,6 +76,7 @@ _default_config = {
     'LOGIN_SALT': 'login-salt',
     'CHANGE_SALT': 'change-salt',
     'REMEMBER_SALT': 'remember-salt',
+    'DEFAULT_REMEMBER_ME': False,
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
     'EMAIL_SUBJECT_REGISTER': 'Welcome',
     'EMAIL_SUBJECT_CONFIRM': 'Please confirm your email',
@@ -153,8 +154,7 @@ def _token_loader(token):
             return user
     except:
         pass
-
-    return None
+    return AnonymousUser()
 
 
 def _identity_loader():
@@ -272,11 +272,10 @@ class UserMixin(BaseUserMixin):
             return role in self.roles
 
 
-class AnonymousUser(AnonymousUserBase):
+class AnonymousUser(AnonymousUserMixin):
     """AnonymousUser definition"""
 
     def __init__(self):
-        super(AnonymousUser, self).__init__()
         self.roles = ImmutableList()
 
     def has_role(self, *args):
