@@ -156,6 +156,10 @@ Feature Flags
                           sent an email with a login link. This feature is
                           experimental and should be used with caution. Defaults
                           to ``False``.
+``SECURITY_CHANGEABLE``   Specifies if Flask-Security should enable the
+                          change password endpoint. The URL for this endpoint is
+                          specified by the ``SECURITY_CHANGE_URL`` configuration
+                          option. Defaults to ``False``.
 ========================= ======================================================
 
 Email
