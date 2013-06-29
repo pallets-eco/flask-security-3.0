@@ -25,6 +25,8 @@ from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm
 
+from .inline import inline_form
+
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
 
@@ -51,6 +53,11 @@ _default_config = {
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
+    'INLINE_LOGIN': ('security/macros/_login.html', 'login_macro', LoginForm),
+    'INLINE_REGISTER': ('security/macros/_register.html', 'register_macro', RegisterForm),
+    'INLINE_CHANGE_PASSWORD': ('security/macros/_change_password.html', 'change_password_macro', ChangePasswordForm),
+    'INLINE_RESET': ('security/macros/_reset.html', 'reset_macro', ResetPasswordForm),
+    'INLINE_FORGOT': ('security/macros/_forgot.html', 'forgot_macro', ForgotPasswordForm),
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_USER_TEMPLATE': 'security/login_user.html',
     'REGISTER_USER_TEMPLATE': 'security/register_user.html',
@@ -331,6 +338,9 @@ class _SecurityState(object):
     def send_mail_task(self, fn):
         self._send_mail_task = fn
 
+    def inline_form(self, which):
+        return inline_form(which)
+
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
@@ -345,12 +355,29 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
+<<<<<<< HEAD
     def init_app(self, app, datastore=None, register_blueprint=True,
                  login_form=None, confirm_register_form=None,
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None):
         """Initializes the Flask-Security extension for the specified
+=======
+    def init_app(self,
+                 app,
+                 datastore=None,
+                 register_blueprint=True,
+                 login_form=None,
+                 confirm_register_form=None,
+                 register_form=None,
+                 forgot_password_form=None,
+                 reset_password_form=None,
+                 change_password_form=None,
+                 send_confirmation_form=None,
+                 passwordless_login_form=None):
+        """
+        Initializes the Flask-Security extension for the specified
+>>>>>>> branch to explore relevant forms as inline forms embeddable to any template
         application and datastore implentation.
 
         :param app: The application.
