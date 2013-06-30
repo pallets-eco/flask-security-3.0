@@ -10,7 +10,7 @@ Flask-Security inline forms
 """
 from flask import current_app, get_template_attribute
 from werkzeug import LocalProxy
-from .utils import url_for_security, config_value
+from .utils import config_value
 
 _security = LocalProxy(lambda: current_app.extensions['security'])
 
@@ -23,9 +23,11 @@ def get_inline_macro(mwhere, mname):
     return get_template_attribute(mwhere, mname)
 
 
-def inline_form(which):
+def inline_form(which, form=None):
     m = config_value('inline_{}'.format(which))
     mwhere, mname, mform = m[0], m[1], m[2]
-    return get_inline_macro(mwhere, mname)(url_for_security,
-                                           form=mform(),
-                                           **_ctx(which))
+    if form:
+        form = form
+    else:
+        form = mform()
+    return get_inline_macro(mwhere, mname)(form, **_ctx(which))
