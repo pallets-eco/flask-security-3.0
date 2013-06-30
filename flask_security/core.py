@@ -53,14 +53,6 @@ _default_config = {
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
-    'INLINE_LOGIN': ('security/macros/_login.html', 'login_macro', LoginForm),
-    'INLINE_CONFIRM_REGISTER': ('security/macros/_confirm_register.html', 'confirm_register_macro', ConfirmRegisterForm),
-    'INLINE_REGISTER': ('security/macros/_register.html', 'register_macro', RegisterForm),
-    'INLINE_FORGOT_PASSWORD': ('security/macros/_forgot_password.html', 'forgot_password_macro', ForgotPasswordForm),
-    'INLINE_RESET': ('security/macros/_reset_password.html', 'reset_password_macro', ResetPasswordForm),
-    'INLINE_CHANGE_PASSWORD': ('security/macros/_change_password.html', 'change_password_macro', ChangePasswordForm),
-    'INLINE_SEND_CONFIRMATION': ('security/macros/_send_confirmation.html', 'send_confirmation_macro', SendConfirmationForm),
-    'INLINE_PASSWORDLESS': ('security/macros/_passwordless.html', 'passwordless_macro', PasswordlessLoginForm),
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_USER_TEMPLATE': 'security/login_user.html',
     'REGISTER_USER_TEMPLATE': 'security/register_user.html',
@@ -141,14 +133,14 @@ _allowed_password_hash_schemes = [
 ]
 
 _default_forms = {
-    'login_form': LoginForm,
-    'confirm_register_form': ConfirmRegisterForm,
-    'register_form': RegisterForm,
-    'forgot_password_form': ForgotPasswordForm,
-    'reset_password_form': ResetPasswordForm,
-    'change_password_form': ChangePasswordForm,
-    'send_confirmation_form': SendConfirmationForm,
-    'passwordless_login_form': PasswordlessLoginForm,
+    'login_form': (LoginForm, 'security/macros/_login.html', 'login_macro'),
+    'confirm_register_form': (ConfirmRegisterForm, 'security/macros/_confirm_register.html', 'confirm_register_macro'),
+    'register_form': (RegisterForm, 'security/macros/_register.html', 'register_macro'),
+    'forgot_password_form': (ForgotPasswordForm, 'security/macros/_forgot_password.html', 'forgot_password_macro'),
+    'reset_password_form': (ResetPasswordForm, 'security/macros/_reset_password.html', 'reset_password_macro'),
+    'change_password_form': (ChangePasswordForm, 'security/macros/_change_password.html', 'change_password_macro'),
+    'send_confirmation_form': (SendConfirmationForm, 'security/macros/_send_confirmation.html', 'send_confirmation_macro'),
+    'passwordless_login_form': (PasswordlessLoginForm, 'security/macros/_passwordless.html', 'passwordless_macro'),
 }
 
 
@@ -399,7 +391,6 @@ class Security(object):
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
-            #app.context_processor(_context_processor)
             self.register_context_processors(app, _context_processor())
 
         app.extensions['security'] = state
@@ -407,8 +398,7 @@ class Security(object):
         return state
 
     def register_context_processors(self, app, context_processors):
-        for k, v in context_processors.items():
-            app.jinja_env.globals[k] = v
+        app.jinja_env.globals.update(context_processors)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)
