@@ -55,10 +55,6 @@ def _commit(response=None):
     return response
 
 
-def _ctx(endpoint):
-    return _security._run_ctx_processor(endpoint)
-
-
 @anonymous_user_required
 def login():
     """View function for login view"""
@@ -84,8 +80,7 @@ def login():
         return _render_json(form, True)
 
     return render_template(config_value('LOGIN_USER_TEMPLATE'),
-                           login_user_form=form,
-                           **_ctx('login'))
+                           login_form=form)
 
 
 @login_required
@@ -128,11 +123,10 @@ def register():
         return _render_json(form)
 
     return render_template(config_value('REGISTER_USER_TEMPLATE'),
-                           register_user_form=form,
-                           **_ctx('register'))
+                           register_user_form=form)
 
 
-def send_login():
+def passwordless_send_login():
     """View function that sends login instructions for passwordless login"""
 
     form_class = _security.passwordless_login_form
@@ -151,8 +145,7 @@ def send_login():
         return _render_json(form)
 
     return render_template(config_value('SEND_LOGIN_TEMPLATE'),
-                           send_login_form=form,
-                           **_ctx('send_login'))
+                           send_login_form=form)
 
 
 @anonymous_user_required
@@ -196,8 +189,7 @@ def send_confirmation():
         return _render_json(form)
 
     return render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
-                           send_confirmation_form=form,
-                           **_ctx('send_confirmation'))
+                           send_confirmation_form=form)
 
 
 @anonymous_user_required
@@ -245,8 +237,7 @@ def forgot_password():
         return _render_json(form)
 
     return render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
-                           forgot_password_form=form,
-                           **_ctx('forgot_password'))
+                           forgot_password_form=form)
 
 
 @anonymous_user_required
@@ -275,8 +266,7 @@ def reset_password(token):
 
     return render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                            reset_password_form=form,
-                           reset_password_token=token,
-                           **_ctx('reset_password'))
+                           reset_password_token=token)
 
 
 @login_required
@@ -302,8 +292,7 @@ def change_password():
         return _render_json(form)
 
     return render_template('security/change_password.html',
-                           change_password_form=form,
-                           **_ctx('change_password'))
+                           change_password_form=form)
 
 
 def create_blueprint(state, import_name):
@@ -319,7 +308,7 @@ def create_blueprint(state, import_name):
     if state.passwordless:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
-                 endpoint='login')(send_login)
+                 endpoint='login')(passwordless_send_login)
         bp.route(state.login_url + '/<token>',
                  endpoint='token_login')(token_login)
     else:

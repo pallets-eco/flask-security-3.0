@@ -1,7 +1,0 @@
-{% from "security/macros/_macros.html" import render_field_with_errors, render_field %}
-{% macro reset_macro(url_for_security, form, security) %}
-    {% include "security/_messages.html" %}
-    <form action="{{ url_for_security('reset') }}" method="POST" name="reset_password_form">
-        reset password
-    </form>
-{% endmacro %}

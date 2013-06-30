@@ -14,3 +14,33 @@
 {% macro render_field(field) %}
   <p>{{ field(**kwargs)|safe }}</p>
 {% endmacro %}
+
+{% macro menu() %}
+    {% if security.registerable or security.recoverable or security.confirmabled %}
+    <h2>Menu</h2>
+    <ul>
+      <li><a href="{{ url_for_security('login') }}">Login</a></li>
+      {% if security.registerable %}
+      <li><a href="{{ url_for_security('register') }}">Register</a><br/></li>
+      {% endif %}
+      {% if security.recoverable %}
+      <li><a href="{{ url_for_security('forgot_password') }}">Forgot password</a><br/></li>
+      {% endif %}
+      {% if security.confirmable %}
+      <li><a href="{{ url_for_security('send_confirmation') }}">Confirm account</a></li>
+      {% endif %}
+    </ul>
+    {% endif %}
+{% endmacro %}
+
+{% macro messages() %}
+    {%- with messages = get_flashed_messages(with_categories=true) -%}
+    {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {%- endwith %}
+{% endmacro %}
