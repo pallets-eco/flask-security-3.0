@@ -59,7 +59,7 @@ def _commit(response=None):
 def login():
     """View function for login view"""
 
-    form_class = _security.login_form
+    form_class = _security.login_form[0]
 
     if request.json:
         form = form_class(MultiDict(request.json))
@@ -97,9 +97,9 @@ def register():
     """View function which handles a registration request."""
 
     if _security.confirmable or request.json:
-        form_class = _security.confirm_register_form
+        form_class = _security.confirm_register_form[0]
     else:
-        form_class = _security.register_form
+        form_class = _security.register_form[0]
 
     if request.json:
         form_data = MultiDict(request.json)
@@ -129,7 +129,7 @@ def register():
 def passwordless_send_login():
     """View function that sends login instructions for passwordless login"""
 
-    form_class = _security.passwordless_login_form
+    form_class = _security.passwordless_login_form[0]
 
     if request.json:
         form = form_class(MultiDict(request.json))
@@ -173,7 +173,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    form_class = _security.send_confirmation_form
+    form_class = _security.send_confirmation_form[0]
 
     if request.json:
         form = form_class(MultiDict(request.json))
@@ -223,7 +223,7 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    form_class = _security.forgot_password_form
+    form_class = _security.forgot_password_form[0]
 
     if request.json:
         form = form_class(MultiDict(request.json))
@@ -256,7 +256,7 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = _security.reset_password_form()
+    form = _security.reset_password_form[0]()
 
     if form.validate_on_submit():
         after_this_request(_commit)
@@ -275,7 +275,7 @@ def reset_password(token):
 def change_password():
     """View function which handles a change password request."""
 
-    form_class = _security.change_password_form
+    form_class = _security.change_password_form[0]
 
     if request.json:
         form = form_class(MultiDict(request.json))
