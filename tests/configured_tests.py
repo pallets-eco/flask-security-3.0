@@ -459,7 +459,7 @@ class ChangePasswordTest(SecurityTest):
             'new_password_confirm': 'a'
         }, follow_redirects=True)
         self.assertNotIn('You successfully changed your password', r.data)
-        self.assertIn('Field must be between', r.data)
+        self.assertIn('Password must be at least 6 characters', r.data)
 
     def test_change_password_success(self):
         self.authenticate()

@@ -69,6 +69,7 @@ class Length(ValidatorMixin, wtf.Length):
 email_required = Required(message='EMAIL_NOT_PROVIDED')
 email_validator = Email(message='INVALID_EMAIL_ADDRESS')
 password_required = Required(message='PASSWORD_NOT_PROVIDED')
+password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
 
 def get_form_field_label(key):
@@ -122,8 +123,7 @@ class PasswordFormMixin():
 
 class NewPasswordFormMixin():
     password = PasswordField(get_form_field_label('password'),
-        validators=[password_required,
-                    Length(min=6, max=128)])
+        validators=[password_required, password_length])
 
 
 class PasswordConfirmFormMixin():
@@ -256,8 +256,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
     """The default change password form"""
 
     new_password = PasswordField(get_form_field_label('new_password'),
-        validators=[password_required,
-                    Length(min=6, max=128)])
+        validators=[password_required, password_length])
 
     new_password_confirm = PasswordField(get_form_field_label('retype_password'),
         validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])

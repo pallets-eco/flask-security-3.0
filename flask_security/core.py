@@ -110,6 +110,7 @@ _default_messages = {
     'EMAIL_NOT_PROVIDED': ('Email not provided', 'error'),
     'INVALID_EMAIL_ADDRESS': ('Invalid email address', 'error'),
     'PASSWORD_NOT_PROVIDED': ('Password not provided', 'error'),
+    'PASSWORD_INVALID_LENGTH': ('Password must be at least 6 characters', 'error'),
     'USER_DOES_NOT_EXIST': ('Specified user does not exist', 'error'),
     'INVALID_PASSWORD': ('Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
