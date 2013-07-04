@@ -1,4 +1,4 @@
-{%- with messages = get_flashed_messages(with_categories=true) -%}
+{%- with messages = get_flashed_messages(with_categories=true, category_filter=['security-success', 'security-info', 'security-error']) -%}
   {% if messages %}
     <ul class="flashes">
     {% for category, message in messages %}
