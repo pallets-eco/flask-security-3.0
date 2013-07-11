@@ -59,12 +59,8 @@ def _commit(response=None):
 def login():
     """View function for login view"""
 
-    form_class = _security.login_form[0]
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
@@ -73,14 +69,10 @@ def login():
         if not request.json:
             return redirect(get_post_login_redirect())
 
-    form.next.data = get_url(request.args.get('next')) \
-                     or get_url(request.form.get('next')) or ''
-
     if request.json:
         return _render_json(form, True)
 
-    return render_template(config_value('LOGIN_USER_TEMPLATE'),
-                           login_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 @login_required
@@ -96,17 +88,8 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable or request.json:
-        form_class = _security.confirm_register_form[0]
-    else:
-        form_class = _security.register_form[0]
-
-    if request.json:
-        form_data = MultiDict(request.json)
-    else:
-        form_data = request.form
-
-    form = form_class(form_data)
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         user = register_user(**form.to_dict())
@@ -122,19 +105,14 @@ def register():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('REGISTER_USER_TEMPLATE'),
-                           register_user_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
-def passwordless_send_login():
+def send_login():
     """View function that sends login instructions for passwordless login"""
 
-    form_class = _security.passwordless_login_form[0]
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
@@ -144,13 +122,14 @@ def passwordless_send_login():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('SEND_LOGIN_TEMPLATE'),
-                           send_login_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 @anonymous_user_required
 def token_login(token):
     """View function that handles passwordless login via a token"""
+
+    #ctx = _security._ctx
 
     expired, invalid, user = login_token_status(token)
 
@@ -173,27 +152,25 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    form_class = _security.send_confirmation_form[0]
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         send_confirmation_instructions(form.user)
         if request.json is None:
-            do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
+            do_flash(*get_message('CONFIRMATION_REQUEST',
+                                  email=form.user.email))
 
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
-                           send_confirmation_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
+
+    #ctx = _security._ctx
 
     expired, invalid, user = confirm_email_token_status(token)
 
@@ -223,12 +200,8 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    form_class = _security.forgot_password_form[0]
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
@@ -238,13 +211,15 @@ def forgot_password():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
-                           forgot_password_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 @anonymous_user_required
 def reset_password(token):
     """View function that handles a reset password request."""
+
+    ctx = _security._ctx
+    form = ctx.form
 
     expired, invalid, user = reset_password_token_status(token)
 
@@ -256,8 +231,6 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = _security.reset_password_form[0]()
-
     if form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, form.password.data)
@@ -266,21 +239,17 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    return render_template(config_value('RESET_PASSWORD_TEMPLATE'),
-                           reset_password_form=form,
-                           reset_password_token=token)
+    ctx.update(token=token)
+
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 @login_required
 def change_password():
     """View function which handles a change password request."""
 
-    form_class = _security.change_password_form[0]
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    ctx = _security._ctx
+    form = ctx.form
 
     if form.validate_on_submit():
         after_this_request(_commit)
@@ -293,8 +262,7 @@ def change_password():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/change_password.html',
-                           change_password_form=form)
+    return render_template(ctx.template, security_ctx=ctx)
 
 
 def create_blueprint(state, import_name):
@@ -310,7 +278,7 @@ def create_blueprint(state, import_name):
     if state.passwordless:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
-                 endpoint='login')(passwordless_send_login)
+                 endpoint='login')(send_login)
         bp.route(state.login_url + '/<token>',
                  endpoint='token_login')(token_login)
     else:

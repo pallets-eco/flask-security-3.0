@@ -281,6 +281,12 @@ def get_token_status(token, serializer, max_age=None):
     return expired, invalid, user
 
 
+def set_form_next(form):
+    if getattr(form, 'next', None):
+        form.next.data = get_url(request.args.get('next')) \
+            or get_url(request.form.get('next')) or ''
+
+
 @contextmanager
 def capture_passwordless_login_requests():
     login_requests = []
