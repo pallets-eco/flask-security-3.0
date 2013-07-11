@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 1.6.7
 -------------
 
-Unreleased
+Released July 11th 2013
 
 - Made password length form error message configurable
 - Fixed email confirmation bug that prevented logged in users from confirming their email
