@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app
+from flask import request, current_app, get_template_attribute
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -18,18 +18,17 @@ from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
-
-from .utils import config_value as cv, get_config, md5, url_for_security
+from werkzeug.datastructures import MultiDict
+from .utils import config_value as cv, get_config, md5, url_for_security, set_form_next
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm
 
-from .inline import inline_form
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
-
+_endpoint = LocalProxy(lambda: request.endpoint.rsplit('.')[-1])
 
 #: Default Flask-Security configuration
 _default_config = {
@@ -54,11 +53,12 @@ _default_config = {
     'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
-    'LOGIN_USER_TEMPLATE': 'security/login_user.html',
-    'REGISTER_USER_TEMPLATE': 'security/register_user.html',
+    'LOGIN_TEMPLATE': 'security/login_user.html',
+    'REGISTER_TEMPLATE': 'security/register_user.html',
     'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
+    'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
@@ -178,7 +178,7 @@ def _on_identity_loaded(sender, identity):
 def _get_login_manager(app):
     lm = LoginManager()
     lm.anonymous_user = AnonymousUser
-    lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
+    lm.login_view = '{}.login'.format(cv('BLUEPRINT_NAME', app=app))
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
 
@@ -285,11 +285,68 @@ class AnonymousUser(AnonymousUserMixin):
         return False
 
 
-class _SecurityState(object):
+class _Cxt(object):
+    """
+    A mutable, view/template/template_macro based context to access
+    _SecurityState and other sundry necessary and/or useful values.
+    """
+    def __init__(self, **kwargs):
+        self.update(**kwargs)
 
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    @property
+    def inline(self):
+        return self.macro(self)
+
+
+class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
+
+    @property
+    def _ctx(self):
+        ctx = _Cxt(template=self._ctx_template,
+                   form=self._ctx_view_form,
+                   macro=self._ctx_form_macro)
+        if request.json:
+            ctx.update(json_ctx=True)
+        ctx.update(**self._run_ctx_processor(_endpoint))
+        return ctx
+
+    @property
+    def _ctx_view_form(self):
+        if request.json:
+            return self._ctx_form_json
+        else:
+            return self._ctx_form
+
+    @property
+    def _ctx_form_base(self):
+        f = getattr(_security, '{}_form'.format(_endpoint), None)[0]
+        set_form_next(f)
+        return f
+
+    @property
+    def _ctx_form(self):
+        return self._ctx_form_base(request.form)
+
+    @property
+    def _ctx_form_json(self):
+        return self._ctx_form_base(MultiDict(request.json))
+
+    @property
+    def _ctx_form_macro(self):
+        m = getattr(self, '{}_form'.format(_endpoint))
+        mform, mwhere, mname = m[0], m[1], m[2]
+        return get_template_attribute(mwhere, mname)
+
+    @property
+    def _ctx_template(self):
+        return cv('{}_TEMPLATE'.format(_endpoint))
 
     def _add_ctx_processor(self, endpoint, fn):
         group = self._context_processors.setdefault(endpoint, [])
@@ -331,9 +388,6 @@ class _SecurityState(object):
 
     def send_mail_task(self, fn):
         self._send_mail_task = fn
-
-    def inline_form(self, which, form=None):
-        return inline_form(which, form)
 
 
 class Security(object):
