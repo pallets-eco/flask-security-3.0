@@ -203,6 +203,8 @@ def send_confirmation():
 def confirm_email(token):
     """View function which handles a email confirmation request."""
 
+    logout_user()
+
     expired, invalid, user = confirm_email_token_status(token)
 
     if not user or invalid:
