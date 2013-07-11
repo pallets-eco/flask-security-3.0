@@ -336,6 +336,24 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         r = self._post('/register', data=data, follow_redirects=True)
         self.assertIn(e, r.data)
 
+    def test_confirm_email_of_user_different_than_current_user(self):
+        e1 = 'dude@lp.com'
+        e2 = 'lady@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e1)
+            self.register(e2)
+            token1 = registrations[0]['confirm_token']
+            token2 = registrations[1]['confirm_token']
+
+        self.client.get('/confirm/' + token1, follow_redirects=True)
+        self.client.get('/logout')
+        self.authenticate(email=e1)
+        r = self.client.get('/confirm/' + token2, follow_redirects=True)
+        msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
+        self.assertIn(msg, r.data)
+        self.assertIn('Hello %s' % e2, r.data)
+
 
 class RecoverableTests(SecurityTest):
 

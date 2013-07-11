@@ -203,8 +203,6 @@ def send_confirmation():
 def confirm_email(token):
     """View function which handles a email confirmation request."""
 
-    logout_user()
-
     expired, invalid, user = confirm_email_token_status(token)
 
     if not user or invalid:
@@ -218,8 +216,11 @@ def confirm_email(token):
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
 
+    if user != current_user:
+        logout_user()
+        login_user(user)
+
     confirm_user(user)
-    login_user(user)
     after_this_request(_commit)
     do_flash(*get_message('EMAIL_CONFIRMED'))
 
