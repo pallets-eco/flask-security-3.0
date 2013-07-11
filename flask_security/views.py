@@ -200,9 +200,10 @@ def send_confirmation():
                            **_ctx('send_confirmation'))
 
 
-@anonymous_user_required
 def confirm_email(token):
     """View function which handles a email confirmation request."""
+
+    logout_user()
 
     expired, invalid, user = confirm_email_token_status(token)
 
