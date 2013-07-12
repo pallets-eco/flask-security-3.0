@@ -352,11 +352,29 @@ class _SecurityState(object):
             return get_template_attribute(mwhere, mname)
 
     def inline_form(self, which, form=None, ctx=None):
+        """
+        Inline a form inside any template
+
+        :param which: which macro to use, where there is a  corresponding
+                      configuration variable e.g. specify 'login' where
+                      config value 'login_form' exists(see _default_forms
+                      above)
+        :param form: optional, designate a specific form to use within
+                     the macro
+        :param ctx: optional, a dict with specific context to use
+
+        e.g. within in a template
+
+        {{ security.inline_form('change_password') }}
+
+        {{ security.inline_form('login', MyLoginForm, {'myvar': 12345}) }}
+        """
         m = self.which_macro(which)
         if m:
             mform, mwhere, mname = m[0], m[1], m[2]
             t = get_template_attribute(mwhere, mname)
             t_ctx = _Ctx()
+            t_ctx.update(macro=t)
             if form:
                 t_ctx.update(form=form())
             else:
