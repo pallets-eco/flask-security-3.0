@@ -285,7 +285,7 @@ class AnonymousUser(AnonymousUserMixin):
         return False
 
 
-class _Cxt(object):
+class _Ctx(object):
     """
     A mutable, view/template/template_macro based context to access
     _SecurityState and other sundry necessary and/or useful values.
@@ -309,7 +309,7 @@ class _SecurityState(object):
 
     @property
     def _ctx(self):
-        ctx = _Cxt(template=self._ctx_template,
+        ctx = _Ctx(template=self._ctx_template,
                    form=self._ctx_view_form,
                    macro=self._ctx_form_macro)
         if request.json:
@@ -326,23 +326,44 @@ class _SecurityState(object):
 
     @property
     def _ctx_form_base(self):
-        f = getattr(_security, '{}_form'.format(_endpoint), None)[0]
-        set_form_next(f)
-        return f
+        f = getattr(_security, '{}_form'.format(_endpoint), None)
+        if f:
+            form = f[0]
+            set_form_next(form)
+            return form
 
     @property
     def _ctx_form(self):
-        return self._ctx_form_base(request.form)
+        if self._ctx_form_base:
+            return self._ctx_form_base(request.form)
 
     @property
     def _ctx_form_json(self):
         return self._ctx_form_base(MultiDict(request.json))
 
+    def which_macro(self, which):
+        return getattr(self, '{}_form'.format(which), None)
+
     @property
     def _ctx_form_macro(self):
-        m = getattr(self, '{}_form'.format(_endpoint))
-        mform, mwhere, mname = m[0], m[1], m[2]
-        return get_template_attribute(mwhere, mname)
+        m = self.which_macro(_endpoint)
+        if m:
+            mform, mwhere, mname = m[0], m[1], m[2]
+            return get_template_attribute(mwhere, mname)
+
+    def inline_form(self, which, form=None, ctx=None):
+        m = self.which_macro(which)
+        if m:
+            mform, mwhere, mname = m[0], m[1], m[2]
+            t = get_template_attribute(mwhere, mname)
+            t_ctx = _Ctx()
+            if form:
+                t_ctx.update(form=form())
+            else:
+                t_ctx.update(form=m[0]())
+            if ctx:
+                t_ctx.update(**ctx)
+            return t(t_ctx)
 
     @property
     def _ctx_template(self):
