@@ -180,16 +180,16 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
     submit = SubmitField(get_form_field_label('recover_password'))
 
 
-class PasswordlessLoginForm(Form, UserEmailFormMixin):
+class PasswordlessForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
 
     submit = SubmitField(get_form_field_label('send_login_link'))
 
     def __init__(self, *args, **kwargs):
-        super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
+        super(PasswordlessForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        if not super(PasswordlessLoginForm, self).validate():
+        if not super(PasswordlessForm, self).validate():
             return False
         if not self.user.is_active():
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])

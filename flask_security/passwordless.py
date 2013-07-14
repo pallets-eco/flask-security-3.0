@@ -23,7 +23,7 @@ _security = LocalProxy(lambda: app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def send_login_instructions(user):
+def passwordless_login_instructions(user):
     """Sends the login instructions email for the specified user.
 
     :param user: The user to send the instructions to

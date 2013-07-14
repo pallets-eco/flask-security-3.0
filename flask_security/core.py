@@ -23,7 +23,7 @@ from .utils import config_value as cv, get_config, md5, url_for_security, set_fo
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessForm
 
 
 # Convenient references
@@ -57,7 +57,7 @@ _default_config = {
     'REGISTER_TEMPLATE': 'security/register_user.html',
     'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
-    'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
+    'PASSWORDLESS_TEMPLATE': 'security/passwordless.html',
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
@@ -140,7 +140,7 @@ _default_forms = {
     'reset_password_form': (ResetPasswordForm, 'security/macros/_reset_password.html', 'reset_password_macro'),
     'change_password_form': (ChangePasswordForm, 'security/macros/_change_password.html', 'change_password_macro'),
     'send_confirmation_form': (SendConfirmationForm, 'security/macros/_send_confirmation.html', 'send_confirmation_macro'),
-    'passwordless_login_form': (PasswordlessLoginForm, 'security/macros/_passwordless.html', 'passwordless_macro'),
+    'passwordless_form': (PasswordlessForm, 'security/macros/_passwordless.html', 'passwordless_macro'),
 }
 
 
@@ -245,7 +245,7 @@ def _context_processor():
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
-        return (self.name == other or \
+        return (self.name == other or
                 self.name == getattr(other, 'name', None))
 
     def __ne__(self, other):
@@ -308,13 +308,21 @@ class _SecurityState(object):
             setattr(self, key.lower(), value)
 
     @property
+    def _security_endpoint(self):
+        if self.passwordless and _endpoint == 'login':
+            return 'passwordless'
+        else:
+            return _endpoint
+
+    @property
     def _ctx(self):
         ctx = _Ctx(template=self._ctx_template,
                    form=self._ctx_view_form,
-                   macro=self._ctx_form_macro)
+                   macro=self._ctx_form_macro,
+                   login_debug=[_endpoint, self._security_endpoint])
         if request.json:
             ctx.update(json_ctx=True)
-        ctx.update(**self._run_ctx_processor(_endpoint))
+        ctx.update(**self._run_ctx_processor(self._security_endpoint))
         return ctx
 
     @property
@@ -326,7 +334,7 @@ class _SecurityState(object):
 
     @property
     def _ctx_form_base(self):
-        f = getattr(_security, '{}_form'.format(_endpoint), None)
+        f = getattr(_security, '{}_form'.format(self._security_endpoint), None)
         if f:
             form = f[0]
             set_form_next(form)
@@ -346,7 +354,7 @@ class _SecurityState(object):
 
     @property
     def _ctx_form_macro(self):
-        m = self.which_macro(_endpoint)
+        m = self.which_macro(self._security_endpoint)
         if m:
             mform, mwhere, mname = m[0], m[1], m[2]
             return get_template_attribute(mwhere, mname)
@@ -361,11 +369,13 @@ class _SecurityState(object):
                       above)
         :param form: optional, designate a specific form to use within
                      the macro
-        :param ctx: optional, a dict with specific context to use
+        :param ctx: optional, a dict with specific context variables to use
 
-        e.g. within in a template
+        e.g. within in a another template
 
         {{ security.inline_form('change_password') }}
+
+        or
 
         {{ security.inline_form('login', MyLoginForm, {'myvar': 12345}) }}
         """
@@ -374,18 +384,19 @@ class _SecurityState(object):
             mform, mwhere, mname = m[0], m[1], m[2]
             t = get_template_attribute(mwhere, mname)
             t_ctx = _Ctx()
+            t_ctx.update(**self._run_ctx_processor(self._security_endpoint))
             t_ctx.update(macro=t)
             if form:
-                t_ctx.update(form=form())
+                t_ctx.update(form=form())  # request.form
             else:
-                t_ctx.update(form=m[0]())
+                t_ctx.update(form=m[0]())  # request.form
             if ctx:
                 t_ctx.update(**ctx)
             return t(t_ctx)
 
     @property
     def _ctx_template(self):
-        return cv('{}_TEMPLATE'.format(_endpoint))
+        return cv('{}_TEMPLATE'.format(self._security_endpoint))
 
     def _add_ctx_processor(self, endpoint, fn):
         group = self._context_processors.setdefault(endpoint, [])

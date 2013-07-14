@@ -10,7 +10,7 @@ from flask.ext.security.utils import capture_registrations, \
     capture_reset_password_requests, capture_passwordless_login_requests
 from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-    PasswordlessLoginForm
+    PasswordlessForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
 
 
@@ -119,7 +119,7 @@ class BadConfiguredSecurityTests(SecurityTest):
 
 class DefaultTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
+        'SECURITY_LOGIN_TEMPLATE': 'custom_security/custom_login_user.html',
     }
 
 
@@ -132,7 +132,7 @@ class DefaultTemplatePathTests(SecurityTest):
 class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
-        'SECURITY_REGISTER_USER_TEMPLATE': 'custom_security/register_user.html'
+        'SECURITY_REGISTER_TEMPLATE': 'custom_security/custom_register_user.html'
     }
 
     def test_register_user_template(self):
@@ -144,8 +144,8 @@ class RegisterableTemplatePathTests(SecurityTest):
 class RecoverableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_RECOVERABLE': True,
-        'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html',
-        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
+        'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/custom_forgot_password.html',
+        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/custom_reset_password.html',
     }
 
     def test_forgot_password_template(self):
@@ -169,19 +169,18 @@ class RecoverableTemplatePathTests(SecurityTest):
 class ConfirmableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
-        'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/send_confirmation.html'
+        'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/custom_send_confirmation.html'
     }
 
     def test_send_confirmation_template(self):
         r = self._get('/confirm')
-
         self.assertIn('CUSTOM SEND CONFIRMATION', r.data)
 
 
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESS': True,
-        'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html'
+        'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/custom_send_login.html'
     }
 
     def test_send_login_template(self):
@@ -685,8 +684,8 @@ class ExtendFormsTest(SecurityTest):
         email = TextField('My Register Email Address Field')
 
     APP_KWARGS = {
-        'login_form': MyLoginForm,
-        'register_form': MyRegisterForm,
+        'login_form': (MyLoginForm,'custom_security/macros/_login.html', 'custom_login_macro'),
+        'register_form': (MyRegisterForm, 'custom_security/macros/_register.html', 'custom_register_macro')
     }
 
     AUTH_CONFIG = {
@@ -713,8 +712,8 @@ class RecoverableExtendFormsTest(SecurityTest):
         submit = SubmitField("My Reset Password Submit Field")
 
     APP_KWARGS = {
-        'forgot_password_form': MyForgotPasswordForm,
-        'reset_password_form': MyResetPasswordForm,
+        'forgot_password_form': (MyForgotPasswordForm, 'custom_security/macros/_forgot_password.html', 'custom_forgot_password_macro'),
+        'reset_password_form': (MyResetPasswordForm, 'custom_security/macros/_reset_password.html', 'custom_reset_password_macro'),
     }
 
     AUTH_CONFIG = {
@@ -736,11 +735,11 @@ class RecoverableExtendFormsTest(SecurityTest):
 
 class PasswordlessExtendFormsTest(SecurityTest):
 
-    class MyPasswordlessLoginForm(PasswordlessLoginForm):
+    class MyPasswordlessLoginForm(PasswordlessForm):
         email = TextField('My Passwordless Login Email Address Field')
 
     APP_KWARGS = {
-        'passwordless_login_form': MyPasswordlessLoginForm,
+        'passwordless_form': (MyPasswordlessLoginForm, 'custom_security/macros/_passwordless.html', 'custom_passwordless_macro')
     }
 
     AUTH_CONFIG = {
@@ -761,8 +760,8 @@ class ConfirmableExtendFormsTest(SecurityTest):
         email = TextField('My Send Confirmation Email Address Field')
 
     APP_KWARGS = {
-        'confirm_register_form': MyConfirmRegisterForm,
-        'send_confirmation_form': MySendConfirmationForm,
+        'confirm_register_form': (MyConfirmRegisterForm, 'custom_security/macros/_confirm_register.html', 'custom_confirm_register_macro'),
+        'send_confirmation_form': (MySendConfirmationForm, 'custom_security/macros/_send_confirmation.html', 'custom_send_confirmation_macro')
     }
 
     AUTH_CONFIG = {
@@ -778,4 +777,3 @@ class ConfirmableExtendFormsTest(SecurityTest):
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
         self.assertIn("My Send Confirmation Email Address Field", r.data)
-
