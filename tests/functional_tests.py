@@ -229,18 +229,18 @@ class DefaultSecurityTests(SecurityTest):
         self.assertNotIn('BadSignature', r.data)
 
 
-class MongoEngineSecurityTests(DefaultSecurityTests):
+#class MongoEngineSecurityTests(DefaultSecurityTests):
 
-    def _create_app(self, auth_config, **kwargs):
-        from tests.test_app.mongoengine import create_app
-        return create_app(auth_config, **kwargs)
+#    def _create_app(self, auth_config, **kwargs):
+#        from tests.test_app.mongoengine import create_app
+#        return create_app(auth_config, **kwargs)
 
 
-class PeeweeSecurityTests(DefaultSecurityTests):
-
-    def _create_app(self, auth_config, **kwargs):
-        from tests.test_app.peewee_app import create_app
-        return create_app(auth_config, **kwargs)
+#class PeeweeSecurityTests(DefaultSecurityTests):
+#
+#    def _create_app(self, auth_config, **kwargs):
+#        from tests.test_app.peewee_app import create_app
+#        return create_app(auth_config, **kwargs)
 
 
 class DefaultDatastoreTests(SecurityTest):
@@ -266,8 +266,8 @@ class DefaultDatastoreTests(SecurityTest):
         self.assertIn('success', r.data)
 
 
-class MongoEngineDatastoreTests(DefaultDatastoreTests):
-
-    def _create_app(self, auth_config, **kwargs):
-        from tests.test_app.mongoengine import create_app
-        return create_app(auth_config, **kwargs)
+#class MongoEngineDatastoreTests(DefaultDatastoreTests):
+#
+#    def _create_app(self, auth_config, **kwargs):
+#        from tests.test_app.mongoengine import create_app
+#        return create_app(auth_config, **kwargs)

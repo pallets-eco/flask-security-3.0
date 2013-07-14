@@ -18,7 +18,7 @@ from werkzeug.local import LocalProxy
 from .confirmable import send_confirmation_instructions, \
     confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
-from .passwordless import send_login_instructions, \
+from .passwordless import passwordless_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
@@ -61,6 +61,10 @@ def login():
 
     ctx = _security._ctx
     form = ctx.form
+
+    #for i in range(1000):
+    #    print ctx.__dict__
+    #    print form
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
@@ -108,14 +112,17 @@ def register():
     return render_template(ctx.template, security_ctx=ctx)
 
 
-def send_login():
+def passwordless_login():
     """View function that sends login instructions for passwordless login"""
 
     ctx = _security._ctx
     form = ctx.form
 
+    print ctx.__dict__
+    print form
+
     if form.validate_on_submit():
-        send_login_instructions(form.user)
+        passwordless_login_instructions(form.user)
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
 
@@ -278,7 +285,7 @@ def create_blueprint(state, import_name):
     if state.passwordless:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
-                 endpoint='login')(send_login)
+                 endpoint='login')(passwordless_login)
         bp.route(state.login_url + '/<token>',
                  endpoint='token_login')(token_login)
     else:
