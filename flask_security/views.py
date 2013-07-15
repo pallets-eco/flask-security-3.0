@@ -118,9 +118,6 @@ def passwordless_login():
     ctx = _security._ctx
     form = ctx.form
 
-    print ctx.__dict__
-    print form
-
     if form.validate_on_submit():
         passwordless_login_instructions(form.user)
         if request.json is None:
@@ -143,7 +140,7 @@ def token_login(token):
     if invalid:
         do_flash(*get_message('INVALID_LOGIN_TOKEN'))
     if expired:
-        send_login_instructions(user)
+        passwordless_login_instructions(user)
         do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
                               within=_security.login_within))
     if invalid or expired:
