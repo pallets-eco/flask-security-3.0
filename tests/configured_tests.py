@@ -399,8 +399,8 @@ class RecoverableTests(SecurityTest):
     def test_reset_view(self):
         with capture_reset_password_requests() as requests:
             r = self._post('/reset',
-                                 data=dict(email='joe@lp.com'),
-                                 follow_redirects=True)
+                           data=dict(email='joe@lp.com'),
+                           follow_redirects=True)
             t = requests[0]['token']
         r = self._get('/reset/' + t)
         self.assertIn('<h1>Reset password</h1>', r.data)
