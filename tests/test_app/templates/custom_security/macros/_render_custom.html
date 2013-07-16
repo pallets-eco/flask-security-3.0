@@ -1,0 +1,7 @@
+{% macro render_custom_macro(with_custom) %}
+    {{ with_custom.form.email.label }}
+{% endmacro %}
+
+{% macro render_custom_submit(with_custom) %}
+    {{ with_custom.form.submit.label }}
+{% endmacro %}
