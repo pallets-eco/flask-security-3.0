@@ -34,7 +34,8 @@ Password encryption is enabled with `passlib`_. Passwords are stored in plain
 text by default but you can easily configure the encryption algorithm. You
 should **always use an encryption algorithm** in your production environment.
 You may also specify to use HMAC with a configured salt value in addition to the
-algorithm chosen. Bear in mind passlib does not assume which algorithm you will choose and may require additional libraries to be installed.
+algorithm chosen. Bear in mind passlib does not assume which algorithm you will
+choose and may require additional libraries to be installed.
 
 
 Basic HTTP Authentication
