@@ -38,6 +38,6 @@ def register_user(**kwargs):
 
     if config_value('SEND_REGISTER_EMAIL'):
         send_mail(config_value('EMAIL_SUBJECT_REGISTER'), user.email, 'welcome',
-                user=user, confirmation_link=confirmation_link)
+                  user=user, confirmation_link=confirmation_link)
 
     return user

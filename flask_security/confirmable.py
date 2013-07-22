@@ -11,7 +11,7 @@
 
 from datetime import datetime
 
-from flask import current_app as app, request
+from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .utils import send_mail, md5, url_for_security, get_token_status,\

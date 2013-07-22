@@ -78,8 +78,9 @@ def get_hmac(password):
         return password
 
     if _security.password_salt is None:
-        raise RuntimeError('The configuration value `SECURITY_PASSWORD_SALT` '
-            'must not be None when the value of `SECURITY_PASSWORD_HASH` is '
+        raise RuntimeError(
+            'The configuration value `SECURITY_PASSWORD_SALT` must '
+            'not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
     h = hmac.new(_security.password_salt, password.encode('utf-8'), hashlib.sha512)
@@ -386,5 +387,3 @@ def capture_signals():
                            confirm_instructions_sent, login_instructions_sent,
                            password_reset, password_changed,
                            reset_password_instructions_sent])
-
-

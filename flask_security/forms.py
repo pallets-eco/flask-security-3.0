@@ -96,33 +96,32 @@ class Form(BaseForm):
 
 
 class EmailFormMixin():
-    email = TextField(get_form_field_label('email'),
-        validators=[email_required,
-                    email_validator])
+    email = TextField(
+        get_form_field_label('email'),
+        validators=[email_required, email_validator])
 
 
 class UserEmailFormMixin():
     user = None
-    email = TextField(get_form_field_label('email'),
-        validators=[email_required,
-                    email_validator,
-                    valid_user_email])
+    email = TextField(
+        get_form_field_label('email'),
+        validators=[email_required, email_validator, valid_user_email])
 
 
 class UniqueEmailFormMixin():
-    email = TextField(get_form_field_label('email'),
-        validators=[email_required,
-                    email_validator,
-                    unique_user_email])
+    email = TextField(
+        get_form_field_label('email'),
+        validators=[email_required, email_validator, unique_user_email])
 
 
 class PasswordFormMixin():
-    password = PasswordField(get_form_field_label('password'),
-        validators=[password_required])
+    password = PasswordField(
+        get_form_field_label('password'), validators=[password_required])
 
 
 class NewPasswordFormMixin():
-    password = PasswordField(get_form_field_label('password'),
+    password = PasswordField(
+        get_form_field_label('password'),
         validators=[password_required, password_length])
 
 
@@ -255,10 +254,12 @@ class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
 class ChangePasswordForm(Form, PasswordFormMixin):
     """The default change password form"""
 
-    new_password = PasswordField(get_form_field_label('new_password'),
+    new_password = PasswordField(
+        get_form_field_label('new_password'),
         validators=[password_required, password_length])
 
-    new_password_confirm = PasswordField(get_form_field_label('retype_password'),
+    new_password_confirm = PasswordField(
+        get_form_field_label('retype_password'),
         validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
 
     submit = SubmitField(get_form_field_label('change_password'))

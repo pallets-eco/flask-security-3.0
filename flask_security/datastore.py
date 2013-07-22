@@ -9,6 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+
 class Datastore(object):
     def __init__(self, db):
         self.db = db

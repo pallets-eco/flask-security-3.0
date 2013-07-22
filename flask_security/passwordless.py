@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import request, current_app as app
+from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import login_instructions_sent

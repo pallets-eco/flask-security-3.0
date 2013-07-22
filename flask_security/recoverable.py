@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app as app, request
+from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import password_reset, reset_password_instructions_sent
@@ -66,6 +66,7 @@ def reset_password_token_status(token):
     :param token: The password reset token
     """
     return get_token_status(token, 'reset', 'RESET_PASSWORD')
+
 
 def update_password(user, password):
     """Update the specified user's password
