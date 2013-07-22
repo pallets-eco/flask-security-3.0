@@ -56,6 +56,8 @@ URLs and Views
                                 ``/register``.
 ``SECURITY_RESET_URL``          Specifies the password reset URL. Defaults to
                                 ``/reset``.
+``SECURITY_CHANGE_URL``         Specifies the password change URL. Defaults to
+                                ``/change``.
 ``SECURITY_CONFIRM_URL``        Specifies the email confirmation URL. Defaults
                                 to ``/confirm``.
 ``SECURITY_POST_LOGIN_VIEW``    Specifies the default view to redirect to after
@@ -86,8 +88,14 @@ URLs and Views
                                 successfully resets their password. This value
                                 can be set to a URL or an endpoint name. If this
                                 value is ``None`` the user is redirected  to the
-                                value of ``SECURITY_POST_LOGIN_VIEW``. Defaults to
-                                ``None``.
+                                value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
+                                to ``None``.
+``SECURITY_POST_CHANGE_VIEW``   Specifies the view to redirect to after a user
+                                successfully changes their password. This value
+                                can be set to a URL or an endpoint name. If this
+                                value is ``None`` the user is redirected  to the
+                                value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
+                                to ``None``.
 ``SECURITY_UNAUTHORIZED_VIEW``  Specifies the view to redirect to if a user
                                 attempts to access a URL/endpoint that they do
                                 not have permission to access. If this value is
@@ -167,23 +175,29 @@ Email
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
-=========================================== ====================================
-``SECURITY_EMAIL_SUBJECT_REGISTER``         Sets the subject for the
-                                            confirmation email. Defaults to
-                                            ``Welcome``
-``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``     Sets the subject for the
-                                            passwordless feature. Defaults to
-                                            ``Login instructions``
-``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``  Sets subject for the password
-                                            notice. Defaults to
-                                            ``Your password has been reset``
-``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``   Sets the subject for the password
-                                            reset. Defaults to
-                                            ``Password reset instructions``
-``SECURITY_EMAIL_SUBJECT_CONFIRM``          Sets the subject for the email
-                                            confirmation message. Defaults to
-                                            ``Please confirm your email``
-=========================================== ====================================
+================================================= ==============================
+``SECURITY_EMAIL_SUBJECT_REGISTER``               Sets the subject for the
+                                                  confirmation email. Defaults
+                                                  to ``Welcome``
+``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``           Sets the subject for the
+                                                  passwordless feature. Defaults
+                                                  to ``Login instructions``
+``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``        Sets subject for the password
+                                                  notice. Defaults to ``Your
+                                                  password has been reset``
+``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``         Sets the subject for the
+                                                  password reset email. Defaults
+                                                  to ``Password reset
+                                                  instructions``
+``SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE`` Sets the subject for the
+                                                  password change notice.
+                                                  Defaults to ``Your password
+                                                  has been changed``
+``SECURITY_EMAIL_SUBJECT_CONFIRM``                Sets the subject for the email
+                                                  confirmation message. Defaults
+                                                  to ``Please confirm your
+                                                  email``
+================================================= ==============================
 
 Miscellaneous
 -------------
