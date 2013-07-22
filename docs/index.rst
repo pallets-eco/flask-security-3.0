@@ -13,7 +13,7 @@ Flask application. They include:
 7. Token based password recovery / resetting (optional)
 8. User registration (optional)
 9. Login tracking (optional)
-10 . JSON/Ajax Support
+10. JSON/Ajax Support
 
 Many of these features are made possible by integrating various Flask extensions
 and libraries. They include:
