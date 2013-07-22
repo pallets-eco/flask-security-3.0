@@ -104,6 +104,20 @@ statistics. They include:
 * Total login count
 
 
+JSON/Ajax Support
+-----------------
+
+Flask-Security supports JSON/Ajax requests where appropriate. Just remember that
+all endpoints require a CSRF token just like HTML views. More specifically
+JSON is supported for the following operations:
+
+* Login requests
+* Registration requests
+* Change password requests
+* Confirmation requests
+* Forgot password requests
+* Passwordless login requests
+
 
 .. _Flask-Login: http://packages.python.org/Flask-Login/
 .. _alternative token: http://packages.python.org/Flask-Login/#alternative-tokens
