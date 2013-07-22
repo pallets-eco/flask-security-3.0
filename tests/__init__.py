@@ -30,7 +30,8 @@ class SecurityTest(TestCase):
             session['csrf'] = 'csrf_token'
 
         csrf_hmac = hmac.new(self.app.config['SECRET_KEY'],
-                'csrf_token'.encode('utf8'), digestmod=sha1)
+                             'csrf_token'.encode('utf8'),
+                             digestmod=sha1)
         self.csrf_token = '##' + csrf_hmac.hexdigest()
 
     def _create_app(self, auth_config, **kwargs):
@@ -38,17 +39,17 @@ class SecurityTest(TestCase):
 
     def _get(self, route, content_type=None, follow_redirects=None, headers=None):
         return self.client.get(route, follow_redirects=follow_redirects,
-                content_type=content_type or 'text/html',
-                headers=headers)
+                               content_type=content_type or 'text/html',
+                               headers=headers)
 
     def _post(self, route, data=None, content_type=None, follow_redirects=True, headers=None):
         if isinstance(data, dict):
             data['csrf_token'] = self.csrf_token
 
+        content_type = content_type or 'application/x-www-form-urlencoded'
         return self.client.post(route, data=data,
-                follow_redirects=follow_redirects,
-                content_type=content_type or 'application/x-www-form-urlencoded',
-                headers=headers)
+                                follow_redirects=follow_redirects,
+                                content_type=content_type, headers=headers)
 
     def register(self, email, password='password'):
         data = dict(email=email, password=password, csrf_token=self.csrf_token)

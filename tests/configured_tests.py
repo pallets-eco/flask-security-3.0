@@ -122,7 +122,6 @@ class DefaultTemplatePathTests(SecurityTest):
         'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
     }
 
-
     def test_login_user_template(self):
         r = self._get('/login')
 
@@ -155,9 +154,8 @@ class RecoverableTemplatePathTests(SecurityTest):
 
     def test_reset_password_template(self):
         with capture_reset_password_requests() as requests:
-            r = self._post('/reset',
-                data=dict(email='joe@lp.com'),
-                follow_redirects=True)
+            r = self._post('/reset', data=dict(email='joe@lp.com'),
+                           follow_redirects=True)
 
             t = requests[0]['token']
 
@@ -365,9 +363,8 @@ class RecoverableTests(SecurityTest):
 
     def test_reset_view(self):
         with capture_reset_password_requests() as requests:
-            r = self._post('/reset',
-                                 data=dict(email='joe@lp.com'),
-                                 follow_redirects=True)
+            r = self._post('/reset', data=dict(email='joe@lp.com'),
+                           follow_redirects=True)
             t = requests[0]['token']
         r = self._get('/reset/' + t)
         self.assertIn('<h1>Reset password</h1>', r.data)
@@ -380,20 +377,18 @@ class RecoverableTests(SecurityTest):
 
     def test_forgot_password_json(self):
         r = self._post('/reset', data='{"email": "matt@lp.com"}',
-                             content_type="application/json")
+                       content_type="application/json")
         self.assertEquals(r.status_code, 200)
 
     def test_forgot_password_invalid_email(self):
-        r = self._post('/reset',
-                             data=dict(email='larry@lp.com'),
-                             follow_redirects=True)
+        r = self._post('/reset', data=dict(email='larry@lp.com'),
+                       follow_redirects=True)
         self.assertIn("Specified user does not exist", r.data)
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:
-            r = self._post('/reset',
-                                 data=dict(email='joe@lp.com'),
-                                 follow_redirects=True)
+            r = self._post('/reset', data=dict(email='joe@lp.com'),
+                           follow_redirects=True)
             t = requests[0]['token']
 
         r = self._post('/reset/' + t, data={
@@ -480,13 +475,15 @@ class ChangePasswordTest(SecurityTest):
         self.assertIn('Password must be at least 6 characters', r.data)
 
     def test_change_password_success(self):
+        data = {
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }
+
         self.authenticate()
         with self.app.extensions['mail'].record_messages() as outbox:
-            r = self._post('/change', data={
-                    'password': 'password',
-                    'new_password': 'newpassword',
-                    'new_password_confirm': 'newpassword'
-                    }, follow_redirects=True)
+            r = self._post('/change', data=data, follow_redirects=True)
 
         self.assertIn('You successfully changed your password', r.data)
         self.assertIn('Home Page', r.data)
@@ -504,12 +501,13 @@ class ChangePasswordPostViewTest(SecurityTest):
     }
 
     def test_change_password_success(self):
+        data = {
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }
         self.authenticate()
-        r = self._post('/change', data={
-                'password': 'password',
-                'new_password': 'newpassword',
-                'new_password_confirm': 'newpassword'
-                }, follow_redirects=True)
+        r = self._post('/change', data=data, follow_redirects=True)
 
         self.assertIn('Profile Page', r.data)
 
@@ -792,8 +790,6 @@ class ConfirmableExtendFormsTest(SecurityTest):
         r = self._get('/register', follow_redirects=True)
         self.assertIn("My Confirm Register Email Address Field", r.data)
 
-
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
         self.assertIn("My Send Confirmation Email Address Field", r.data)
-
