@@ -53,20 +53,16 @@ def _check_token():
     token = request.args.get(args_key, header_token)
     if request.json:
         token = request.json.get(args_key, token)
-    serializer = _security.remember_token_serializer
 
-    try:
-        data = serializer.loads(token)
-    except:
-        return False
+    user = _security.login_manager.token_callback(token)
 
-    user = _security.datastore.find_user(id=data[0])
-
-    if utils.md5(user.password) == data[1]:
+    if user and user.is_authenticated():
         app = current_app._get_current_object()
         _request_ctx_stack.top.user = user
         identity_changed.send(app, identity=Identity(user.id))
         return True
+
+    return False
 
 
 def _check_http_auth():
