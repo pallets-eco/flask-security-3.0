@@ -59,6 +59,7 @@ class DefaultSecurityTests(SecurityTest):
         self.assertIsHomePage(r.data)
 
     def test_unauthorized_access(self):
+        self.logout()
         r = self._get('/profile', follow_redirects=True)
         self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
 
