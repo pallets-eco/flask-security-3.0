@@ -211,10 +211,14 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
             from mongoengine.queryset import Q, QCombination
         except ImportError:
             from mongoengine.queryset.visitor import Q, QCombination
+        from mongoengine.errors import ValidationError
 
         queries = map(lambda i: Q(**{i[0]: i[1]}), kwargs.items())
         query = QCombination(QCombination.AND, queries)
-        return self.user_model.objects(query).first()
+        try:
+            return self.user_model.objects(query).first()
+        except ValidationError:
+            return None
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
