@@ -33,6 +33,10 @@ class DefaultSecurityTests(SecurityTest):
         r = self.authenticate()
         self.assertIn('Hello matt@lp.com', r.data)
 
+    def test_authenticate_case_insensitive_email(self):
+        r = self.authenticate(email='MATT@lp.com')
+        self.assertIn('Hello matt@lp.com', r.data)
+
     def test_unprovided_username(self):
         r = self.authenticate("")
         self.assertIn(self.get_message('EMAIL_NOT_PROVIDED'), r.data)

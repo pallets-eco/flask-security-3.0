@@ -82,6 +82,10 @@ class UserDatastore(object):
         kwargs['roles'] = roles
         return kwargs
 
+    def get_user(self, id_or_email):
+        """Returns a user matching the specified ID or email address"""
+        raise NotImplementedError
+
     def find_user(self, *args, **kwargs):
         """Returns a user matching the provided parameters."""
         raise NotImplementedError
@@ -175,6 +179,11 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         SQLAlchemyDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
+    def get_user(self, id_or_email):
+        return (self.user_model.query.get(id_or_email) or
+                self.user_model.query.filter(
+                    self.user_model.email.ilike(id_or_email)).first())
+
     def find_user(self, **kwargs):
         return self.user_model.query.filter_by(**kwargs).first()
 
@@ -189,6 +198,13 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
     def __init__(self, db, user_model, role_model):
         MongoEngineDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
+
+    def get_user(self, id_or_email):
+        from mongoengine import ValidationError
+        try:
+            return self.user_model.objects(id=id_or_email).first()
+        except ValidationError:
+            return self.user_model.objects(email__iexact=id_or_email).first()
 
     def find_user(self, **kwargs):
         try:
@@ -216,6 +232,17 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         PeeweeDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
         self.UserRole = role_link
+
+    def get_user(self, id_or_email):
+        try:
+            return self.user_model.get(self.user_model.id == id_or_email)
+        except ValueError:
+            pass
+        try:
+            return self.user_model.get(self.user_model.email ** id_or_email)
+        except self.user_model.DoesNotExist:
+            pass
+        return None
 
     def find_user(self, **kwargs):
         try:
