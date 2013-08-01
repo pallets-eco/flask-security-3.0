@@ -9,6 +9,8 @@ Version 1.6.8
 Released August 1st 2013
 
 - Fixed bug with case sensitivity of email address during login
+- Code cleanup regarding token_callback
+- Ignore validation errors in find_user function for MongoEngineUserDatastore
 
 Version 1.6.7
 -------------
