@@ -302,8 +302,9 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         result = self.UserRole.select() \
             .where(self.UserRole.user == user, self.UserRole.role == role)
         if result.count():
-            self.UserRole.delete().where(
+            query = self.UserRole.delete().where(
                 self.UserRole.user == user, self.UserRole.role == role)
+            query.execute()
             return True
         else:
             return False
