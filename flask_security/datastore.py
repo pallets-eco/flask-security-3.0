@@ -180,9 +180,20 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
 
     def get_user(self, id_or_email):
-        return (self.user_model.query.get(id_or_email) or
-                self.user_model.query.filter(
-                    self.user_model.email.ilike(id_or_email)).first())
+        returned = None
+        if self._is_numeric(id_or_email):
+            returned = self.user_model.query.get(id_or_email)
+        if not returned:
+            returned = self.user_model.query.filter(
+                self.user_model.email.ilike(id_or_email)).first()
+        return returned
+
+    def _is_numeric(self, value):
+        try:
+            int(value)
+        except ValueError:
+            return False
+        return True
 
     def find_user(self, **kwargs):
         return self.user_model.query.filter_by(**kwargs).first()
@@ -291,8 +302,9 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         result = self.UserRole.select() \
             .where(self.UserRole.user == user, self.UserRole.role == role)
         if result.count():
-            self.UserRole.delete().where(
+            query = self.UserRole.delete().where(
                 self.UserRole.user == user, self.UserRole.role == role)
+            query.execute()
             return True
         else:
             return False

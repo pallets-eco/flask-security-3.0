@@ -3,6 +3,16 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.6.9
+-------------
+
+Released August 20th 2013
+
+- Fix bug in SQLAlchemy datastore's `get_user` function
+- Fix bug in PeeWee datastore's `remove_role_from_user` function
+- Fixed import error caused by new Flask-WTF release
+
+
 Version 1.6.8
 -------------
 
@@ -11,6 +21,7 @@ Released August 1st 2013
 - Fixed bug with case sensitivity of email address during login
 - Code cleanup regarding token_callback
 - Ignore validation errors in find_user function for MongoEngineUserDatastore
+
 
 Version 1.6.7
 -------------
