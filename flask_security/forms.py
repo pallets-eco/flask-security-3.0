@@ -15,7 +15,8 @@ import urlparse
 import flask_wtf as wtf
 
 from flask import request, current_app
-from flask_wtf import Form as BaseForm, TextField, PasswordField, \
+from flask_wtf import Form as BaseForm
+from wtforms import TextField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
 from flask_login import current_user
 from werkzeug.local import LocalProxy
@@ -50,19 +51,19 @@ class ValidatorMixin(object):
         return super(ValidatorMixin, self).__call__(form, field)
 
 
-class EqualTo(ValidatorMixin, wtf.EqualTo):
+class EqualTo(ValidatorMixin, validators.EqualTo):
     pass
 
 
-class Required(ValidatorMixin, wtf.Required):
+class Required(ValidatorMixin, validators.Required):
     pass
 
 
-class Email(ValidatorMixin, wtf.Email):
+class Email(ValidatorMixin, validators.Email):
     pass
 
 
-class Length(ValidatorMixin, wtf.Length):
+class Length(ValidatorMixin, validators.Length):
     pass
 
 
