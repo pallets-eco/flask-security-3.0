@@ -10,7 +10,11 @@
 """
 
 import inspect
-import urlparse
+try:
+    from urlparse import urlsplit
+except ImportError:
+    # python 3
+    from urllib.parse import urlsplit
 
 import flask_wtf as wtf
 
@@ -136,8 +140,8 @@ class NextFormMixin():
     next = HiddenField()
 
     def validate_next(self, field):
-        url_next = urlparse.urlsplit(field.data)
-        url_base = urlparse.urlsplit(request.host_url)
+        url_next = urlsplit(field.data)
+        url_base = urlsplit(request.host_url)
         if url_next.netloc and url_next.netloc != url_base.netloc:
             field.data = ''
             raise ValidationError(get_message('INVALID_REDIRECT')[0])
