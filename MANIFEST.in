@@ -1,2 +1,3 @@
+include CHANGES LICENSE
 recursive-include tests *.py
 recursive-include flask_security/templates *.*
