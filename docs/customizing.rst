@@ -132,11 +132,11 @@ Overriding these templates is simple:
 Each template is passed a template context object that includes values for any
 links that are required in the email. If you require more values in the
 templates you can specify an email context processor with the
-``email_context_processor`` decorator. For example::
+``mail_context_processor`` decorator. For example::
 
     security = Security(app, user_datastore)
 
     # This processor is added to all emails
-    @security.email_context_processor
+    @security.mail_context_processor
     def security_mail_processor():
         return dict(hello="world")
