@@ -62,10 +62,6 @@ def login():
     ctx = _security._ctx
     form = ctx.form
 
-    #for i in range(1000):
-    #    print ctx.__dict__
-    #    print form
-
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
         after_this_request(_commit)
@@ -118,9 +114,6 @@ def passwordless_login():
     ctx = _security._ctx
     form = ctx.form
 
-    print ctx.__dict__
-    print form
-
     if form.validate_on_submit():
         passwordless_login_instructions(form.user)
         if request.json is None:
@@ -135,8 +128,6 @@ def passwordless_login():
 @anonymous_user_required
 def token_login(token):
     """View function that handles passwordless login via a token"""
-
-    #ctx = _security._ctx
 
     expired, invalid, user = login_token_status(token)
 
@@ -176,8 +167,6 @@ def send_confirmation():
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
-
-    #ctx = _security._ctx
 
     expired, invalid, user = confirm_email_token_status(token)
 
