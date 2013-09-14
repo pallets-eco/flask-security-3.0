@@ -129,12 +129,14 @@ def passwordless_login():
 def token_login(token):
     """View function that handles passwordless login via a token"""
 
+    #ctx = _security._ctx
+
     expired, invalid, user = login_token_status(token)
 
     if invalid:
         do_flash(*get_message('INVALID_LOGIN_TOKEN'))
     if expired:
-        send_login_instructions(user)
+        passwordless_login_instructions(user)
         do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
                               within=_security.login_within))
     if invalid or expired:
@@ -167,6 +169,8 @@ def send_confirmation():
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
+
+    #ctx = _security._ctx
 
     expired, invalid, user = confirm_email_token_status(token)
 

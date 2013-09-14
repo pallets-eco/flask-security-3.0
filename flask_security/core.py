@@ -319,8 +319,7 @@ class _SecurityState(object):
     def _ctx(self):
         ctx = _Ctx(template=self._ctx_template,
                    form=self._ctx_view_form,
-                   macro=self._ctx_form_macro,
-                   login_debug=[_endpoint, self._security_endpoint])
+                   macro=self._ctx_form_macro)
         if request.json:
             ctx.update(json_ctx=True)
         ctx.update(**self._run_ctx_processor(self._security_endpoint))
@@ -465,7 +464,7 @@ class Security(object):
                  reset_password_form=None,
                  change_password_form=None,
                  send_confirmation_form=None,
-                 passwordless_login_form=None):
+                 passwordless_form=None):
         """
         Initializes the Flask-Security extension for the specified
         application and datastore implentation.
@@ -492,7 +491,7 @@ class Security(object):
                            reset_password_form=reset_password_form,
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form)
+                           passwordless_form=passwordless_form)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
