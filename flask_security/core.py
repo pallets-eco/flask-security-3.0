@@ -454,14 +454,6 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-<<<<<<< HEAD
-    def init_app(self, app, datastore=None, register_blueprint=True,
-                 login_form=None, confirm_register_form=None,
-                 register_form=None, forgot_password_form=None,
-                 reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None):
-        """Initializes the Flask-Security extension for the specified
-=======
     def init_app(self,
                  app,
                  datastore=None,
@@ -476,7 +468,6 @@ class Security(object):
                  passwordless_login_form=None):
         """
         Initializes the Flask-Security extension for the specified
->>>>>>> branch to explore relevant forms as inline forms embeddable to any template
         application and datastore implentation.
 
         :param app: The application.
