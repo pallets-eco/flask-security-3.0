@@ -13,6 +13,7 @@ class SecurityTest(TestCase):
     APP_KWARGS = {
         'register_blueprint': True,
     }
+
     AUTH_CONFIG = None
 
     def setUp(self):
@@ -51,8 +52,8 @@ class SecurityTest(TestCase):
                                 follow_redirects=follow_redirects,
                                 content_type=content_type, headers=headers)
 
-    def register(self, email, password='password'):
-        data = dict(email=email, password=password, csrf_token=self.csrf_token)
+    def register(self, email, password='password', password_confirm='password'):
+        data = dict(email=email, password=password, password_confirm=password, csrf_token=self.csrf_token)
         return self.client.post('/register', data=data, follow_redirects=True)
 
     def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):

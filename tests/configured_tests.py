@@ -56,7 +56,6 @@ class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
     def test_authenticate(self):
         r = self.authenticate(endpoint="/login")
-        print r.data
         self.assertIn('Home Page', r.data)
 
 class ConfiguredSecurityTests(SecurityTest):
@@ -105,13 +104,15 @@ class ConfiguredSecurityTests(SecurityTest):
         r = self._post('/register?next=/page1', data=data, follow_redirects=True)
         self.assertIn('Page 1', r.data)
 
-    #def test_register_json(self):
-    #    data = '{ "email": "dude@lp.com", "password": "password", "csrf_token":"%s" }' % self.csrf_token
-    #    r = self._post('/register', data=data, content_type='application/json')
-    #    data = json.loads(r.data)
-    #    self.assertEquals(data['meta']['code'], 200)
-    #
-    #AssertionError: 400 != 200
+    def test_register_json(self):
+        request_data = { "email": "dude@lp.com",
+                        "password": "password",
+                        "password_confirm": "password",
+                        "csrf_token":"{}".format(self.csrf_token)}
+        r = self._post('/register', data=json.dumps(request_data), content_type='application/json')
+        print r.data
+        data = json.loads(r.data)
+        self.assertEquals(data['meta']['code'], 200)
 
     def test_register_existing_email(self):
         data = dict(email='matt@lp.com',
@@ -153,13 +154,10 @@ class DefaultTemplatePathTests(SecurityTest):
         'SECURITY_LOGIN_TEMPLATE': 'custom_security/custom_login_user.html',
     }
 
-<<<<<<< HEAD
-=======
     APP_KWARGS = {
          'login_form': (MyLoginForm,'custom_security/macros/_login.html', 'custom_login_macro')
     }
 
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     def test_login_user_template(self):
         r = self._get('/login')
 
@@ -170,13 +168,10 @@ class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
         'SECURITY_REGISTER_TEMPLATE': 'custom_security/custom_register_user.html'
-<<<<<<< HEAD
-=======
     }
 
     APP_KWARGS = {
          'register_form': (MyRegisterForm, 'custom_security/macros/_register.html', 'custom_register_macro')
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     def test_register_user_template(self):
@@ -190,14 +185,11 @@ class RecoverableTemplatePathTests(SecurityTest):
         'SECURITY_RECOVERABLE': True,
         'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/custom_forgot_password.html',
         'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/custom_reset_password.html',
-<<<<<<< HEAD
-=======
     }
 
     APP_KWARGS = {
         'reset_password_form': (MyResetPasswordForm, 'custom_security/macros/_reset_password.html', 'custom_reset_password_macro'),
         'forgot_password_form': (MyForgotPasswordForm, 'custom_security/macros/_forgot_password.html', 'custom_forgot_password_macro'),
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     def test_forgot_password_template(self):
@@ -221,13 +213,10 @@ class ConfirmableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_CONFIRMABLE': True,
         'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/custom_send_confirmation.html'
-<<<<<<< HEAD
-=======
     }
 
     APP_KWARGS = {
         'send_confirmation_form': (MySendConfirmationForm, 'custom_security/macros/_send_confirmation.html', 'custom_send_confirmation_macro')
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     def test_send_confirmation_template(self):
@@ -238,16 +227,11 @@ class ConfirmableTemplatePathTests(SecurityTest):
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESS': True,
-<<<<<<< HEAD
-        'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/custom_send_login.html'
-=======
         'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/custom_passwordless.html'
     }
 
     APP_KWARGS = {
         'passwordless_form': (MyPasswordlessLoginForm, 'custom_security/macros/_passwordless.html', 'custom_passwordless_macro')
-
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     def test_send_login_template(self):
@@ -271,120 +255,120 @@ class RegisterableTests(SecurityTest):
         self.assertIn('Hello dude@lp.com', r.data)
 
 
-#class ConfirmableTests(SecurityTest):
-#    AUTH_CONFIG = {
-#        'SECURITY_CONFIRMABLE': True,
-#        'SECURITY_REGISTERABLE': True,
-#        'SECURITY_EMAIL_SUBJECT_REGISTER': 'Custom welcome subject',
-#        'USER_COUNT': 1
-#    }
+class ConfirmableTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True,
+        'SECURITY_EMAIL_SUBJECT_REGISTER': 'Custom welcome subject',
+        'USER_COUNT': 1
+    }
 
-#    def test_login_before_confirmation(self):
-#        e = 'dude@lp.com'
-#        self.register(e)
-#        r = self.authenticate(email=e)
-#        self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
+    def test_login_before_confirmation(self):
+        e = 'dude@lp.com'
+        x = self.register(e)
+        r = self.authenticate(email=e)
+        self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
 
-#    def test_send_confirmation_of_already_confirmed_account(self):
-#        e = 'dude@lp.com'
-#
-#        with capture_registrations() as registrations:
-#            self.register(e)
-#            token = registrations[0]['confirm_token']
-#
-#        self.client.get('/confirm/' + token, follow_redirects=True)
-#        self.logout()
-#        r = self._post('/confirm', data=dict(email=e))
-#        self.assertIn(self.get_message('ALREADY_CONFIRMED'), r.data)
-#
-#    def test_register_sends_confirmation_email(self):
-#        e = 'dude@lp.com'
-#        with self.app.extensions['mail'].record_messages() as outbox:
-#            self.register(e)
-#            self.assertEqual(len(outbox), 1)
-#            self.assertIn(e, outbox[0].html)
-#            self.assertEqual('Custom welcome subject', outbox[0].subject)
-#
-#    def test_confirm_email(self):
-#        e = 'dude@lp.com'
-#
-#        with capture_registrations() as registrations:
-#            self.register(e)
-#            token = registrations[0]['confirm_token']
-#
-#        r = self.client.get('/confirm/' + token, follow_redirects=True)
-#
-#        msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
-#        self.assertIn(msg, r.data)
-#
-#    def test_invalid_token_when_confirming_email(self):
-#        r = self.client.get('/confirm/bogus', follow_redirects=True)
-#        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-#        self.assertIn(msg, r.data)
-#
-#    def test_send_confirmation_json(self):
-#        r = self._post('/confirm', data='{"email": "matt@lp.com"}',
-#                       content_type='application/json')
-#        self.assertEquals(r.status_code, 200)
-#
-#    def test_send_confirmation_with_invalid_email(self):
-#        r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
-#        msg = self.app.config['SECURITY_MSG_USER_DOES_NOT_EXIST'][0]
-#        self.assertIn(msg, r.data)
-#
-#    def test_resend_confirmation(self):
-#        e = 'dude@lp.com'
-#        self.register(e)
-#        r = self._post('/confirm', data={'email': e})
-#
-#        msg = self.get_message('CONFIRMATION_REQUEST', email=e)
-#        self.assertIn(msg, r.data)
-#
-#    def test_user_deleted_before_confirmation(self):
-#        e = 'dude@lp.com'
-#
-#        with capture_registrations() as registrations:
-#            self.register(e)
-#            user = registrations[0]['user']
-#            token = registrations[0]['confirm_token']
-#
-#        with self.app.app_context():
-#            from flask_security.core import _security
-#            _security.datastore.delete(user)
-#            _security.datastore.commit()
-#
-#        r = self.client.get('/confirm/' + token, follow_redirects=True)
-#        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-#        self.assertIn(msg, r.data)
+    def test_send_confirmation_of_already_confirmed_account(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            token = registrations[0]['confirm_token']
+
+        self.client.get('/confirm/' + token, follow_redirects=True)
+        self.logout()
+        r = self._post('/confirm', data=dict(email=e))
+        self.assertIn(self.get_message('ALREADY_CONFIRMED'), r.data)
+
+    def test_register_sends_confirmation_email(self):
+        e = 'dude@lp.com'
+        with self.app.extensions['mail'].record_messages() as outbox:
+            self.register(e)
+            self.assertEqual(len(outbox), 1)
+            self.assertIn(e, outbox[0].html)
+            self.assertEqual('Custom welcome subject', outbox[0].subject)
+
+    def test_confirm_email(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            token = registrations[0]['confirm_token']
+
+        r = self.client.get('/confirm/' + token, follow_redirects=True)
+
+        msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
+        self.assertIn(msg, r.data)
+
+    def test_invalid_token_when_confirming_email(self):
+        r = self.client.get('/confirm/bogus', follow_redirects=True)
+        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
+        self.assertIn(msg, r.data)
+
+    def test_send_confirmation_json(self):
+        r = self._post('/confirm', data='{"email": "matt@lp.com"}',
+                       content_type='application/json')
+        self.assertEquals(r.status_code, 200)
+
+    def test_send_confirmation_with_invalid_email(self):
+        r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
+        msg = self.app.config['SECURITY_MSG_USER_DOES_NOT_EXIST'][0]
+        self.assertIn(msg, r.data)
+
+    def test_resend_confirmation(self):
+        e = 'dude@lp.com'
+        self.register(e)
+        r = self._post('/confirm', data={'email': e})
+
+        msg = self.get_message('CONFIRMATION_REQUEST', email=e)
+        self.assertIn(msg, r.data)
+
+    def test_user_deleted_before_confirmation(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            user = registrations[0]['user']
+            token = registrations[0]['confirm_token']
+
+        with self.app.app_context():
+            from flask_security.core import _security
+            _security.datastore.delete(user)
+            _security.datastore.commit()
+
+        r = self.client.get('/confirm/' + token, follow_redirects=True)
+        msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
+        self.assertIn(msg, r.data)
 
 
-#class ExpiredConfirmationTest(SecurityTest):
-#    AUTH_CONFIG = {
-#        'SECURITY_CONFIRMABLE': True,
-#        'SECURITY_REGISTERABLE': True,
-#        'SECURITY_CONFIRM_EMAIL_WITHIN': '1 milliseconds',
-#        'USER_COUNT': 1
-#    }
-#
-#    def test_expired_confirmation_token_sends_email(self):
-#        e = 'dude@lp.com'
-#
-#        with capture_registrations() as registrations:
-#            self.register(e)
-#            token = registrations[0]['confirm_token']
-#
-#        time.sleep(1.25)
-#
-#        with self.app.extensions['mail'].record_messages() as outbox:
-#            r = self.client.get('/confirm/' + token, follow_redirects=True)
-#
-#            self.assertEqual(len(outbox), 1)
-#            self.assertNotIn(token, outbox[0].html)
-#
-#            expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
-#            msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0]
-#            msg = msg % dict(within=expire_text, email=e)
-#            self.assertIn(msg, r.data)
+class ExpiredConfirmationTest(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_CONFIRMABLE': True,
+        'SECURITY_REGISTERABLE': True,
+        'SECURITY_CONFIRM_EMAIL_WITHIN': '1 milliseconds',
+        'USER_COUNT': 1
+    }
+
+    def test_expired_confirmation_token_sends_email(self):
+        e = 'dude@lp.com'
+
+        with capture_registrations() as registrations:
+            self.register(e)
+            token = registrations[0]['confirm_token']
+
+        time.sleep(1.25)
+
+        with self.app.extensions['mail'].record_messages() as outbox:
+            r = self.client.get('/confirm/' + token, follow_redirects=True)
+
+            self.assertEqual(len(outbox), 1)
+            self.assertNotIn(token, outbox[0].html)
+
+            expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
+            msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0]
+            msg = msg % dict(within=expire_text, email=e)
+            self.assertIn(msg, r.data)
 
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
@@ -431,12 +415,8 @@ class RecoverableTests(SecurityTest):
 
     def test_reset_view(self):
         with capture_reset_password_requests() as requests:
-<<<<<<< HEAD
-            r = self._post('/reset', data=dict(email='joe@lp.com'),
-=======
             r = self._post('/reset',
                            data=dict(email='joe@lp.com'),
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
                            follow_redirects=True)
             t = requests[0]['token']
         r = self._get('/reset/' + t)
@@ -768,13 +748,8 @@ class NoBlueprintTests(SecurityTest):
 class ExtendFormsTest(SecurityTest):
 
     APP_KWARGS = {
-<<<<<<< HEAD
         'login_form': (MyLoginForm,'custom_security/macros/_login.html', 'custom_login_macro'),
         'register_form': (MyRegisterForm, 'custom_security/macros/_register.html', 'custom_register_macro')
-=======
-        'login_form': (MyLoginForm,'custom_security/macros/_render_custom.html', 'render_custom_macro'),
-        'register_form': (MyRegisterForm, 'custom_security/macros/_render_custom.html', 'render_custom_macro')
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     AUTH_CONFIG = {
@@ -786,25 +761,18 @@ class ExtendFormsTest(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login', follow_redirects=True)
-        print r.data
-        self.assertIn("My Login Email Address Field", r.data)
+        self.assertIn("CUSTOM LOGIN USER", r.data)
 
     def test_register(self):
         r = self._get('/register', follow_redirects=True)
-        print r.data
-        self.assertIn("My Register Email Address Field", r.data)
+        self.assertIn("CUSTOM REGISTER USER", r.data)
 
 
 class RecoverableExtendFormsTest(SecurityTest):
 
     APP_KWARGS = {
-<<<<<<< HEAD
         'forgot_password_form': (MyForgotPasswordForm, 'custom_security/macros/_forgot_password.html', 'custom_forgot_password_macro'),
         'reset_password_form': (MyResetPasswordForm, 'custom_security/macros/_reset_password.html', 'custom_reset_password_macro'),
-=======
-        'forgot_password_form': (MyForgotPasswordForm, 'custom_security/macros/_render_custom.html', 'render_custom_macro'),
-        'reset_password_form': (MyResetPasswordForm, 'custom_security/macros/_render_custom.html', 'render_custom_submit'),
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     AUTH_CONFIG = {
@@ -815,7 +783,7 @@ class RecoverableExtendFormsTest(SecurityTest):
 
     def test_forgot_password(self):
         r = self._get('/reset', follow_redirects=True)
-        self.assertIn("My Forgot Password Email Address Field", r.data)
+        self.assertIn("CUSTOM FORGOT PASSWORD", r.data)
 
     def test_reset_password(self):
         with capture_reset_password_requests() as requests:
@@ -823,21 +791,16 @@ class RecoverableExtendFormsTest(SecurityTest):
                        follow_redirects=True)
             token = requests[0]['token']
         r = self._get('/reset/' + token)
-        self.assertIn("My Reset Password Submit Field", r.data)
+        self.assertIn("CUSTOM RESET PASSWORD", r.data)
 
 
 class PasswordlessExtendFormsTest(SecurityTest):
 
-<<<<<<< HEAD
     class MyPasswordlessLoginForm(PasswordlessForm):
         email = TextField('My Passwordless Login Email Address Field')
 
     APP_KWARGS = {
         'passwordless_form': (MyPasswordlessLoginForm, 'custom_security/macros/_passwordless.html', 'custom_passwordless_macro')
-=======
-    APP_KWARGS = {
-        'passwordless_form': (MyPasswordlessLoginForm, 'custom_security/macros/_render_custom.html', 'render_custom_macro')
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     AUTH_CONFIG = {
@@ -847,19 +810,14 @@ class PasswordlessExtendFormsTest(SecurityTest):
 
     def test_passwordless_login(self):
         r = self._get('/login', follow_redirects=True)
-        self.assertIn("My Passwordless Login Email Address Field", r.data)
+        self.assertIn("CUSTOM PASSWORDLESS", r.data)
 
 
 class ConfirmableExtendFormsTest(SecurityTest):
 
     APP_KWARGS = {
-<<<<<<< HEAD
         'confirm_register_form': (MyConfirmRegisterForm, 'custom_security/macros/_confirm_register.html', 'custom_confirm_register_macro'),
         'send_confirmation_form': (MySendConfirmationForm, 'custom_security/macros/_send_confirmation.html', 'custom_send_confirmation_macro')
-=======
-        'confirm_register_form': (MyConfirmRegisterForm, 'custom_security/macros/_render_custom.html', 'render_custom_macro' ),
-        'send_confirmation_form': (MySendConfirmationForm, 'custom_security/macros/_render_custom.html', 'render_custom_macro')
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
     }
 
     AUTH_CONFIG = {
@@ -869,16 +827,10 @@ class ConfirmableExtendFormsTest(SecurityTest):
         'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/with_form.html',
     }
 
-<<<<<<< HEAD
     def test_register(self):
         r = self._get('/register', follow_redirects=True)
-        self.assertIn("My Confirm Register Email Address Field", r.data)
-=======
-    #def test_register(self):
-    #    r = self._get('/register'), follow_redirects=True)
-    #    self.assertIn("My Confirm Register Email Address Field", r.data)
->>>>>>> 6f3798b2f095695d804de3a8311a87e0378317f0
+        self.assertIn('<form action="/register" method="POST" name="register_user_form">', r.data)
 
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
-        self.assertIn("My Send Confirmation Email Address Field", r.data)
+        self.assertIn("CUSTOM SEND CONFIRMATION", r.data)
