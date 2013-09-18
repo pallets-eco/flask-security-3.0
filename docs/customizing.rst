@@ -107,21 +107,21 @@ Emails
 ------
 
 Flask-Security is also packaged with a default tempalte for each email that it
-may send. Templates are located within the subfolder named ``security/mail``.
+may send. Templates are located within the subfolder named ``security/email``.
 The following is a list of email templates:
 
-* `security/mail/confirmation_instructions.html`
-* `security/mail/confirmation_instructions.txt`
-* `security/mail/login_instructions.html`
-* `security/mail/login_instructions.txt`
-* `security/mail/reset_instructions.html`
-* `security/mail/reset_instructions.txt`
-* `security/mail/reset_notice.html`
-* `security/mail/change_notice.txt`
-* `security/mail/change_notice.html`
-* `security/mail/reset_notice.txt`
-* `security/mail/welcome.html`
-* `security/mail/welcome.txt`
+* `security/email/confirmation_instructions.html`
+* `security/email/confirmation_instructions.txt`
+* `security/email/login_instructions.html`
+* `security/email/login_instructions.txt`
+* `security/email/reset_instructions.html`
+* `security/email/reset_instructions.txt`
+* `security/email/reset_notice.html`
+* `security/email/change_notice.txt`
+* `security/email/change_notice.html`
+* `security/email/reset_notice.txt`
+* `security/email/welcome.html`
+* `security/email/welcome.txt`
 
 Overriding these templates is simple:
 
