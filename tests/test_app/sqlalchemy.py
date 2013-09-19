@@ -53,7 +53,7 @@ def create_app(config, **kwargs):
 
     app.security = Security(app, datastore=SQLAlchemyUserDatastore(db, User, Role), **kwargs)
 
-    add_context_processors(app.security)
+    add_context_processors(app.security.anyforms_manager)
 
     return app
 

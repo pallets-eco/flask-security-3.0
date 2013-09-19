@@ -146,35 +146,35 @@ def populate_data(user_count=None):
     create_users(user_count)
 
 
-def add_context_processors(s):
-    @s.context_processor
+def add_context_processors(saf):
+    @saf.form_ctx
     def for_all():
         return dict()
 
-    @s.forgot_password_context_processor
+    @saf.tagged_form_ctx
     def forgot_password():
         return dict()
 
-    @s.login_context_processor
-    def login():
+    @saf.tagged_form_ctx
+    def login_ctx():
         return dict()
 
-    @s.register_context_processor
-    def register():
+    @saf.tagged_form_ctx
+    def register_ctx():
         return dict()
 
-    @s.reset_password_context_processor
-    def reset_password():
+    @saf.tagged_form_ctx
+    def reset_password_ctx():
         return dict()
 
-    @s.send_confirmation_context_processor
-    def send_confirmation():
+    @saf.tagged_form_ctx
+    def send_confirmation_ctx():
         return dict()
 
-    @s.send_login_context_processor
-    def send_login():
+    @saf.tagged_form_ctx
+    def send_login_ctx():
         return dict()
 
-    @s.mail_context_processor
-    def mail():
+    @saf.tagged_form_ctx
+    def mail_ctx():
         return dict()

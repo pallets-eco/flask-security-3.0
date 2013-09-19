@@ -24,6 +24,7 @@ from werkzeug.local import LocalProxy
 from .confirmable import requires_confirmation
 from .utils import verify_and_update_password, get_message
 
+
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
@@ -180,7 +181,7 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
     submit = SubmitField(get_form_field_label('recover_password'))
 
 
-class PasswordlessLoginForm(Form, UserEmailFormMixin):
+class PasswordlessForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
 
     submit = SubmitField(get_form_field_label('send_login_link'))

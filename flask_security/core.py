@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app
+from flask import current_app, request
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -18,16 +18,18 @@ from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
+from flask_anyform import AnyForm, AForm
+
 
 from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
-
+_endpoint = LocalProxy(lambda: request.endpoint.rsplit('.')[-1])
 
 #: Default Flask-Security configuration
 _default_config = {
@@ -51,17 +53,11 @@ _default_config = {
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
-    'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
-    'LOGIN_USER_TEMPLATE': 'security/login_user.html',
-    'REGISTER_USER_TEMPLATE': 'security/register_user.html',
-    'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
-    'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
-    'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
-    'PASSWORDLESS': False,
+    'PASSWORDLESSABLE': False,
     'CHANGEABLE': False,
     'SEND_REGISTER_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
@@ -131,16 +127,28 @@ _allowed_password_hash_schemes = [
     'plaintext'
 ]
 
-_default_forms = {
-    'login_form': LoginForm,
-    'confirm_register_form': ConfirmRegisterForm,
-    'register_form': RegisterForm,
-    'forgot_password_form': ForgotPasswordForm,
-    'reset_password_form': ResetPasswordForm,
-    'change_password_form': ChangePasswordForm,
-    'send_confirmation_form': SendConfirmationForm,
-    'passwordless_login_form': PasswordlessLoginForm,
+_using_anyforms = {
+        'login': AForm(af_tag='login', af_form=LoginForm, af_template='security/macros/_login.html', af_view_template='security/login_user.html', af_macro='login_macro', af_points=['login']),
+        'confirm_register': AForm(af_tag='confirm_register', af_form=ConfirmRegisterForm, af_template='security/macros/_confirm_register.html', af_macro='confirm_register_macro', af_points=['confirm_register']),
+        'register': AForm(af_tag='register', af_form=RegisterForm, af_template='security/macros/_register.html', af_macro='register_macro', af_points=['register']),
+        'forgot_password': AForm(af_tag='forgot_password', af_form=ForgotPasswordForm, af_template='security/macros/_forgot_password.html', af_macro='forgot_password_macro', af_points=['forgot_password']),
+        'reset_password': AForm(af_tag='reset_password', af_form=ResetPasswordForm, af_template='security/macros/_reset_password.html', af_macro='reset_password_macro', af_points=['reset_password']),
+        'change_password': AForm(af_tag='change_password', af_form=ChangePasswordForm, af_template='security/macros/_change_password.html', af_macro='change_password_macro', af_points=['change_password']),
+        'send_confirmation': AForm(af_tag='send_confirmation', af_form=SendConfirmationForm, af_template='security/macros/_send_confirmation.html', af_macro='send_confirmation_macro', af_points=['send_confirmation']),
+        'passwordless': AForm(af_tag='passwordless', af_form=PasswordlessForm, af_template='security/macros/_passwordless.html', af_macro='passwordles_macro', af_points=['passwordless']),
 }
+
+
+def update_anyforms(**kwargs):
+    for key, value in _using_anyforms.items():
+        if kwargs[key]:
+            _using_anyforms.update({key: kwargs[key]})
+
+
+def _get_anyforms_manager(app):
+    af = AnyForm(forms=[v for v in _using_anyforms.values()])
+    af.init_app(app)
+    return af
 
 
 def _user_loader(user_id):
@@ -216,9 +224,12 @@ def _get_state(app, datastore, **kwargs):
     for key, value in get_config(app).items():
         kwargs[key.lower()] = value
 
+    update_anyforms(**kwargs)
+
     kwargs.update(dict(
         app=app,
         datastore=datastore,
+        anyforms_manager=_get_anyforms_manager(app),
         login_manager=_get_login_manager(app),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
@@ -229,10 +240,6 @@ def _get_state(app, datastore, **kwargs):
         _context_processors={},
         _send_mail_task=None
     ))
-
-    for key, value in _default_forms.items():
-        if key not in kwargs or not kwargs[key]:
-            kwargs[key] = value
 
     return _SecurityState(**kwargs)
 
@@ -285,51 +292,29 @@ class AnonymousUser(AnonymousUserMixin):
 
 
 class _SecurityState(object):
-
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
 
-    def _add_ctx_processor(self, endpoint, fn):
-        group = self._context_processors.setdefault(endpoint, [])
-        fn not in group and group.append(fn)
+    @property
+    def current_forms(self):
+        return self.anyforms_manager.get_current_forms
 
-    def _run_ctx_processor(self, endpoint):
-        rv, fns = {}, []
-        for g in [None, endpoint]:
-            for fn in self._context_processors.setdefault(g, []):
-                rv.update(fn())
-        return rv
+    @property
+    def _ctx(self):
+        ctx = {}
+        f = self.current_forms[_endpoint]
+        vt = f.af_view_template
+        ctx.update(form=f, view_template=vt)
+        if request.json:
+            ctx.update(json_ctx=True)
+        return ctx
 
-    def context_processor(self, fn):
-        self._add_ctx_processor(None, fn)
+    #def mail_context_processor(self, fn):
+    #    self._add_ctx_processor('mail', fn)
 
-    def forgot_password_context_processor(self, fn):
-        self._add_ctx_processor('forgot_password', fn)
-
-    def login_context_processor(self, fn):
-        self._add_ctx_processor('login', fn)
-
-    def register_context_processor(self, fn):
-        self._add_ctx_processor('register', fn)
-
-    def reset_password_context_processor(self, fn):
-        self._add_ctx_processor('reset_password', fn)
-
-    def change_password_context_processor(self, fn):
-        self._add_ctx_processor('change_password', fn)
-
-    def send_confirmation_context_processor(self, fn):
-        self._add_ctx_processor('send_confirmation', fn)
-
-    def send_login_context_processor(self, fn):
-        self._add_ctx_processor('send_login', fn)
-
-    def mail_context_processor(self, fn):
-        self._add_ctx_processor('mail', fn)
-
-    def send_mail_task(self, fn):
-        self._send_mail_task = fn
+    #def send_mail_task(self, fn):
+    #    self._send_mail_task = fn
 
 
 class Security(object):
@@ -345,11 +330,18 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True,
-                 login_form=None, confirm_register_form=None,
-                 register_form=None, forgot_password_form=None,
-                 reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None):
+    def init_app(self,
+                 app,
+                 datastore=None,
+                 register_blueprint=True,
+                 login=None,
+                 confirm_register=None,
+                 register=None,
+                 forgot_password=None,
+                 reset_password=None,
+                 change_password=None,
+                 send_confirmation=None,
+                 passwordless=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -367,15 +359,16 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
-                           login_form=login_form,
-                           confirm_register_form=confirm_register_form,
-                           register_form=register_form,
-                           forgot_password_form=forgot_password_form,
-                           reset_password_form=reset_password_form,
-                           change_password_form=change_password_form,
-                           send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form)
+        state = _get_state(app,
+                           datastore,
+                           login=login,
+                           confirm_register=confirm_register,
+                           register=register,
+                           forgot_password=forgot_password,
+                           reset_password=reset_password,
+                           change_password=change_password,
+                           send_confirmation=send_confirmation,
+                           passwordless=passwordless)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))

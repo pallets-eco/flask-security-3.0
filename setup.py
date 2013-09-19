@@ -41,6 +41,7 @@ setup(
         'Flask-WTF>=0.8',
         'itsdangerous>=0.17',
         'passlib>=1.6.1',
+        'Flask-AnyForm'
     ],
     test_suite='nose.collector',
     tests_require=[
