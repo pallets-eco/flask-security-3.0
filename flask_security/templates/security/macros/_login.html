@@ -1,0 +1,18 @@
+{#}
+{% macro login_macro(login) %}
+    {{login.__dict__|safe}}
+{% endmacro %}
+{#}
+{% from "security/macros/_macros.html" import render_field_with_errors, render_field, messages, menu %}
+{% macro login_macro(login) %}
+    {{ messages() }}
+    <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
+      {{ login.form.hidden_tag() }} 
+      {{ render_field_with_errors(login.form.email) }}
+      {{ render_field_with_errors(login.form.password) }}
+      {{ render_field_with_errors(login.form.remember) }}
+      {{ render_field(login.form.next) }}
+      {{ render_field(login.form.submit) }}
+    </form>
+    {{ menu() }}
+{% endmacro %}
