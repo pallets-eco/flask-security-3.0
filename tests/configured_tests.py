@@ -110,7 +110,6 @@ class ConfiguredSecurityTests(SecurityTest):
                         "password_confirm": "password",
                         "csrf_token":"{}".format(self.csrf_token)}
         r = self._post('/register', data=json.dumps(request_data), content_type='application/json')
-        print r.data
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
 
@@ -160,7 +159,6 @@ class DefaultTemplatePathTests(SecurityTest):
 
     def test_login_user_template(self):
         r = self._get('/login')
-
         self.assertIn('CUSTOM LOGIN USER', r.data)
 
 
@@ -226,7 +224,7 @@ class ConfirmableTemplatePathTests(SecurityTest):
 
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/custom_passwordless.html'
     }
 
@@ -602,7 +600,7 @@ class TrackableTests(SecurityTest):
 class PasswordlessTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True
+        'SECURITY_PASSWORDLESSABLE': True
     }
 
     def test_login_request_for_inactive_user(self):
@@ -678,7 +676,7 @@ class PasswordlessTests(SecurityTest):
 class ExpiredLoginTokenTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_LOGIN_WITHIN': '1 milliseconds',
         'USER_COUNT': 1
     }
@@ -804,7 +802,7 @@ class PasswordlessExtendFormsTest(SecurityTest):
     }
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/with_form.html'
     }
 

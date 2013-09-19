@@ -275,7 +275,7 @@ def create_blueprint(state, import_name):
 
     bp.route(state.logout_url, endpoint='logout')(logout)
 
-    if state.passwordless:
+    if state.passwordlessable:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(passwordless_login)

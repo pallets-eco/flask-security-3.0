@@ -63,7 +63,7 @@ _default_config = {
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
-    'PASSWORDLESS': False,
+    'PASSWORDLESSABLE': False,
     'CHANGEABLE': False,
     'SEND_REGISTER_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
@@ -143,6 +143,8 @@ _default_forms = {
     'send_confirmation_form': (SendConfirmationForm, 'security/macros/_send_confirmation.html', 'send_confirmation_macro'),
     'passwordless_form': (PasswordlessForm, 'security/macros/_passwordless.html', 'passwordless_macro'),
 }
+
+_default_form_names = [k.rpartition('_')[0] for k in _default_forms.keys()]
 
 
 def _user_loader(user_id):
@@ -239,8 +241,21 @@ def _get_state(app, datastore, **kwargs):
     return _SecurityState(**kwargs)
 
 
+
+#def form_local_proxy(which):
+#    def get_local_proxy(tag):
+#        try:
+#            return LocalProxy(lambda: current_app.extensions['security'].inline_form(tag))
+#        except:
+#            pass
+#    return get_local_proxy(which)
+
+
 def _context_processor():
-    return dict(url_for_security=url_for_security, security=_security)
+    #c = {dfn: form_local_proxy(dfn) for dfn in _default_form_names}
+    #c.update({'url_for_security':url_for_security, 'security':_security})
+    #return c
+    return {'url_for_security':url_for_security, 'security':_security}
 
 
 class RoleMixin(object):
@@ -310,7 +325,7 @@ class _SecurityState(object):
 
     @property
     def _security_endpoint(self):
-        if self.passwordless and _endpoint == 'login':
+        if self.passwordlessable and _endpoint == 'login':
             return 'passwordless'
         else:
             return _endpoint
@@ -367,9 +382,8 @@ class _SecurityState(object):
                       configuration variable e.g. specify 'login' where
                       config value 'login_form' exists(see _default_forms
                       above)
-        :param form: optional, designate a specific form to use within
-                     the macro
-        :param ctx: optional, a dict with specific context variables to use
+        :param form:  optional, designate a specific form to use
+        :param ctx:   optional, a dict with specific context variables to add
 
         e.g. within in a another template
 
@@ -387,9 +401,9 @@ class _SecurityState(object):
             t_ctx.update(**self._run_ctx_processor(self._security_endpoint))
             t_ctx.update(macro=t)
             if form:
-                t_ctx.update(form=form())  # request.form
+                t_ctx.update(form=form())
             else:
-                t_ctx.update(form=m[0]())  # request.form
+                t_ctx.update(form=mform())
             if ctx:
                 t_ctx.update(**ctx)
             return t(t_ctx)
@@ -483,7 +497,8 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
+        state = _get_state(app,
+                           datastore,
                            login_form=login_form,
                            confirm_register_form=confirm_register_form,
                            register_form=register_form,
@@ -498,6 +513,11 @@ class Security(object):
             self.register_context_processors(app, _context_processor())
 
         app.extensions['security'] = state
+
+        #import pprint
+        #pprint.pprint(state.__dict__)
+
+        #print _default_form_names
 
         return state
 
