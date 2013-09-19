@@ -245,7 +245,7 @@ def _get_state(app, datastore, **kwargs):
 
 
 def _context_processor():
-    return dict(url_for_security=url_for_security, security=_security)
+    return {'url_for_security': url_for_security, 'security': _security}
 
 
 class RoleMixin(object):
@@ -372,11 +372,14 @@ class Security(object):
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
-            app.context_processor(_context_processor)
+            self.register_context_processors(app, _context_processor())
 
         app.extensions['security'] = state
 
         return state
+
+    def register_context_processors(self, app, context_processors):
+        app.jinja_env.globals.update(context_processors)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)

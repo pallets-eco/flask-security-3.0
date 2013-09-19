@@ -115,16 +115,19 @@ class BadConfiguredSecurityTests(SecurityTest):
 
     def test_bad_configuration_raises_runtimer_error(self):
         self.assertRaises(RuntimeError, self.authenticate)
-"""
+
 
 class DefaultTemplatePathTests(SecurityTest):
+    AUTH_CONFIG = {
+        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
+    }
 
     def test_login_user_template(self):
         r = self._get('/login')
-        print r.data
-        #self.assertIn('CUSTOM LOGIN USER', r.data)
 
-"""
+        self.assertIn('CUSTOM LOGIN USER', r.data)
+
+
 class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,

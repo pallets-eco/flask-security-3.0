@@ -63,11 +63,11 @@ def _commit(response=None):
 def login():
     """View function for login view"""
     #print _security
-    import pprint
-    pprint.pprint(_security.anyforms_manager.__dict__)
-    pprint.pprint(_security.anyforms_manager.get_current_forms)
-    pprint.pprint([x.__dict__ for x in _current_forms.values()])
-    print _security._ctx
+    #import pprint
+    #pprint.pprint(_security.anyforms_manager.__dict__)
+    #pprint.pprint(_security.anyforms_manager.get_current_forms)
+    #pprint.pprint([x.__dict__ for x in _current_forms.values()])
+    #print _security._ctx
     #form_class = _security.login_form
 
     #if request.json:
