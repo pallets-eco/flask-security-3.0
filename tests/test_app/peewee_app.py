@@ -18,7 +18,7 @@ from tests.test_app import create_app as create_base_app, populate_data, \
 def create_app(config, **kwargs):
     app = create_base_app(config)
     app.config['DATABASE'] = {
-        'name': 'example2.db',
+        'name': 'peewee.db',
         'engine': 'peewee.SqliteDatabase'
     }
     db = Database(app)
@@ -50,7 +50,7 @@ def create_app(config, **kwargs):
     def before_first_request():
         for Model in (Role, User, UserRoles):
             Model.drop_table(fail_silently=True)
-            Model.create_table(fail_silently=True)
+            Model.create_table()
         populate_data(app.config.get('USER_COUNT', None))
 
     app.security = Security(app, datastore=PeeweeUserDatastore(db, User, Role, UserRoles), **kwargs)

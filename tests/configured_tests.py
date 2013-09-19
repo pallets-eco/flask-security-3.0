@@ -77,7 +77,7 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('Page 1', r.data)
 
     def test_register_json(self):
-        data = '{ "email": "dude@lp.com", "password": "password", "csrf_token":"%s" }' % self.csrf_token
+        data = '{ "email": "dude@lp.com", "password": "password"}'
         r = self._post('/register', data=data, content_type='application/json')
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
@@ -559,7 +559,7 @@ class PasswordlessTests(SecurityTest):
         self.assertIn(msg, r.data)
 
     def test_request_login_token_with_json_and_valid_email(self):
-        data = '{"email": "matt@lp.com", "password": "password", "csrf_token":"%s"}' % self.csrf_token
+        data = '{"email": "matt@lp.com", "password": "password"}'
         r = self._post('/login', data=data, content_type='application/json')
         self.assertEquals(r.status_code, 200)
         self.assertNotIn('error', r.data)

@@ -16,6 +16,7 @@ def create_app(config):
     app.debug = True
     app.config['SECRET_KEY'] = 'secret'
     app.config['TESTING'] = True
+    app.config['LOGIN_DISABLED'] = False
 
     for key, value in config.items():
         app.config[key] = value

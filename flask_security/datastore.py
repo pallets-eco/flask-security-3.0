@@ -266,7 +266,10 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
             return None
 
     def find_role(self, role):
-        return self.role_model.filter(name=role).get()
+        try:
+            return self.role_model.filter(name=role).get()
+        except self.role_model.DoesNotExist:
+            return None
 
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
