@@ -493,6 +493,28 @@ class ChangePasswordTest(SecurityTest):
         self.assertIn("/reset", outbox[0].html)
 
 
+class SendEmailTest(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_SEND_REGISTER_EMAIL': False,
+        'SECURITY_SEND_PASSWORD_CHANGE_EMAIL': False,
+    }
+
+
+    def test_change_password_success(self):
+        data = {
+            'password': 'password',
+            'new_password': 'newpassword',
+            'new_password_confirm': 'newpassword'
+        }
+
+        self.authenticate()
+        with self.app.extensions['mail'].record_messages() as outbox:
+            r = self._post('/change', data=data, follow_redirects=True)
+
+        self.assertEqual(len(outbox), 0)
+
+
 class ChangePasswordPostViewTest(SecurityTest):
 
     AUTH_CONFIG = {
