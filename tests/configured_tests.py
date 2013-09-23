@@ -16,7 +16,7 @@ from flask.ext.security.forms import TextField, SubmitField, valid_user_email
 
 from tests import SecurityTest
 
-"""
+
 class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
     AUTH_CONFIG = {
@@ -77,7 +77,7 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('Page 1', r.data)
 
     def test_register_json(self):
-        data = '{ "email": "dude@lp.com", "password": "password"}'
+        data = '{ "email": "dude@lp.com", "password": "password", "password_confirm": "password"}'
         r = self._post('/register', data=data, content_type='application/json')
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
@@ -117,6 +117,7 @@ class BadConfiguredSecurityTests(SecurityTest):
         self.assertRaises(RuntimeError, self.authenticate)
 
 
+"""
 class DefaultTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
@@ -124,9 +125,7 @@ class DefaultTemplatePathTests(SecurityTest):
 
     def test_login_user_template(self):
         r = self._get('/login')
-
         self.assertIn('CUSTOM LOGIN USER', r.data)
-
 
 class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {

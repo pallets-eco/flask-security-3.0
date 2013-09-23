@@ -128,14 +128,54 @@ _allowed_password_hash_schemes = [
 ]
 
 _using_anyforms = {
-        'login': AForm(af_tag='login', af_form=LoginForm, af_template='security/macros/_login.html', af_view_template='security/login_user.html', af_macro='login_macro', af_points=['login']),
-        'confirm_register': AForm(af_tag='confirm_register', af_form=ConfirmRegisterForm, af_template='security/macros/_confirm_register.html', af_macro='confirm_register_macro', af_points=['confirm_register']),
-        'register': AForm(af_tag='register', af_form=RegisterForm, af_template='security/macros/_register.html', af_macro='register_macro', af_points=['register']),
-        'forgot_password': AForm(af_tag='forgot_password', af_form=ForgotPasswordForm, af_template='security/macros/_forgot_password.html', af_macro='forgot_password_macro', af_points=['forgot_password']),
-        'reset_password': AForm(af_tag='reset_password', af_form=ResetPasswordForm, af_template='security/macros/_reset_password.html', af_macro='reset_password_macro', af_points=['reset_password']),
-        'change_password': AForm(af_tag='change_password', af_form=ChangePasswordForm, af_template='security/macros/_change_password.html', af_macro='change_password_macro', af_points=['change_password']),
-        'send_confirmation': AForm(af_tag='send_confirmation', af_form=SendConfirmationForm, af_template='security/macros/_send_confirmation.html', af_macro='send_confirmation_macro', af_points=['send_confirmation']),
-        'passwordless': AForm(af_tag='passwordless', af_form=PasswordlessForm, af_template='security/macros/_passwordless.html', af_macro='passwordles_macro', af_points=['passwordless']),
+        'login': AForm(af_tag='login',
+                       af_form=LoginForm,
+                       af_template='security/macros/_login.html',
+                       af_view_template='security/login_user.html',
+                       af_macro='login_macro',
+                       af_points=['login']),
+        'confirm_register': AForm(af_tag='confirm_register',
+                                  af_form=ConfirmRegisterForm,
+                                  af_template='security/macros/_confirm_register.html',
+                                  af_view_template='security/send_confirmatin.html',
+                                  af_macro='confirm_register_macro',
+                                  af_points=['confirm_register']),
+        'register': AForm(af_tag='register',
+                          af_form=RegisterForm,
+                          af_template='security/macros/_register.html',
+                          af_view_template='security/register_user.html',
+                          af_macro='register_macro',
+                          af_points=['register']),
+        'forgot_password': AForm(af_tag='forgot_password',
+                                 af_form=ForgotPasswordForm,
+                                 af_template='security/macros/_forgot_password.html',
+                                 af_view_template='security/forgot_password.html',
+                                 af_macro='forgot_password_macro',
+                                 af_points=['forgot_password']),
+        'reset_password': AForm(af_tag='reset_password',
+                                af_form=ResetPasswordForm,
+                                af_template='security/macros/_reset_password.html',
+                                af_view_template='security/reset_password.html',
+                                af_macro='reset_password_macro',
+                                af_points=['reset_password']),
+        'change_password': AForm(af_tag='change_password',
+                                 af_form=ChangePasswordForm,
+                                 af_template='security/macros/_change_password.html',
+                                 af_view_template='security/change_password.html',
+                                 af_macro='change_password_macro',
+                                 af_points=['change_password']),
+        'send_confirmation': AForm(af_tag='send_confirmation',
+                                   af_form=SendConfirmationForm,
+                                   af_template='security/macros/_send_confirmation.html',
+                                   af_view_template='security/send_confirmation.html',
+                                   af_macro='send_confirmation_macro',
+                                   af_points=['send_confirmation']),
+        'passwordless': AForm(af_tag='passwordless',
+                              af_form=PasswordlessForm,
+                              af_template='security/macros/_passwordless.html',
+                              af_view_template='security/passwordless.html',
+                              af_macro='passwordles_macro',
+                              af_points=['passwordless']),
 }
 
 
@@ -237,7 +277,7 @@ def _get_state(app, datastore, **kwargs):
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
-        _context_processors={},
+        _ctxs={},
         _send_mail_task=None
     ))
 
@@ -295,6 +335,19 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
+        self._add_ctx(None, self.get_form)
+        self._add_ctx(None, self.get_view_template)
+
+    def _add_ctx(self, endpoint, fn):
+        group = self._ctxs.setdefault(endpoint, [])
+        fn not in group and group.append(fn)
+
+    def _run_ctx(self, endpoint):
+        rv, fns = {}, []
+        for g in [None, endpoint]:
+            for fn in self._ctxs.setdefault(g, []):
+                rv.update(fn())
+        return rv
 
     @property
     def current_forms(self):
@@ -302,19 +355,23 @@ class _SecurityState(object):
 
     @property
     def _ctx(self):
-        ctx = {}
-        f = self.current_forms[_endpoint]
-        vt = f.af_view_template
-        ctx.update(form=f, view_template=vt)
-        if request.json:
-            ctx.update(json_ctx=True)
-        return ctx
+        return self._run_ctx(_endpoint)
 
-    #def mail_context_processor(self, fn):
-    #    self._add_ctx_processor('mail', fn)
+    def all_ctx(self, fn):
+        self._add_ctx(None, fn)
 
-    #def send_mail_task(self, fn):
-    #    self._send_mail_task = fn
+    def mail_ctx(self, fn):
+        self._add_ctx('mail', fn)
+
+    def send_mail_task(self, fn):
+        self._send_mail_task = fn
+
+    def get_form(self):
+        return {'form': self.current_forms[_endpoint].form}
+
+    def get_view_template(self):
+
+        return {'view_template': self.current_forms[_endpoint].af_view_template}
 
 
 class Security(object):

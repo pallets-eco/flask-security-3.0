@@ -1,8 +1,3 @@
-{#}
-{% macro login_macro(login) %}
-    {{login.__dict__|safe}}
-{% endmacro %}
-{#}
 {% from "security/macros/_macros.html" import render_field_with_errors, render_field, messages, menu %}
 {% macro login_macro(login) %}
     {{ messages() }}

@@ -8,6 +8,7 @@ from flask.ext.security.decorators import http_auth_required, \
 from flask.ext.security.utils import encrypt_password
 from werkzeug.local import LocalProxy
 
+
 ds = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
