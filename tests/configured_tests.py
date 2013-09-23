@@ -13,6 +13,7 @@ from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterFor
     PasswordlessForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
 
+from flask_anyform import AForm
 
 from tests import SecurityTest
 
@@ -117,20 +118,20 @@ class BadConfiguredSecurityTests(SecurityTest):
         self.assertRaises(RuntimeError, self.authenticate)
 
 
-"""
 class DefaultTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
+        'SECURITY_LOGIN_TEMPLATE': 'custom_security/login_user.html',
     }
 
     def test_login_user_template(self):
         r = self._get('/login')
         self.assertIn('CUSTOM LOGIN USER', r.data)
 
+
 class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
-        'SECURITY_REGISTER_USER_TEMPLATE': 'custom_security/register_user.html'
+        'SECURITY_REGISTER_TEMPLATE': 'custom_security/register_user.html'
     }
 
     def test_register_user_template(self):
@@ -143,24 +144,22 @@ class RecoverableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_RECOVERABLE': True,
         'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html',
-        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
+        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html'
     }
 
     def test_forgot_password_template(self):
         r = self._get('/reset')
-
-        self.assertIn('CUSTOM FORGOT PASSWORD', r.data)
+        self.assertIn('Custom Forgot Password', r.data)
 
     def test_reset_password_template(self):
         with capture_reset_password_requests() as requests:
             r = self._post('/reset', data=dict(email='joe@lp.com'),
                            follow_redirects=True)
-
             t = requests[0]['token']
 
         r = self._get('/reset/' + t)
-
-        self.assertIn('CUSTOM RESET PASSWORD', r.data)
+        self.assertIn('Custom Reset Password', r.data)
+        self.assertIn(t, r.data)
 
 
 class ConfirmableTemplatePathTests(SecurityTest):
@@ -177,8 +176,8 @@ class ConfirmableTemplatePathTests(SecurityTest):
 
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
-        'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html'
+        'SECURITY_PASSWORDLESSABLE': True,
+        'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/send_login.html'
     }
 
     def test_send_login_template(self):
@@ -548,7 +547,7 @@ class TrackableTests(SecurityTest):
 class PasswordlessTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True
+        'SECURITY_PASSWORDLESSABLE': True
     }
 
     def test_login_request_for_inactive_user(self):
@@ -624,7 +623,7 @@ class PasswordlessTests(SecurityTest):
 class ExpiredLoginTokenTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_LOGIN_WITHIN': '1 milliseconds',
         'USER_COUNT': 1
     }
@@ -691,105 +690,23 @@ class NoBlueprintTests(SecurityTest):
         self.assertIn('HTTP Authentication', r.data)
 
 
-class ExtendFormsTest(SecurityTest):
+class CustomFormsTest(SecurityTest):
 
     class MyLoginForm(LoginForm):
-        email = TextField('My Login Email Address Field')
+        test = TextField(default="A test field")
 
-    class MyRegisterForm(RegisterForm):
-        email = TextField('My Register Email Address Field')
+    clogin = AForm(af_tag='login',
+                   af_form=MyLoginForm,
+                   af_template='custom_security/macros/_custom_login.html',
+                   af_view_template='custom_security/custom_login_user.html',
+                   af_macro='custom_login_macro',
+                   af_points=['login'])
 
     APP_KWARGS = {
-        'login_form': MyLoginForm,
-        'register_form': MyRegisterForm,
+        'login': clogin
     }
 
-    AUTH_CONFIG = {
-        'SECURITY_CONFIRMABLE': False,
-        'SECURITY_REGISTERABLE': True,
-    }
-
-    def test_login_view(self):
+    def test_custom_login_view(self):
         r = self._get('/login', follow_redirects=True)
-        self.assertIn("My Login Email Address Field", r.data)
-
-    def test_register(self):
-        r = self._get('/register', follow_redirects=True)
-        self.assertIn("My Register Email Address Field", r.data)
-
-
-class RecoverableExtendFormsTest(SecurityTest):
-
-    class MyForgotPasswordForm(ForgotPasswordForm):
-        email = TextField('My Forgot Password Email Address Field',
-                          validators=[valid_user_email])
-
-    class MyResetPasswordForm(ResetPasswordForm):
-        submit = SubmitField("My Reset Password Submit Field")
-
-    APP_KWARGS = {
-        'forgot_password_form': MyForgotPasswordForm,
-        'reset_password_form': MyResetPasswordForm,
-    }
-
-    AUTH_CONFIG = {
-        'SECURITY_RECOVERABLE': True,
-    }
-
-    def test_forgot_password(self):
-        r = self._get('/reset', follow_redirects=True)
-        self.assertIn("My Forgot Password Email Address Field", r.data)
-
-    def test_reset_password(self):
-        with capture_reset_password_requests() as requests:
-            self._post('/reset', data=dict(email='joe@lp.com'),
-                       follow_redirects=True)
-            token = requests[0]['token']
-        r = self._get('/reset/' + token)
-        self.assertIn("My Reset Password Submit Field", r.data)
-
-
-class PasswordlessExtendFormsTest(SecurityTest):
-
-    class MyPasswordlessForm(PasswordlessForm):
-        email = TextField('My Passwordless Login Email Address Field')
-
-    APP_KWARGS = {
-        'passwordless_login_form': MyPasswordlessForm,
-    }
-
-    AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
-    }
-
-    def test_passwordless_login(self):
-        r = self._get('/login', follow_redirects=True)
-        self.assertIn("My Passwordless Login Email Address Field", r.data)
-
-
-class ConfirmableExtendFormsTest(SecurityTest):
-
-    class MyConfirmRegisterForm(ConfirmRegisterForm):
-        email = TextField('My Confirm Register Email Address Field')
-
-    class MySendConfirmationForm(SendConfirmationForm):
-        email = TextField('My Send Confirmation Email Address Field')
-
-    APP_KWARGS = {
-        'confirm_register_form': MyConfirmRegisterForm,
-        'send_confirmation_form': MySendConfirmationForm,
-    }
-
-    AUTH_CONFIG = {
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-    }
-
-    def test_register(self):
-        r = self._get('/register', follow_redirects=True)
-        self.assertIn("My Confirm Register Email Address Field", r.data)
-
-    def test_send_confirmation(self):
-        r = self._get('/confirm', follow_redirects=True)
-        self.assertIn("My Send Confirmation Email Address Field", r.data)
-"""
+        self.assertIn("Custom Macro", r.data)
+        self.assertIn("A test field", r.data)

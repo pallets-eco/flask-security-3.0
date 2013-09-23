@@ -174,14 +174,14 @@ _using_anyforms = {
                               af_form=PasswordlessForm,
                               af_template='security/macros/_passwordless.html',
                               af_view_template='security/passwordless.html',
-                              af_macro='passwordles_macro',
-                              af_points=['passwordless']),
+                              af_macro='passwordless_macro',
+                              af_points=['login']),
 }
 
 
 def update_anyforms(**kwargs):
     for key, value in _using_anyforms.items():
-        if kwargs[key]:
+        if kwargs.get(key):
             _using_anyforms.update({key: kwargs[key]})
 
 
@@ -335,8 +335,8 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
-        self._add_ctx(None, self.get_form)
-        self._add_ctx(None, self.get_view_template)
+        for f in [self.get_aform, self.get_form, self.get_view_template]:
+            self._add_ctx(None, f)
 
     def _add_ctx(self, endpoint, fn):
         group = self._ctxs.setdefault(endpoint, [])
@@ -350,8 +350,11 @@ class _SecurityState(object):
         return rv
 
     @property
-    def current_forms(self):
-        return self.anyforms_manager.get_current_forms
+    def _security_endpoint(self):
+        if self.passwordlessable and _endpoint == 'login':
+            return 'passwordless'
+        else:
+            return _endpoint
 
     @property
     def _ctx(self):
@@ -366,12 +369,27 @@ class _SecurityState(object):
     def send_mail_task(self, fn):
         self._send_mail_task = fn
 
+    @property
+    def current_aforms(self):
+        return self.anyforms_manager.get_current_forms
+
+    @property
+    def aform(self):
+        return self.current_aforms.get(self._security_endpoint, None)
+
+    def get_aform(self):
+        return {'aform': self.aform}
+
     def get_form(self):
-        return {'form': self.current_forms[_endpoint].form}
+        return {'form': getattr(self.aform, 'form', None)}
+
+    @property
+    def view_template(self):
+        return cv("{}_template".format(self._security_endpoint),
+                default=getattr(self.aform, 'af_view_template', None))
 
     def get_view_template(self):
-
-        return {'view_template': self.current_forms[_endpoint].af_view_template}
+        return {'view_template': self.view_template}
 
 
 class Security(object):
@@ -391,14 +409,7 @@ class Security(object):
                  app,
                  datastore=None,
                  register_blueprint=True,
-                 login=None,
-                 confirm_register=None,
-                 register=None,
-                 forgot_password=None,
-                 reset_password=None,
-                 change_password=None,
-                 send_confirmation=None,
-                 passwordless=None):
+                 **kwargs):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -418,14 +429,7 @@ class Security(object):
 
         state = _get_state(app,
                            datastore,
-                           login=login,
-                           confirm_register=confirm_register,
-                           register=register,
-                           forgot_password=forgot_password,
-                           reset_password=reset_password,
-                           change_password=change_password,
-                           send_confirmation=send_confirmation,
-                           passwordless=passwordless)
+                           **kwargs)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))

@@ -1,5 +1,4 @@
 {% macro render_field_with_errors(field) %}
-    {{field.__dict__}}
   <p>
     {{ field.label }} {{ field(**kwargs)|safe }}
     {% if field.errors %}

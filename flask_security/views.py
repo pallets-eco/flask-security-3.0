@@ -18,7 +18,7 @@ from werkzeug.local import LocalProxy
 from .confirmable import send_confirmation_instructions, \
     confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
-from .passwordless import send_login_instructions, \
+from .passwordless import passwordless_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
@@ -210,7 +210,7 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    if form.validate_on_submit():
+    if use_form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, use_form.password.data)
         do_flash(*get_message('PASSWORD_RESET'))
@@ -218,7 +218,7 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    #ctx.update(token=token)
+    _security._ctx['aform'].update(token=token)
 
     return render_template(_security._ctx['view_template'])
 
@@ -249,7 +249,7 @@ def create_blueprint(state, import_name):
 
     bp.route(state.logout_url, endpoint='logout')(logout)
 
-    if state.passwordless:
+    if state.passwordlessable:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(passwordless_login)
