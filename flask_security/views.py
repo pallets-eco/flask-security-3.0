@@ -30,6 +30,7 @@ from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
+security_context = LocalProxy(lambda: _security._ctx)
 _datastore = LocalProxy(lambda: _security.datastore)
 
 def _render_json(form, include_auth_token=False):
@@ -55,7 +56,7 @@ def _commit(response=None):
 def login():
     """View function for login view"""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         login_user(use_form.user, remember=use_form.remember.data)
@@ -67,7 +68,7 @@ def login():
     if request.json:
         return _render_json(use_form, True)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 @login_required
 def logout():
@@ -81,7 +82,7 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         user = register_user(**use_form.to_dict())
@@ -97,12 +98,12 @@ def register():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 def passwordless_login():
     """View function that sends login instructions for passwordless login"""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         passwordless_login_instructions(use_form.user)
@@ -112,7 +113,7 @@ def passwordless_login():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 @anonymous_user_required
 def token_login(token):
@@ -138,7 +139,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         send_confirmation_instructions(use_form.user)
@@ -149,7 +150,7 @@ def send_confirmation():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
@@ -181,7 +182,7 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         send_reset_password_instructions(use_form.user)
@@ -191,13 +192,13 @@ def forgot_password():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 @anonymous_user_required
 def reset_password(token):
     """View function that handles a reset password request."""
 
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     expired, invalid, user = reset_password_token_status(token)
 
@@ -217,13 +218,13 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    _security._ctx['aform'].update(token=token)
+    security_context['aform'].update(token=token)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 @login_required
 def change_password():
-    use_form = _security._ctx['aform'].form
+    use_form = security_context['aform'].form
 
     if use_form.validate_on_submit():
         after_this_request(_commit)
@@ -236,7 +237,7 @@ def change_password():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security._ctx['view_template'])
+    return render_template(security_context['view_template'])
 
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
