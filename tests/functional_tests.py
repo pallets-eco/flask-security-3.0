@@ -19,6 +19,7 @@ def get_cookies(rv):
 
 
 class DefaultSecurityTests(SecurityTest):
+
     def test_instance(self):
         self.assertIsNotNone(self.app)
         self.assertIsNotNone(self.app.security)
@@ -61,10 +62,10 @@ class DefaultSecurityTests(SecurityTest):
         r = self.logout()
         self.assertIsHomePage(r.data)
 
-    def test_unauthorized_access(self):
-        self.logout()
-        r = self._get('/profile', follow_redirects=True)
-        self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
+    #def test_unauthorized_access(self):
+    #    self.logout()
+    #    r = self._get('/profile', follow_redirects=True)
+    #    self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
 
     def test_authorized_access(self):
         self.authenticate()

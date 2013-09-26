@@ -10,4 +10,5 @@
       {{ render_field(login.form.submit) }}
     </form>
     {{ menu() }}
+    {#}{{login.form.__dict__|safe}}{#}
 {% endmacro %}

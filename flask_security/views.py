@@ -32,7 +32,6 @@ from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
 _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
-
 def _render_json(form, include_auth_token=False):
     has_errors = len(form.errors) > 0
 
@@ -56,7 +55,7 @@ def _commit(response=None):
 def login():
     """View function for login view"""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         login_user(use_form.user, remember=use_form.remember.data)
@@ -82,7 +81,7 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         user = register_user(**use_form.to_dict())
@@ -103,7 +102,7 @@ def register():
 def passwordless_login():
     """View function that sends login instructions for passwordless login"""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         passwordless_login_instructions(use_form.user)
@@ -139,7 +138,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         send_confirmation_instructions(use_form.user)
@@ -182,7 +181,7 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         send_reset_password_instructions(use_form.user)
@@ -198,7 +197,7 @@ def forgot_password():
 def reset_password(token):
     """View function that handles a reset password request."""
 
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     expired, invalid, user = reset_password_token_status(token)
 
@@ -224,7 +223,7 @@ def reset_password(token):
 
 @login_required
 def change_password():
-    use_form = _security._ctx['form']
+    use_form = _security._ctx['aform'].form
 
     if use_form.validate_on_submit():
         after_this_request(_commit)

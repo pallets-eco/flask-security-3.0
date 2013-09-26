@@ -185,7 +185,8 @@ def update_anyforms(**kwargs):
             _using_anyforms.update({key: kwargs[key]})
 
 
-def _get_anyforms_manager(app):
+def _get_anyforms_manager(app, **kwargs):
+    update_anyforms(**kwargs)
     af = AnyForm(forms=[v for v in _using_anyforms.values()])
     af.init_app(app)
     return af
@@ -264,12 +265,10 @@ def _get_state(app, datastore, **kwargs):
     for key, value in get_config(app).items():
         kwargs[key.lower()] = value
 
-    update_anyforms(**kwargs)
-
     kwargs.update(dict(
         app=app,
         datastore=datastore,
-        anyforms_manager=_get_anyforms_manager(app),
+        anyforms_manager=_get_anyforms_manager(app, **kwargs),
         login_manager=_get_login_manager(app),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
@@ -335,7 +334,8 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
-        for f in [self.get_aform, self.get_form, self.get_view_template]:
+        for f in [self.get_aform,
+                  self.get_view_template]:
             self._add_ctx(None, f)
 
     def _add_ctx(self, endpoint, fn):
@@ -358,7 +358,7 @@ class _SecurityState(object):
 
     @property
     def _ctx(self):
-        return self._run_ctx(_endpoint)
+        return self._run_ctx(self._security_endpoint)
 
     def all_ctx(self, fn):
         self._add_ctx(None, fn)
@@ -371,7 +371,7 @@ class _SecurityState(object):
 
     @property
     def current_aforms(self):
-        return self.anyforms_manager.get_current_forms
+        return self.anyforms_manager.get_current_forms()
 
     @property
     def aform(self):
@@ -379,9 +379,6 @@ class _SecurityState(object):
 
     def get_aform(self):
         return {'aform': self.aform}
-
-    def get_form(self):
-        return {'form': getattr(self.aform, 'form', None)}
 
     @property
     def view_template(self):
