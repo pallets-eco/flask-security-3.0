@@ -213,7 +213,7 @@ class ChangeableSignalsTests(SignalTest):
 class PasswordlessTests(SignalTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True
+        'SECURITY_PASSWORDLESSABLE': True
     }
 
     def test_login_request_for_inactive_user(self):

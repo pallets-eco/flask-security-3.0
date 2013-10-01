@@ -149,34 +149,34 @@ def populate_data(user_count=None):
 
 
 def add_context_processors(saf):
-    @saf.form_ctx
+    @saf.aform_ctx
     def anyform_for_all():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def forgot_password_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def login_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def register_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def reset_password_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def send_confirmation_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def send_login_ctx():
         return dict()
 
-    @saf.form_ctx
+    @saf.aform_ctx
     def mail_ctx():
         return dict()
