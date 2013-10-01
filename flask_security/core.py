@@ -334,9 +334,12 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
-        for f in [self.get_aform,
-                  self.get_view_template]:
+        for f in [self.ctx_aform, self.ctx_view_template]:
             self._add_ctx(None, f)
+
+    @property
+    def _ctx(self):
+        return self._run_ctx(self._security_endpoint)
 
     def _add_ctx(self, endpoint, fn):
         group = self._ctxs.setdefault(endpoint, [])
@@ -349,17 +352,6 @@ class _SecurityState(object):
                 rv.update(fn())
         return rv
 
-    @property
-    def _security_endpoint(self):
-        if self.passwordlessable and _endpoint == 'login':
-            return 'passwordless'
-        else:
-            return _endpoint
-
-    @property
-    def _ctx(self):
-        return self._run_ctx(self._security_endpoint)
-
     def all_ctx(self, fn):
         self._add_ctx(None, fn)
 
@@ -370,6 +362,13 @@ class _SecurityState(object):
         self._send_mail_task = fn
 
     @property
+    def _security_endpoint(self):
+        if self.passwordlessable and _endpoint == 'login':
+            return 'passwordless'
+        else:
+            return _endpoint
+
+    @property
     def current_aforms(self):
         return self.anyforms_manager.get_current_forms()
 
@@ -377,7 +376,7 @@ class _SecurityState(object):
     def aform(self):
         return self.current_aforms.get(self._security_endpoint, None)
 
-    def get_aform(self):
+    def ctx_aform(self):
         return {'aform': self.aform}
 
     @property
@@ -385,7 +384,7 @@ class _SecurityState(object):
         return cv("{}_template".format(self._security_endpoint),
                 default=getattr(self.aform, 'af_view_template', None))
 
-    def get_view_template(self):
+    def ctx_view_template(self):
         return {'view_template': self.view_template}
 
 
@@ -424,9 +423,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app,
-                           datastore,
-                           **kwargs)
+        state = _get_state(app, datastore, **kwargs)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
