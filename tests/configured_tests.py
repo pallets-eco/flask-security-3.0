@@ -493,15 +493,16 @@ class ChangePasswordTest(SecurityTest):
         self.assertIn("/reset", outbox[0].html)
 
 
-class SendEmailTest(SecurityTest):
+class EmailConfigTest(SecurityTest):
 
     AUTH_CONFIG = {
         'SECURITY_SEND_REGISTER_EMAIL': False,
         'SECURITY_SEND_PASSWORD_CHANGE_EMAIL': False,
     }
 
+    def test_change_password_success_email_option(self):
+        """Test the change password email can be turned off w/ configuration."""
 
-    def test_change_password_success(self):
         data = {
             'password': 'password',
             'new_password': 'newpassword',
