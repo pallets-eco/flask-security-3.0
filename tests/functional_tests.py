@@ -20,6 +20,10 @@ def get_cookies(rv):
 
 class DefaultSecurityTests(SecurityTest):
 
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.sqlalchemy import create_app
+        return create_app(auth_config, **kwargs)
+
     def test_instance(self):
         self.assertIsNotNone(self.app)
         self.assertIsNotNone(self.app.security)
@@ -62,10 +66,10 @@ class DefaultSecurityTests(SecurityTest):
         r = self.logout()
         self.assertIsHomePage(r.data)
 
-    #def test_unauthorized_access(self):
-    #    self.logout()
-    #    r = self._get('/profile', follow_redirects=True)
-    #    self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
+    def test_unauthorized_access(self):
+        self.logout()
+        r = self._get('/profile', follow_redirects=True)
+        self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
 
     def test_authorized_access(self):
         self.authenticate()
@@ -229,18 +233,18 @@ class DefaultSecurityTests(SecurityTest):
         self.assertNotIn('BadSignature', r.data)
 
 
-#class MongoEngineSecurityTests(DefaultSecurityTests):
-#
-#    def _create_app(self, auth_config, **kwargs):
-#        from tests.test_app.mongoengine import create_app
-#        return create_app(auth_config, **kwargs)
+class MongoEngineSecurityTests(DefaultSecurityTests):
+
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config, **kwargs)
 
 
-#class PeeweeSecurityTests(DefaultSecurityTests):
-#
-#    def _create_app(self, auth_config, **kwargs):
-#        from tests.test_app.peewee_app import create_app
-#        return create_app(auth_config, **kwargs)
+class PeeweeSecurityTests(DefaultSecurityTests):
+
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.peewee_app import create_app
+        return create_app(auth_config, **kwargs)
 
 
 class DefaultDatastoreTests(SecurityTest):
@@ -266,8 +270,8 @@ class DefaultDatastoreTests(SecurityTest):
         self.assertIn('success', r.data)
 
 
-#class MongoEngineDatastoreTests(DefaultDatastoreTests):
-#
-#    def _create_app(self, auth_config, **kwargs):
-#        from tests.test_app.mongoengine import create_app
-#        return create_app(auth_config, **kwargs)
+class MongoEngineDatastoreTests(DefaultDatastoreTests):
+
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.mongoengine import create_app
+        return create_app(auth_config, **kwargs)
