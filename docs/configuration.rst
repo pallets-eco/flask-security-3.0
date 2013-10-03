@@ -207,6 +207,8 @@ Miscellaneous
 ======================================= ========================================
 ``SECURITY_SEND_REGISTER_EMAIL``        Specifies whether registration email is
                                         sent. Defaults to ``True``.
+``SECURITY_SEND_PASSWORD_CHANGE_EMAIL`` Specifies whether password change email is
+                                        sent. Defaults to ``True``.
 ``SECURITY_CONFIRM_EMAIL_WITHIN``       Specifies the amount of time a user has
                                         before their confirmation link expires.
                                         Always pluralized the time unit for this
