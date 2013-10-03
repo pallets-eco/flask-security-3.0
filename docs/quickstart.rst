@@ -185,7 +185,7 @@ possible using Peewee:
     db = Database(app)
 
     class Role(db.Model, RoleMixin):
-        name = TextField(unique=True)
+        name = CharField(unique=True)
         description = TextField(null=True)
 
     class User(db.Model, UserMixin):
