@@ -20,6 +20,10 @@ def get_cookies(rv):
 
 class DefaultSecurityTests(SecurityTest):
 
+    def _create_app(self, auth_config, **kwargs):
+        from tests.test_app.sqlalchemy import create_app
+        return create_app(auth_config, **kwargs)
+
     def test_instance(self):
         self.assertIsNotNone(self.app)
         self.assertIsNotNone(self.app.security)
@@ -70,7 +74,7 @@ class DefaultSecurityTests(SecurityTest):
     def test_authorized_access(self):
         self.authenticate()
         r = self._get("/profile")
-        self.assertIn('profile', r.data)
+        self.assertIn('Profile Page', r.data)
 
     def test_valid_admin_role(self):
         self.authenticate()

@@ -42,7 +42,7 @@ class SecurityTest(TestCase):
                                 content_type=content_type, headers=headers)
 
     def register(self, email, password='password'):
-        data = dict(email=email, password=password)
+        data = dict(email=email, password=password, password_confirm=password)
         return self.client.post('/register', data=data, follow_redirects=True)
 
     def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):

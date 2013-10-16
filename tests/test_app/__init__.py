@@ -8,6 +8,7 @@ from flask.ext.security.decorators import http_auth_required, \
 from flask.ext.security.utils import encrypt_password
 from werkzeug.local import LocalProxy
 
+
 ds = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
@@ -147,35 +148,35 @@ def populate_data(user_count=None):
     create_users(user_count)
 
 
-def add_context_processors(s):
-    @s.context_processor
-    def for_all():
+def add_context_processors(saf):
+    @saf.aform_ctx
+    def anyform_for_all():
         return dict()
 
-    @s.forgot_password_context_processor
-    def forgot_password():
+    @saf.aform_ctx
+    def forgot_password_ctx():
         return dict()
 
-    @s.login_context_processor
-    def login():
+    @saf.aform_ctx
+    def login_ctx():
         return dict()
 
-    @s.register_context_processor
-    def register():
+    @saf.aform_ctx
+    def register_ctx():
         return dict()
 
-    @s.reset_password_context_processor
-    def reset_password():
+    @saf.aform_ctx
+    def reset_password_ctx():
         return dict()
 
-    @s.send_confirmation_context_processor
-    def send_confirmation():
+    @saf.aform_ctx
+    def send_confirmation_ctx():
         return dict()
 
-    @s.send_login_context_processor
-    def send_login():
+    @saf.aform_ctx
+    def send_login_ctx():
         return dict()
 
-    @s.mail_context_processor
-    def mail():
+    @saf.aform_ctx
+    def mail_ctx():
         return dict()

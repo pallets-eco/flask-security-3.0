@@ -18,7 +18,7 @@ from werkzeug.local import LocalProxy
 from .confirmable import send_confirmation_instructions, \
     confirm_user, confirm_email_token_status
 from .decorators import login_required, anonymous_user_required
-from .passwordless import send_login_instructions, \
+from .passwordless import passwordless_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
@@ -30,9 +30,8 @@ from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
-
+security_context = LocalProxy(lambda: _security._ctx)
 _datastore = LocalProxy(lambda: _security.datastore)
-
 
 def _render_json(form, include_auth_token=False):
     has_errors = len(form.errors) > 0
@@ -49,44 +48,27 @@ def _render_json(form, include_auth_token=False):
 
     return jsonify(dict(meta=dict(code=code), response=response))
 
-
 def _commit(response=None):
     _datastore.commit()
     return response
-
-
-def _ctx(endpoint):
-    return _security._run_ctx_processor(endpoint)
-
 
 @anonymous_user_required
 def login():
     """View function for login view"""
 
-    form_class = _security.login_form
+    use_form = security_context['aform'].form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
-
-    if form.validate_on_submit():
-        login_user(form.user, remember=form.remember.data)
+    if use_form.validate_on_submit():
+        login_user(use_form.user, remember=use_form.remember.data)
         after_this_request(_commit)
 
         if not request.json:
             return redirect(get_post_login_redirect())
 
-    form.next.data = get_url(request.args.get('next')) \
-                     or get_url(request.form.get('next')) or ''
-
     if request.json:
-        return _render_json(form, True)
+        return _render_json(use_form, True)
 
-    return render_template(config_value('LOGIN_USER_TEMPLATE'),
-                           login_user_form=form,
-                           **_ctx('login'))
-
+    return render_template(security_context['view_template'])
 
 @login_required
 def logout():
@@ -97,25 +79,14 @@ def logout():
     return redirect(request.args.get('next', None) or
                     get_url(_security.post_logout_view))
 
-
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable or request.json:
-        form_class = _security.confirm_register_form
-    else:
-        form_class = _security.register_form
+    use_form = security_context['aform'].form
 
-    if request.json:
-        form_data = MultiDict(request.json)
-    else:
-        form_data = request.form
-
-    form = form_class(form_data)
-
-    if form.validate_on_submit():
-        user = register_user(**form.to_dict())
-        form.user = user
+    if use_form.validate_on_submit():
+        user = register_user(**use_form.to_dict())
+        use_form.user = user
 
         if not _security.confirmable or _security.login_without_confirmation:
             after_this_request(_commit)
@@ -125,35 +96,24 @@ def register():
             return redirect(get_post_register_redirect())
 
     if request.json:
-        return _render_json(form)
+        return _render_json(use_form)
 
-    return render_template(config_value('REGISTER_USER_TEMPLATE'),
-                           register_user_form=form,
-                           **_ctx('register'))
+    return render_template(security_context['view_template'])
 
-
-def send_login():
+def passwordless_login():
     """View function that sends login instructions for passwordless login"""
 
-    form_class = _security.passwordless_login_form
+    use_form = security_context['aform'].form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
-
-    if form.validate_on_submit():
-        send_login_instructions(form.user)
+    if use_form.validate_on_submit():
+        passwordless_login_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
+            do_flash(*get_message('LOGIN_EMAIL_SENT', email=use_form.user.email))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(use_form)
 
-    return render_template(config_value('SEND_LOGIN_TEMPLATE'),
-                           send_login_form=form,
-                           **_ctx('send_login'))
-
+    return render_template(security_context['view_template'])
 
 @anonymous_user_required
 def token_login(token):
@@ -164,7 +124,7 @@ def token_login(token):
     if invalid:
         do_flash(*get_message('INVALID_LOGIN_TOKEN'))
     if expired:
-        send_login_instructions(user)
+        passwordless_login_instructions(user)
         do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
                               within=_security.login_within))
     if invalid or expired:
@@ -176,29 +136,21 @@ def token_login(token):
 
     return redirect(get_post_login_redirect())
 
-
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
-    form_class = _security.send_confirmation_form
+    use_form = security_context['aform'].form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
-
-    if form.validate_on_submit():
-        send_confirmation_instructions(form.user)
+    if use_form.validate_on_submit():
+        send_confirmation_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
+            do_flash(*get_message('CONFIRMATION_REQUEST',
+                                  email=use_form.user.email))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(use_form)
 
-    return render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
-                           send_confirmation_form=form,
-                           **_ctx('send_confirmation'))
-
+    return render_template(security_context['view_template'])
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
@@ -227,33 +179,26 @@ def confirm_email(token):
     return redirect(get_url(_security.post_confirm_view) or
                     get_url(_security.post_login_view))
 
-
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    form_class = _security.forgot_password_form
+    use_form = security_context['aform'].form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
-
-    if form.validate_on_submit():
-        send_reset_password_instructions(form.user)
+    if use_form.validate_on_submit():
+        send_reset_password_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=use_form.user.email))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(use_form)
 
-    return render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
-                           forgot_password_form=form,
-                           **_ctx('forgot_password'))
-
+    return render_template(security_context['view_template'])
 
 @anonymous_user_required
 def reset_password(token):
     """View function that handles a reset password request."""
+
+    use_form = security_context['aform'].form
 
     expired, invalid, user = reset_password_token_status(token)
 
@@ -265,48 +210,34 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = _security.reset_password_form()
-
-    if form.validate_on_submit():
+    if use_form.validate_on_submit():
         after_this_request(_commit)
-        update_password(user, form.password.data)
+        update_password(user, use_form.password.data)
         do_flash(*get_message('PASSWORD_RESET'))
         login_user(user)
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    return render_template(config_value('RESET_PASSWORD_TEMPLATE'),
-                           reset_password_form=form,
-                           reset_password_token=token,
-                           **_ctx('reset_password'))
+    security_context['aform'].update(token=token)
 
+    return render_template(security_context['view_template'])
 
 @login_required
 def change_password():
-    """View function which handles a change password request."""
+    use_form = security_context['aform'].form
 
-    form_class = _security.change_password_form
-
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
-
-    if form.validate_on_submit():
+    if use_form.validate_on_submit():
         after_this_request(_commit)
-        change_user_password(current_user, form.new_password.data)
+        change_user_password(current_user, use_form.new_password.data)
         if request.json is None:
             do_flash(*get_message('PASSWORD_CHANGE'))
             return redirect(get_url(_security.post_change_view) or
                             get_url(_security.post_login_view))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(use_form)
 
-    return render_template('security/change_password.html',
-                           change_password_form=form,
-                           **_ctx('change_password'))
-
+    return render_template(security_context['view_template'])
 
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
@@ -318,10 +249,10 @@ def create_blueprint(state, import_name):
 
     bp.route(state.logout_url, endpoint='logout')(logout)
 
-    if state.passwordless:
+    if state.passwordlessable:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
-                 endpoint='login')(send_login)
+                 endpoint='login')(passwordless_login)
         bp.route(state.login_url + '/<token>',
                  endpoint='token_login')(token_login)
     else:
