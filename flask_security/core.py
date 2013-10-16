@@ -116,6 +116,7 @@ _default_messages = {
     'INVALID_PASSWORD': ('Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
+    'PASSWORD_IS_THE_SAME': ('Your new password must be different than your previous password.', 'error'),
     'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info'),

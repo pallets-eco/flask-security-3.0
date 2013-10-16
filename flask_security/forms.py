@@ -22,7 +22,7 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message
+from .utils import verify_and_update_password, get_message, encrypt_password
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -274,5 +274,8 @@ class ChangePasswordForm(Form, PasswordFormMixin):
             return False
         if not verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
+            return False
+        if self.password.data.strip() == self.new_password.data.strip():
+            self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
             return False
         return True

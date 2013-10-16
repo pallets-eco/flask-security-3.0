@@ -474,6 +474,16 @@ class ChangePasswordTest(SecurityTest):
         self.assertNotIn('You successfully changed your password', r.data)
         self.assertIn('Password must be at least 6 characters', r.data)
 
+    def test_change_password_same_as_previous(self):
+        self.authenticate()
+        r = self._post('/change', data={
+            'password': 'password',
+            'new_password': 'password',
+            'new_password_confirm': 'password'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Your new password must be different than your previous password.', r.data)
+
     def test_change_password_success(self):
         data = {
             'password': 'password',
