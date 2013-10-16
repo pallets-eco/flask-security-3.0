@@ -220,6 +220,7 @@ class LoginForm(Form, NextFormMixin):
             self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
 
+
         self.user = _datastore.get_user(self.email.data)
 
         if self.user is None:

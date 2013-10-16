@@ -279,6 +279,16 @@ def get_token_status(token, serializer, max_age=None):
     return expired, invalid, user
 
 
+def get_identity_attributes(app=None):
+    app = app or current_app
+    attrs = app.config['SECURITY_USER_IDENTITY_ATTRIBUTES']
+    try:
+        attrs = [f.strip() for f in attrs.split(',')]
+    except AttributeError:
+        pass
+    return attrs
+
+
 @contextmanager
 def capture_passwordless_login_requests():
     login_requests = []

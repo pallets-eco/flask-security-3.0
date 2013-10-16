@@ -84,7 +84,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
-    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions'
+    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'USER_IDENTITY_ATTRIBUTES': ['email']
 }
 
 #: Default Flask-Security messages

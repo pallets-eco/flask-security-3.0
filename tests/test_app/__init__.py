@@ -128,17 +128,17 @@ def create_roles():
 
 
 def create_users(count=None):
-    users = [('matt@lp.com', 'password', ['admin'], True),
-             ('joe@lp.com', 'password', ['editor'], True),
-             ('dave@lp.com', 'password', ['admin', 'editor'], True),
-             ('jill@lp.com', 'password', ['author'], True),
-             ('tiya@lp.com', 'password', [], False)]
+    users = [('matt@lp.com', 'matt', 'password', ['admin'], True),
+             ('joe@lp.com', 'joe', 'password', ['editor'], True),
+             ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True),
+             ('jill@lp.com', 'jill', 'password', ['author'], True),
+             ('tiya@lp.com', 'tiya', 'password', [], False)]
     count = count or len(users)
 
     for u in users[:count]:
-        pw = encrypt_password(u[1])
-        ds.create_user(email=u[0], password=pw,
-                       roles=u[2], active=u[3])
+        pw = encrypt_password(u[2])
+        ds.create_user(email=u[0], username=u[1], password=pw,
+                       roles=u[3], active=u[4])
     ds.commit()
 
 

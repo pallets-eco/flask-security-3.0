@@ -826,3 +826,14 @@ class ConfirmableExtendFormsTest(SecurityTest):
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
         self.assertIn("My Send Confirmation Email Address Field", r.data)
+
+
+class AdditionalUserIdentityAttributes(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
+    }
+
+    def test_authenticate(self):
+        r = self.authenticate(email='matt')
+        self.assertIn('Hello matt@lp.com', r.data)

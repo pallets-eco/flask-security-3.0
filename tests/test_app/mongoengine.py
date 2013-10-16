@@ -30,6 +30,7 @@ def create_app(config, **kwargs):
 
     class User(db.Document, UserMixin):
         email = db.StringField(unique=True, max_length=255)
+        username = db.StringField(max_length=255)
         password = db.StringField(required=True, max_length=255)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()
