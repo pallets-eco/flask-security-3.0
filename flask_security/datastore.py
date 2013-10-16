@@ -234,6 +234,12 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
 
+    def add_role_to_user(self, user, role):
+        rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+        if rv:
+            self.put(user)
+        return rv
+
 
 class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
     """A PeeweeD datastore implementation for Flask-Security that assumes
