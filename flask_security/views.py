@@ -30,7 +30,7 @@ from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
-
+security_context = LocalProxy(lambda: _security._ctx)
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
@@ -62,30 +62,29 @@ def _ctx(endpoint):
 @anonymous_user_required
 def login():
     """View function for login view"""
+    import pprint
+    #pprint.pprint(_security.__dict__)
+    #pprint.pprint(_security._run_ctx('login'))
+    #print _security.current_template
+    #print _security.form.__dict__
+    #print dir(_security.form())
+    #print _security.form._ctx_tag
+    #print _security.form._ctx_tag()
+    #print "whynothing"
+    #use_form = security_context['aform'].form
 
-    form_class = _security.login_form
+    #if use_form.validate_on_submit():
+    #    login_user(use_form.user, remember=use_form.remember.data)
+    #    after_this_request(_commit)
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
-    else:
-        form = form_class()
+    #    if not request.json:
+    #        return redirect(get_post_login_redirect())
 
-    if form.validate_on_submit():
-        login_user(form.user, remember=form.remember.data)
-        after_this_request(_commit)
+    #if request.json:
+    #    return _render_json(use_form, True)
+    #pprint.pprint(current_app.jinja_env.__dict__)
 
-        if not request.json:
-            return redirect(get_post_login_redirect())
-
-    form.next.data = get_url(request.args.get('next')) \
-                     or get_url(request.form.get('next')) or ''
-
-    if request.json:
-        return _render_json(form, True)
-
-    return render_template(config_value('LOGIN_USER_TEMPLATE'),
-                           login_user_form=form,
-                           **_ctx('login'))
+    return render_template(_security.current_template)
 
 
 @login_required
@@ -318,7 +317,7 @@ def create_blueprint(state, import_name):
 
     bp.route(state.logout_url, endpoint='logout')(logout)
 
-    if state.passwordless:
+    if state.passwordlessable:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
