@@ -27,9 +27,8 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login')
-        print r.data
         self.assertIn('<h1>Login</h1>', r.data)
-"""
+
     def test_authenticate(self):
         r = self.authenticate()
         self.assertIn('Hello matt@lp.com', r.data)
@@ -228,7 +227,7 @@ class DefaultSecurityTests(SecurityTest):
         self.client.cookie_jar.set_cookie(c)
         r = self._get('/')
         self.assertNotIn('BadSignature', r.data)
-"""
+
 
 """
 class MongoEngineSecurityTests(DefaultSecurityTests):

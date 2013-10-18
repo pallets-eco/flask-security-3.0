@@ -10,13 +10,13 @@ from flask.ext.security.utils import capture_registrations, \
     capture_reset_password_requests, capture_passwordless_login_requests
 from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
-    PasswordlessLoginForm
+    PasswordlessForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
 
 
 from tests import SecurityTest
 
-"""
+
 class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
     AUTH_CONFIG = {
@@ -178,7 +178,7 @@ class ConfirmableTemplatePathTests(SecurityTest):
 
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html'
     }
 
@@ -501,7 +501,7 @@ class EmailConfigTest(SecurityTest):
     }
 
     def test_change_password_success_email_option(self):
-        """"Test the change password email can be turned off w/ configuration.""""
+        """Test the change password email can be turned off w/ configuration."""
 
         data = {
             'password': 'password',
@@ -572,7 +572,7 @@ class TrackableTests(SecurityTest):
 class PasswordlessTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True
+        'SECURITY_PASSWORDLESSABLE': True
     }
 
     def test_login_request_for_inactive_user(self):
@@ -648,7 +648,7 @@ class PasswordlessTests(SecurityTest):
 class ExpiredLoginTokenTests(SecurityTest):
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
         'SECURITY_LOGIN_WITHIN': '1 milliseconds',
         'USER_COUNT': 1
     }
@@ -775,15 +775,15 @@ class RecoverableExtendFormsTest(SecurityTest):
 
 class PasswordlessExtendFormsTest(SecurityTest):
 
-    class MyPasswordlessLoginForm(PasswordlessLoginForm):
+    class MyPasswordlessForm(PasswordlessForm):
         email = TextField('My Passwordless Login Email Address Field')
 
     APP_KWARGS = {
-        'passwordless_login_form': MyPasswordlessLoginForm,
+        'passwordless_login_form': MyPasswordlessForm,
     }
 
     AUTH_CONFIG = {
-        'SECURITY_PASSWORDLESS': True,
+        'SECURITY_PASSWORDLESSABLE': True,
     }
 
     def test_passwordless_login(self):
@@ -816,4 +816,3 @@ class ConfirmableExtendFormsTest(SecurityTest):
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
         self.assertIn("My Send Confirmation Email Address Field", r.data)
-"""

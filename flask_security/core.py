@@ -247,10 +247,7 @@ def _context_processor(state):
     ctx_prcs = {}
     ctx_prcs.update({'url_for_security':url_for_security, 'security':_security})
     for k,v in _security_forms.items():
-        try:
-            ctx_prcs.update({k: partial(state.form_macro, v)})
-        except:
-            raise
+        ctx_prcs.update({k: partial(state.form_macro, v)})
     return ctx_prcs
 
 class RoleMixin(object):
@@ -300,8 +297,7 @@ class _SecurityState(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
-        #for f in [self.current_form, self.current_template]:
-        #    self._add_ctx(None, f)
+        self._add_ctx('reset_password', self.get_token)
 
     @property
     def _ctx(self):
@@ -329,7 +325,7 @@ class _SecurityState(object):
 
     @property
     def current_form(self):
-        return getattr(self, "{}_form".format(self._security_endpoint, None))
+        return _security_forms.get("{}_form".format(self._security_endpoint), None)
 
     @property
     def current_template(self):
@@ -348,16 +344,19 @@ class _SecurityState(object):
         return self._on_form(form_is, run_ctx)
 
     def _form_is(self, form):
-        if request.form:
-            return form(request.form)
-        elif request.json:
+        if request.json:
             return form(MultiDict(request.json))
         else:
-            return form()
+            return form(request.form)
 
     def _on_form(self, form_is, run_ctx):
         f = form_is()
+        if request.form:
+            f.validate()
         return f.macro_render(run_ctx())
+
+    def get_token(self):
+        return {'token': 'some sort of token'}
 
 
 class Security(object):
@@ -399,8 +398,8 @@ class Security(object):
         app.extensions['security'] = state
 
         self.register_context_processors(app, _context_processor(state))
-        import pprint
-        pprint.pprint(app.jinja_env.__dict__)
+        #import pprint
+        #pprint.pprint(app.jinja_env.__dict__)
 
         return state
 
