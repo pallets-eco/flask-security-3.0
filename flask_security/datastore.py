@@ -80,6 +80,7 @@ class UserDatastore(object):
             # see if the role exists
             roles[i] = self.find_role(rn)
         kwargs['roles'] = roles
+
         return kwargs
 
     def get_user(self, id_or_email):
@@ -159,7 +160,7 @@ class UserDatastore(object):
 
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
-
+        #print(self._prepare_create_user_args(**kwargs))
         user = self.user_model(**self._prepare_create_user_args(**kwargs))
         return self.put(user)
 
