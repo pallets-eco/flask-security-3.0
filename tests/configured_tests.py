@@ -213,7 +213,7 @@ class ConfirmableTests(SecurityTest):
 
     def test_login_before_confirmation(self):
         e = 'dude@lp.com'
-        r = self.register(e)
+        self.register(e)
         r = self.authenticate(email=e)
         self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
 

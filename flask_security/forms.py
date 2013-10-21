@@ -173,7 +173,7 @@ class RegisterFormMixin(SecurityForm):
 
 
 class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
-    """The default send confirmation password form"""
+    """The default send confirmation form"""
 
     mname='send_confirmation_macro'
     mtemplate='security/macros/_send_confirmation.html'
