@@ -364,7 +364,7 @@ class _SecurityState(object):
         return f.macro_render(run_ctx())
 
     def get_token(self):
-        return {'token': 'some sort of token'} # make sure form has token on reset_password
+        return {'token': request.view_args.get('token', 'NO TOKEN')} # make sure form has token on reset_password
 
 
 class Security(object):
