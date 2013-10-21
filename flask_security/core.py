@@ -53,10 +53,12 @@ _default_config = {
     'UNAUTHORIZED_VIEW': None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_TEMPLATE': 'security/login_user.html',
+    'CONFIRM_REGISTER_TEMPLATE': 'security/confirm_register_user.html',
     'REGISTER_TEMPLATE': 'security/register_user.html',
     'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
+    'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
-    'PASWORDLESS_TEMPLATE': 'security/send_login.html',
+    'PASSWORDLESS_TEMPLATE': 'security/passwordless.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
@@ -250,6 +252,7 @@ def _context_processor(state):
         ctx_prcs.update({k: partial(state.form_macro, v)})
     return ctx_prcs
 
+
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
     def __eq__(self, other):
@@ -323,6 +326,9 @@ class _SecurityState(object):
     def add_ctx(self, fn):
         self._add_ctx(self.get_fn_name(fn.__name__), fn)
 
+    def send_mail_task(self, fn):
+        self._send_mail_task = fn
+
     @property
     def current_form(self):
         return _security_forms.get("{}_form".format(self._security_endpoint), None)
@@ -335,6 +341,8 @@ class _SecurityState(object):
     def _security_endpoint(self):
         if self.passwordlessable and _endpoint == 'login':
             return 'passwordless'
+        if self.confirmable and _endpoint == 'register':
+            return 'confirm_register'
         else:
             return _endpoint
 
@@ -356,7 +364,7 @@ class _SecurityState(object):
         return f.macro_render(run_ctx())
 
     def get_token(self):
-        return {'token': 'some sort of token'}
+        return {'token': 'some sort of token'} # make sure form has token on reset_password
 
 
 class Security(object):
@@ -398,8 +406,6 @@ class Security(object):
         app.extensions['security'] = state
 
         self.register_context_processors(app, _context_processor(state))
-        #import pprint
-        #pprint.pprint(app.jinja_env.__dict__)
 
         return state
 

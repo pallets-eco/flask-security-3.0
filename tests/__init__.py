@@ -41,12 +41,12 @@ class SecurityTest(TestCase):
                                 follow_redirects=follow_redirects,
                                 content_type=content_type, headers=headers)
 
-    def register(self, email, password='password'):
-        data = dict(email=email, password=password)
+    def register(self, email, password='password', password_confirm='password'):
+        data = dict(email=email, password=password, password_confirm=password_confirm)
         return self.client.post('/register', data=data, follow_redirects=True)
 
-    def authenticate(self, email="matt@lp.com", password="password", endpoint=None, **kwargs):
-        data = dict(email=email, password=password, remember='y')
+    def authenticate(self, email="matt@lp.com", password="password", password_confirm='password', endpoint=None, **kwargs):
+        data = dict(email=email, password=password, password_confirm=password_confirm, remember='y')
         return self._post(endpoint or '/login', data=data, **kwargs)
 
     def json_authenticate(self, email="matt@lp.com", password="password", endpoint=None):

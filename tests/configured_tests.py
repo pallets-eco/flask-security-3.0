@@ -77,7 +77,7 @@ class ConfiguredSecurityTests(SecurityTest):
         self.assertIn('Page 1', r.data)
 
     def test_register_json(self):
-        data = '{ "email": "dude@lp.com", "password": "password"}'
+        data = '{ "email": "dude@lp.com", "password": "password", "password_confirm": "password"}'
         r = self._post('/register', data=data, content_type='application/json')
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
@@ -119,7 +119,7 @@ class BadConfiguredSecurityTests(SecurityTest):
 
 class DefaultTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
+        'SECURITY_LOGIN_TEMPLATE': 'custom_security/login_user.html',
     }
 
     def test_login_user_template(self):
@@ -131,7 +131,7 @@ class DefaultTemplatePathTests(SecurityTest):
 class RegisterableTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_REGISTERABLE': True,
-        'SECURITY_REGISTER_USER_TEMPLATE': 'custom_security/register_user.html'
+        'SECURITY_REGISTER_TEMPLATE': 'custom_security/register_user.html'
     }
 
     def test_register_user_template(self):
@@ -179,7 +179,7 @@ class ConfirmableTemplatePathTests(SecurityTest):
 class PasswordlessTemplatePathTests(SecurityTest):
     AUTH_CONFIG = {
         'SECURITY_PASSWORDLESSABLE': True,
-        'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html'
+        'SECURITY_PASSWORDLESS_TEMPLATE': 'custom_security/send_login.html'
     }
 
     def test_send_login_template(self):
@@ -213,7 +213,7 @@ class ConfirmableTests(SecurityTest):
 
     def test_login_before_confirmation(self):
         e = 'dude@lp.com'
-        self.register(e)
+        r = self.register(e)
         r = self.authenticate(email=e)
         self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
 
@@ -743,7 +743,6 @@ class ExtendFormsTest(SecurityTest):
 
 
 class RecoverableExtendFormsTest(SecurityTest):
-
     class MyForgotPasswordForm(ForgotPasswordForm):
         email = TextField('My Forgot Password Email Address Field',
                           validators=[valid_user_email])
@@ -779,7 +778,7 @@ class PasswordlessExtendFormsTest(SecurityTest):
         email = TextField('My Passwordless Login Email Address Field')
 
     APP_KWARGS = {
-        'passwordless_login_form': MyPasswordlessForm,
+        'passwordless_form': MyPasswordlessForm,
     }
 
     AUTH_CONFIG = {

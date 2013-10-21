@@ -173,7 +173,7 @@ class RegisterFormMixin(SecurityForm):
 
 
 class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
-    """The default forgot password form"""
+    """The default send confirmation password form"""
 
     mname='send_confirmation_macro'
     mtemplate='security/macros/_send_confirmation.html'
@@ -188,6 +188,13 @@ class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
     def validate(self):
         if not super(SendConfirmationForm, self).validate():
             return False
+
+        self.user = _datastore.get_user(self.email.data)
+
+        if not self.user:
+            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            return False
+
         if self.user.confirmed_at is not None:
             self.email.errors.append(get_message('ALREADY_CONFIRMED')[0])
             return False
@@ -218,8 +225,15 @@ class PasswordlessForm(UserEmailFormMixin, SecurityForm):
         super(PasswordlessForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        if not super(PasswordlessLoginForm, self).validate():
+        if not super(PasswordlessForm, self).validate():
             return False
+
+        self.user = _datastore.get_user(self.email.data)
+
+        if self.user is None:
+            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            return False
+
         if not self.user.is_active():
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
@@ -270,6 +284,8 @@ class LoginForm(NextFormMixin, SecurityForm):
 
 
 class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFormMixin, SecurityForm):
+    """The default confirm register password form"""
+
     mname='confirm_register_macro'
     mtemplate='security/macros/_confirm_register.html'
 
@@ -278,6 +294,8 @@ class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFo
 
 
 class RegisterForm(PasswordConfirmFormMixin, ConfirmRegisterForm):
+    """The default register password form"""
+
     mname='register_macro'
     mtemplate='security/macros/_register.html'
 

@@ -102,7 +102,7 @@ def passwordless_login():
     """View function that sends login instructions for passwordless login"""
     use_form = _security.current_form()
     if use_form.validate_on_submit():
-        passwordless_login_instructions(use_form.user)
+        send_login_instructions(use_form.user)
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=use_form.user.email))
 
@@ -120,7 +120,7 @@ def token_login(token):
     if invalid:
         do_flash(*get_message('INVALID_LOGIN_TOKEN'))
     if expired:
-        passwordless_login_instructions(user)
+        send_login_instructions(user)
         do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
                               within=_security.login_within))
     if invalid or expired:
@@ -144,7 +144,7 @@ def send_confirmation():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(security_context['view_template'])
+    return render_template(_security.current_template)
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
@@ -189,6 +189,8 @@ def forgot_password():
 @anonymous_user_required
 def reset_password(token):
     """View function that handles a reset password request."""
+
+    use_form = _security.current_form()
 
     expired, invalid, user = reset_password_token_status(token)
 
