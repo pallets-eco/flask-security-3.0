@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import with_statement
-
+from flask_security._compat import PY2
 import base64
 import simplejson as json
-from cookielib import Cookie
+
+if not PY2:
+    from http.cookiejar import Cookie
+else:
+    from cookielib import Cookie
 
 from werkzeug.utils import parse_cookie
 
@@ -228,7 +232,7 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/')
         self.assertNotIn('BadSignature', r.data)
 
-
+"""
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
     def _create_app(self, auth_config, **kwargs):
@@ -271,3 +275,4 @@ class MongoEngineDatastoreTests(DefaultDatastoreTests):
     def _create_app(self, auth_config, **kwargs):
         from tests.test_app.mongoengine import create_app
         return create_app(auth_config, **kwargs)
+"""

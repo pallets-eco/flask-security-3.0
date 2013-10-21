@@ -10,7 +10,11 @@
 """
 
 import inspect
-import urlparse
+from ._compat import PY2
+if not PY2:
+    import urllib.parse as urlparse
+else:
+    import urlparse
 import flask_wtf as wtf
 
 from flask import request, current_app, get_template_attribute
