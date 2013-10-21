@@ -302,9 +302,9 @@ class _SecurityState(object):
             setattr(self, key.lower(), value)
         self._add_ctx('reset_password', self.get_token)
 
-    @property
-    def _ctx(self):
-        return self._run_ctx(self._security_endpoint)
+    #@property
+    #def _ctx(self):
+    #    return self._run_ctx(self._security_endpoint)
 
     def _add_ctx(self, endpoint, fn):
         group = self._ctxs.setdefault(endpoint, [])
@@ -364,7 +364,7 @@ class _SecurityState(object):
         return f.macro_render(run_ctx())
 
     def get_token(self):
-        return {'token': request.view_args.get('token', 'NO TOKEN')} # make sure form has token on reset_password
+        return {'token': request.view_args.get('token', 'NO TOKEN')}
 
 
 class Security(object):

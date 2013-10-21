@@ -210,8 +210,6 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    #security_context['aform'].update(token=token)
-
     return render_template(_security.current_template)
 
 @login_required
