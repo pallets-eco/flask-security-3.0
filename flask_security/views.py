@@ -301,6 +301,7 @@ def change_password():
                             get_url(_security.post_login_view))
 
     if request.json:
+        form.user = current_user
         return _render_json(form)
 
     return render_template('security/change_password.html',
