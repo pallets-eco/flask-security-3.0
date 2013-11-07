@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app
+from flask import current_app, render_template
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -382,9 +382,13 @@ class Security(object):
             app.register_blueprint(create_blueprint(state, __name__))
             app.context_processor(_context_processor)
 
+        state.render_template = self.render_template
         app.extensions['security'] = state
 
         return state
+
+    def render_template(self, *args, **kwargs):
+        return render_template(*args, **kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)
