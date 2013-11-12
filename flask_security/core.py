@@ -331,11 +331,11 @@ class _SecurityState(object):
 
     @property
     def current_form(self):
-        return _security_forms.get("{}_form".format(self._security_endpoint), None)
+        return _security_forms.get("{0}_form".format(self._security_endpoint), None)
 
     @property
     def current_template(self):
-        return cv("{}_template".format(self._security_endpoint))
+        return cv("{0}_template".format(self._security_endpoint))
 
     @property
     def _security_endpoint(self):
