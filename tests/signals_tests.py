@@ -14,7 +14,7 @@ def compare_user(a, b):
     """Helper to compare two users."""
     return a.id == b.id and a.email == b.email and a.password == b.password
 
-
+"""
 class SignalTest(SecurityTest):
 
     def _create_app(self, auth_config, **kwargs):
@@ -242,3 +242,4 @@ class PasswordlessTests(SignalTest):
         self.assertTrue(compare_user(kwargs['user'], user))
         self.assertIn('login_token', kwargs)
         self.assertEqual(args[0], self.app)
+"""

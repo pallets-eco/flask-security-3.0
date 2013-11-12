@@ -11,10 +11,9 @@
 
 import inspect
 import urlparse
-
 import flask_wtf as wtf
 
-from flask import request, current_app
+from flask import request, current_app, get_template_attribute
 from flask_wtf import Form as BaseForm
 from wtforms import TextField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
@@ -89,11 +88,26 @@ def valid_user_email(form, field):
         raise ValidationError(get_message('USER_DOES_NOT_EXIST')[0])
 
 
-class Form(BaseForm):
+class SecurityForm(BaseForm):
     def __init__(self, *args, **kwargs):
         if current_app.testing:
             self.TIME_LIMIT = None
-        super(Form, self).__init__(*args, **kwargs)
+        super(SecurityForm, self).__init__(*args, **kwargs)
+
+    def update(self, ctx):
+        [setattr(self, k, v) for k,v in ctx.items()]
+
+    @classmethod
+    def _ctx_tag(cls):
+        return ''.join('_'+x.lower() if x.isupper() else x for x in cls.__name__[:-4]).strip('_')
+
+    @property
+    def _macro_renderable(self):
+        return get_template_attribute(self.mtemplate, self.mname)
+
+    def macro_render(self, ctx):
+        self.update(ctx)
+        return self._macro_renderable(self)
 
 
 class EmailFormMixin():
@@ -143,7 +157,10 @@ class NextFormMixin():
             raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
-class RegisterFormMixin():
+class RegisterFormMixin(SecurityForm):
+    mname='register_macro'
+    mtemplate='security/macros/_register.html'
+
     submit = SubmitField(get_form_field_label('register'))
 
     def to_dict(form):
@@ -155,8 +172,11 @@ class RegisterFormMixin():
         return dict((key, value.data) for key, value in fields)
 
 
-class SendConfirmationForm(Form, UserEmailFormMixin):
-    """The default forgot password form"""
+class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
+    """The default send confirmation form"""
+
+    mname='send_confirmation_macro'
+    mtemplate='security/macros/_send_confirmation.html'
 
     submit = SubmitField(get_form_field_label('send_confirmation'))
 
@@ -168,37 +188,63 @@ class SendConfirmationForm(Form, UserEmailFormMixin):
     def validate(self):
         if not super(SendConfirmationForm, self).validate():
             return False
+
+        self.user = _datastore.get_user(self.email.data)
+
+        if not self.user:
+            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            return False
+
         if self.user.confirmed_at is not None:
             self.email.errors.append(get_message('ALREADY_CONFIRMED')[0])
             return False
         return True
 
 
-class ForgotPasswordForm(Form, UserEmailFormMixin):
+class ForgotPasswordForm(UserEmailFormMixin, SecurityForm):
     """The default forgot password form"""
+
+    mname='forgot_password_macro'
+    mtemplate='security/macros/_forgot_password.html'
 
     submit = SubmitField(get_form_field_label('recover_password'))
 
+    def __init__(self, *args, **kwargs):
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
-class PasswordlessLoginForm(Form, UserEmailFormMixin):
+
+class PasswordlessForm(UserEmailFormMixin, SecurityForm):
     """The passwordless login form"""
+
+    mname='passwordless_macro'
+    mtemplate='security/macros/_passwordless.html'
 
     submit = SubmitField(get_form_field_label('send_login_link'))
 
     def __init__(self, *args, **kwargs):
-        super(PasswordlessLoginForm, self).__init__(*args, **kwargs)
+        super(PasswordlessForm, self).__init__(*args, **kwargs)
 
     def validate(self):
-        if not super(PasswordlessLoginForm, self).validate():
+        if not super(PasswordlessForm, self).validate():
             return False
+
+        self.user = _datastore.get_user(self.email.data)
+
+        if self.user is None:
+            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            return False
+
         if not self.user.is_active():
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
 
 
-class LoginForm(Form, NextFormMixin):
+class LoginForm(NextFormMixin, SecurityForm):
     """The default login form"""
+
+    mname='login_macro'
+    mtemplate='security/macros/_login.html'
 
     email = TextField(get_form_field_label('email'))
     password = PasswordField(get_form_field_label('password'))
@@ -237,23 +283,43 @@ class LoginForm(Form, NextFormMixin):
         return True
 
 
-class ConfirmRegisterForm(Form, RegisterFormMixin,
-                          UniqueEmailFormMixin, NewPasswordFormMixin):
-    pass
+class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFormMixin, SecurityForm):
+    """The default confirm register password form"""
+
+    mname='confirm_register_macro'
+    mtemplate='security/macros/_confirm_register.html'
+
+    def __init__(self, *args, **kwargs):
+        super(ConfirmRegisterForm, self).__init__(*args, **kwargs)
 
 
-class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
-    pass
+class RegisterForm(PasswordConfirmFormMixin, ConfirmRegisterForm):
+    """The default register password form"""
+
+    mname='register_macro'
+    mtemplate='security/macros/_register.html'
+
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
 
 
-class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
+class ResetPasswordForm(NewPasswordFormMixin, PasswordConfirmFormMixin, SecurityForm):
     """The default reset password form"""
+
+    mname='reset_password_macro'
+    mtemplate='security/macros/_reset_password.html'
 
     submit = SubmitField(get_form_field_label('reset_password'))
 
+    def __init__(self, *args, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
 
-class ChangePasswordForm(Form, PasswordFormMixin):
+
+class ChangePasswordForm(PasswordFormMixin, SecurityForm):
     """The default change password form"""
+
+    mname='change_password_macro'
+    mtemplate='security/macros/_change_password.html'
 
     new_password = PasswordField(
         get_form_field_label('new_password'),
@@ -264,6 +330,9 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
 
     submit = SubmitField(get_form_field_label('change_password'))
+
+    def __init__(self, *args, **kwargs):
+        super(ChangePasswordForm, self).__init__(*args, **kwargs)
 
     def validate(self):
         if not super(ChangePasswordForm, self).validate():

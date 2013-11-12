@@ -1,0 +1,13 @@
+{% from "security/macros/_macros.html" import render_field_with_errors, render_field, messages, menu %}
+{% macro login_macro(login) %}
+    {{ messages() }}
+    <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
+      {{ login.hidden_tag() }} 
+      {{ render_field_with_errors(login.email) }}
+      {{ render_field_with_errors(login.password) }}
+      {{ render_field_with_errors(login.remember) }}
+      {{ render_field(login.next) }}
+      {{ render_field(login.submit) }}
+    </form>
+    {{ menu() }}
+{% endmacro %}

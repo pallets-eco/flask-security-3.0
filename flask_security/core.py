@@ -8,8 +8,8 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
-
-from flask import current_app
+from functools import partial
+from flask import current_app, request
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -23,11 +23,11 @@ from .utils import config_value as cv, get_config, md5, url_for_security
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
-
+_endpoint = LocalProxy(lambda: request.endpoint.rsplit('.')[-1])
 
 #: Default Flask-Security configuration
 _default_config = {
@@ -52,16 +52,18 @@ _default_config = {
     'POST_CHANGE_VIEW': None,
     'UNAUTHORIZED_VIEW': None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
-    'LOGIN_USER_TEMPLATE': 'security/login_user.html',
-    'REGISTER_USER_TEMPLATE': 'security/register_user.html',
+    'LOGIN_TEMPLATE': 'security/login_user.html',
+    'CONFIRM_REGISTER_TEMPLATE': 'security/confirm_register_user.html',
+    'REGISTER_TEMPLATE': 'security/register_user.html',
     'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
+    'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
-    'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
+    'PASSWORDLESS_TEMPLATE': 'security/passwordless.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
-    'PASSWORDLESS': False,
+    'PASSWORDLESSABLE': False,
     'CHANGEABLE': False,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
@@ -132,7 +134,7 @@ _allowed_password_hash_schemes = [
     'plaintext'
 ]
 
-_default_forms = {
+_security_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
     'register_form': RegisterForm,
@@ -140,8 +142,14 @@ _default_forms = {
     'reset_password_form': ResetPasswordForm,
     'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
-    'passwordless_login_form': PasswordlessLoginForm,
+    'passwordless_form': PasswordlessForm,
 }
+
+
+def update_security_forms(**kwargs):
+    for key, value in _security_forms.items():
+        if kwargs.get(key):
+            _security_forms.update({key: kwargs[key]})
 
 
 def _user_loader(user_id):
@@ -227,19 +235,22 @@ def _get_state(app, datastore, **kwargs):
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
-        _context_processors={},
+        _ctxs={},
         _send_mail_task=None
     ))
 
-    for key, value in _default_forms.items():
-        if key not in kwargs or not kwargs[key]:
-            kwargs[key] = value
+    update_security_forms(**kwargs)
+    kwargs.update(_security_forms)
 
     return _SecurityState(**kwargs)
 
 
-def _context_processor():
-    return dict(url_for_security=url_for_security, security=_security)
+def _context_processor(state):
+    ctx_prcs = {}
+    ctx_prcs.update({'url_for_security':url_for_security, 'security':_security})
+    for k,v in _security_forms.items():
+        ctx_prcs.update({k: partial(state.form_macro, v)})
+    return ctx_prcs
 
 
 class RoleMixin(object):
@@ -286,51 +297,74 @@ class AnonymousUser(AnonymousUserMixin):
 
 
 class _SecurityState(object):
-
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
+        self._add_ctx('reset_password', self.get_token)
 
-    def _add_ctx_processor(self, endpoint, fn):
-        group = self._context_processors.setdefault(endpoint, [])
+    #@property
+    #def _ctx(self):
+    #    return self._run_ctx(self._security_endpoint)
+
+    def _add_ctx(self, endpoint, fn):
+        group = self._ctxs.setdefault(endpoint, [])
         fn not in group and group.append(fn)
 
-    def _run_ctx_processor(self, endpoint):
+    def _run_ctx(self, endpoint):
         rv, fns = {}, []
         for g in [None, endpoint]:
-            for fn in self._context_processors.setdefault(g, []):
+            for fn in self._ctxs.setdefault(g, []):
                 rv.update(fn())
         return rv
 
-    def context_processor(self, fn):
-        self._add_ctx_processor(None, fn)
+    def get_fn_name(self, name):
+        if name.partition('_')[0] == 'security':
+            return None
+        else:
+            return name.rpartition('_')[0]
 
-    def forgot_password_context_processor(self, fn):
-        self._add_ctx_processor('forgot_password', fn)
-
-    def login_context_processor(self, fn):
-        self._add_ctx_processor('login', fn)
-
-    def register_context_processor(self, fn):
-        self._add_ctx_processor('register', fn)
-
-    def reset_password_context_processor(self, fn):
-        self._add_ctx_processor('reset_password', fn)
-
-    def change_password_context_processor(self, fn):
-        self._add_ctx_processor('change_password', fn)
-
-    def send_confirmation_context_processor(self, fn):
-        self._add_ctx_processor('send_confirmation', fn)
-
-    def send_login_context_processor(self, fn):
-        self._add_ctx_processor('send_login', fn)
-
-    def mail_context_processor(self, fn):
-        self._add_ctx_processor('mail', fn)
+    def add_ctx(self, fn):
+        self._add_ctx(self.get_fn_name(fn.__name__), fn)
 
     def send_mail_task(self, fn):
         self._send_mail_task = fn
+
+    @property
+    def current_form(self):
+        return _security_forms.get("{0}_form".format(self._security_endpoint), None)
+
+    @property
+    def current_template(self):
+        return cv("{0}_template".format(self._security_endpoint))
+
+    @property
+    def _security_endpoint(self):
+        if self.passwordlessable and _endpoint == 'login':
+            return 'passwordless'
+        if self.confirmable and _endpoint == 'register':
+            return 'confirm_register'
+        else:
+            return _endpoint
+
+    def form_macro(self, form):
+        form_is = partial(self._form_is, form)
+        run_ctx = partial(self._run_ctx, self._security_endpoint)
+        return self._on_form(form_is, run_ctx)
+
+    def _form_is(self, form):
+        if request.json:
+            return form(MultiDict(request.json))
+        else:
+            return form(request.form)
+
+    def _on_form(self, form_is, run_ctx):
+        f = form_is()
+        if request.form:
+            f.validate()
+        return f.macro_render(run_ctx())
+
+    def get_token(self):
+        return {'token': request.view_args.get('token', 'NO TOKEN')}
 
 
 class Security(object):
@@ -346,11 +380,7 @@ class Security(object):
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True,
-                 login_form=None, confirm_register_form=None,
-                 register_form=None, forgot_password_form=None,
-                 reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None):
+    def init_app(self, app, datastore=None, register_blueprint=True, **kwargs):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -368,23 +398,19 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
-                           login_form=login_form,
-                           confirm_register_form=confirm_register_form,
-                           register_form=register_form,
-                           forgot_password_form=forgot_password_form,
-                           reset_password_form=reset_password_form,
-                           change_password_form=change_password_form,
-                           send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form)
+        state = _get_state(app, datastore, **kwargs)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
-            app.context_processor(_context_processor)
 
         app.extensions['security'] = state
 
+        self.register_context_processors(app, _context_processor(state))
+
         return state
+
+    def register_context_processors(self, app, context_processors):
+        app.jinja_env.globals.update(context_processors)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)
