@@ -88,11 +88,21 @@ def get_hmac(password):
 
 
 def verify_password(password, password_hash):
-    return _pwd_context.verify(get_hmac(password), password_hash)
+    verified = _pwd_context.verify(password, password_hash)
+    if not verified:
+        # retro-compatibility. verify the hmac of the password. see #143
+        return _pwd_context.verify(get_hmac(password), password_hash)
+    return verified
 
 
 def verify_and_update_password(password, user):
-    verified, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
+    verified, new_password = _pwd_context.verify_and_update(password, user.password)
+    if not verified:
+        # retro-compatibility. verify the hmac of the password. see #143
+        verified, _ = _pwd_context.verify_and_update(get_hmac(password), user.password)
+        if verified:
+            new_password = encrypt_password(password)
+
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
@@ -100,7 +110,7 @@ def verify_and_update_password(password, user):
 
 
 def encrypt_password(password):
-    return _pwd_context.encrypt(get_hmac(password))
+    return _pwd_context.encrypt(password)
 
 
 def md5(data):

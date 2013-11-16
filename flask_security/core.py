@@ -37,6 +37,7 @@ _default_config = {
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'PASSWORD_SALT': None,
+    'PASSWORD_REHASH': True,
     'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -204,7 +205,10 @@ def _get_pwd_context(app):
     if pw_hash not in _allowed_password_hash_schemes:
         allowed = ', '.join(_allowed_password_hash_schemes[:-1]) + ' and ' + _allowed_password_hash_schemes[-1]
         raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
-    return CryptContext(schemes=_allowed_password_hash_schemes, default=pw_hash)
+    deprecated = []
+    if cv('PASSWORD_REHASH', app=app):
+        deprecated = ["auto"]
+    return CryptContext(schemes=_allowed_password_hash_schemes, default=pw_hash, deprecated=deprecated)
 
 
 def _get_serializer(app, name):

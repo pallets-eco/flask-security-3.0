@@ -24,10 +24,15 @@ Core
                                          production systems are ``bcrypt``,
                                          ``sha512_crypt``, or ``pbkdf2_sha512``.
                                          Defaults to ``plaintext``.
-``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
-                                         used if the password hash type is set
-                                         to something other than plain text.
-                                         Defaults to ``None``.
+``SECURITY_PASSWORD_REHASH``             Specifies if the password must be
+                                         rehashed using the current hash
+                                         algorithm. Defaults to ``True``.
+``SECURITY_PASSWORD_SALT``               Deprecated, only used for exising
+                                         applications to match existing passwords
+                                         in the database. Specifies the HMAC salt.
+                                         This is only used if the password hash
+                                         type is set to something other than
+                                         plain text. Defaults to ``None``.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to
                                          ``no-reply@localhost``.
