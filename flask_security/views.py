@@ -303,7 +303,7 @@ def change_password():
     if request.json:
         return _render_json(form)
 
-    return render_template('security/change_password.html',
+    return render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
                            change_password_form=form,
                            **_ctx('change_password'))
 

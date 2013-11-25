@@ -122,6 +122,9 @@ Template Paths
 ``SECURITY_RESET_PASSWORD_TEMPLATE``     Specifies the path to the template for
                                          the reset password page. Defaults to
                                          ``security/reset_password.html``.
+``SECURITY_CHANGE_PASSWORD_TEMPLATE``    Specifies the path to the template for
+                                         the change password page. Defaults to
+                                         ``security/change_password.html``.
 ``SECURITY_SEND_CONFIRMATION_TEMPLATE``  Specifies the path to the template for
                                          the resend confirmation instructions
                                          page. Defaults to
