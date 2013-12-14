@@ -136,11 +136,12 @@ class NextFormMixin():
     next = HiddenField()
 
     def validate_next(self, field):
-        url_next = urlparse.urlsplit(field.data)
-        url_base = urlparse.urlsplit(request.host_url)
-        if url_next.netloc and url_next.netloc != url_base.netloc:
-            field.data = ''
-            raise ValidationError(get_message('INVALID_REDIRECT')[0])
+        if field.data:
+            url_next = urlparse.urlsplit(field.data)
+            url_base = urlparse.urlsplit(request.host_url)
+            if url_next.netloc and url_next.netloc != url_base.netloc:
+                field.data = ''
+                raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
 class RegisterFormMixin():
