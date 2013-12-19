@@ -39,7 +39,11 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
 
 def login_user(user, remember=None):
-    """Performs the login and sends the appropriate signal."""
+    """Performs the login routine.
+
+    :param user: The user to login
+    :param remember: Flag specifying if the remember cookie should be set. Defaults to ``False``
+    """
 
     if remember is None:
         remember = config_value('DEFAULT_REMEMBER_ME')
@@ -66,6 +70,8 @@ def login_user(user, remember=None):
 
 
 def logout_user():
+    """Logs out the current. This will also clean up the remember me cookie if it exists."""
+
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
     identity_changed.send(current_app._get_current_object(),
@@ -74,6 +80,11 @@ def logout_user():
 
 
 def get_hmac(password):
+    """Returns a Base64 encoded HMAC+SHA512 of the password signed with the salt specified
+    by ``SECURITY_PASSWORD_SALT``.
+
+    :param password: The password to sign
+    """
     if _security.password_hash == 'plaintext':
         return password
 
@@ -88,10 +99,21 @@ def get_hmac(password):
 
 
 def verify_password(password, password_hash):
+    """Returns ``True`` if the password matches the supplied hash.
+
+    :param password: A plaintext password to verify
+    :param password_hash: The expected hash value of the password (usually form your database)
+    """
     return _pwd_context.verify(get_hmac(password), password_hash)
 
 
 def verify_and_update_password(password, user):
+    """Returns ``True`` if the password is valid for the specified user. Additionally, the hashed
+    password in the database is updated if the hashing algorithm happens to have changed.
+
+    :param password: A plaintext password to verify
+    :param user: The user to verify against
+    """
     verified, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
     if verified and new_password:
         user.password = new_password
@@ -100,6 +122,10 @@ def verify_and_update_password(password, user):
 
 
 def encrypt_password(password):
+    """Encrypts the specified plaintext password using the configured encryption options.
+
+    :param password: The plaintext passwrod to encrypt
+    """
     return _pwd_context.encrypt(get_hmac(password))
 
 
@@ -259,6 +285,14 @@ def send_mail(subject, recipient, template, **context):
 
 
 def get_token_status(token, serializer, max_age=None):
+    """Get the status of a token.
+
+    :param token: The token to check
+    :param serializer: The name of the seriailzer. Can be one of the
+                       following: ``confirm``, ``login``, ``reset``
+    :param max_age: The name of the max age config option. Can be on of
+                    the following: ``CONFIRM_EMAIL``, ``LOGIN``, ``RESET_PASSWORD``
+    """
     serializer = getattr(_security, serializer + '_serializer')
     max_age = get_max_age(max_age)
     user, data = None, None

@@ -54,6 +54,28 @@ Datastores
     :inherited-members:
 
 
+Utils
+-----
+.. autofunction:: flask_security.utils.login_user
+
+.. autofunction:: flask_security.utils.logout_user
+
+.. autofunction:: flask_security.utils.get_hmac
+
+.. autofunction:: flask_security.utils.verify_password
+
+.. autofunction:: flask_security.utils.verify_and_update_password
+
+.. autofunction:: flask_security.utils.encrypt_password
+
+.. autofunction:: flask_security.utils.url_for_security
+
+.. autofunction:: flask_security.utils.get_within_delta
+
+.. autofunction:: flask_security.utils.send_mail
+
+.. autofunction:: flask_security.utils.get_token_status
+
 Signals
 -------
 See the `Flask documentation on signals`_ for information on how to use these
