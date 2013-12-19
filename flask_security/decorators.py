@@ -51,7 +51,7 @@ def _check_token():
     args_key = _security.token_authentication_key
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
-    if request.json:
+    if request.get_json(silent=True):
         token = request.json.get(args_key, token)
 
     user = _security.login_manager.token_callback(token)
