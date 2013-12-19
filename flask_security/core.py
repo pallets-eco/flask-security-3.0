@@ -66,6 +66,7 @@ _default_config = {
     'CHANGEABLE': False,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
+    'SEND_PASSWORD_RESET_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',

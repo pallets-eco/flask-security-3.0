@@ -207,43 +207,57 @@ Miscellaneous
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
-======================================= ========================================
-``SECURITY_SEND_REGISTER_EMAIL``        Specifies whether registration email is
-                                        sent. Defaults to ``True``.
-``SECURITY_SEND_PASSWORD_CHANGE_EMAIL`` Specifies whether password change email is
-                                        sent. Defaults to ``True``.
-``SECURITY_CONFIRM_EMAIL_WITHIN``       Specifies the amount of time a user has
-                                        before their confirmation link expires.
-                                        Always pluralized the time unit for this
-                                        value. Defaults to ``5 days``.
-``SECURITY_RESET_PASSWORD_WITHIN``      Specifies the amount of time a user has
-                                        before their password reset link
-                                        expires. Always pluralized the time unit
-                                        for this value. Defaults to ``5 days``.
-``SECURITY_LOGIN_WITHIN``               Specifies the amount of time a user has
-                                        before a login link expires. This is
-                                        only used when the passwordless login
-                                        feature is enabled. Always pluralized
-                                        the time unit for this value. Defaults
-                                        to ``1 days``.
-``SECURITY_LOGIN_WITHOUT_CONFIRMATION`` Specifies if a user may login before
-                                        confirming their email when the value
-                                        of ``SECURITY_CONFIRMABLE`` is set to
-                                        ``True``. Defaults to ``False``.
-``SECURITY_CONFIRM_SALT``               Specifies the salt value when generating
-                                        confirmation links/tokens. Defaults to
-                                        ``confirm-salt``.
-``SECURITY_RESET_SALT``                 Specifies the salt value when generating
-                                        password reset links/tokens. Defaults to
-                                        ``reset-salt``.
-``SECURITY_LOGIN_SALT``                 Specifies the salt value when generating
-                                        login links/tokens. Defaults to
-                                        ``login-salt``.
-``SECURITY_REMEMBER_SALT``              Specifies the salt value when generating
-                                        remember tokens. Remember tokens are
-                                        used instead of user ID's as it is more
-                                        secure. Defaults to ``remember-salt``.
-``SECURITY_DEFAULT_REMEMBER_ME``        Specifies the default "remember me"
-                                        value used when logging in a user.
-                                        Defaults to ``False``.
-======================================= ========================================
+============================================= ==================================
+``SECURITY_SEND_REGISTER_EMAIL``              Specifies whether registration
+                                              email is sent. Defaults to
+                                              ``True``.
+``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``       Specifies whether password change
+                                              email is sent. Defaults to
+                                              ``True``.
+``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL`` Specifies whether password reset
+                                              notice email is sent. Defaults to
+                                              ``True``.
+
+``SECURITY_CONFIRM_EMAIL_WITHIN``             Specifies the amount of time a
+                                              user has before their confirmation
+                                              link expires. Always pluralized
+                                              the time unit for this value.
+                                              Defaults to ``5 days``.
+``SECURITY_RESET_PASSWORD_WITHIN``            Specifies the amount of time a
+                                              user has before their password
+                                              reset link expires. Always
+                                              pluralized the time unit for this
+                                              value. Defaults to ``5 days``.
+``SECURITY_LOGIN_WITHIN``                     Specifies the amount of time a
+                                              user has before a login link
+                                              expires. This is only used when
+                                              the passwordless login feature is
+                                              enabled. Always pluralized the
+                                              time unit for this value.
+                                              Defaults to ``1 days``.
+``SECURITY_LOGIN_WITHOUT_CONFIRMATION``       Specifies if a user may login
+                                              before confirming their email when
+                                              the value of
+                                              ``SECURITY_CONFIRMABLE`` is set to
+                                              ``True``. Defaults to ``False``.
+``SECURITY_CONFIRM_SALT``                     Specifies the salt value when
+                                              generating confirmation
+                                              links/tokens. Defaults to
+                                              ``confirm-salt``.
+``SECURITY_RESET_SALT``                       Specifies the salt value when
+                                              generating password reset
+                                              links/tokens. Defaults to
+                                              ``reset-salt``.
+``SECURITY_LOGIN_SALT``                       Specifies the salt value when
+                                              generating login links/tokens.
+                                              Defaults to ``login-salt``.
+``SECURITY_REMEMBER_SALT``                    Specifies the salt value when
+                                              generating remember tokens.
+                                              Remember tokens are used instead
+                                              of user ID's as it is more
+                                              secure. Defaults to
+                                              ``remember-salt``.
+``SECURITY_DEFAULT_REMEMBER_ME``              Specifies the default "remember
+                                              me" value used when logging in
+                                              a user. Defaults to ``False``.
+============================================= ==================================
