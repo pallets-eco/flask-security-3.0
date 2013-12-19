@@ -7,12 +7,12 @@ python:
 install:
   - pip install . --quiet
   - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib --quiet --use-mirrors; fi"
-  - pip install tox simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt --quiet
+  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt --quiet
 
 services:
   - mongodb
 
-script: tox
+script: nosetests
 
 branches:
   only:
