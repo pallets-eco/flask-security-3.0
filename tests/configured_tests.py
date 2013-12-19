@@ -352,6 +352,16 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         self.assertIn(msg, r.data)
         self.assertIn('Hello %s' % e2, r.data)
 
+    def test_login_unconfirmed_user_when_login_without_confirmation_is_true(self):
+        e = 'dude@lp.com'
+        p = 'password'
+        data = dict(email=e, password=p, password_confirm=p)
+        r = self._post('/register', data=data, follow_redirects=True)
+        self.assertIn(e, r.data)
+        self.client.get('/logout')
+        r = self.authenticate(email=e)
+        self.assertIn(e, r.data)
+
 
 class RecoverableTests(SecurityTest):
 
