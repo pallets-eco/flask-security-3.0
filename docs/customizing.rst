@@ -140,3 +140,23 @@ templates you can specify an email context processor with the
     @security.mail_context_processor
     def security_mail_processor():
         return dict(hello="world")
+
+
+Emails with Celery
+------------------
+
+Sometimes it makes sense to send emails via a task queue, such as
+`Celery<http://www.celeryproject.org/>`_. To delay the sending of emails you can
+use the ``@security.send_mail_task`` decorator like so::
+
+    # Setup the task
+    @celery.task
+    def send_security_email(msg):
+        # Use the Flask-Mail extension instance to send the incoming ``msg`` parameter
+        # which is an instance of `flask_mail.Message`
+        mail.send(msg)
+
+    @security.send_mail_task
+    def delay_security_email(msg):
+        send_security_email.delay(msg)
+
