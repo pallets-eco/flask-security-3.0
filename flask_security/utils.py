@@ -14,6 +14,7 @@ import blinker
 import functools
 import hashlib
 import hmac
+import sys
 
 from contextlib import contextmanager
 from datetime import datetime, timedelta
@@ -36,6 +37,15 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
+
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    string_types = str,
+    text_type = str
+else:
+    string_types = basestring,
+    text_type = unicode
 
 
 def login_user(user, remember=None):
@@ -85,16 +95,13 @@ def get_hmac(password):
 
     :param password: The password to sign
     """
-    if _security.password_hash == 'plaintext':
-        return password
-
     if _security.password_salt is None:
         raise RuntimeError(
             'The configuration value `SECURITY_PASSWORD_SALT` must '
             'not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
-    h = hmac.new(_security.password_salt, password.encode('utf-8'), hashlib.sha512)
+    h = hmac.new(_security.password_salt.encode('utf-8'), password.encode('utf-8'), hashlib.sha512)
     return base64.b64encode(h.digest())
 
 
@@ -104,7 +111,7 @@ def verify_password(password, password_hash):
     :param password: A plaintext password to verify
     :param password_hash: The expected hash value of the password (usually form your database)
     """
-    return _pwd_context.verify(get_hmac(password), password_hash)
+    return _pwd_context.verify(encrypt_password(password), password_hash)
 
 
 def verify_and_update_password(password, user):
@@ -114,7 +121,7 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-    verified, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
+    verified, new_password = _pwd_context.verify_and_update(encrypt_password(password), user.password)
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
@@ -126,11 +133,14 @@ def encrypt_password(password):
 
     :param password: The plaintext passwrod to encrypt
     """
-    return _pwd_context.encrypt(get_hmac(password))
+    if _security.password_hash == 'plaintext':
+        return password
+    signed = get_hmac(password)
+    return _pwd_context.encrypt(signed.decode('ascii'))
 
 
 def md5(data):
-    return hashlib.md5(data).hexdigest()
+    return hashlib.md5(data.encode('ascii')).hexdigest()
 
 
 def do_flash(message, category=None):
@@ -408,19 +418,19 @@ class CaptureSignals(object):
         self._records[signal].append((args, kwargs))
 
     def __enter__(self):
-        for signal, receiver in self._receivers.iteritems():
+        for signal, receiver in self._receivers.items():
             signal.connect(receiver)
         return self
 
     def __exit__(self, type, value, traceback):
-        for signal, receiver in self._receivers.iteritems():
+        for signal, receiver in self._receivers.items():
             signal.disconnect(receiver)
 
     def signals_sent(self):
         """Return a set of the signals sent.
         :rtype: list of blinker `NamedSignals`.
         """
-        return set([signal for signal, _ in self._records.iteritems() if self._records[signal]])
+        return set([signal for signal, _ in self._records.items() if self._records[signal]])
 
 
 def capture_signals():

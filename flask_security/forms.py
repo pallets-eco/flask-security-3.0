@@ -10,9 +10,10 @@
 """
 
 import inspect
-import urlparse
-
-import flask_wtf as wtf
+try:
+    from urlparse import urlsplit
+except ImportError:
+    from urllib.parse import urlsplit
 
 from flask import request, current_app
 from flask_wtf import Form as BaseForm
@@ -22,7 +23,7 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, encrypt_password, config_value
+from .utils import verify_and_update_password, get_message, config_value
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -137,8 +138,8 @@ class NextFormMixin():
 
     def validate_next(self, field):
         if field.data:
-            url_next = urlparse.urlsplit(field.data)
-            url_base = urlparse.urlsplit(request.host_url)
+            url_next = urlsplit(field.data)
+            url_base = urlsplit(request.host_url)
             if url_next.netloc and url_next.netloc != url_base.netloc:
                 field.data = ''
                 raise ValidationError(get_message('INVALID_REDIRECT')[0])
