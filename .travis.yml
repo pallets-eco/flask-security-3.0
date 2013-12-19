@@ -7,10 +7,7 @@ python:
 install:
   - pip install . --quiet
   - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib --quiet --use-mirrors; fi"
-  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee py-bcrypt MySQL-python --quiet
-
-before_script:
-  - mysql -e 'create database flask_security_test;'
+  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt --quiet
 
 services:
   - mongodb
