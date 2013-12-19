@@ -123,6 +123,7 @@ def register():
 
         if not request.json:
             return redirect(get_post_register_redirect())
+        return _render_json(form, True)
 
     if request.json:
         return _render_json(form)
