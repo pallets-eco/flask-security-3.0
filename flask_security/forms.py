@@ -22,7 +22,7 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, encrypt_password
+from .utils import verify_and_update_password, get_message, encrypt_password, config_value
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -207,6 +207,7 @@ class LoginForm(Form, NextFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
+        self.remember.default = config_value('DEFAULT_REMEMBER_ME')
 
     def validate(self):
         if not super(LoginForm, self).validate():
