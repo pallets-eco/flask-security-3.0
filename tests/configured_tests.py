@@ -12,6 +12,7 @@ from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterFor
     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
     PasswordlessLoginForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
+from flask.ext.security.core import _get_pwd_context
 
 
 from tests import SecurityTest
@@ -106,15 +107,39 @@ class ConfiguredSecurityTests(SecurityTest):
                           r.headers['WWW-Authenticate'])
 
 
-class BadConfiguredSecurityTests(SecurityTest):
-
+class _RehashConfigurationTest(SecurityTest):
     AUTH_CONFIG = {
-        'SECURITY_PASSWORD_HASH': 'bcrypt',
-        'USER_COUNT': 1
+        'USER_COUNT': 1,
     }
+    def setUp(self):
+        super(_RehashConfigurationTest, self).setUp()
+        self._get('/')      # force database creation
+        print self.app.config['SECURITY_PASSWORD_REHASH']
+        self.app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
+        self.app.config['SECURITY_PASSWORD_REHASH'] = self.REHASH
+        self.app.extensions['security'].pwd_context = _get_pwd_context(self.app)
 
-    def test_bad_configuration_raises_runtimer_error(self):
-        self.assertRaises(RuntimeError, self.authenticate)
+class RehashConfigurationTestOn(_RehashConfigurationTest):
+    REHASH = True
+
+    def test_rehash_password(self):
+        e = 'matt@lp.com'
+        self.authenticate(email=e)
+
+        user = self.app.extensions['security'].datastore.find_user(email=e)
+        self.assertEquals(user.password[:4], '$2a$')
+
+class RehashConfigurationTestOff(_RehashConfigurationTest):
+    REHASH = False
+
+    def test_not_rehash_password(self):
+        print self.app.config['SECURITY_PASSWORD_REHASH']
+        e = 'matt@lp.com'
+        self.authenticate(email=e)
+
+        print self.app.config['SECURITY_PASSWORD_REHASH']
+        user = self.app.extensions['security'].datastore.find_user(email=e)
+        self.assertEquals(user.password, 'password')
 
 
 class DefaultTemplatePathTests(SecurityTest):
