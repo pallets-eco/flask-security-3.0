@@ -186,11 +186,9 @@ class DefaultSecurityTests(SecurityTest):
                           r.headers['WWW-Authenticate'])
 
     def test_multi_auth_basic(self):
-        h = {
+        r = self._get('/multi_auth', headers={
             'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password")
-        }
-        print(h)
-        r = self._get('/multi_auth', headers=h)
+        })
         self.assertIn(b'Basic', r.data)
 
     def test_multi_auth_token(self):
