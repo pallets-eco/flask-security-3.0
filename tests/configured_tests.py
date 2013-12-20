@@ -114,7 +114,6 @@ class _RehashConfigurationTest(SecurityTest):
     def setUp(self):
         super(_RehashConfigurationTest, self).setUp()
         self._get('/')      # force database creation
-        print self.app.config['SECURITY_PASSWORD_REHASH']
         self.app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
         self.app.config['SECURITY_PASSWORD_REHASH'] = self.REHASH
         self.app.extensions['security'].pwd_context = _get_pwd_context(self.app)
@@ -133,11 +132,9 @@ class RehashConfigurationTestOff(_RehashConfigurationTest):
     REHASH = False
 
     def test_not_rehash_password(self):
-        print self.app.config['SECURITY_PASSWORD_REHASH']
         e = 'matt@lp.com'
         self.authenticate(email=e)
 
-        print self.app.config['SECURITY_PASSWORD_REHASH']
         user = self.app.extensions['security'].datastore.find_user(email=e)
         self.assertEquals(user.password, 'password')
 
