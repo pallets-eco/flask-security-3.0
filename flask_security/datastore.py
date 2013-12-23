@@ -9,6 +9,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from .utils import get_identity_attributes
+
 
 class Datastore(object):
     def __init__(self, db):
@@ -179,14 +181,14 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         SQLAlchemyDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
-    def get_user(self, id_or_email):
-        returned = None
-        if self._is_numeric(id_or_email):
-            returned = self.user_model.query.get(id_or_email)
-        if not returned:
-            returned = self.user_model.query.filter(
-                self.user_model.email.ilike(id_or_email)).first()
-        return returned
+    def get_user(self, identifier):
+        if self._is_numeric(identifier):
+            return self.user_model.query.get(identifier)
+        for attr in get_identity_attributes():
+            query = getattr(self.user_model, attr).ilike(identifier)
+            rv = self.user_model.query.filter(query).first()
+            if rv is not None:
+                return rv
 
     def _is_numeric(self, value):
         try:
@@ -210,12 +212,18 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         MongoEngineDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
-    def get_user(self, id_or_email):
+    def get_user(self, identifier):
         from mongoengine import ValidationError
         try:
-            return self.user_model.objects(id=id_or_email).first()
+            return self.user_model.objects(id=identifier).first()
         except ValidationError:
-            return self.user_model.objects(email__iexact=id_or_email).first()
+            pass
+        for attr in get_identity_attributes():
+            query_key = '%s__iexact' % attr
+            query = {query_key: identifier}
+            rv = self.user_model.objects(**query).first()
+            if rv is not None:
+                return rv
 
     def find_user(self, **kwargs):
         try:
@@ -234,6 +242,12 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
 
+    def add_role_to_user(self, user, role):
+        rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+        if rv:
+            self.put(user)
+        return rv
+
 
 class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
     """A PeeweeD datastore implementation for Flask-Security that assumes
@@ -248,16 +262,18 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
         self.UserRole = role_link
 
-    def get_user(self, id_or_email):
+    def get_user(self, identifier):
         try:
-            return self.user_model.get(self.user_model.id == id_or_email)
+            return self.user_model.get(self.user_model.id == identifier)
         except ValueError:
             pass
-        try:
-            return self.user_model.get(self.user_model.email ** id_or_email)
-        except self.user_model.DoesNotExist:
-            pass
-        return None
+
+        for attr in get_identity_attributes():
+            column = getattr(self.user_model, attr)
+            try:
+                return self.user_model.get(column ** identifier)
+            except self.user_model.DoesNotExist:
+                pass
 
     def find_user(self, **kwargs):
         try:

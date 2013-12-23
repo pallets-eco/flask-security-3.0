@@ -29,6 +29,7 @@ def create_app(config, **kwargs):
 
     class User(db.Model, UserMixin):
         email = TextField()
+        username = TextField()
         password = TextField()
         last_login_at = DateTimeField(null=True)
         current_login_at = DateTimeField(null=True)

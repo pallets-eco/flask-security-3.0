@@ -123,6 +123,7 @@ def register():
 
         if not request.json:
             return redirect(get_post_register_redirect())
+        return _render_json(form, True)
 
     if request.json:
         return _render_json(form)
@@ -301,9 +302,10 @@ def change_password():
                             get_url(_security.post_login_view))
 
     if request.json:
+        form.user = current_user
         return _render_json(form)
 
-    return _security.render_template('security/change_password.html',
+    return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
                                      change_password_form=form,
                                      **_ctx('change_password'))
 

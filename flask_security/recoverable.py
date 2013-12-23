@@ -44,8 +44,9 @@ def send_password_reset_notice(user):
 
     :param user: The user to send the notice to
     """
-    send_mail(config_value('EMAIL_SUBJECT_PASSWORD_NOTICE'), user.email,
-              'reset_notice', user=user)
+    if config_value('SEND_PASSWORD_RESET_NOTICE_EMAIL'):
+        send_mail(config_value('EMAIL_SUBJECT_PASSWORD_NOTICE'), user.email,
+                  'reset_notice', user=user)
 
 
 def generate_reset_password_token(user):
