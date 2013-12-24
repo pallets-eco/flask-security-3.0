@@ -5,6 +5,7 @@
 import base64
 import time
 import simplejson as json
+import flask
 
 from flask.ext.security.utils import capture_registrations, \
     capture_reset_password_requests, capture_passwordless_login_requests
@@ -12,6 +13,8 @@ from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterFor
     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
     PasswordlessLoginForm
 from flask.ext.security.forms import TextField, SubmitField, valid_user_email
+
+from flask.ext.security import signals
 
 
 from tests import SecurityTest
@@ -240,12 +243,15 @@ class ConfirmableTests(SecurityTest):
     def test_confirm_email(self):
         e = 'dude@lp.com'
 
-        with capture_registrations() as registrations:
-            r = self.register(e)
-            token = registrations[0]['confirm_token']
+        tokens = []
+        def on_registered(sender, **kwargs):
+            tokens.append(kwargs['confirm_token'])
 
-        r = self.client.get('/confirm/' + token, follow_redirects=True)
+        signals.user_registered.connect(on_registered, self.app)
 
+        r = self.register(e)
+        self.assertEqual(len(tokens), 1)
+        r = self.client.get('/confirm/' + tokens[0], follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
         self.assertIn(msg, r.data)
 
@@ -317,6 +323,10 @@ class ExpiredConfirmationTest(SecurityTest):
             msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0]
             msg = msg % dict(within=expire_text, email=e)
             self.assertIn(msg, r.data)
+
+
+
+
 
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
