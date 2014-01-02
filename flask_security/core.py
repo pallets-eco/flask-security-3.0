@@ -67,6 +67,7 @@ _default_config = {
     'CHANGEABLE': False,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
+    'SEND_PASSWORD_RESET_NOTICE_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
@@ -86,7 +87,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
-    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions'
+    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'USER_IDENTITY_ATTRIBUTES': ['email']
 }
 
 #: Default Flask-Security messages
@@ -113,11 +115,13 @@ _default_messages = {
     'EMAIL_NOT_PROVIDED': ('Email not provided', 'error'),
     'INVALID_EMAIL_ADDRESS': ('Invalid email address', 'error'),
     'PASSWORD_NOT_PROVIDED': ('Password not provided', 'error'),
+    'PASSWORD_NOT_SET': ('No password is set for this user', 'error'),
     'PASSWORD_INVALID_LENGTH': ('Password must be at least 6 characters', 'error'),
     'USER_DOES_NOT_EXIST': ('Specified user does not exist', 'error'),
     'INVALID_PASSWORD': ('Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
+    'PASSWORD_IS_THE_SAME': ('Your new password must be different than your previous password.', 'error'),
     'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
     'LOGIN': ('Please log in to access this page.', 'info'),
     'REFRESH': ('Please reauthenticate to access this page.', 'info'),

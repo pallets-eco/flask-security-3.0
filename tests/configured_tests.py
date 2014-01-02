@@ -352,6 +352,16 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         self.assertIn(msg, r.data)
         self.assertIn('Hello %s' % e2, r.data)
 
+    def test_login_unconfirmed_user_when_login_without_confirmation_is_true(self):
+        e = 'dude@lp.com'
+        p = 'password'
+        data = dict(email=e, password=p, password_confirm=p)
+        r = self._post('/register', data=data, follow_redirects=True)
+        self.assertIn(e, r.data)
+        self.client.get('/logout')
+        r = self.authenticate(email=e)
+        self.assertIn(e, r.data)
+
 
 class RecoverableTests(SecurityTest):
 
@@ -473,6 +483,16 @@ class ChangePasswordTest(SecurityTest):
         }, follow_redirects=True)
         self.assertNotIn('You successfully changed your password', r.data)
         self.assertIn('Password must be at least 6 characters', r.data)
+
+    def test_change_password_same_as_previous(self):
+        self.authenticate()
+        r = self._post('/change', data={
+            'password': 'password',
+            'new_password': 'password',
+            'new_password_confirm': 'password'
+        }, follow_redirects=True)
+        self.assertNotIn('You successfully changed your password', r.data)
+        self.assertIn('Your new password must be different than your previous password.', r.data)
 
     def test_change_password_success(self):
         data = {
@@ -815,3 +835,14 @@ class ConfirmableExtendFormsTest(SecurityTest):
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
         self.assertIn("My Send Confirmation Email Address Field", r.data)
+
+
+class AdditionalUserIdentityAttributes(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
+    }
+
+    def test_authenticate(self):
+        r = self.authenticate(email='matt')
+        self.assertIn('Hello matt@lp.com', r.data)

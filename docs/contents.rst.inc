@@ -11,3 +11,4 @@ Contents
    customizing
    api
    changelog
+   authors
