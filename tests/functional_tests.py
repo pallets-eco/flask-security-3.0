@@ -147,7 +147,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_http_auth(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
         })
         self.assertIn(b'HTTP Authentication', r.data)
 
@@ -160,7 +160,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_invalid_http_auth_invalid_username(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
         })
         self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
@@ -169,7 +169,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_invalid_http_auth_bad_password(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
         })
         self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
@@ -178,7 +178,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_custom_http_auth_realm(self):
         r = self._get('/http_custom_realm', headers={
-            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
         })
         self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
@@ -187,7 +187,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_multi_auth_basic(self):
         r = self._get('/multi_auth', headers={
-            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
         })
         self.assertIn(b'Basic', r.data)
 
