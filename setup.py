@@ -47,7 +47,7 @@ setup(
         'Flask-SQLAlchemy',
         'Flask-MongoEngine',
         'Flask-Peewee',
-        'py-bcrypt',
+        'bcrypt',
         'simplejson'
     ],
     classifiers=[
