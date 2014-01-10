@@ -55,7 +55,7 @@ authentication endpoint. A successful call to this endpoint will return the
 user's ID and their authentication token. This token can be used in subsequent
 requests to protected resources. The auth token is supplied in the request
 through an HTTP header or query string parameter. By default the HTTP header
-name is `X-Auth-Token` and the default query string parameter name is
+name is `Authentication-Token` and the default query string parameter name is
 `auth_token`. Authentication tokens are generated using the user's password.
 Thus if the user changes his or her password their existing authentication token
 will become invalid. A new token will need to be retrieved using the user's new
