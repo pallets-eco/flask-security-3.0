@@ -3,11 +3,13 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
-Version 1.6.10
---------------
+Version 1.7.0
+-------------
 
-Released ???
+Released January 10th 2014
 
+- Python 3.3 support!
+- Dependency updates
 - Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not allow users to log in
 - Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to optionally send password reset notice emails
 - Add documentation for `@security.send_mail_task`
