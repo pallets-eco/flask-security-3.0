@@ -3,6 +3,31 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.6.10
+--------------
+
+Released ???
+
+- Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not allow users to log in
+- Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to optionally send password reset notice emails
+- Add documentation for `@security.send_mail_task`
+- Move to `request.get_json` as `request.json` is now deprecated in Flask
+- Fixed a bug when using AJAX to change a user's password
+- Added documentation for select functions in the `flask_security.utils` module
+- Fixed a bug in `flask_security.forms.NextFormMixin`
+- Added `CHANGE_PASSWORD_TEMPLATE` configuration option to optionally specify a different change password template
+- Added the ability to specify addtional fields on the user model to be used for identifying the user via the `USER_IDENTITY_ATTRIBUTES` configuration option
+- An error is now shown if a user tries to change their password and the password is the same as before. The message can be customed with the `SECURITY_MSG_PASSWORD_IS_SAME` configuration option
+- Fixed a bug in `MongoEngineUserDatastore` where user model would not be updated when using the `add_role_to_user` method
+- Added `SECURITY_SEND_PASSWORD_CHANGE_EMAIL` configuration option to optionally disable password change email from being sent
+- Fixed a bug in the `find_or_create_role` method of the PeeWee datastore
+- Removed pypy tests
+- Fixed some tests
+- Include CHANGES and LICENSE in MANIFEST.in
+- A bit of documentation cleanup
+- A bit of code cleanup including removal of unnecessary utcnow call and simplification of get_max_age method
+
+
 Version 1.6.9
 -------------
 
