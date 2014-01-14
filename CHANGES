@@ -3,6 +3,14 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.7.1
+-------------
+
+Released January 14th 2014
+
+- Fixed a bug where passwords would fail to verify when specifying a password hash algorithm
+
+
 Version 1.7.0
 -------------
 
