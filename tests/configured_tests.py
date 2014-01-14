@@ -19,18 +19,18 @@ from flask_security.signals import user_registered
 
 from tests import SecurityTest
 
-# TODO: Wait for passlib + bcrypt python3 compatibility to be fixed
-# class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
-#     AUTH_CONFIG = {
-#         'SECURITY_PASSWORD_HASH': 'bcrypt',
-#         'SECURITY_PASSWORD_SALT': 'so-salty',
-#         'USER_COUNT': 1
-#     }
+class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
-#     def test_authenticate(self):
-#         r = self.authenticate(endpoint="/login")
-#         self.assertIn(b'Home Page', r.data)
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+        'SECURITY_PASSWORD_SALT': 'so-salty',
+        'USER_COUNT': 1
+    }
+
+    def test_authenticate(self):
+        r = self.authenticate(endpoint="/login")
+        self.assertIn(b'Home Page', r.data)
 
 
 class ConfiguredSecurityTests(SecurityTest):

@@ -121,7 +121,10 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-    verified, new_password = _pwd_context.verify_and_update(encrypt_password(password), user.password)
+
+    if _security.password_hash != 'plaintext':
+        password = get_hmac(password)
+    verified, new_password = _pwd_context.verify_and_update(password, user.password)
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
@@ -135,8 +138,8 @@ def encrypt_password(password):
     """
     if _security.password_hash == 'plaintext':
         return password
-    signed = get_hmac(password)
-    return _pwd_context.encrypt(signed.decode('ascii'))
+    signed = get_hmac(password).decode('ascii')
+    return _pwd_context.encrypt(signed)
 
 
 def md5(data):
