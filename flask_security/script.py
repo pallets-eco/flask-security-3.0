@@ -20,7 +20,7 @@ from flask.ext.script import Command, Option
 from werkzeug.local import LocalProxy
 
 from .utils import encrypt_password
-
+from .changeable import change_user_password
 
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
@@ -128,3 +128,18 @@ class ActivateUserCommand(_ToggleActiveCommand):
     def run(self, user_identifier):
         _datastore.activate_user(user_identifier)
         print "User '%s' has been activated" % user_identifier
+
+
+class ChangePasswordCommand(Command):
+    """Change the specified user's password"""
+
+    option_list = (
+        Option('-u', '--user', dest='user_identifier'),
+        Option('-p', '--new_password', dest='new_password'),
+    )
+
+    @commit
+    def run(self, user_identifier, new_password):
+        user = _datastore.get_user(user_identifier)
+        change_user_password(user, new_password)
+        print "Password for %s user has been successfully changed" % user_identifier
