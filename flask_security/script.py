@@ -141,5 +141,8 @@ class ChangePasswordCommand(Command):
     @commit
     def run(self, user_identifier, new_password):
         user = _datastore.get_user(user_identifier)
-        change_user_password(user, new_password)
-        print "Password for %s user has been successfully changed" % user_identifier
+        if user:
+            change_user_password(user, new_password)
+            print "Password for %s user has been successfully changed" % user_identifier
+        else:
+            print "User %s not found" % user_identifier
