@@ -432,7 +432,8 @@ class RecoverableTests(SecurityTest):
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
 
-        self.assertIn(self.get_message('INVALID_RESET_PASSWORD_TOKEN'), r.data)
+        m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
+        self.assertIn(m.encode('utf-8'), r.data)
 
 
 class ExpiredResetPasswordTest(SecurityTest):
