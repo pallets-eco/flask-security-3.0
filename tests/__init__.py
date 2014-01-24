@@ -61,7 +61,7 @@ class SecurityTest(TestCase):
         return self._get(endpoint or '/logout', follow_redirects=True)
 
     def assertIsHomePage(self, data):
-        self.assertIn('Home Page', data)
+        self.assertIn(b'Home Page', data)
 
     def assertIn(self, member, container, msg=None):
         if hasattr(TestCase, 'assertIn'):

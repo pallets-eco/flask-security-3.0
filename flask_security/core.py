@@ -19,7 +19,7 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .utils import config_value as cv, get_config, md5, url_for_security
+from .utils import config_value as cv, get_config, md5, url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -249,6 +249,7 @@ def _context_processor():
 
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
+
     def __eq__(self, other):
         return (self.name == other or
                 self.name == getattr(other, 'name', None))
@@ -273,7 +274,7 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
-        if isinstance(role, basestring):
+        if isinstance(role, string_types):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles

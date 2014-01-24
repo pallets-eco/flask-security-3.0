@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import with_statement
+# from __future__ import with_statement
 
 import base64
 import time
 import simplejson as json
+import flask
 
-from flask.ext.security.utils import capture_registrations, \
+from flask_security.utils import capture_registrations, \
     capture_reset_password_requests, capture_passwordless_login_requests
-from flask.ext.security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+from flask_security.forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ResetPasswordForm, SendConfirmationForm, \
     PasswordlessLoginForm
-from flask.ext.security.forms import TextField, SubmitField, valid_user_email
+from flask_security.forms import TextField, SubmitField, valid_user_email
+
+from flask_security.signals import user_registered
 
 
 from tests import SecurityTest
@@ -27,7 +30,7 @@ class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
     def test_authenticate(self):
         r = self.authenticate(endpoint="/login")
-        self.assertIn('Home Page', r.data)
+        self.assertIn(b'Home Page', r.data)
 
 
 class ConfiguredSecurityTests(SecurityTest):
@@ -45,20 +48,20 @@ class ConfiguredSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/custom_login')
-        self.assertIn("<h1>Login</h1>", r.data)
+        self.assertIn(b"<h1>Login</h1>", r.data)
 
     def test_authenticate(self):
         r = self.authenticate(endpoint="/custom_login")
-        self.assertIn('Post Login', r.data)
+        self.assertIn(b'Post Login', r.data)
 
     def test_logout(self):
         self.authenticate(endpoint="/custom_login")
         r = self.logout(endpoint="/custom_logout")
-        self.assertIn('Post Logout', r.data)
+        self.assertIn(b'Post Logout', r.data)
 
     def test_register_view(self):
         r = self._get('/register')
-        self.assertIn('<h1>Register</h1>', r.data)
+        self.assertIn(b'<h1>Register</h1>', r.data)
 
     def test_register(self):
         data = dict(email='dude@lp.com',
@@ -66,7 +69,7 @@ class ConfiguredSecurityTests(SecurityTest):
                     password_confirm='password')
 
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn('Post Register', r.data)
+        self.assertIn(b'Post Register', r.data)
 
     def test_register_with_next_querystring_argument(self):
         data = dict(email='dude@lp.com',
@@ -74,7 +77,7 @@ class ConfiguredSecurityTests(SecurityTest):
                     password_confirm='password')
 
         r = self._post('/register?next=/page1', data=data, follow_redirects=True)
-        self.assertIn('Page 1', r.data)
+        self.assertIn(b'Page 1', r.data)
 
     def test_register_json(self):
         data = '{ "email": "dude@lp.com", "password": "password"}'
@@ -87,20 +90,20 @@ class ConfiguredSecurityTests(SecurityTest):
                     password='password',
                     password_confirm='password')
         r = self._post('/register', data=data, follow_redirects=True)
-        msg = 'matt@lp.com is already associated with an account'
+        msg = b'matt@lp.com is already associated with an account'
         self.assertIn(msg, r.data)
 
     def test_unauthorized(self):
         self.authenticate("joe@lp.com", endpoint="/custom_auth")
         r = self._get("/admin", follow_redirects=True)
-        msg = 'You are not allowed to access the requested resouce'
+        msg = b'You are not allowed to access the requested resouce'
         self.assertIn(msg, r.data)
 
     def test_default_http_auth_realm(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus")
         })
-        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="Custom Realm"',
                           r.headers['WWW-Authenticate'])
@@ -125,7 +128,7 @@ class DefaultTemplatePathTests(SecurityTest):
     def test_login_user_template(self):
         r = self._get('/login')
 
-        self.assertIn('CUSTOM LOGIN USER', r.data)
+        self.assertIn(b'CUSTOM LOGIN USER', r.data)
 
 
 class RegisterableTemplatePathTests(SecurityTest):
@@ -137,7 +140,7 @@ class RegisterableTemplatePathTests(SecurityTest):
     def test_register_user_template(self):
         r = self._get('/register')
 
-        self.assertIn('CUSTOM REGISTER USER', r.data)
+        self.assertIn(b'CUSTOM REGISTER USER', r.data)
 
 
 class RecoverableTemplatePathTests(SecurityTest):
@@ -150,7 +153,7 @@ class RecoverableTemplatePathTests(SecurityTest):
     def test_forgot_password_template(self):
         r = self._get('/reset')
 
-        self.assertIn('CUSTOM FORGOT PASSWORD', r.data)
+        self.assertIn(b'CUSTOM FORGOT PASSWORD', r.data)
 
     def test_reset_password_template(self):
         with capture_reset_password_requests() as requests:
@@ -161,7 +164,7 @@ class RecoverableTemplatePathTests(SecurityTest):
 
         r = self._get('/reset/' + t)
 
-        self.assertIn('CUSTOM RESET PASSWORD', r.data)
+        self.assertIn(b'CUSTOM RESET PASSWORD', r.data)
 
 
 class ConfirmableTemplatePathTests(SecurityTest):
@@ -173,7 +176,7 @@ class ConfirmableTemplatePathTests(SecurityTest):
     def test_send_confirmation_template(self):
         r = self._get('/confirm')
 
-        self.assertIn('CUSTOM SEND CONFIRMATION', r.data)
+        self.assertIn(b'CUSTOM SEND CONFIRMATION', r.data)
 
 
 class PasswordlessTemplatePathTests(SecurityTest):
@@ -185,7 +188,7 @@ class PasswordlessTemplatePathTests(SecurityTest):
     def test_send_login_template(self):
         r = self._get('/login')
 
-        self.assertIn('CUSTOM SEND LOGIN', r.data)
+        self.assertIn(b'CUSTOM SEND LOGIN', r.data)
 
 
 class RegisterableTests(SecurityTest):
@@ -200,7 +203,7 @@ class RegisterableTests(SecurityTest):
                     password_confirm='password')
         self._post('/register', data=data, follow_redirects=True)
         r = self.authenticate('dude@lp.com')
-        self.assertIn('Hello dude@lp.com', r.data)
+        self.assertIn(b'Hello dude@lp.com', r.data)
 
 
 class ConfirmableTests(SecurityTest):
@@ -215,19 +218,20 @@ class ConfirmableTests(SecurityTest):
         e = 'dude@lp.com'
         self.register(e)
         r = self.authenticate(email=e)
-        self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
+        self.assertIn(self.get_message('CONFIRMATION_REQUIRED').encode('utf-8'), r.data)
 
     def test_send_confirmation_of_already_confirmed_account(self):
         e = 'dude@lp.com'
 
         with capture_registrations() as registrations:
-            self.register(e)
+            r = self.register(e)
             token = registrations[0]['confirm_token']
 
         self.client.get('/confirm/' + token, follow_redirects=True)
         self.logout()
         r = self._post('/confirm', data=dict(email=e))
-        self.assertIn(self.get_message('ALREADY_CONFIRMED'), r.data)
+        m = self.get_message('ALREADY_CONFIRMED')
+        self.assertIn(m.encode('utf-8'), r.data)
 
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
@@ -240,19 +244,22 @@ class ConfirmableTests(SecurityTest):
     def test_confirm_email(self):
         e = 'dude@lp.com'
 
-        with capture_registrations() as registrations:
-            self.register(e)
-            token = registrations[0]['confirm_token']
+        tokens = []
+        def on_registered(sender, **kwargs):
+            tokens.append(kwargs['confirm_token'])
 
-        r = self.client.get('/confirm/' + token, follow_redirects=True)
+        user_registered.connect(on_registered, self.app)
 
+        r = self.register(e)
+        self.assertEqual(len(tokens), 1)
+        r = self.client.get('/confirm/' + tokens[0], follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
     def test_send_confirmation_json(self):
         r = self._post('/confirm', data='{"email": "matt@lp.com"}',
@@ -262,14 +269,14 @@ class ConfirmableTests(SecurityTest):
     def test_send_confirmation_with_invalid_email(self):
         r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
         msg = self.app.config['SECURITY_MSG_USER_DOES_NOT_EXIST'][0]
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
     def test_resend_confirmation(self):
         e = 'dude@lp.com'
         self.register(e)
         r = self._post('/confirm', data={'email': e})
 
-        msg = self.get_message('CONFIRMATION_REQUEST', email=e)
+        msg = self.get_message('CONFIRMATION_REQUEST', email=e).encode('utf-8')
         self.assertIn(msg, r.data)
 
     def test_user_deleted_before_confirmation(self):
@@ -287,7 +294,7 @@ class ConfirmableTests(SecurityTest):
 
         r = self.client.get('/confirm/' + token, follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
 
 class ExpiredConfirmationTest(SecurityTest):
@@ -316,7 +323,7 @@ class ExpiredConfirmationTest(SecurityTest):
             expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
             msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0]
             msg = msg % dict(within=expire_text, email=e)
-            self.assertIn(msg, r.data)
+            self.assertIn(msg.encode('utf-8'), r.data)
 
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
@@ -332,7 +339,7 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         p = 'password'
         data = dict(email=e, password=p, password_confirm=p)
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn(e, r.data)
+        self.assertIn(e.encode('utf-8'), r.data)
 
     def test_confirm_email_of_user_different_than_current_user(self):
         e1 = 'dude@lp.com'
@@ -340,6 +347,7 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
 
         with capture_registrations() as registrations:
             self.register(e1)
+            self.logout()
             self.register(e2)
             token1 = registrations[0]['confirm_token']
             token2 = registrations[1]['confirm_token']
@@ -348,19 +356,19 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         self.client.get('/logout')
         self.authenticate(email=e1)
         r = self.client.get('/confirm/' + token2, follow_redirects=True)
-        msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
-        self.assertIn(msg, r.data)
-        self.assertIn('Hello %s' % e2, r.data)
+        m = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
+        self.assertIn(m.encode('utf-8'), r.data)
+        self.assertIn(b'Hello lady@lp.com', r.data)
 
     def test_login_unconfirmed_user_when_login_without_confirmation_is_true(self):
         e = 'dude@lp.com'
         p = 'password'
         data = dict(email=e, password=p, password_confirm=p)
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn(e, r.data)
+        self.assertIn(e.encode('utf-8'), r.data)
         self.client.get('/logout')
         r = self.authenticate(email=e)
-        self.assertIn(e, r.data)
+        self.assertIn(e.encode('utf-8'), r.data)
 
 
 class RecoverableTests(SecurityTest):
@@ -377,7 +385,7 @@ class RecoverableTests(SecurityTest):
                            follow_redirects=True)
             t = requests[0]['token']
         r = self._get('/reset/' + t)
-        self.assertIn('<h1>Reset password</h1>', r.data)
+        self.assertIn(b'<h1>Reset password</h1>', r.data)
 
     def test_forgot_post_sends_email(self):
         with capture_reset_password_requests():
@@ -393,7 +401,7 @@ class RecoverableTests(SecurityTest):
     def test_forgot_password_invalid_email(self):
         r = self._post('/reset', data=dict(email='larry@lp.com'),
                        follow_redirects=True)
-        self.assertIn("Specified user does not exist", r.data)
+        self.assertIn(b"Specified user does not exist", r.data)
 
     def test_reset_password_with_valid_token(self):
         with capture_reset_password_requests() as requests:
@@ -408,15 +416,25 @@ class RecoverableTests(SecurityTest):
 
         r = self.logout()
         r = self.authenticate('joe@lp.com', 'newpassword')
-        self.assertIn('Hello joe@lp.com', r.data)
+        self.assertIn(b'Hello joe@lp.com', r.data)
 
     def test_reset_password_with_invalid_token(self):
         r = self._post('/reset/bogus', data={
             'password': 'newpassword',
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
+        m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
+        self.assertIn(m.encode('utf-8'), r.data)
 
-        self.assertIn(self.get_message('INVALID_RESET_PASSWORD_TOKEN'), r.data)
+    def test_reset_password_with_mangled_token(self):
+        t = "WyIxNjQ2MzYiLCIxMzQ1YzBlZmVhM2VhZjYwODgwMDhhZGU2YzU0MzZjMiJd.BZEw_Q.lQyo3npdPZtcJ_sNHVHP103syjM&url_id=fbb89a8328e58c181ea7d064c2987874bc54a23d"
+        r = self._post('/reset/' + t, data={
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }, follow_redirects=True)
+
+        m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
+        self.assertIn(m.encode('utf-8'), r.data)
 
 
 class ExpiredResetPasswordTest(SecurityTest):
@@ -439,7 +457,7 @@ class ExpiredResetPasswordTest(SecurityTest):
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
 
-        self.assertIn('You did not reset your password within', r.data)
+        self.assertIn(b'You did not reset your password within', r.data)
 
 
 class ChangePasswordTest(SecurityTest):
@@ -452,7 +470,7 @@ class ChangePasswordTest(SecurityTest):
     def test_change_password(self):
         self.authenticate()
         r = self.client.get('/change', follow_redirects=True)
-        self.assertIn('Change password', r.data)
+        self.assertIn(b'Change password', r.data)
 
     def test_change_password_invalid(self):
         self.authenticate()
@@ -461,8 +479,8 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'newpassword',
             'new_password_confirm': 'newpassword'
         }, follow_redirects=True)
-        self.assertNotIn('You successfully changed your password', r.data)
-        self.assertIn('Invalid password', r.data)
+        self.assertNotIn(b'You successfully changed your password', r.data)
+        self.assertIn(b'Invalid password', r.data)
 
     def test_change_password_mismatch(self):
         self.authenticate()
@@ -471,8 +489,8 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'newpassword',
             'new_password_confirm': 'notnewpassword'
         }, follow_redirects=True)
-        self.assertNotIn('You successfully changed your password', r.data)
-        self.assertIn('Passwords do not match', r.data)
+        self.assertNotIn(b'You successfully changed your password', r.data)
+        self.assertIn(b'Passwords do not match', r.data)
 
     def test_change_password_bad_password(self):
         self.authenticate()
@@ -481,8 +499,8 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'a',
             'new_password_confirm': 'a'
         }, follow_redirects=True)
-        self.assertNotIn('You successfully changed your password', r.data)
-        self.assertIn('Password must be at least 6 characters', r.data)
+        self.assertNotIn(b'You successfully changed your password', r.data)
+        self.assertIn(b'Password must be at least 6 characters', r.data)
 
     def test_change_password_same_as_previous(self):
         self.authenticate()
@@ -491,8 +509,8 @@ class ChangePasswordTest(SecurityTest):
             'new_password': 'password',
             'new_password_confirm': 'password'
         }, follow_redirects=True)
-        self.assertNotIn('You successfully changed your password', r.data)
-        self.assertIn('Your new password must be different than your previous password.', r.data)
+        self.assertNotIn(b'You successfully changed your password', r.data)
+        self.assertIn(b'Your new password must be different than your previous password.', r.data)
 
     def test_change_password_success(self):
         data = {
@@ -505,8 +523,8 @@ class ChangePasswordTest(SecurityTest):
         with self.app.extensions['mail'].record_messages() as outbox:
             r = self._post('/change', data=data, follow_redirects=True)
 
-        self.assertIn('You successfully changed your password', r.data)
-        self.assertIn('Home Page', r.data)
+        self.assertIn(b'You successfully changed your password', r.data)
+        self.assertIn(b'Home Page', r.data)
 
         self.assertEqual(len(outbox), 1)
         self.assertIn("Your password has been changed", outbox[0].html)
@@ -531,8 +549,7 @@ class EmailConfigTest(SecurityTest):
 
         self.authenticate()
         with self.app.extensions['mail'].record_messages() as outbox:
-            r = self._post('/change', data=data, follow_redirects=True)
-
+            self._post('/change', data=data, follow_redirects=True)
         self.assertEqual(len(outbox), 0)
 
 
@@ -552,7 +569,7 @@ class ChangePasswordPostViewTest(SecurityTest):
         self.authenticate()
         r = self._post('/change', data=data, follow_redirects=True)
 
-        self.assertIn('Profile Page', r.data)
+        self.assertIn(b'Profile Page', r.data)
 
 
 class ChangePasswordDisabledTest(SecurityTest):
@@ -599,18 +616,18 @@ class PasswordlessTests(SecurityTest):
         msg = self.app.config['SECURITY_MSG_DISABLED_ACCOUNT'][0]
         r = self._post('/login', data=dict(email='tiya@lp.com'),
                        follow_redirects=True)
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
     def test_request_login_token_with_json_and_valid_email(self):
         data = '{"email": "matt@lp.com", "password": "password"}'
         r = self._post('/login', data=data, content_type='application/json')
         self.assertEquals(r.status_code, 200)
-        self.assertNotIn('error', r.data)
+        self.assertNotIn(b'error', r.data)
 
     def test_request_login_token_with_json_and_invalid_email(self):
         data = '{"email": "nobody@lp.com", "password": "password"}'
         r = self._post('/login', data=data, content_type='application/json')
-        self.assertIn('errors', r.data)
+        self.assertIn(b'errors', r.data)
 
     def test_request_login_token_sends_email_and_can_login(self):
         e = 'matt@lp.com'
@@ -632,19 +649,19 @@ class PasswordlessTests(SecurityTest):
 
         msg = self.app.config['SECURITY_MSG_LOGIN_EMAIL_SENT'][0]
         msg = msg % dict(email=user.email)
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
         r = self.client.get('/login/' + token, follow_redirects=True)
-        msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
+        msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL').encode('utf-8')
         self.assertIn(msg, r.data)
 
         r = self.client.get('/profile')
-        self.assertIn('Profile Page', r.data)
+        self.assertIn(b'Profile Page', r.data)
 
     def test_invalid_login_token(self):
-        msg = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
+        m = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
         r = self._get('/login/bogus', follow_redirects=True)
-        self.assertIn(msg, r.data)
+        self.assertIn(m.encode('utf-8'), r.data)
 
     def test_token_login_when_already_authenticated(self):
         with capture_passwordless_login_requests() as requests:
@@ -654,15 +671,15 @@ class PasswordlessTests(SecurityTest):
 
         r = self.client.get('/login/' + token, follow_redirects=True)
         msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
-        self.assertIn(msg, r.data)
+        self.assertIn(msg.encode('utf-8'), r.data)
 
         r = self.client.get('/login/' + token, follow_redirects=True)
         msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
-        self.assertNotIn(msg, r.data)
+        self.assertNotIn(msg.encode('utf-8'), r.data)
 
     def test_send_login_with_invalid_email(self):
         r = self._post('/login', data=dict(email='bogus@bogus.com'))
-        self.assertIn('Specified user does not exist', r.data)
+        self.assertIn(b'Specified user does not exist', r.data)
 
 
 class ExpiredLoginTokenTests(SecurityTest):
@@ -688,8 +705,7 @@ class ExpiredLoginTokenTests(SecurityTest):
             expire_text = self.AUTH_CONFIG['SECURITY_LOGIN_WITHIN']
             msg = self.app.config['SECURITY_MSG_LOGIN_EXPIRED'][0]
             msg = msg % dict(within=expire_text, email=e)
-            self.assertIn(msg, r.data)
-
+            self.assertIn(msg.encode('utf-8'), r.data)
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)
             self.assertNotIn(token, outbox[0].html)
@@ -730,9 +746,9 @@ class NoBlueprintTests(SecurityTest):
         self.assertEqual(404, r.status_code)
 
     def test_http_auth_without_blueprint(self):
-        auth = 'Basic ' + base64.b64encode("matt@lp.com:password")
-        r = self._get('/http', headers={'Authorization': auth})
-        self.assertIn('HTTP Authentication', r.data)
+        auth = base64.b64encode(b"matt@lp.com:password").decode('utf-8')
+        r = self._get('/http', headers={'Authorization': 'basic %s' % auth})
+        self.assertIn(b'HTTP Authentication', r.data)
 
 
 class ExtendFormsTest(SecurityTest):
@@ -755,11 +771,11 @@ class ExtendFormsTest(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login', follow_redirects=True)
-        self.assertIn("My Login Email Address Field", r.data)
+        self.assertIn(b"My Login Email Address Field", r.data)
 
     def test_register(self):
         r = self._get('/register', follow_redirects=True)
-        self.assertIn("My Register Email Address Field", r.data)
+        self.assertIn(b"My Register Email Address Field", r.data)
 
 
 class RecoverableExtendFormsTest(SecurityTest):
@@ -782,7 +798,7 @@ class RecoverableExtendFormsTest(SecurityTest):
 
     def test_forgot_password(self):
         r = self._get('/reset', follow_redirects=True)
-        self.assertIn("My Forgot Password Email Address Field", r.data)
+        self.assertIn(b"My Forgot Password Email Address Field", r.data)
 
     def test_reset_password(self):
         with capture_reset_password_requests() as requests:
@@ -790,7 +806,7 @@ class RecoverableExtendFormsTest(SecurityTest):
                        follow_redirects=True)
             token = requests[0]['token']
         r = self._get('/reset/' + token)
-        self.assertIn("My Reset Password Submit Field", r.data)
+        self.assertIn(b"My Reset Password Submit Field", r.data)
 
 
 class PasswordlessExtendFormsTest(SecurityTest):
@@ -808,7 +824,7 @@ class PasswordlessExtendFormsTest(SecurityTest):
 
     def test_passwordless_login(self):
         r = self._get('/login', follow_redirects=True)
-        self.assertIn("My Passwordless Login Email Address Field", r.data)
+        self.assertIn(b"My Passwordless Login Email Address Field", r.data)
 
 
 class ConfirmableExtendFormsTest(SecurityTest):
@@ -831,11 +847,11 @@ class ConfirmableExtendFormsTest(SecurityTest):
 
     def test_register(self):
         r = self._get('/register', follow_redirects=True)
-        self.assertIn("My Confirm Register Email Address Field", r.data)
+        self.assertIn(b"My Confirm Register Email Address Field", r.data)
 
     def test_send_confirmation(self):
         r = self._get('/confirm', follow_redirects=True)
-        self.assertIn("My Send Confirmation Email Address Field", r.data)
+        self.assertIn(b"My Send Confirmation Email Address Field", r.data)
 
 
 class AdditionalUserIdentityAttributes(SecurityTest):
@@ -846,4 +862,4 @@ class AdditionalUserIdentityAttributes(SecurityTest):
 
     def test_authenticate(self):
         r = self.authenticate(email='matt')
-        self.assertIn('Hello matt@lp.com', r.data)
+        self.assertIn(b'Hello matt@lp.com', r.data)
