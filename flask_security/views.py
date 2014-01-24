@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, redirect, request, render_template, jsonify, \
+from flask import current_app, redirect, request, jsonify, \
     after_this_request, Blueprint
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
@@ -83,9 +83,9 @@ def login():
     if request.json:
         return _render_json(form, True)
 
-    return render_template(config_value('LOGIN_USER_TEMPLATE'),
-                           login_user_form=form,
-                           **_ctx('login'))
+    return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
+                                     login_user_form=form,
+                                     **_ctx('login'))
 
 
 @login_required
@@ -129,9 +129,9 @@ def register():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('REGISTER_USER_TEMPLATE'),
-                           register_user_form=form,
-                           **_ctx('register'))
+    return _security.render_template(config_value('REGISTER_USER_TEMPLATE'),
+                                     register_user_form=form,
+                                     **_ctx('register'))
 
 
 def send_login():
@@ -152,9 +152,9 @@ def send_login():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('SEND_LOGIN_TEMPLATE'),
-                           send_login_form=form,
-                           **_ctx('send_login'))
+    return _security.render_template(config_value('SEND_LOGIN_TEMPLATE'),
+                                     send_login_form=form,
+                                     **_ctx('send_login'))
 
 
 @anonymous_user_required
@@ -197,9 +197,9 @@ def send_confirmation():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
-                           send_confirmation_form=form,
-                           **_ctx('send_confirmation'))
+    return _security.render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
+                                     send_confirmation_form=form,
+                                     **_ctx('send_confirmation'))
 
 
 def confirm_email(token):
@@ -248,9 +248,9 @@ def forgot_password():
     if request.json:
         return _render_json(form)
 
-    return render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
-                           forgot_password_form=form,
-                           **_ctx('forgot_password'))
+    return _security.render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
+                                     forgot_password_form=form,
+                                     **_ctx('forgot_password'))
 
 
 @anonymous_user_required
@@ -277,10 +277,10 @@ def reset_password(token):
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
 
-    return render_template(config_value('RESET_PASSWORD_TEMPLATE'),
-                           reset_password_form=form,
-                           reset_password_token=token,
-                           **_ctx('reset_password'))
+    return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
+                                     reset_password_form=form,
+                                     reset_password_token=token,
+                                     **_ctx('reset_password'))
 
 
 @login_required
@@ -306,9 +306,9 @@ def change_password():
         form.user = current_user
         return _render_json(form)
 
-    return render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
-                           change_password_form=form,
-                           **_ctx('change_password'))
+    return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
+                                     change_password_form=form,
+                                     **_ctx('change_password'))
 
 
 def create_blueprint(state, import_name):
