@@ -98,6 +98,7 @@ def logout():
                     get_url(_security.post_logout_view))
 
 
+@anonymous_user_required
 def register():
     """View function which handles a registration request."""
 
