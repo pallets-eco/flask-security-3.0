@@ -347,6 +347,7 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
 
         with capture_registrations() as registrations:
             self.register(e1)
+            self.logout()
             self.register(e2)
             token1 = registrations[0]['confirm_token']
             token2 = registrations[1]['confirm_token']
