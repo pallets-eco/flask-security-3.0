@@ -318,6 +318,10 @@ def get_token_status(token, serializer, max_age=None):
         expired = True
     except BadSignature:
         invalid = True
+    except TypeError:
+        invalid = True
+    except ValueError:
+        invalid = True
 
     if data:
         user = _datastore.find_user(id=data[0])

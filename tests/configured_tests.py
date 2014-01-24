@@ -425,6 +425,16 @@ class RecoverableTests(SecurityTest):
         m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
         self.assertIn(m.encode('utf-8'), r.data)
 
+    def test_reset_password_with_mangled_token(self):
+        t = "WyIxNjQ2MzYiLCIxMzQ1YzBlZmVhM2VhZjYwODgwMDhhZGU2YzU0MzZjMiJd.BZEw_Q.lQyo3npdPZtcJ_sNHVHP103syjM&url_id=fbb89a8328e58c181ea7d064c2987874bc54a23d"
+        r = self._post('/reset/' + t, data={
+            'password': 'newpassword',
+            'password_confirm': 'newpassword'
+        }, follow_redirects=True)
+
+        m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
+        self.assertIn(m.encode('utf-8'), r.data)
+
 
 class ExpiredResetPasswordTest(SecurityTest):
 
