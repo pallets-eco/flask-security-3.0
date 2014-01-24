@@ -9,12 +9,15 @@ python:
 install:
   - pip install . --quiet
   - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib --quiet --use-mirrors; fi"
-  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt --quiet
+  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt coverage coveralls --quiet
 
 services:
   - mongodb
 
-script: nosetests
+script: nosetests --with-coverage --cover-package flask_security
+
+after_script:
+  - coveralls
 
 branches:
   only:
