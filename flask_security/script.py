@@ -8,6 +8,7 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
+from __future__ import print_function
 try:
     import simplejson as json
 except ImportError:
@@ -26,7 +27,7 @@ _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
 def pprint(obj):
-    print json.dumps(obj, sort_keys=True, indent=4)
+    print(json.dumps(obj, sort_keys=True, indent=4))
 
 
 def commit(fn):
@@ -37,12 +38,13 @@ def commit(fn):
 
 
 class CreateUserCommand(Command):
+
     """Create a user"""
 
     option_list = (
-        Option('-e', '--email',    dest='email',    default=None),
+        Option('-e', '--email', dest='email', default=None),
         Option('-p', '--password', dest='password', default=None),
-        Option('-a', '--active',   dest='active',   default=''),
+        Option('-a', '--active', dest='active', default=''),
     )
 
     @commit
@@ -59,15 +61,16 @@ class CreateUserCommand(Command):
         if form.validate():
             kwargs['password'] = encrypt_password(kwargs['password'])
             _datastore.create_user(**kwargs)
-            print 'User created successfully.'
+            print('User created successfully')
             kwargs['password'] = '****'
             pprint(kwargs)
         else:
-            print 'Error creating user'
+            print('Error creating user')
             pprint(form.errors)
 
 
 class CreateRoleCommand(Command):
+
     """Create a role"""
 
     option_list = (
@@ -78,7 +81,7 @@ class CreateRoleCommand(Command):
     @commit
     def run(self, **kwargs):
         _datastore.create_role(**kwargs)
-        print 'Role "%(name)s" created successfully.' % kwargs
+        print("Role '{0(name)}' created successfully".format(kwargs))
 
 
 class _RoleCommand(Command):
@@ -89,21 +92,29 @@ class _RoleCommand(Command):
 
 
 class AddRoleCommand(_RoleCommand):
+
     """Add a role to a user"""
 
     @commit
     def run(self, user_identifier, role_name):
-        _datastore.add_role_to_user(user_identifier, role_name)
-        print "Role '%s' added to user '%s' successfully" % (role_name, user_identifier)
+        result = _datastore.add_role_to_user(user_identifier, role_name)
+        if result:
+            print("Role '{0}' added to user '{1}' successfully".format(role_name, user_identifier))
+        else:
+            print('Error adding role to user')
 
 
 class RemoveRoleCommand(_RoleCommand):
+
     """Add a role to a user"""
 
     @commit
     def run(self, user_identifier, role_name):
-        _datastore.remove_role_from_user(user_identifier, role_name)
-        print "Role '%s' removed from user '%s' successfully" % (role_name, user_identifier)
+        result = _datastore.remove_role_from_user(user_identifier, role_name)
+        if result:
+            print("Role '{0}' removed from user '{1}' successfully".format(role_name, user_identifier))
+        else:
+            print('Error removing role from user')
 
 
 class _ToggleActiveCommand(Command):
@@ -113,24 +124,33 @@ class _ToggleActiveCommand(Command):
 
 
 class DeactivateUserCommand(_ToggleActiveCommand):
+
     """Deactive a user"""
 
     @commit
     def run(self, user_identifier):
-        _datastore.deactivate_user(user_identifier)
-        print "User '%s' has been deactivated" % user_identifier
+        result = _datastore.deactivate_user(user_identifier)
+        if result:
+            print("User '{0}' has been deactivated".format(user_identifier))
+        else:
+            print('User already deactivate')
 
 
 class ActivateUserCommand(_ToggleActiveCommand):
+
     """Deactive a user"""
 
     @commit
     def run(self, user_identifier):
-        _datastore.activate_user(user_identifier)
-        print "User '%s' has been activated" % user_identifier
+        result = _datastore.activate_user(user_identifier)
+        if result:
+            print("User '{0}' has been activated".format(user_identifier))
+        else:
+            print('User already activated')
 
 
 class ChangePasswordCommand(Command):
+
     """Change the specified user's password"""
 
     option_list = (
@@ -143,6 +163,6 @@ class ChangePasswordCommand(Command):
         user = _datastore.get_user(user_identifier)
         if user:
             change_user_password(user, new_password)
-            print "Password for %s user has been successfully changed" % user_identifier
+            print("Password for '{0}' user has been successfully changed".format(user_identifier))
         else:
-            print "User %s not found" % user_identifier
+            print("User '{0}' not found".format(user_identifier))
