@@ -81,7 +81,7 @@ class CreateRoleCommand(Command):
     @commit
     def run(self, **kwargs):
         _datastore.create_role(**kwargs)
-        print("Role '{0(name)}' created successfully".format(kwargs))
+        print("Role '{0[name]}' created successfully".format(kwargs))
 
 
 class _RoleCommand(Command):
