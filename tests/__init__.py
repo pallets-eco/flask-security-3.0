@@ -61,7 +61,7 @@ class SecurityTest(TestCase):
         return self._get(endpoint or '/logout', follow_redirects=True)
 
     def assertIsHomePage(self, data):
-        self.assertIn('Home Page', data)
+        self.assertIn(b'Home Page', data)
 
     def assertIn(self, member, container, msg=None):
         if hasattr(TestCase, 'assertIn'):
@@ -82,4 +82,4 @@ class SecurityTest(TestCase):
         return self.assertTrue(obj is not None)
 
     def get_message(self, key, **kwargs):
-        return self.app.config['SECURITY_MSG_' + key][0] % kwargs
+        return bytes(self.app.config['SECURITY_MSG_' + key][0] % kwargs, 'utf-8')

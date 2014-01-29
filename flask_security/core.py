@@ -283,7 +283,7 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
-        if isinstance(role, basestring):
+        if isinstance(role, str):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles

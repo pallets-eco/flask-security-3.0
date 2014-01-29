@@ -137,9 +137,13 @@ def create_users(count=None):
 
     for u in users[:count]:
         pw = encrypt_password(u[2])
-        ds.create_user(email=u[0], username=u[1], password=pw,
-                       roles=u[3], active=u[4])
-    ds.commit()
+        roles = [ds.find_or_create_role(rn) for rn in u[3]]
+        ds.commit()
+        user = ds.create_user(email=u[0], username=u[1], password=pw, active=u[4])
+        ds.commit()
+        for role in roles:
+            ds.add_role_to_user(user, role)
+        ds.commit()
 
 
 def populate_data(user_count=None):

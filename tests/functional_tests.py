@@ -31,16 +31,16 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_login_view(self):
         r = self._get('/login')
-        self.assertIn('<h1>Login</h1>', r.data)
-    """
+        self.assertIn(b'<h1>Login</h1>', r.data)
+
     def test_authenticate(self):
         r = self.authenticate()
-        self.assertIn('Hello matt@lp.com', r.data)
+        self.assertIn(b'Hello matt@lp.com', r.data)
 
     def test_authenticate_case_insensitive_email(self):
         r = self.authenticate(email='MATT@lp.com')
-        self.assertIn('Hello matt@lp.com', r.data)
-
+        self.assertIn(b'Hello matt@lp.com', r.data)
+"""
     def test_unprovided_username(self):
         r = self.authenticate("")
         self.assertIn(self.get_message('EMAIL_NOT_PROVIDED'), r.data)
@@ -69,17 +69,17 @@ class DefaultSecurityTests(SecurityTest):
     def test_unauthorized_access(self):
         self.logout()
         r = self._get('/profile', follow_redirects=True)
-        self.assertIn('<li class="info">Please log in to access this page.</li>', r.data)
+        self.assertIn(b'<li class="info">Please log in to access this page.</li>', r.data)
 
     def test_authorized_access(self):
         self.authenticate()
         r = self._get("/profile")
-        self.assertIn('profile', r.data)
+        self.assertIn(b'profile', r.data)
 
     def test_valid_admin_role(self):
         self.authenticate()
         r = self._get("/admin")
-        self.assertIn('Admin Page', r.data)
+        self.assertIn(b'Admin Page', r.data)
 
     def test_invalid_admin_role(self):
         self.authenticate("joe@lp.com")
@@ -116,18 +116,18 @@ class DefaultSecurityTests(SecurityTest):
         r = self.json_authenticate()
         data = json.loads(r.data)
         self.assertEquals(data['meta']['code'], 200)
-        self.assertIn('authentication_token', data['response']['user'])
+        self.assertIn(b'authentication_token', data['response']['user'])
 
     def test_invalid_json_auth(self):
         r = self.json_authenticate(password='junk')
-        self.assertIn('"code": 400', r.data)
+        self.assertIn(b'"code": 400', r.data)
 
     def test_token_auth_via_querystring_valid_token(self):
         r = self.json_authenticate()
         data = json.loads(r.data)
         token = data['response']['user']['authentication_token']
         r = self._get('/token?auth_token=' + token)
-        self.assertIn('Token Authentication', r.data)
+        self.assertIn(b'Token Authentication', r.data)
 
     def test_token_auth_via_header_valid_token(self):
         r = self.json_authenticate()
@@ -135,7 +135,7 @@ class DefaultSecurityTests(SecurityTest):
         token = data['response']['user']['authentication_token']
         headers = {"Authentication-Token": token}
         r = self._get('/token', headers=headers)
-        self.assertIn('Token Authentication', r.data)
+        self.assertIn(b'Token Authentication', r.data)
 
     def test_token_auth_via_querystring_invalid_token(self):
         r = self._get('/token?auth_token=X')
@@ -149,12 +149,12 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/http', headers={
             'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
         })
-        self.assertIn('HTTP Authentication', r.data)
+        self.assertIn(b'HTTP Authentication', r.data)
 
     def test_http_auth_no_authorization(self):
         r = self._get('/http', headers={})
-        self.assertIn('<h1>Unauthorized</h1>', r.data)
-        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertIn(b'<h1>Unauthorized</h1>', r.data)
+        self.assertIn(b'WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="Login Required"',
                           r.headers['WWW-Authenticate'])
 
@@ -162,8 +162,8 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/http', headers={
             'Authorization': 'Basic ' + base64.b64encode("bogus:bogus")
         })
-        self.assertIn('<h1>Unauthorized</h1>', r.data)
-        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertIn(b'<h1>Unauthorized</h1>', r.data)
+        self.assertIn(b'WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="Login Required"',
                           r.headers['WWW-Authenticate'])
 
@@ -171,14 +171,14 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/http', headers={
             'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
         })
-        self.assertIn('<h1>Unauthorized</h1>', r.data)
-        self.assertIn('WWW-Authenticate', r.headers)
+        self.assertIn(b'<h1>Unauthorized</h1>', r.data)
+        self.assertIn(b'WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="Login Required"',
                           r.headers['WWW-Authenticate'])
 
     def test_custom_http_auth_realm(self):
         r = self._get('/http_custom_realm', headers={
-            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+            b'Authorization': b'Basic ' + base64.b64encode("joe@lp.com:bogus")
         })
         self.assertIn('<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
@@ -189,19 +189,19 @@ class DefaultSecurityTests(SecurityTest):
         r = self._get('/multi_auth', headers={
             'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
         })
-        self.assertIn('Basic', r.data)
+        self.assertIn(b'Basic', r.data)
 
     def test_multi_auth_token(self):
         r = self.json_authenticate()
         data = json.loads(r.data)
         token = data['response']['user']['authentication_token']
         r = self._get('/multi_auth?auth_token=' + token)
-        self.assertIn('Token', r.data)
+        self.assertIn(b'Token', r.data)
 
     def test_multi_auth_session(self):
         self.authenticate()
         r = self._get('/multi_auth')
-        self.assertIn('Session', r.data)
+        self.assertIn(b'Session', r.data)
 
     def test_user_deleted_during_session_reverts_to_anonymous_user(self):
         self.authenticate()
@@ -212,13 +212,13 @@ class DefaultSecurityTests(SecurityTest):
             self.app.security.datastore.commit()
 
         r = self._get('/')
-        self.assertNotIn('Hello matt@lp.com', r.data)
+        self.assertNotIn(b'Hello matt@lp.com', r.data)
 
     def test_remember_token(self):
         r = self.authenticate(follow_redirects=False)
         self.client.cookie_jar.clear_session_cookies()
         r = self._get('/profile')
-        self.assertIn('profile', r.data)
+        self.assertIn(b'profile', r.data)
 
     def test_token_loader_does_not_fail_with_invalid_token(self):
         c = Cookie(version=0, name='remember_token', value='None', port=None,
@@ -230,8 +230,8 @@ class DefaultSecurityTests(SecurityTest):
 
         self.client.cookie_jar.set_cookie(c)
         r = self._get('/')
-        self.assertNotIn('BadSignature', r.data)
-    """
+        self.assertNotIn(b'BadSignature', r.data)
+"""
 """
 class MongoEngineSecurityTests(DefaultSecurityTests):
 
