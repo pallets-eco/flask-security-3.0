@@ -8,8 +8,10 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
+
 from functools import partial
 from flask import current_app, request
+from flask import current_app, render_template
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -19,7 +21,7 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .utils import config_value as cv, get_config, md5, url_for_security
+from .utils import config_value as cv, get_config, md5, url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -259,6 +261,7 @@ def _context_processor(state):
 
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
+
     def __eq__(self, other):
         return (self.name == other or
                 self.name == getattr(other, 'name', None))
@@ -283,7 +286,7 @@ class UserMixin(BaseUserMixin):
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
-        if isinstance(role, str):
+        if isinstance(role, string_types):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles
@@ -407,6 +410,8 @@ class Security(object):
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
 
+        state.render_template = self.render_template
+
         app.extensions['security'] = state
 
         self.register_context_processors(app, _context_processor(state))
@@ -415,6 +420,9 @@ class Security(object):
 
     def register_context_processors(self, app, context_processors):
         app.jinja_env.globals.update(context_processors)
+
+    def render_template(self, *args, **kwargs):
+        return render_template(*args, **kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)

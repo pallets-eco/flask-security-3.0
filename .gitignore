@@ -31,3 +31,5 @@ env/
 
 #Editor temporaries
 *~
+
+*.db

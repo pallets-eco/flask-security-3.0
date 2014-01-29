@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, redirect, request, render_template, jsonify, \
+from flask import current_app, redirect, request, jsonify, \
     after_this_request, Blueprint
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
@@ -79,6 +79,8 @@ def logout():
     return redirect(request.args.get('next', None) or
                     get_url(_security.post_logout_view))
 
+
+@anonymous_user_required
 def register():
     """View function which handles a registration request."""
     use_form = _security.current_form()
@@ -109,6 +111,7 @@ def passwordless_login():
 
     if request.json:
         return _render_json(use_form)
+
 
     return render_template(_security.current_template)
 

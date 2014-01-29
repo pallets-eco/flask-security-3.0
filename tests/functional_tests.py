@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import with_statement
-from flask_security._compat import PY2
 import base64
 import simplejson as json
 
-if not PY2:
-    from http.cookiejar import Cookie
-else:
+try:
     from cookielib import Cookie
+except ImportError:
+    from http.cookiejar import Cookie
 
 from werkzeug.utils import parse_cookie
 
@@ -43,23 +42,23 @@ class DefaultSecurityTests(SecurityTest):
 """
     def test_unprovided_username(self):
         r = self.authenticate("")
-        self.assertIn(self.get_message('EMAIL_NOT_PROVIDED'), r.data)
+        self.assertIn(self.get_message('EMAIL_NOT_PROVIDED').encode('utf-8'), r.data)
 
     def test_unprovided_password(self):
         r = self.authenticate(password="")
-        self.assertIn(self.get_message('PASSWORD_NOT_PROVIDED'), r.data)
+        self.assertIn(self.get_message('PASSWORD_NOT_PROVIDED').encode('utf-8'), r.data)
 
     def test_invalid_user(self):
         r = self.authenticate(email="bogus@bogus.com")
-        self.assertIn(self.get_message('USER_DOES_NOT_EXIST'), r.data)
+        self.assertIn(self.get_message('USER_DOES_NOT_EXIST').encode('utf-8'), r.data)
 
     def test_bad_password(self):
         r = self.authenticate(password="bogus")
-        self.assertIn(self.get_message('INVALID_PASSWORD'), r.data)
+        self.assertIn(self.get_message('INVALID_PASSWORD').encode('utf-8'), r.data)
 
     def test_inactive_user(self):
         r = self.authenticate("tiya@lp.com", "password")
-        self.assertIn(self.get_message('DISABLED_ACCOUNT'), r.data)
+        self.assertIn(self.get_message('DISABLED_ACCOUNT').encode('utf-8'), r.data)
 
     def test_logout(self):
         self.authenticate()
@@ -90,7 +89,7 @@ class DefaultSecurityTests(SecurityTest):
         for user in ("matt@lp.com", "joe@lp.com"):
             self.authenticate(user)
             r = self._get("/admin_or_editor")
-            self.assertIn('Admin or Editor Page', r.data)
+            self.assertIn(b'Admin or Editor Page', r.data)
             self.logout()
 
         self.authenticate("jill@lp.com")
@@ -99,7 +98,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_unauthenticated_role_required(self):
         r = self._get('/admin', follow_redirects=True)
-        self.assertIn(self.get_message('UNAUTHORIZED'), r.data)
+        self.assertIn(self.get_message('UNAUTHORIZED').encode('utf-8'), r.data)
 
     def test_multiple_role_required(self):
         for user in ("matt@lp.com", "joe@lp.com"):
@@ -110,7 +109,7 @@ class DefaultSecurityTests(SecurityTest):
 
         self.authenticate('dave@lp.com')
         r = self._get("/admin_and_editor", follow_redirects=True)
-        self.assertIn('Admin and Editor Page', r.data)
+        self.assertIn(b'Admin and Editor Page', r.data)
 
     def test_ok_json_auth(self):
         r = self.json_authenticate()
@@ -147,7 +146,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_http_auth(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
         })
         self.assertIn(b'HTTP Authentication', r.data)
 
@@ -160,7 +159,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_invalid_http_auth_invalid_username(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic ' + base64.b64encode("bogus:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
         })
         self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn(b'WWW-Authenticate', r.headers)
@@ -169,7 +168,7 @@ class DefaultSecurityTests(SecurityTest):
 
     def test_invalid_http_auth_bad_password(self):
         r = self._get('/http', headers={
-            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:bogus")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
         })
         self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn(b'WWW-Authenticate', r.headers)
@@ -179,15 +178,16 @@ class DefaultSecurityTests(SecurityTest):
     def test_custom_http_auth_realm(self):
         r = self._get('/http_custom_realm', headers={
             b'Authorization': b'Basic ' + base64.b64encode("joe@lp.com:bogus")
+            #'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
         })
-        self.assertIn('<h1>Unauthorized</h1>', r.data)
+        self.assertIn(b'<h1>Unauthorized</h1>', r.data)
         self.assertIn('WWW-Authenticate', r.headers)
         self.assertEquals('Basic realm="My Realm"',
                           r.headers['WWW-Authenticate'])
 
     def test_multi_auth_basic(self):
         r = self._get('/multi_auth', headers={
-            'Authorization': 'Basic ' + base64.b64encode("joe@lp.com:password")
+            'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
         })
         self.assertIn(b'Basic', r.data)
 
@@ -251,23 +251,23 @@ class DefaultDatastoreTests(SecurityTest):
 
     def test_add_role_to_user(self):
         r = self._get('/coverage/add_role_to_user')
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
     def test_remove_role_from_user(self):
         r = self._get('/coverage/remove_role_from_user')
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
     def test_activate_user(self):
         r = self._get('/coverage/activate_user')
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
     def test_deactivate_user(self):
         r = self._get('/coverage/deactivate_user')
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
     def test_invalid_role(self):
         r = self._get('/coverage/invalid_role')
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
 
 class MongoEngineDatastoreTests(DefaultDatastoreTests):

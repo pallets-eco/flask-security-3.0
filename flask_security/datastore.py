@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .utils import get_identity_attributes
+from .utils import get_identity_attributes, string_types
 
 
 class Datastore(object):
@@ -68,9 +68,10 @@ class UserDatastore(object):
         self.role_model = role_model
 
     def _prepare_role_modify_args(self, user, role):
-        if isinstance(user, str):
+
+        if isinstance(user, string_types):
             user = self.find_user(email=user)
-        if isinstance(role, str):
+        if isinstance(role, string_types):
             role = self.find_role(role)
         return user, role
 
@@ -106,6 +107,7 @@ class UserDatastore(object):
         user, role = self._prepare_role_modify_args(user, role)
         if role not in user.roles:
             user.roles.append(role)
+            self.put(user)
             return True
         return False
 
@@ -163,7 +165,8 @@ class UserDatastore(object):
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
         #print(self._prepare_create_user_args(**kwargs))
-        user = self.user_model(**self._prepare_create_user_args(**kwargs))
+        kwargs = self._prepare_create_user_args(**kwargs)
+        user = self.user_model(**kwargs)
         return self.put(user)
 
     def delete_user(self, user):
