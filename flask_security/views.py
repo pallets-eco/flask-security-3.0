@@ -88,11 +88,11 @@ def login():
                                      **_ctx('login'))
 
 
-@login_required
 def logout():
     """View function which handles a logout request."""
 
-    logout_user()
+    if current_user.is_authenticated():
+        logout_user()
 
     return redirect(request.args.get('next', None) or
                     get_url(_security.post_logout_view))
