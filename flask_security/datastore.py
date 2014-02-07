@@ -76,15 +76,11 @@ class UserDatastore(object):
 
     def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
-        roles = kwargs.get('roles', [])
-        if not isinstance(roles, list):
-            # coerce single values to lists
-            roles = list(roles)
+        roles = list(kwargs.get('roles', []))
         
-        for i, role in enumerate(roles):
-            rn = role.name if isinstance(role, self.role_model) else role
+        for role in enumerate(roles):
             # see if the role exists
-            roles[i] = self.find_role(rn)
+            roles.append(self.find_role(getattr(role, "name", role)))
                 
         kwargs['roles'] = roles
         return kwargs
