@@ -78,7 +78,7 @@ class UserDatastore(object):
         kwargs.setdefault('active', True)
         roles = list(kwargs.get('roles', []))
         
-        for role in enumerate(roles):
+        for role in roles:
             # see if the role exists
             roles.append(self.find_role(getattr(role, "name", role)))
                 
