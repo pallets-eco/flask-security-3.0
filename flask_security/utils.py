@@ -111,7 +111,10 @@ def verify_password(password, password_hash):
     :param password: A plaintext password to verify
     :param password_hash: The expected hash value of the password (usually form your database)
     """
-    return _pwd_context.verify(encrypt_password(password), password_hash)
+    if _security.password_hash != 'plaintext':
+        password = get_hmac(password)
+
+    return _pwd_context.verify(password, password_hash)
 
 
 def verify_and_update_password(password, user):
