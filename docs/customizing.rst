@@ -145,9 +145,9 @@ templates you can specify an email context processor with the
 Emails with Celery
 ------------------
 
-Sometimes it makes sense to send emails via a task queue, such as
-`Celery<http://www.celeryproject.org/>`_. To delay the sending of emails you can
-use the ``@security.send_mail_task`` decorator like so::
+Sometimes it makes sense to send emails via a task queue, such as `Celery`_.
+To delay the sending of emails you can use the ``@security.send_mail_task``
+decorator like so::
 
     # Setup the task
     @celery.task
@@ -160,3 +160,4 @@ use the ``@security.send_mail_task`` decorator like so::
     def delay_security_email(msg):
         send_security_email.delay(msg)
 
+.. _Celery: http://www.celeryproject.org/
