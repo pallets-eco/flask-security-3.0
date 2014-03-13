@@ -77,6 +77,9 @@ def confirm_user(user):
 
     :param user: The user to confirm
     """
+    if user.confirmed_at is not None:
+        return False
     user.confirmed_at = datetime.utcnow()
     _datastore.put(user)
     user_confirmed.send(app._get_current_object(), user=user)
+    return True

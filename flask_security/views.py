@@ -222,9 +222,13 @@ def confirm_email(token):
         logout_user()
         login_user(user)
 
-    confirm_user(user)
-    after_this_request(_commit)
-    do_flash(*get_message('EMAIL_CONFIRMED'))
+    if confirm_user(user):
+        after_this_request(_commit)
+        msg = 'EMAIL_CONFIRMED'
+    else:
+        msg = 'ALREADY_CONFIRMED'
+
+    do_flash(*get_message(msg))
 
     return redirect(get_url(_security.post_confirm_view) or
                     get_url(_security.post_login_view))
