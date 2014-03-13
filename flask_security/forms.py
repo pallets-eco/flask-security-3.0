@@ -23,26 +23,10 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value
+from .utils import verify_and_update_password, get_message, config_value, get_label
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
-
-_default_field_labels = {
-    'email': 'Email Address',
-    'password': 'Password',
-    'remember_me': 'Remember Me',
-    'login': 'Login',
-    'retype_password': 'Retype Password',
-    'register': 'Register',
-    'send_confirmation': 'Resend Confirmation Instructions',
-    'recover_password': 'Recover Password',
-    'reset_password': 'Reset Password',
-    'retype_password': 'Retype Password',
-    'new_password': 'New Password',
-    'change_password': 'Change Password',
-    'send_login_link': 'Send Login Link'
-}
 
 
 class ValidatorMixin(object):
@@ -74,8 +58,19 @@ password_required = Required(message='PASSWORD_NOT_PROVIDED')
 password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
 
+class LabelProxy(unicode):
+    def __init__(self, key):
+        self._key = key
+
+    def __str__(self):
+        return get_label(self._key)
+
+    def __unicode__(self):
+        return get_label(self._key)
+
+
 def get_form_field_label(key):
-    return _default_field_labels.get(key, '')
+    return LabelProxy(key)
 
 
 def unique_user_email(form, field):
