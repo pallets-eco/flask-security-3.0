@@ -28,6 +28,18 @@ def test_authenticate(client):
     assert b'Hello matt@lp.com' in response.data
 
 
+def test_authenticate_with_next(client):
+    data = dict(email='matt@lp.com', password='password')
+    response = client.post('/login?next=/page1', data=data, follow_redirects=True)
+    assert b'Page 1' in response.data
+
+
+def test_authenticate_with_invalid_next(client, get_message):
+    data = dict(email='matt@lp.com', password='password')
+    response = client.post('/login?next=http://google.com', data=data)
+    assert get_message('INVALID_REDIRECT') in response.data
+
+
 def test_authenticate_case_insensitive_email(client):
     response = authenticate(client, email='MATT@lp.com', follow_redirects=True)
     assert b'Hello matt@lp.com' in response.data
@@ -56,6 +68,11 @@ def test_bad_password(client, get_message):
 def test_inactive_user(client, get_message):
     response = authenticate(client, "tiya@lp.com", "password")
     assert get_message('DISABLED_ACCOUNT') in response.data
+
+
+def test_unset_password(client, get_message):
+    response = authenticate(client, "jess@lp.com", "password")
+    assert get_message('PASSWORD_NOT_SET') in response.data
 
 
 def test_logout(client):
@@ -199,6 +216,9 @@ def test_multi_auth_basic(client):
     })
     assert b'Basic' in response.data
 
+    response = client.get('/multi_auth')
+    assert response.status_code == 401
+
 
 def test_multi_auth_token(client):
     response = json_authenticate(client)
@@ -245,12 +265,12 @@ def test_token_loader_does_not_fail_with_invalid_token(client):
     assert b'BadSignature' not in response.data
 
 
-def test_coverage_endpoints(client):
-    for endpoint in [
-        '/coverage/add_role_to_user',
-        '/coverage/remove_role_from_user',
-        '/coverage/activate_user',
-        '/coverage/deactivate_user'
-    ]:
-        response = client.get(endpoint)
-        assert b'success' in response.data
+def test_sending_auth_token_with_json(client):
+    response = json_authenticate(client)
+    token = response.jdata['response']['user']['authentication_token']
+    data = '{"auth_token": "%s"}' % token
+    response = client.post('/token', data=data, headers={'Content-Type': 'application/json'})
+    assert b'Token Authentication' in response.data
+    assert b'Token Authentication' in response.data
+
+

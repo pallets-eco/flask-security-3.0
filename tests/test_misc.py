@@ -6,6 +6,8 @@
     Email functionality tests
 """
 
+from pytest import raises
+
 from flask_security import Security
 from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
@@ -140,3 +142,35 @@ def test_addition_identity_attributes(app, sqlalchemy_datastore):
     client = app.test_client()
     response = authenticate(client, email='matt', follow_redirects=True)
     assert b'Hello matt@lp.com' in response.data
+
+
+def test_flash_messages_off(app, sqlalchemy_datastore, get_message):
+    init_app_with_options(app, sqlalchemy_datastore, **{
+        'SECURITY_FLASH_MESSAGES': False
+    })
+    client = app.test_client()
+    response = client.get('/profile')
+    assert get_message('LOGIN') not in response.data
+
+
+def test_invalid_hash_scheme(app, sqlalchemy_datastore, get_message):
+    with raises(ValueError):
+        init_app_with_options(app, sqlalchemy_datastore, **{
+            'SECURITY_PASSWORD_HASH': 'bogus'
+        })
+
+
+def test_change_hash_type(app, sqlalchemy_datastore):
+    init_app_with_options(app, sqlalchemy_datastore, **{
+        'SECURITY_PASSWORD_SCHEMES': ['bcrypt', 'plaintext']
+    })
+
+    app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
+    app.config['SECURITY_PASSWORD_SALT'] = 'salty'
+
+    app.security = Security(app, datastore=sqlalchemy_datastore, register_blueprint=False)
+
+    client = app.test_client()
+
+    response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
+    assert response.status_code == 302

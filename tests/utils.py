@@ -39,11 +39,14 @@ def create_users(ds, count=None):
              ('joe@lp.com', 'joe', 'password', ['editor'], True),
              ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True),
              ('jill@lp.com', 'jill', 'password', ['author'], True),
-             ('tiya@lp.com', 'tiya', 'password', [], False)]
+             ('tiya@lp.com', 'tiya', 'password', [], False),
+             ('jess@lp.com', 'jess', None, [], True)]
     count = count or len(users)
 
     for u in users[:count]:
-        pw = encrypt_password(u[2])
+        pw = u[2]
+        if pw is not None:
+            pw = encrypt_password(pw)
         roles = [ds.find_or_create_role(rn) for rn in u[3]]
         ds.commit()
         user = ds.create_user(email=u[0], username=u[1], password=pw, active=u[4])
@@ -75,6 +78,7 @@ class Response(BaseResponse):  # pragma: no cover
 
 
 def init_app_with_options(app, datastore, **options):
+    security_args = options.pop('security_args', {})
     app.config.update(**options)
-    app.security = Security(app, datastore=datastore)
+    app.security = Security(app, datastore=datastore, **security_args)
     populate_data(app)

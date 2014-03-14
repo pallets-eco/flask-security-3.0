@@ -12,7 +12,7 @@ import time
 
 import pytest
 
-from flask import Flask, render_template, current_app
+from flask import Flask, render_template
 from flask_mail import Mail
 
 from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
@@ -59,7 +59,7 @@ def app():
     def http_custom_realm():
         return render_template('index.html', content='HTTP Authentication')
 
-    @app.route('/token')
+    @app.route('/token', methods=['GET', 'POST'])
     @auth_token_required
     def token():
         return render_template('index.html', content='Token Authentication')
@@ -96,40 +96,6 @@ def app():
     def unauthorized():
         return render_template('unauthorized.html')
 
-    @app.route('/coverage/add_role_to_user')
-    def add_role_to_user():
-        ds = current_app.security.datastore
-        u = ds.find_user(email='joe@lp.com')
-        r = ds.find_role('admin')
-        ds.add_role_to_user(u, r)
-        return 'success'
-
-    @app.route('/coverage/remove_role_from_user')
-    def remove_role_from_user():
-        ds = current_app.security.datastore
-        u = ds.find_user(email='matt@lp.com')
-        ds.remove_role_from_user(u, 'admin')
-        return 'success'
-
-    @app.route('/coverage/deactivate_user')
-    def deactivate_user():
-        ds = current_app.security.datastore
-        u = ds.find_user(email='matt@lp.com')
-        ds.deactivate_user(u)
-        return 'success'
-
-    @app.route('/coverage/activate_user')
-    def activate_user():
-        ds = current_app.security.datastore
-        u = ds.find_user(email='tiya@lp.com')
-        ds.activate_user(u)
-        return 'success'
-
-    @app.route('/coverage/invalid_role')
-    def invalid_role():
-        ds = current_app.security.datastore
-        return 'success' if ds.find_role('bogus') is None else 'failure'
-
     @app.route('/page1')
     def page_1():
         return 'Page 1'
@@ -158,7 +124,7 @@ def mongoengine_datastore(request, app):
     class User(db.Document, UserMixin):
         email = db.StringField(unique=True, max_length=255)
         username = db.StringField(max_length=255)
-        password = db.StringField(required=True, max_length=255)
+        password = db.StringField(required=False, max_length=255)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()
         last_login_ip = db.StringField(max_length=100)
@@ -237,7 +203,7 @@ def peewee_datastore(request, app, tmpdir):
     class User(db.Model, UserMixin):
         email = TextField()
         username = TextField()
-        password = TextField()
+        password = TextField(null=True)
         last_login_at = DateTimeField(null=True)
         current_login_at = DateTimeField(null=True)
         last_login_ip = TextField(null=True)
@@ -287,14 +253,9 @@ def mongoengine_app(app, mongoengine_datastore):
     return create
 
 
-@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
-def client(request, sqlalchemy_app, mongoengine_app, peewee_app):
-    if request.param == 'sqlalchemy':
-        app = sqlalchemy_app()
-    elif request.param == 'mongoengine':
-        app = mongoengine_app()
-    elif request.param == 'peewee':
-        app = peewee_app()
+@pytest.fixture()
+def client(request, sqlalchemy_app):
+    app = sqlalchemy_app()
     populate_data(app)
     return app.test_client()
 
@@ -305,3 +266,14 @@ def get_message(app):
         rv = app.config['SECURITY_MSG_' + key][0] % kwargs
         return rv.encode('utf-8')
     return fn
+
+
+@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
+def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
+    if request.param == 'sqlalchemy':
+        rv = sqlalchemy_datastore
+    elif request.param == 'mongoengine':
+        rv = mongoengine_datastore
+    elif request.param == 'peewee':
+        rv = peewee_datastore
+    return rv

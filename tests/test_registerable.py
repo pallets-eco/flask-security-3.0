@@ -57,9 +57,18 @@ def test_registerable_flag(app, sqlalchemy_datastore, get_message):
 
     # Test registering with JSON
     data = '{ "email": "dude2@lp.com", "password": "password"}'
-    response = client.post('/register', data=data, content_type='application/json')
+    response = client.post('/register', data=data, headers={'Content-Type': 'application/json'})
     assert response.headers['content-type'] == 'application/json'
     assert response.jdata['meta']['code'] == 200
+
+    logout(client)
+
+    # Test registering with invalid JSON
+    data = '{ "email": "bogus", "password": "password"}'
+    response = client.post('/register', data=data, headers={'Content-Type': 'application/json'})
+    print response.data
+    assert response.headers['content-type'] == 'application/json'
+    assert response.jdata['meta']['code'] == 400
 
     logout(client)
 

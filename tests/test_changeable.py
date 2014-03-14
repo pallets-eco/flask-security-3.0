@@ -49,8 +49,15 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
         'new_password': 'newpassword',
         'new_password_confirm': 'notnewpassword'
     }, follow_redirects=True)
-    assert get_message('PASSWORD_CHANGE') not in response.data
     assert get_message('RETYPE_PASSWORD_MISMATCH') in response.data
+
+    # Test missing password
+    response = client.post('/change', data={
+        'password': '   ',
+        'new_password': '',
+        'new_password_confirm': ''
+    }, follow_redirects=True)
+    assert get_message('PASSWORD_NOT_PROVIDED') in response.data
 
     # Test bad password
     response = client.post('/change', data={
@@ -58,7 +65,6 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
         'new_password': 'a',
         'new_password_confirm': 'a'
     }, follow_redirects=True)
-    assert get_message('PASSWORD_CHANGE') not in response.data
     assert get_message('PASSWORD_INVALID_LENGTH') in response.data
 
     # Test same as previous
@@ -67,7 +73,6 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
         'new_password': 'password',
         'new_password_confirm': 'password'
     }, follow_redirects=True)
-    assert get_message('PASSWORD_CHANGE') not in response.data
     assert get_message('PASSWORD_IS_THE_SAME') in response.data
 
     # Test successful submit sends email notification
@@ -83,6 +88,13 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
     assert len(recorded) == 1
     assert len(outbox) == 1
     assert "Your password has been changed" in outbox[0].html
+
+    # Test JSON
+    data = ('{"password": "newpassword", "new_password": "newpassword2", '
+            '"new_password_confirm": "newpassword2"}')
+    response = client.post('/change', data=data, headers={'Content-Type': 'application/json'})
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
 
 
 def test_custom_change_url(app, sqlalchemy_datastore, get_message):

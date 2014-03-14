@@ -40,7 +40,7 @@ def test_trackable_flag(app, sqlalchemy_datastore, get_message):
     # Test login with json and invalid email
     data = '{"email": "nobody@lp.com", "password": "password"}'
     response = client.post('/login', data=data, headers={'Content-Type': 'application/json'})
-    assert 'errors' in response.data
+    assert b'errors' in response.data
 
     # Test sends email and shows appropriate response
     with capture_passwordless_login_requests() as requests:
