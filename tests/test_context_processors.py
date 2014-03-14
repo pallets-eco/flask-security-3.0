@@ -12,14 +12,12 @@ from utils import authenticate, init_app_with_options
 def test_context_processors(app, sqlalchemy_datastore):
     init_app_with_options(app, sqlalchemy_datastore, **{
         'SECURITY_RECOVERABLE': True,
-        # 'SECURITY_PASSWORDLESS': True,
         'SECURITY_REGISTERABLE': True,
         'SECURITY_CONFIRMABLE': True,
         'SECURITY_CHANGEABLE': True,
         'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True,
         'SECURITY_CHANGE_PASSWORD_TEMPLATE': 'custom_security/change_password.html',
         'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
-        # 'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html',
         'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
         'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html',
         'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/send_confirmation.html',
@@ -96,11 +94,3 @@ def test_passwordless_login_context_processor(app, sqlalchemy_datastore):
 
     response = client.get('/login')
     assert b'bar' in response.data
-
-    # @app.security.mail_context_processor
-    # def mail():
-    #     return {'foo': 'bar'}
-
-
-
-
