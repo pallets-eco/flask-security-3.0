@@ -271,6 +271,3 @@ def test_sending_auth_token_with_json(client):
     data = '{"auth_token": "%s"}' % token
     response = client.post('/token', data=data, headers={'Content-Type': 'application/json'})
     assert b'Token Authentication' in response.data
-    assert b'Token Authentication' in response.data
-
-
