@@ -87,7 +87,18 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
-    'USER_IDENTITY_ATTRIBUTES': ['email']
+    'USER_IDENTITY_ATTRIBUTES': ['email'],
+    'PASSWORD_SCHEMES': [
+        'bcrypt',
+        'des_crypt',
+        'pbkdf2_sha256',
+        'pbkdf2_sha512',
+        'sha256_crypt',
+        'sha512_crypt',
+        # And always last one...
+        'plaintext'
+    ],
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
 }
 
 #: Default Flask-Security messages
@@ -162,17 +173,6 @@ _default_messages = {
         'Please reauthenticate to access this page.', 'info'),
 }
 
-_allowed_password_hash_schemes = [
-    'bcrypt',
-    'des_crypt',
-    'pbkdf2_sha256',
-    'pbkdf2_sha512',
-    'sha256_crypt',
-    'sha512_crypt',
-    # And always last one...
-    'plaintext'
-]
-
 _default_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
@@ -242,11 +242,12 @@ def _get_principal(app):
 
 def _get_pwd_context(app):
     pw_hash = cv('PASSWORD_HASH', app=app)
-    if pw_hash not in _allowed_password_hash_schemes:
-        allowed = (', '.join(_allowed_password_hash_schemes[:-1]) +
-                   ' and ' + _allowed_password_hash_schemes[-1])
+    schemes = cv('PASSWORD_SCHEMES', app=app)
+    deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
+    if pw_hash not in schemes:
+        allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
         raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
-    return CryptContext(schemes=_allowed_password_hash_schemes, default=pw_hash)
+    return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
 def _get_serializer(app, name):
@@ -344,9 +345,6 @@ class _SecurityState(object):
             for fn in self._context_processors.setdefault(g, []):
                 rv.update(fn())
         return rv
-
-    def context_processor(self, fn):
-        self._add_ctx_processor(None, fn)
 
     def forgot_password_context_processor(self, fn):
         self._add_ctx_processor('forgot_password', fn)

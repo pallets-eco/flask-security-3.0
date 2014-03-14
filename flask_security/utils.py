@@ -14,6 +14,11 @@ import hashlib
 import hmac
 import sys
 
+try:
+    from urlparse import urlsplit
+except ImportError:  # pragma: no cover
+    from urllib.parse import urlsplit
+
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 
@@ -36,11 +41,11 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 PY3 = sys.version_info[0] == 3
 
 if PY3:
-    string_types = str,
-    text_type = str
+    string_types = str,  # pragma: no cover, no flakes
+    text_type = str  # pragma: no cover, no flakes
 else:
-    string_types = basestring,
-    text_type = unicode
+    string_types = basestring,  # pragma: no cover, no flakes
+    text_type = unicode  # pragma: no cover, no flakes
 
 
 def login_user(user, remember=None):
@@ -53,7 +58,7 @@ def login_user(user, remember=None):
     if remember is None:
         remember = config_value('DEFAULT_REMEMBER_ME')
 
-    if not _login_user(user, remember):
+    if not _login_user(user, remember):  # pragma: no cover
         return False
 
     if _security.trackable:
@@ -119,13 +124,16 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-
-    if _security.password_hash != 'plaintext':
+    print _pwd_context.default_scheme()
+    print password, user.password
+    if _pwd_context.identify(user.password) != 'plaintext':
         password = get_hmac(password)
     verified, new_password = _pwd_context.verify_and_update(password, user.password)
+    print verified, new_password
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
+
     return verified
 
 
@@ -186,14 +194,32 @@ def url_for_security(endpoint, **values):
     return url_for(endpoint, **values)
 
 
-def get_post_action_redirect(config_key):
-    return (get_url(request.args.get('next')) or
-            get_url(request.form.get('next')) or
-            find_redirect(config_key))
+def validate_redirect_url(url):
+    try:
+        url_next = urlsplit(url)
+    except:
+        return False
+    url_base = urlsplit(request.host_url)
+    if url_next.netloc and url_next.netloc != url_base.netloc:
+        return False
+    return True
 
 
-def get_post_login_redirect():
-    return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW')
+def get_post_action_redirect(config_key, declared=None):
+    urls = [
+        get_url(request.args.get('next')),
+        get_url(request.form.get('next')),
+        find_redirect(config_key)
+    ]
+    if declared:
+        urls.append(declared)
+    for url in urls:
+        if validate_redirect_url(url):
+            return url
+
+
+def get_post_login_redirect(declared=None):
+    return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW', declared)
 
 
 def get_post_register_redirect():
@@ -314,11 +340,7 @@ def get_token_status(token, serializer, max_age=None):
     except SignatureExpired:
         d, data = serializer.loads_unsafe(token)
         expired = True
-    except BadSignature:
-        invalid = True
-    except TypeError:
-        invalid = True
-    except ValueError:
+    except (BadSignature, TypeError, ValueError):
         invalid = True
 
     if data:
