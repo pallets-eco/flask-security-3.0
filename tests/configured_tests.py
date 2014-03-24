@@ -230,7 +230,7 @@ class ConfirmableTests(SecurityTest):
         e = 'dude@lp.com'
         self.register(e)
         r = self.authenticate(email=e)
-        self.assertIn(self.get_message('CONFIRMATION_REQUIRED').encode('utf-8'), r.data)
+        self.assertIn(self.get_message('CONFIRMATION_REQUIRED'), r.data)
 
     def test_send_confirmation_of_already_confirmed_account(self):
         e = 'dude@lp.com'
@@ -243,7 +243,7 @@ class ConfirmableTests(SecurityTest):
         self.logout()
         r = self._post('/confirm', data=dict(email=e))
         m = self.get_message('ALREADY_CONFIRMED')
-        self.assertIn(m.encode('utf-8'), r.data)
+        self.assertIn(m, r.data)
 
     def test_register_sends_confirmation_email(self):
         e = 'dude@lp.com'
@@ -266,12 +266,12 @@ class ConfirmableTests(SecurityTest):
         self.assertEqual(len(tokens), 1)
         r = self.client.get('/confirm/' + tokens[0], follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
     def test_invalid_token_when_confirming_email(self):
         r = self.client.get('/confirm/bogus', follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
     def test_send_confirmation_json(self):
         r = self._post('/confirm', data='{"email": "matt@lp.com"}',
@@ -281,14 +281,14 @@ class ConfirmableTests(SecurityTest):
     def test_send_confirmation_with_invalid_email(self):
         r = self._post('/confirm', data=dict(email='bogus@bogus.com'))
         msg = self.app.config['SECURITY_MSG_USER_DOES_NOT_EXIST'][0]
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
     def test_resend_confirmation(self):
         e = 'dude@lp.com'
         self.register(e)
         r = self._post('/confirm', data={'email': e})
 
-        msg = self.get_message('CONFIRMATION_REQUEST', email=e).encode('utf-8')
+        msg = self.get_message('CONFIRMATION_REQUEST', email=e)
         self.assertIn(msg, r.data)
 
     def test_user_deleted_before_confirmation(self):
@@ -306,7 +306,7 @@ class ConfirmableTests(SecurityTest):
 
         r = self.client.get('/confirm/' + token, follow_redirects=True)
         msg = self.app.config['SECURITY_MSG_INVALID_CONFIRMATION_TOKEN'][0]
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
 
 class ExpiredConfirmationTest(SecurityTest):
@@ -335,7 +335,7 @@ class ExpiredConfirmationTest(SecurityTest):
             expire_text = self.AUTH_CONFIG['SECURITY_CONFIRM_EMAIL_WITHIN']
             msg = self.app.config['SECURITY_MSG_CONFIRMATION_EXPIRED'][0]
             msg = msg % dict(within=expire_text, email=e)
-            self.assertIn(msg.encode('utf-8'), r.data)
+            self.assertIn(msg, r.data)
 
 
 class LoginWithoutImmediateConfirmTests(SecurityTest):
@@ -351,7 +351,7 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         p = 'password'
         data = dict(email=e, password=p, password_confirm=p)
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn(e.encode('utf-8'), r.data)
+        self.assertIn(e, r.data)
 
     def test_confirm_email_of_user_different_than_current_user(self):
         e1 = 'dude@lp.com'
@@ -369,18 +369,18 @@ class LoginWithoutImmediateConfirmTests(SecurityTest):
         self.authenticate(email=e1)
         r = self.client.get('/confirm/' + token2, follow_redirects=True)
         m = self.app.config['SECURITY_MSG_EMAIL_CONFIRMED'][0]
-        self.assertIn(m.encode('utf-8'), r.data)
-        self.assertIn(b'Hello lady@lp.com', r.data)
+        self.assertIn(m, r.data)
+        self.assertIn('Hello lady@lp.com', r.data)
 
     def test_login_unconfirmed_user_when_login_without_confirmation_is_true(self):
         e = 'dude@lp.com'
         p = 'password'
         data = dict(email=e, password=p, password_confirm=p)
         r = self._post('/register', data=data, follow_redirects=True)
-        self.assertIn(e.encode('utf-8'), r.data)
+        self.assertIn(e, r.data)
         self.client.get('/logout')
         r = self.authenticate(email=e)
-        self.assertIn(e.encode('utf-8'), r.data)
+        self.assertIn(e, r.data)
 
 
 class RecoverableTests(SecurityTest):
@@ -436,7 +436,7 @@ class RecoverableTests(SecurityTest):
             'password_confirm': 'newpassword'
         }, follow_redirects=True)
         m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
-        self.assertIn(m.encode('utf-8'), r.data)
+        self.assertIn(m, r.data)
 
     def test_reset_password_with_mangled_token(self):
         t = "WyIxNjQ2MzYiLCIxMzQ1YzBlZmVhM2VhZjYwODgwMDhhZGU2YzU0MzZjMiJd.BZEw_Q.lQyo3npdPZtcJ_sNHVHP103syjM&url_id=fbb89a8328e58c181ea7d064c2987874bc54a23d"
@@ -446,7 +446,7 @@ class RecoverableTests(SecurityTest):
         }, follow_redirects=True)
 
         m = self.get_message('INVALID_RESET_PASSWORD_TOKEN')
-        self.assertIn(m.encode('utf-8'), r.data)
+        self.assertIn(m, r.data)
 
 
 class ExpiredResetPasswordTest(SecurityTest):
@@ -628,7 +628,7 @@ class PasswordlessTests(SecurityTest):
         msg = self.app.config['SECURITY_MSG_DISABLED_ACCOUNT'][0]
         r = self._post('/login', data=dict(email='tiya@lp.com'),
                        follow_redirects=True)
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
     def test_request_login_token_with_json_and_valid_email(self):
         data = '{"email": "matt@lp.com", "password": "password"}'
@@ -661,10 +661,10 @@ class PasswordlessTests(SecurityTest):
 
         msg = self.app.config['SECURITY_MSG_LOGIN_EMAIL_SENT'][0]
         msg = msg % dict(email=user.email)
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
         r = self.client.get('/login/' + token, follow_redirects=True)
-        msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL').encode('utf-8')
+        msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
         self.assertIn(msg, r.data)
 
         r = self.client.get('/profile')
@@ -673,7 +673,7 @@ class PasswordlessTests(SecurityTest):
     def test_invalid_login_token(self):
         m = self.app.config['SECURITY_MSG_INVALID_LOGIN_TOKEN'][0]
         r = self._get('/login/bogus', follow_redirects=True)
-        self.assertIn(m.encode('utf-8'), r.data)
+        self.assertIn(m, r.data)
 
     def test_token_login_when_already_authenticated(self):
         with capture_passwordless_login_requests() as requests:
@@ -683,11 +683,11 @@ class PasswordlessTests(SecurityTest):
 
         r = self.client.get('/login/' + token, follow_redirects=True)
         msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
-        self.assertIn(msg.encode('utf-8'), r.data)
+        self.assertIn(msg, r.data)
 
         r = self.client.get('/login/' + token, follow_redirects=True)
         msg = self.get_message('PASSWORDLESS_LOGIN_SUCCESSFUL')
-        self.assertNotIn(msg.encode('utf-8'), r.data)
+        self.assertNotIn(msg, r.data)
 
     def test_send_login_with_invalid_email(self):
         r = self._post('/login', data=dict(email='bogus@bogus.com'))
@@ -717,7 +717,7 @@ class ExpiredLoginTokenTests(SecurityTest):
             expire_text = self.AUTH_CONFIG['SECURITY_LOGIN_WITHIN']
             msg = self.app.config['SECURITY_MSG_LOGIN_EXPIRED'][0]
             msg = msg % dict(within=expire_text, email=e)
-            self.assertIn(msg.encode('utf-8'), r.data)
+            self.assertIn(msg, r.data)
             self.assertEqual(len(outbox), 1)
             self.assertIn(e, outbox[0].html)
             self.assertNotIn(token, outbox[0].html)

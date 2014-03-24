@@ -82,4 +82,4 @@ class SecurityTest(TestCase):
         return self.assertTrue(obj is not None)
 
     def get_message(self, key, **kwargs):
-        return bytes(self.app.config['SECURITY_MSG_' + key][0] % kwargs, 'utf-8')
+        return self.app.config['SECURITY_MSG_' + key][0] % kwargs
