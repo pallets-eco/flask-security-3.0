@@ -70,11 +70,11 @@ def login():
         return _render_json(use_form, True)
     return _security.render_template(_security.current_template)
 
-@login_required
 def logout():
     """View function which handles a logout request."""
 
-    logout_user()
+    if current_user.is_authenticated():
+        logout_user()
 
     return redirect(request.args.get('next', None) or
                     get_url(_security.post_logout_view))

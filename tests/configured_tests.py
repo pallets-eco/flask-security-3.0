@@ -19,6 +19,19 @@ from flask_security.signals import user_registered
 from tests import SecurityTest
 
 
+class PasswordVerifyEncryptTests(SecurityTest):
+
+    AUTH_CONFIG = {
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+        'SECURITY_PASSWORD_SALT': '89gf828uiguiu23ju2'
+    }
+
+    def test_verify_password_bcrypt(self):
+        from flask_security.utils import verify_password, encrypt_password
+        with self.app.app_context():
+            self.assertTrue(verify_password('custompassword', encrypt_password('custompassword')))
+
+
 class ConfiguredPasswordHashSecurityTests(SecurityTest):
 
     AUTH_CONFIG = {

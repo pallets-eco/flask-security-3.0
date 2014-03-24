@@ -179,8 +179,8 @@ class ChangeableSignalsTests(SignalTest):
                 calls = mocks[password_changed]
                 self.assertEqual(len(calls), 1)
                 args, kwargs = calls[0]
-                self.assertTrue(compare_user(args[0], user))
-                self.assertEqual(kwargs['app'], self.app)
+                self.assertTrue(compare_user(kwargs['user'], user))
+                self.assertEqual(args[0], self.app)
 
     def test_change_password_invalid_password(self):
         with capture_signals() as mocks:
