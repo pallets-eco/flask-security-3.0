@@ -68,7 +68,7 @@ def login():
 
     if request.json:
         return _render_json(use_form, True)
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 @login_required
 def logout():
@@ -99,7 +99,7 @@ def register():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 def passwordless_login():
     """View function that sends login instructions for passwordless login"""
@@ -113,7 +113,7 @@ def passwordless_login():
         return _render_json(use_form)
 
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 @anonymous_user_required
 def token_login(token):
@@ -148,7 +148,7 @@ def send_confirmation():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
@@ -188,7 +188,7 @@ def forgot_password():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 @anonymous_user_required
 def reset_password(token):
@@ -216,7 +216,7 @@ def reset_password(token):
 
     #security_context['aform'].update(token=token)
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 @login_required
 def change_password():
@@ -233,7 +233,7 @@ def change_password():
     if request.json:
         return _render_json(use_form)
 
-    return render_template(_security.current_template)
+    return _security.render_template(_security.current_template)
 
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
