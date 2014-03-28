@@ -240,17 +240,18 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         query = QCombination(QCombination.AND, queries)
         try:
             return self.user_model.objects(query).first()
-        except ValidationError:
+        except ValidationError:  # pragma: no cover
             return None
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
 
-    def add_role_to_user(self, user, role):
-        rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
-        if rv:
-            self.put(user)
-        return rv
+    # TODO: Not sure why this was added but tests pass without it
+    # def add_role_to_user(self, user, role):
+    #     rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+    #     if rv:
+    #         self.put(user)
+    #     return rv
 
 
 class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
@@ -298,6 +299,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         user = self.put(user)
         for role in roles:
             self.add_role_to_user(user, role)
+        self.put(user)
         return user
 
     def add_role_to_user(self, user, role):
@@ -312,7 +314,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         if result.count():
             return False
         else:
-            self.UserRole.create(user=user.id, role=role.id)
+            self.put(self.UserRole.create(user=user.id, role=role.id))
             return True
 
     def remove_role_from_user(self, user, role):

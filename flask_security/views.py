@@ -12,7 +12,7 @@
 from flask import current_app, redirect, request, jsonify, \
     after_this_request, Blueprint
 from flask_login import current_user
-from werkzeug.datastructures import MultiDict
+
 from werkzeug.local import LocalProxy
 
 from .confirmable import send_confirmation_instructions, \
@@ -24,8 +24,8 @@ from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
 from .changeable import change_user_password
 from .registerable import register_user
-from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
-    get_post_register_redirect, get_message, login_user, logout_user, \
+from .utils import flash_next, get_url, get_post_login_redirect, \
+    get_post_register_redirect, login_user, logout_user, \
     url_for_security as url_for
 
 # Convenient references
@@ -35,6 +35,7 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 
 def _render_json(form, include_auth_token=False):
+    print(form.__dict__)
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -70,9 +71,9 @@ def login():
         return _render_json(use_form, True)
     return _security.render_template(_security.current_template)
 
+
 def logout():
     """View function which handles a logout request."""
-
     if current_user.is_authenticated():
         logout_user()
 
@@ -94,12 +95,12 @@ def register():
 
         if not request.json:
             return redirect(get_post_register_redirect())
-        return _render_json(use_form, True)
 
     if request.json:
         return _render_json(use_form)
 
     return _security.render_template(_security.current_template)
+
 
 def passwordless_login():
     """View function that sends login instructions for passwordless login"""
@@ -107,13 +108,14 @@ def passwordless_login():
     if use_form.validate_on_submit():
         send_login_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('LOGIN_EMAIL_SENT', email=use_form.user.email))
+            flash_next('LOGIN_EMAIL_SENT', email=use_form.user.email)
 
     if request.json:
         return _render_json(use_form)
 
 
     return _security.render_template(_security.current_template)
+
 
 @anonymous_user_required
 def token_login(token):
@@ -122,19 +124,19 @@ def token_login(token):
     expired, invalid, user = login_token_status(token)
 
     if invalid:
-        do_flash(*get_message('INVALID_LOGIN_TOKEN'))
+        flash_next('INVALID_LOGIN_TOKEN')
     if expired:
         send_login_instructions(user)
-        do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
-                              within=_security.login_within))
+        flash_next('LOGIN_EXPIRED', email=user.email, within=_security.login_within)
     if invalid or expired:
         return redirect(url_for('login'))
 
     login_user(user)
     after_this_request(_commit)
-    do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
+    flash_next('PASSWORDLESS_LOGIN_SUCCESSFUL')
 
     return redirect(get_post_login_redirect())
+
 
 def send_confirmation():
     """View function which sends confirmation instructions."""
@@ -142,13 +144,13 @@ def send_confirmation():
     if use_form.validate_on_submit():
         send_confirmation_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('CONFIRMATION_REQUEST',
-                                  email=use_form.user.email))
+            flash_next('CONFIRMATION_REQUEST', email=use_form.user.email)
 
     if request.json:
         return _render_json(use_form)
 
     return _security.render_template(_security.current_template)
+
 
 def confirm_email(token):
     """View function which handles a email confirmation request."""
@@ -157,11 +159,10 @@ def confirm_email(token):
 
     if not user or invalid:
         invalid = True
-        do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
+        flash_next('INVALID_CONFIRMATION_TOKEN')
     if expired:
         send_confirmation_instructions(user)
-        do_flash(*get_message('CONFIRMATION_EXPIRED', email=user.email,
-                              within=_security.confirm_email_within))
+        flash_next('CONFIRMATION_EXPIRED', email=user.email, within=_security.confirm_email_within)
     if invalid or expired:
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
@@ -170,12 +171,17 @@ def confirm_email(token):
         logout_user()
         login_user(user)
 
-    confirm_user(user)
-    after_this_request(_commit)
-    do_flash(*get_message('EMAIL_CONFIRMED'))
+    if confirm_user(user):
+        after_this_request(_commit)
+        msg = 'EMAIL_CONFIRMED'
+    else:
+        msg = 'ALREADY_CONFIRMED'
+
+    flash_next(msg)
 
     return redirect(get_url(_security.post_confirm_view) or
                     get_url(_security.post_login_view))
+
 
 def forgot_password():
     """View function that handles a forgotten password request."""
@@ -183,12 +189,13 @@ def forgot_password():
     if use_form.validate_on_submit():
         send_reset_password_instructions(use_form.user)
         if request.json is None:
-            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=use_form.user.email))
+            flash_next('PASSWORD_RESET_REQUEST', email=use_form.user.email)
 
     if request.json:
         return _render_json(use_form)
 
     return _security.render_template(_security.current_template)
+
 
 @anonymous_user_required
 def reset_password(token):
@@ -199,17 +206,16 @@ def reset_password(token):
     expired, invalid, user = reset_password_token_status(token)
 
     if invalid:
-        do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+        flash_next('INVALID_RESET_PASSWORD_TOKEN')
     if expired:
-        do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
-                              within=_security.reset_password_within))
+        flash_next('PASSWORD_RESET_EXPIRED', email=user.email, within=_security.reset_password_within)
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
     if use_form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, use_form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
+        flash_next('PASSWORD_RESET')
         login_user(user)
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
@@ -217,6 +223,7 @@ def reset_password(token):
     #security_context['aform'].update(token=token)
 
     return _security.render_template(_security.current_template)
+
 
 @login_required
 def change_password():
@@ -226,14 +233,16 @@ def change_password():
         after_this_request(_commit)
         change_user_password(current_user, use_form.new_password.data)
         if request.json is None:
-            do_flash(*get_message('PASSWORD_CHANGE'))
+            flash_next('PASSWORD_CHANGE')
             return redirect(get_url(_security.post_change_view) or
                             get_url(_security.post_login_view))
 
     if request.json:
+        use_form.user = current_user
         return _render_json(use_form)
 
     return _security.render_template(_security.current_template)
+
 
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""

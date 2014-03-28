@@ -42,9 +42,9 @@ class CreateUserCommand(Command):
     """Create a user"""
 
     option_list = (
-        Option('-e', '--email',    dest='email',    default=None),
+        Option('-e', '--email', dest='email', default=None),
         Option('-p', '--password', dest='password', default=None),
-        Option('-a', '--active',   dest='active',   default=''),
+        Option('-a', '--active', dest='active', default=''),
     )
 
     @commit

@@ -10,14 +10,15 @@
 """
 
 import inspect
+
 from ._compat import PY2
 if not PY2:
     import urllib.parse as urlparse
 else:
     import urlparse
-import flask_wtf as wtf
 
-from flask import request, current_app, get_template_attribute
+import flask_wtf as wtf
+from flask import request, current_app, get_template_attribute, flash
 from flask_wtf import Form as BaseForm
 from wtforms import TextField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
@@ -25,7 +26,7 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value
+from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -154,12 +155,10 @@ class NextFormMixin():
     next = HiddenField()
 
     def validate_next(self, field):
-        if field.data:
-            url_next = urlsplit(field.data)
-            url_base = urlsplit(request.host_url)
-            if url_next.netloc and url_next.netloc != url_base.netloc:
-                field.data = ''
-                raise ValidationError(get_message('INVALID_REDIRECT')[0])
+        if field.data and not validate_redirect_url(field.data):
+            field.data = ''
+            flash(*get_message('INVALID_REDIRECT'))
+            raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
 class RegisterFormMixin(SecurityForm):
@@ -258,6 +257,8 @@ class LoginForm(NextFormMixin, SecurityForm):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = request.args.get('next', '')
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
 
     def validate(self):
@@ -271,7 +272,6 @@ class LoginForm(NextFormMixin, SecurityForm):
         if self.password.data.strip() == '':
             self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
-
 
         self.user = _datastore.get_user(self.email.data)
 
@@ -348,9 +348,6 @@ class ChangePasswordForm(PasswordFormMixin, SecurityForm):
         if not super(ChangePasswordForm, self).validate():
             return False
 
-        if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
-            return False
         if not verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False

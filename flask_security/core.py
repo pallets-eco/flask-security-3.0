@@ -8,7 +8,7 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
-
+import re
 from functools import partial
 from flask import current_app, request
 from flask import current_app, render_template
@@ -18,7 +18,7 @@ from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
-from werkzeug.datastructures import ImmutableList
+from werkzeug.datastructures import MultiDict, ImmutableList
 from werkzeug.local import LocalProxy
 
 from .utils import config_value as cv, get_config, md5, url_for_security, string_types
@@ -30,6 +30,8 @@ from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
 _endpoint = LocalProxy(lambda: request.endpoint.rsplit('.')[-1])
+
+kwarg_is_renderable = re.compile(".*_form\Z|.*_renderable\Z")
 
 #: Default Flask-Security configuration
 _default_config = {
@@ -90,57 +92,94 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
-    'USER_IDENTITY_ATTRIBUTES': ['email']
+    'USER_IDENTITY_ATTRIBUTES': ['email'],
+    'PASSWORD_SCHEMES': [
+        'bcrypt',
+        'des_crypt',
+        'pbkdf2_sha256',
+        'pbkdf2_sha512',
+        'sha256_crypt',
+        'sha512_crypt',
+        # And always last one...
+        'plaintext'
+    ],
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
 }
 
 #: Default Flask-Security messages
 _default_messages = {
-    'UNAUTHORIZED': ('You do not have permission to view this resource.', 'error'),
-    'CONFIRM_REGISTRATION': ('Thank you. Confirmation instructions have been sent to %(email)s.', 'success'),
-    'EMAIL_CONFIRMED': ('Thank you. Your email has been confirmed.', 'success'),
-    'ALREADY_CONFIRMED': ('Your email has already been confirmed.', 'info'),
-    'INVALID_CONFIRMATION_TOKEN': ('Invalid confirmation token.', 'error'),
-    'EMAIL_ALREADY_ASSOCIATED': ('%(email)s is already associated with an account.', 'error'),
-    'PASSWORD_MISMATCH': ('Password does not match', 'error'),
-    'RETYPE_PASSWORD_MISMATCH': ('Passwords do not match', 'error'),
-    'INVALID_REDIRECT': ('Redirections outside the domain are forbidden', 'error'),
-    'PASSWORD_RESET_REQUEST': ('Instructions to reset your password have been sent to %(email)s.', 'info'),
-    'PASSWORD_RESET_EXPIRED': ('You did not reset your password within %(within)s. New instructions have been sent to %(email)s.', 'error'),
-    'INVALID_RESET_PASSWORD_TOKEN': ('Invalid reset password token.', 'error'),
-    'CONFIRMATION_REQUIRED': ('Email requires confirmation.', 'error'),
-    'CONFIRMATION_REQUEST': ('Confirmation instructions have been sent to %(email)s.', 'info'),
-    'CONFIRMATION_EXPIRED': ('You did not confirm your email within %(within)s. New instructions to confirm your email have been sent to %(email)s.', 'error'),
-    'LOGIN_EXPIRED': ('You did not login within %(within)s. New instructions to login have been sent to %(email)s.', 'error'),
-    'LOGIN_EMAIL_SENT': ('Instructions to login have been sent to %(email)s.', 'success'),
-    'INVALID_LOGIN_TOKEN': ('Invalid login token.', 'error'),
-    'DISABLED_ACCOUNT': ('Account is disabled.', 'error'),
-    'EMAIL_NOT_PROVIDED': ('Email not provided', 'error'),
-    'INVALID_EMAIL_ADDRESS': ('Invalid email address', 'error'),
-    'PASSWORD_NOT_PROVIDED': ('Password not provided', 'error'),
-    'PASSWORD_NOT_SET': ('No password is set for this user', 'error'),
-    'PASSWORD_INVALID_LENGTH': ('Password must be at least 6 characters', 'error'),
-    'USER_DOES_NOT_EXIST': ('Specified user does not exist', 'error'),
-    'INVALID_PASSWORD': ('Invalid password', 'error'),
-    'PASSWORDLESS_LOGIN_SUCCESSFUL': ('You have successfuly logged in.', 'success'),
-    'PASSWORD_RESET': ('You successfully reset your password and you have been logged in automatically.', 'success'),
-    'PASSWORD_IS_THE_SAME': ('Your new password must be different than your previous password.', 'error'),
-    'PASSWORD_CHANGE': ('You successfully changed your password.', 'success'),
-    'LOGIN': ('Please log in to access this page.', 'info'),
-    'REFRESH': ('Please reauthenticate to access this page.', 'info'),
+    'UNAUTHORIZED': (
+        'You do not have permission to view this resource.', 'error'),
+    'CONFIRM_REGISTRATION': (
+        'Thank you. Confirmation instructions have been sent to {email!s}.', 'success'),
+    'EMAIL_CONFIRMED': (
+        'Thank you. Your email has been confirmed.', 'success'),
+    'ALREADY_CONFIRMED': (
+        'Your email has already been confirmed.', 'info'),
+    'INVALID_CONFIRMATION_TOKEN': (
+        'Invalid confirmation token.', 'error'),
+    'EMAIL_ALREADY_ASSOCIATED': (
+        '{email!s} is already associated with an account.', 'error'),
+    'PASSWORD_MISMATCH': (
+        'Password does not match', 'error'),
+    'RETYPE_PASSWORD_MISMATCH': (
+        'Passwords do not match', 'error'),
+    'INVALID_REDIRECT': (
+        'Redirections outside the domain are forbidden', 'error'),
+    'PASSWORD_RESET_REQUEST': (
+        'Instructions to reset your password have been sent to {email!s}.', 'info'),
+    'PASSWORD_RESET_EXPIRED': (
+        'You did not reset your password within {within!s}. New instructions have been sent '
+        'to {email!s}.', 'error'),
+    'INVALID_RESET_PASSWORD_TOKEN': (
+        'Invalid reset password token.', 'error'),
+    'CONFIRMATION_REQUIRED': (
+        'Email requires confirmation.', 'error'),
+    'CONFIRMATION_REQUEST': (
+        'Confirmation instructions have been sent to {email!s}.', 'info'),
+    'CONFIRMATION_EXPIRED': (
+        'You did not confirm your email within {within!s}. New instructions to confirm your email '
+        'have been sent to {email!s}.', 'error'),
+    'LOGIN_EXPIRED': (
+        'You did not login within {within!s}. New instructions to login have been sent to '
+        '{email!s}.', 'error'),
+    'LOGIN_EMAIL_SENT': (
+        'Instructions to login have been sent to {email!s}.', 'success'),
+    'INVALID_LOGIN_TOKEN': (
+        'Invalid login token.', 'error'),
+    'DISABLED_ACCOUNT': (
+        'Account is disabled.', 'error'),
+    'EMAIL_NOT_PROVIDED': (
+        'Email not provided', 'error'),
+    'INVALID_EMAIL_ADDRESS': (
+        'Invalid email address', 'error'),
+    'PASSWORD_NOT_PROVIDED': (
+        'Password not provided', 'error'),
+    'PASSWORD_NOT_SET': (
+        'No password is set for this user', 'error'),
+    'PASSWORD_INVALID_LENGTH': (
+        'Password must be at least 6 characters', 'error'),
+    'USER_DOES_NOT_EXIST': (
+        'Specified user does not exist', 'error'),
+    'INVALID_PASSWORD': (
+        'Invalid password', 'error'),
+    'PASSWORDLESS_LOGIN_SUCCESSFUL': (
+        'You have successfuly logged in.', 'success'),
+    'PASSWORD_RESET': (
+        'You successfully reset your password and you have been logged in automatically.',
+        'success'),
+    'PASSWORD_IS_THE_SAME': (
+        'Your new password must be different than your previous password.', 'error'),
+    'PASSWORD_CHANGE': (
+        'You successfully changed your password.', 'success'),
+    'LOGIN': (
+        'Please log in to access this page.', 'info'),
+    'REFRESH': (
+        'Please reauthenticate to access this page.', 'info'),
 }
 
-_allowed_password_hash_schemes = [
-    'bcrypt',
-    'des_crypt',
-    'pbkdf2_sha256',
-    'pbkdf2_sha512',
-    'sha256_crypt',
-    'sha512_crypt',
-    # And always last one...
-    'plaintext'
-]
 
-_security_forms = {
+_security_renderables = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
     'register_form': RegisterForm,
@@ -152,10 +191,16 @@ _security_forms = {
 }
 
 
-def update_security_forms(**kwargs):
-    for key, value in _security_forms.items():
+def add_security_renderables(**kwargs):
+    for k,v in kwargs.items():
+        if kwarg_is_renderable.match(k):
+            _security_renderables.update({k: v})
+
+
+def update_security_renderables(**kwargs):
+    for key, value in _security_renderables.items():
         if kwargs.get(key):
-            _security_forms.update({key: kwargs[key]})
+            _security_renderables.update({key: kwargs[key]})
 
 
 def _user_loader(user_id):
@@ -215,10 +260,12 @@ def _get_principal(app):
 
 def _get_pwd_context(app):
     pw_hash = cv('PASSWORD_HASH', app=app)
-    if pw_hash not in _allowed_password_hash_schemes:
-        allowed = ', '.join(_allowed_password_hash_schemes[:-1]) + ' and ' + _allowed_password_hash_schemes[-1]
-        raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
-    return CryptContext(schemes=_allowed_password_hash_schemes, default=pw_hash)
+    schemes = cv('PASSWORD_SCHEMES', app=app)
+    deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
+    if pw_hash not in schemes:
+        allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
+        raise ValueError("Invalid hash scheme {!r}. Allowed values are {!s}".format(pw_hash, allowed))
+    return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
 def _get_serializer(app, name):
@@ -245,8 +292,9 @@ def _get_state(app, datastore, **kwargs):
         _send_mail_task=None
     ))
 
-    update_security_forms(**kwargs)
-    kwargs.update(_security_forms)
+    add_security_renderables(**kwargs)
+    update_security_renderables(**kwargs)
+    kwargs.update(_security_renderables)
 
     return _SecurityState(**kwargs)
 
@@ -254,7 +302,7 @@ def _get_state(app, datastore, **kwargs):
 def _context_processor(state):
     ctx_prcs = {}
     ctx_prcs.update({'url_for_security':url_for_security, 'security':_security})
-    for k,v in _security_forms.items():
+    for k,v in _security_renderables.items():
         ctx_prcs.update({k: partial(state.form_macro, v)})
     return ctx_prcs
 
@@ -338,7 +386,7 @@ class _SecurityState(object):
 
     @property
     def current_form(self):
-        return _security_forms.get("{}_form".format(self._security_endpoint), None)
+        return _security_renderables.get("{}_form".format(self._security_endpoint), None)
 
     @property
     def current_template(self):

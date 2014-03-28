@@ -1,22 +1,45 @@
 """
 Flask-Security
 ==============
-
-Flask-Security is a Flask extension that aims to add quick and simple security
-to your Flask applications.
-
-Resources
----------
-
-* `Documentation <http://packages.python.org/Flask-Security/>`_
-* `Issue Tracker <https://github.com/mattupstate/flask-security/issues>`_
-* `Source <https://github.com/mattupstate/flask-security>`_
-* `Development Version
-  <https://github.com/mattupstate/flask-security/raw/develop#egg=Flask-Security-dev>`_
-
 """
 
-from setuptools import setup
+import sys
+
+from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
+
+
+def get_requirements(suffix=''):
+    with open('requirements%s.txt' % suffix) as f:
+        rv = f.read().splitlines()
+    return rv
+
+
+def get_long_description():
+    with open('README.rst') as f:
+        rv = f.read()
+    return rv
+
+
+class PyTest(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = [
+            '-xrs',
+            '--cov', 'flask_security',
+            '--cov-report', 'term-missing',
+            '--pep8',
+            '--flakes',
+            '--clearcache'
+        ]
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
 
 setup(
     name='Flask-Security',
@@ -26,30 +49,14 @@ setup(
     author='Matt Wright',
     author_email='matt@nobien.net',
     description='Simple security for Flask apps',
-    long_description=__doc__,
-    packages=[
-        'flask_security'
-    ],
+    long_description=get_long_description(),
+    packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=[
-        'Flask>=0.10.1',
-        'Flask-Login>=0.2.9',
-        'Flask-Mail>=0.9.0',
-        'Flask-Principal>=0.4.0',
-        'Flask-WTF>=0.9.3',
-        'passlib>=1.6.2',
-    ],
-    test_suite='nose.collector',
-    tests_require=[
-        'nose',
-        'Flask-SQLAlchemy',
-        'Flask-MongoEngine',
-        'Flask-Peewee',
-        'bcrypt',
-        'simplejson'
-    ],
+    install_requires=get_requirements(),
+    tests_require=get_requirements('-dev'),
+    cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

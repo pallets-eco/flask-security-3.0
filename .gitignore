@@ -19,6 +19,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.ropeproject
 
 #Translations
 *.mo
@@ -33,3 +34,4 @@ env/
 *~
 
 *.db
+*cache*

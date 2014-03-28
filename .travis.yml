@@ -7,14 +7,14 @@ python:
   - "pypy"
 
 install:
-  - pip install . --quiet
-  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib --quiet --use-mirrors; fi"
-  - pip install nose simplejson Flask-SQLAlchemy Flask-MongoEngine Flask-Peewee bcrypt coverage coveralls --quiet
+  - pip install -r requirements.txt -r requirements-dev.txt -e .
+  - pip install coverage coveralls
+  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib; fi"
 
 services:
   - mongodb
 
-script: nosetests --with-coverage --cover-package flask_security
+script: py.test --cov flask_security --cov-report term-missing --pep8 --flakes
 
 after_script:
   - coveralls
