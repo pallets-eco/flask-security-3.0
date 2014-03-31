@@ -37,6 +37,7 @@ def test_context_processor(app, sqlalchemy_datastore):
     def test_mail_ctx(msg):
         return {'foo': 'bar'}
 
+
     with app.mail.record_messages() as outbox:
         client.post('/reset', data=dict(email='matt@lp.com'))
 

@@ -10,8 +10,7 @@
 """
 import re
 from functools import partial
-from flask import current_app, request
-from flask import current_app, render_template
+from flask import current_app, request, render_template
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -419,7 +418,7 @@ class _SecurityState(object):
         return f.macro_render(run_ctx())
 
     def get_token(self):
-        return {'token': request.view_args.get('token', 'NO TOKEN')} # make sure form has token on reset_password
+        return {'token': request.view_args.get('token', 'NO TOKEN')}
 
 
 class Security(object):
@@ -439,9 +438,9 @@ class Security(object):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
-        :param app: The application.
-        :param datastore: An instance of a user datastore.
-        :param register_blueprint: to register the Security blueprint or not.
+        :param app:                The application.
+        :param datastore:          An instance of a user datastore.
+        :param register_blueprint: Register the Security blueprint or no.
         """
         datastore = datastore or self.datastore
 

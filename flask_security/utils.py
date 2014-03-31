@@ -300,10 +300,10 @@ def get_within_delta(key, app=None):
 def send_mail(subject, recipient, template, **context):
     """Send an email via the Flask-Mail extension.
 
-    :param subject: Email subject
+    :param subject:   Email subject
     :param recipient: Email recipient
-    :param template: The name of the email template
-    :param context: The context to render the template with
+    :param template:  The name of the email template
+    :param context:   The context to render the template with
     """
 
     context.setdefault('security', _security)
@@ -328,11 +328,11 @@ def send_mail(subject, recipient, template, **context):
 def get_token_status(token, serializer, max_age=None):
     """Get the status of a token.
 
-    :param token: The token to check
+    :param token:      The token to check
     :param serializer: The name of the seriailzer. Can be one of the
                        following: ``confirm``, ``login``, ``reset``
-    :param max_age: The name of the max age config option. Can be on of
-                    the following: ``CONFIRM_EMAIL``, ``LOGIN``, ``RESET_PASSWORD``
+    :param max_age:    The name of the max age config option. Can be on of
+                       the following: ``CONFIRM_EMAIL``, ``LOGIN``, ``RESET_PASSWORD``
     """
     serializer = getattr(_security, serializer + '_serializer')
     max_age = get_max_age(max_age)
