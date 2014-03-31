@@ -302,7 +302,7 @@ def _context_processor(state):
     ctx_prcs = {}
     ctx_prcs.update({'url_for_security':url_for_security, 'security':_security})
     for k,v in _security_renderables.items():
-        ctx_prcs.update({k: partial(state.form_macro, v)})
+        ctx_prcs.update({k: partial(state.renderable_is, v)})
     return ctx_prcs
 
 
@@ -400,22 +400,22 @@ class _SecurityState(object):
         else:
             return _endpoint
 
-    def form_macro(self, form):
-        form_is = partial(self._form_is, form)
+    def renderable_is(self, renderable):
+        r = partial(self._renderable_is, renderable)
         run_ctx = partial(self._run_ctx, self._security_endpoint)
-        return self._on_form(form_is, run_ctx)
+        return self._on_renderable(r, run_ctx)
 
-    def _form_is(self, form):
+    def _renderable_is(self, renderable):
         if request.json:
-            return form(MultiDict(request.json))
+            return renderable(MultiDict(request.json))
         else:
-            return form(request.form)
+            return renderable(request.form)
 
-    def _on_form(self, form_is, run_ctx):
-        f = form_is()
+    def _on_renderable(self, renderable, run_ctx):
+        r = renderable()
         if request.form:
-            f.validate()
-        return f.macro_render(run_ctx())
+            r.validate()
+        return r.render_macro(run_ctx())
 
     def get_token(self):
         return {'token': request.view_args.get('token', 'NO TOKEN')}

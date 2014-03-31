@@ -12,6 +12,7 @@
 import inspect
 
 from ._compat import PY2
+
 if not PY2:
     import urllib.parse as urlparse
 else:
@@ -107,12 +108,12 @@ class SecurityForm(BaseForm):
         return ''.join('_'+x.lower() if x.isupper() else x for x in cls.__name__[:-4]).strip('_')
 
     @property
-    def _macro_renderable(self):
+    def _renderable(self):
         return get_template_attribute(self.mtemplate, self.mname)
 
-    def macro_render(self, ctx):
+    def render_macro(self, ctx):
         self.update(ctx)
-        return self._macro_renderable(self)
+        return self._renderable(self)
 
 
 class EmailFormMixin():
