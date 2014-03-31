@@ -13,12 +13,11 @@ import inspect
 
 from ._compat import PY2
 
-if not PY2:
-    import urllib.parse as urlparse
-else:
-    import urlparse
+#if not PY2:
+#    import urllib.parse as urlparse
+#else:
+#    import urlparse
 
-import flask_wtf as wtf
 from flask import request, current_app, get_template_attribute, flash
 from flask_wtf import Form as BaseForm
 from wtforms import TextField, PasswordField, validators, \
@@ -101,7 +100,7 @@ class SecurityForm(BaseForm):
         super(SecurityForm, self).__init__(*args, **kwargs)
 
     def update(self, ctx):
-        [setattr(self, k, v) for k,v in ctx.items()]
+        [setattr(self, k, v) for k, v in ctx.items()]
 
     @classmethod
     def _ctx_tag(cls):
@@ -163,8 +162,8 @@ class NextFormMixin():
 
 
 class RegisterFormMixin(SecurityForm):
-    mname='register_macro'
-    mtemplate='security/macros/_register.html'
+    mname = 'register_macro'
+    mtemplate = 'security/macros/_register.html'
 
     submit = SubmitField(get_form_field_label('register'))
 
@@ -180,8 +179,8 @@ class RegisterFormMixin(SecurityForm):
 class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
     """The default send confirmation form"""
 
-    mname='send_confirmation_macro'
-    mtemplate='security/macros/_send_confirmation.html'
+    mname = 'send_confirmation_macro'
+    mtemplate = 'security/macros/_send_confirmation.html'
 
     submit = SubmitField(get_form_field_label('send_confirmation'))
 
@@ -209,8 +208,8 @@ class SendConfirmationForm(UserEmailFormMixin, SecurityForm):
 class ForgotPasswordForm(UserEmailFormMixin, SecurityForm):
     """The default forgot password form"""
 
-    mname='forgot_password_macro'
-    mtemplate='security/macros/_forgot_password.html'
+    mname = 'forgot_password_macro'
+    mtemplate = 'security/macros/_forgot_password.html'
 
     submit = SubmitField(get_form_field_label('recover_password'))
 
@@ -221,8 +220,8 @@ class ForgotPasswordForm(UserEmailFormMixin, SecurityForm):
 class PasswordlessForm(UserEmailFormMixin, SecurityForm):
     """The passwordless login form"""
 
-    mname='passwordless_macro'
-    mtemplate='security/macros/_passwordless.html'
+    mname = 'passwordless_macro'
+    mtemplate = 'security/macros/_passwordless.html'
 
     submit = SubmitField(get_form_field_label('send_login_link'))
 
@@ -248,8 +247,8 @@ class PasswordlessForm(UserEmailFormMixin, SecurityForm):
 class LoginForm(NextFormMixin, SecurityForm):
     """The default login form"""
 
-    mname='login_macro'
-    mtemplate='security/macros/_login.html'
+    mname = 'login_macro'
+    mtemplate = 'security/macros/_login.html'
 
     email = TextField(get_form_field_label('email'))
     password = PasswordField(get_form_field_label('password'))
@@ -297,8 +296,8 @@ class LoginForm(NextFormMixin, SecurityForm):
 class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFormMixin, SecurityForm):
     """The default confirm register password form"""
 
-    mname='confirm_register_macro'
-    mtemplate='security/macros/_confirm_register.html'
+    mname = 'confirm_register_macro'
+    mtemplate = 'security/macros/_confirm_register.html'
 
     def __init__(self, *args, **kwargs):
         super(ConfirmRegisterForm, self).__init__(*args, **kwargs)
@@ -307,8 +306,8 @@ class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFo
 class RegisterForm(PasswordConfirmFormMixin, ConfirmRegisterForm):
     """The default register password form"""
 
-    mname='register_macro'
-    mtemplate='security/macros/_register.html'
+    mname = 'register_macro'
+    mtemplate = 'security/macros/_register.html'
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
@@ -317,8 +316,8 @@ class RegisterForm(PasswordConfirmFormMixin, ConfirmRegisterForm):
 class ResetPasswordForm(NewPasswordFormMixin, PasswordConfirmFormMixin, SecurityForm):
     """The default reset password form"""
 
-    mname='reset_password_macro'
-    mtemplate='security/macros/_reset_password.html'
+    mname = 'reset_password_macro'
+    mtemplate = 'security/macros/_reset_password.html'
 
     submit = SubmitField(get_form_field_label('reset_password'))
 
@@ -329,8 +328,8 @@ class ResetPasswordForm(NewPasswordFormMixin, PasswordConfirmFormMixin, Security
 class ChangePasswordForm(PasswordFormMixin, SecurityForm):
     """The default change password form"""
 
-    mname='change_password_macro'
-    mtemplate='security/macros/_change_password.html'
+    mname = 'change_password_macro'
+    mtemplate = 'security/macros/_change_password.html'
 
     new_password = PasswordField(
         get_form_field_label('new_password'),

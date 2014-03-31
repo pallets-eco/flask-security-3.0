@@ -90,8 +90,12 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
     assert "Your password has been changed" in outbox[0].html
 
     # Test JSON
-    data = ('{"password": "newpassword", "new_password": "newpassword2", "new_password_confirm": "newpassword2"}')
-    response = client.post('/change', data=data, headers={'Content-Type': 'application/json'})
+    data = ('{"password": "newpassword",\
+              "new_password": "newpassword2",\
+              "new_password_confirm": "newpassword2"}')
+    response = client.post('/change',
+                           data=data,
+                           headers={'Content-Type': 'application/json'})
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
 

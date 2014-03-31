@@ -191,7 +191,7 @@ _security_renderables = {
 
 
 def add_security_renderables(**kwargs):
-    for k,v in kwargs.items():
+    for k, v in kwargs.items():
         if kwarg_is_renderable.match(k):
             _security_renderables.update({k: v})
 
@@ -300,8 +300,8 @@ def _get_state(app, datastore, **kwargs):
 
 def _context_processor(state):
     ctx_prcs = {}
-    ctx_prcs.update({'url_for_security':url_for_security, 'security':_security})
-    for k,v in _security_renderables.items():
+    ctx_prcs.update({'url_for_security': url_for_security, 'security':_security})
+    for k, v in _security_renderables.items():
         ctx_prcs.update({k: partial(state.renderable_is, v)})
     return ctx_prcs
 

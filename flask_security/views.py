@@ -113,7 +113,6 @@ def passwordless_login():
     if request.json:
         return _render_json(use_form)
 
-
     return _security.render_template(_security.current_template)
 
 
@@ -219,8 +218,6 @@ def reset_password(token):
         login_user(user)
         return redirect(get_url(_security.post_reset_view) or
                         get_url(_security.post_login_view))
-
-    #security_context['aform'].update(token=token)
 
     return _security.render_template(_security.current_template)
 

@@ -13,6 +13,7 @@ from flask_security.forms import SecurityForm
 class TestLoginForm(SecurityForm):
     mname = 'test_macro'
     mtemplate = 'custom_security/macros/_test.html'
+    user = None
 
 
 def test_context_processor(app, sqlalchemy_datastore):
@@ -32,7 +33,6 @@ def test_context_processor(app, sqlalchemy_datastore):
     response = client.get('/login')
     assert b'bar' in response.data
 
-    """
     @app.security.send_mail_task
     def test_mail_ctx(msg):
         return {'foo': 'bar'}
@@ -43,4 +43,3 @@ def test_context_processor(app, sqlalchemy_datastore):
 
     email = outbox[0]
     assert b'bar' in email.html
-    """
