@@ -68,6 +68,7 @@ class UserDatastore(object):
         self.role_model = role_model
 
     def _prepare_role_modify_args(self, user, role):
+
         if isinstance(user, string_types):
             user = self.find_user(email=user)
         if isinstance(role, string_types):
@@ -82,6 +83,7 @@ class UserDatastore(object):
             # see if the role exists
             roles[i] = self.find_role(rn)
         kwargs['roles'] = roles
+
         return kwargs
 
     def get_user(self, id_or_email):
@@ -149,7 +151,6 @@ class UserDatastore(object):
 
     def create_role(self, **kwargs):
         """Creates and returns a new role from the given parameters."""
-
         role = self.role_model(**kwargs)
         return self.put(role)
 
@@ -237,17 +238,18 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         query = QCombination(QCombination.AND, queries)
         try:
             return self.user_model.objects(query).first()
-        except ValidationError:
+        except ValidationError:  # pragma: no cover
             return None
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
 
-    def add_role_to_user(self, user, role):
-        rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
-        if rv:
-            self.put(user)
-        return rv
+    # TODO: Not sure why this was added but tests pass without it
+    # def add_role_to_user(self, user, role):
+    #     rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+    #     if rv:
+    #         self.put(user)
+    #     return rv
 
 
 class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
@@ -295,6 +297,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         user = self.put(user)
         for role in roles:
             self.add_role_to_user(user, role)
+        self.put(user)
         return user
 
     def add_role_to_user(self, user, role):
@@ -309,7 +312,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         if result.count():
             return False
         else:
-            self.UserRole.create(user=user.id, role=role.id)
+            self.put(self.UserRole.create(user=user.id, role=role.id))
             return True
 
     def remove_role_from_user(self, user, role):
