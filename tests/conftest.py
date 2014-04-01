@@ -15,9 +15,11 @@ import pytest
 from flask import Flask, render_template
 from flask_mail import Mail
 
-from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
-    PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
-    auth_token_required, auth_required, roles_required, roles_accepted
+from flask_security import (Security, MongoEngineUserDatastore,
+                            SQLAlchemyUserDatastore, PeeweeUserDatastore,
+                            UserMixin, RoleMixin, http_auth_required,
+                            login_required, auth_token_required, auth_required,
+                            roles_required, roles_accepted)
 
 from utils import populate_data, Response
 

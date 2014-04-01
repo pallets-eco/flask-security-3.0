@@ -11,22 +11,17 @@
 
 import inspect
 
-from ._compat import PY2
-
-#if not PY2:
-#    import urllib.parse as urlparse
-#else:
-#    import urlparse
-
 from flask import request, current_app, get_template_attribute, flash
 from flask_wtf import Form as BaseForm
-from wtforms import TextField, PasswordField, validators, \
-    SubmitField, HiddenField, BooleanField, ValidationError, Field
+from wtforms import (TextField, PasswordField, validators,
+                     SubmitField, HiddenField, BooleanField, ValidationError,
+                     Field)
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
+from .utils import (verify_and_update_password, get_message, config_value,
+                    validate_redirect_url)
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -104,7 +99,8 @@ class SecurityForm(BaseForm):
 
     @classmethod
     def _ctx_tag(cls):
-        return ''.join('_'+x.lower() if x.isupper() else x for x in cls.__name__[:-4]).strip('_')
+        return ''.join('_'+x.lower() if x.isupper()
+                       else x for x in cls.__name__[:-4]).strip('_')
 
     @property
     def _renderable(self):
@@ -270,7 +266,8 @@ class LoginForm(NextFormMixin, SecurityForm):
             return False
 
         if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
+            self.password.errors.append(get_message(
+                'PASSWORD_NOT_PROVIDED')[0])
             return False
 
         self.user = _datastore.get_user(self.email.data)
@@ -293,7 +290,8 @@ class LoginForm(NextFormMixin, SecurityForm):
         return True
 
 
-class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin, RegisterFormMixin, SecurityForm):
+class ConfirmRegisterForm(UniqueEmailFormMixin, NewPasswordFormMixin,
+                          RegisterFormMixin, SecurityForm):
     """The default confirm register password form"""
 
     mname = 'confirm_register_macro'
@@ -313,7 +311,8 @@ class RegisterForm(PasswordConfirmFormMixin, ConfirmRegisterForm):
         super(RegisterForm, self).__init__(*args, **kwargs)
 
 
-class ResetPasswordForm(NewPasswordFormMixin, PasswordConfirmFormMixin, SecurityForm):
+class ResetPasswordForm(NewPasswordFormMixin, PasswordConfirmFormMixin,
+                        SecurityForm):
     """The default reset password form"""
 
     mname = 'reset_password_macro'
@@ -337,7 +336,8 @@ class ChangePasswordForm(PasswordFormMixin, SecurityForm):
 
     new_password_confirm = PasswordField(
         get_form_field_label('retype_password'),
-        validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
+        validators=[EqualTo('new_password',
+                            message='RETYPE_PASSWORD_MISMATCH')])
 
     submit = SubmitField(get_form_field_label('change_password'))
 

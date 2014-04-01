@@ -207,7 +207,9 @@ def reset_password(token):
     if invalid:
         flash_next('INVALID_RESET_PASSWORD_TOKEN')
     if expired:
-        flash_next('PASSWORD_RESET_EXPIRED', email=user.email, within=_security.reset_password_within)
+        flash_next('PASSWORD_RESET_EXPIRED',
+                   email=user.email,
+                   within=_security.reset_password_within)
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 

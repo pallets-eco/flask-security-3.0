@@ -7,16 +7,14 @@
 """
 
 from utils import init_app_with_options
-from flask_security.forms import SecurityForm
-
-
-class TestLoginForm(SecurityForm):
-    mname = 'test_macro'
-    mtemplate = 'custom_security/macros/_test.html'
-    user = None
+from flask_security.forms import LoginForm
 
 
 def test_context_processor(app, sqlalchemy_datastore):
+    class TestLoginForm(LoginForm):
+        mname = 'test_macro'
+        mtemplate = 'custom_security/macros/_test.html'
+
     init_app_with_options(app, sqlalchemy_datastore, **{
         'SECURITY_RECOVERABLE': True,
         'SECURITY_LOGIN_TEMPLATE': 'custom_security/login_user.html',
@@ -36,7 +34,6 @@ def test_context_processor(app, sqlalchemy_datastore):
     @app.security.send_mail_task
     def test_mail_ctx(msg):
         return {'foo': 'bar'}
-
 
     with app.mail.record_messages() as outbox:
         client.post('/reset', data=dict(email='matt@lp.com'))

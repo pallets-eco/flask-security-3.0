@@ -64,7 +64,6 @@ def populate_data(app, user_count=None):
 
 
 class Response(BaseResponse):  # pragma: no cover
-
     @property
     def jdata(self):
         rv = getattr(self, '_cached_jdata', _missing)

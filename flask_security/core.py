@@ -263,7 +263,8 @@ def _get_pwd_context(app):
     deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
-        raise ValueError("Invalid hash scheme {!r}. Allowed values are {!s}".format(pw_hash, allowed))
+        raise ValueError("""Invalid hash scheme {!r}.\n
+                         Allowed values are {!s}""".format(pw_hash, allowed))
     return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
@@ -300,7 +301,8 @@ def _get_state(app, datastore, **kwargs):
 
 def _context_processor(state):
     ctx_prcs = {}
-    ctx_prcs.update({'url_for_security': url_for_security, 'security':_security})
+    ctx_prcs.update({'url_for_security': url_for_security,
+                     'security': _security})
     for k, v in _security_renderables.items():
         ctx_prcs.update({k: partial(state.renderable_is, v)})
     return ctx_prcs
