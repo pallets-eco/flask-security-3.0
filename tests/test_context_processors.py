@@ -25,10 +25,15 @@ def test_context_processor(app, sqlalchemy_datastore):
     client = app.test_client()
 
     @app.security.add_ctx
-    def login_ctx():
+    def login_ctxone():
         return {'foo': 'bar'}
 
+    @app.security.add_ctx
+    def login_ctxtwo():
+        return {'bar': 'foo'}
+
     response = client.get('/login')
+    assert b'foo' in response.data
     assert b'bar' in response.data
 
     @app.security.send_mail_task

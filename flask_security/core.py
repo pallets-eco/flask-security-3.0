@@ -367,7 +367,7 @@ class _SecurityState(object):
         fn not in group and group.append(fn)
 
     def _run_ctx(self, endpoint):
-        rv, fns = {}, []
+        rv = {}
         for g in [None, endpoint]:
             for fn in self._ctxs.setdefault(g, []):
                 rv.update(fn())

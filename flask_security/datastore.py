@@ -151,7 +151,6 @@ class UserDatastore(object):
 
     def create_role(self, **kwargs):
         """Creates and returns a new role from the given parameters."""
-
         role = self.role_model(**kwargs)
         return self.put(role)
 
@@ -164,7 +163,6 @@ class UserDatastore(object):
 
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
-        #print(self._prepare_create_user_args(**kwargs))
         kwargs = self._prepare_create_user_args(**kwargs)
         user = self.user_model(**kwargs)
         return self.put(user)
