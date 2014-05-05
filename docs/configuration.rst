@@ -200,6 +200,12 @@ Email
                                                   confirmation message. Defaults
                                                   to ``Please confirm your
                                                   email``
+``SECURITY_EMAIL_PLAINTEXT``                      Enable email to be sent as
+                                                  plaintext (Using *.txt template).
+                                                  Defaults ``True``
+``SECURITY_EMAIL_HTML``                           Enable email to be sent as 
+                                                  plaintext (Using *.html template).
+                                                  Defaults ``True``
 ================================================= ==============================
 
 Miscellaneous
