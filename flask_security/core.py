@@ -295,6 +295,9 @@ class RoleMixin(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return hash(self.name)
+
 
 class UserMixin(BaseUserMixin):
     """Mixin for `User` model definitions"""
@@ -340,7 +343,7 @@ class _SecurityState(object):
         fn not in group and group.append(fn)
 
     def _run_ctx_processor(self, endpoint):
-        rv, fns = {}, []
+        rv = {}
         for g in [None, endpoint]:
             for fn in self._context_processors.setdefault(g, []):
                 rv.update(fn())
