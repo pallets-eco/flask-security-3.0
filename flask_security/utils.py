@@ -40,12 +40,12 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
 PY3 = sys.version_info[0] == 3
 
-if PY3:
-    string_types = str,  # pragma: no cover, no flakes
-    text_type = str  # pragma: no cover, no flakes
-else:
-    string_types = basestring,  # pragma: no cover, no flakes
-    text_type = unicode  # pragma: no cover, no flakes
+if PY3:  # pragma: no cover
+    string_types = str,  # pragma: no flakes
+    text_type = str  # pragma: no flakes
+else:  # pragma: no cover
+    string_types = basestring,  # pragma: no flakes
+    text_type = unicode  # pragma: no flakes
 
 
 def login_user(user, remember=None):
@@ -124,16 +124,13 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-    print _pwd_context.default_scheme()
-    print password, user.password
+
     if _pwd_context.identify(user.password) != 'plaintext':
         password = get_hmac(password)
     verified, new_password = _pwd_context.verify_and_update(password, user.password)
-    print verified, new_password
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
-
     return verified
 
 
@@ -195,10 +192,9 @@ def url_for_security(endpoint, **values):
 
 
 def validate_redirect_url(url):
-    try:
-        url_next = urlsplit(url)
-    except:
+    if url is None:
         return False
+    url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
     if url_next.netloc and url_next.netloc != url_base.netloc:
         return False
@@ -212,7 +208,7 @@ def get_post_action_redirect(config_key, declared=None):
         find_redirect(config_key)
     ]
     if declared:
-        urls.append(declared)
+        urls.insert(0, declared)
     for url in urls:
         if validate_redirect_url(url):
             return url

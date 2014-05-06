@@ -75,8 +75,7 @@ def login():
         after_this_request(_commit)
 
         if not request.json:
-            rv = get_post_login_redirect(form.next.data)
-            return redirect(rv)
+            return redirect(get_post_login_redirect(form.next.data))
 
     if request.json:
         return _render_json(form, True)
@@ -121,7 +120,6 @@ def register():
             login_user(user)
 
         if not request.json:
-            print('wtf')
             return redirect(get_post_register_redirect())
         return _render_json(form, True)
 
