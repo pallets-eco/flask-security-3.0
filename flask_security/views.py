@@ -34,7 +34,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def _render_json(form, include_auth_token=False):
+def _render_json(form, include_auth_token=False, include_id=True):
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -42,7 +42,9 @@ def _render_json(form, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        response = dict(user=dict(id=str(form.user.id)))
+	resonse = dict()
+        if include_id:
+            response['user'] = dict(id=str(form.user.id)))
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
