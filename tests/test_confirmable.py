@@ -8,20 +8,18 @@
 
 import time
 
+import pytest
+
 from flask_security.signals import user_confirmed, confirm_instructions_sent
 from flask_security.utils import capture_registrations
 
-from utils import authenticate, logout, init_app_with_options
+from utils import authenticate, logout
+
+pytestmark = pytest.mark.confirmable()
 
 
-def test_confirmable_flag(app, sqlalchemy_datastore, get_message):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-    })
-
-    client = app.test_client()
-
+@pytest.mark.registerable()
+def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     recorded_confirms = []
     recorded_instructions_sent = []
 
@@ -100,16 +98,9 @@ def test_confirmable_flag(app, sqlalchemy_datastore, get_message):
     assert get_message('INVALID_CONFIRMATION_TOKEN') in response.data
 
 
-def test_expired_confirmation_token(app, sqlalchemy_datastore, get_message):
-    within = '1 milliseconds'
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-        'SECURITY_CONFIRM_EMAIL_WITHIN': within
-    })
-
-    client = app.test_client()
-
+@pytest.mark.registerable()
+@pytest.mark.settings(confirm_email_within='1 milliseconds')
+def test_expired_confirmation_token(client, get_message):
     with capture_registrations() as registrations:
         data = dict(email='mary@lp.com', password='password')
         client.post('/register', data=data, follow_redirects=True)
@@ -120,32 +111,21 @@ def test_expired_confirmation_token(app, sqlalchemy_datastore, get_message):
     time.sleep(1)
 
     response = client.get('/confirm/' + token, follow_redirects=True)
-    assert get_message('CONFIRMATION_EXPIRED', within=within, email=user.email) in response.data
+    msg = get_message('CONFIRMATION_EXPIRED', within='1 milliseconds', email=user.email)
+    assert msg in response.data
 
 
-def test_login_when_unconfirmed(app, sqlalchemy_datastore, get_message):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-        'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True
-    })
-
-    client = app.test_client()
-
+@pytest.mark.registerable()
+@pytest.mark.settings(login_without_confirmation=True)
+def test_login_when_unconfirmed(client, get_message):
     data = dict(email='mary@lp.com', password='password')
     response = client.post('/register', data=data, follow_redirects=True)
     assert b'mary@lp.com' in response.data
 
 
-def test_confirmation_different_user_when_logged_in(app, sqlalchemy_datastore, get_message):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_REGISTERABLE': True,
-        'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True
-    })
-
-    client = app.test_client()
-
+@pytest.mark.registerable()
+@pytest.mark.settings(login_without_confirmation=True)
+def test_confirmation_different_user_when_logged_in(client, get_message):
     e1 = 'dude@lp.com'
     e2 = 'lady@lp.com'
 

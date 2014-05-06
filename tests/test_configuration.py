@@ -8,20 +8,18 @@
 
 import base64
 
-from utils import authenticate, logout, init_app_with_options
+import pytest
+
+from utils import authenticate, logout
 
 
-def test_view_configuration(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_LOGOUT_URL': '/custom_logout',
-        'SECURITY_LOGIN_URL': '/custom_login',
-        'SECURITY_POST_LOGIN_VIEW': '/post_login',
-        'SECURITY_POST_LOGOUT_VIEW': '/post_logout',
-        'SECURITY_DEFAULT_HTTP_AUTH_REALM': 'Custom Realm',
-    })
-
-    client = app.test_client()
-
+@pytest.mark.settings(
+    logout_url='/custom_logout',
+    login_url='/custom_login',
+    post_login_view='/post_login',
+    post_logout_view='/post_logout',
+    default_http_auth_realm='Custom Realm')
+def test_view_configuration(client):
     response = client.get('/custom_login')
     assert b"<h1>Login</h1>" in response.data
 
@@ -39,10 +37,7 @@ def test_view_configuration(app, sqlalchemy_datastore):
     assert 'Basic realm="Custom Realm"' == response.headers['WWW-Authenticate']
 
 
-def test_template_configuration(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
-    })
-    client = app.test_client()
+@pytest.mark.settings(login_user_template='custom_security/login_user.html')
+def test_template_configuration(client):
     response = client.get('/login')
     assert b'CUSTOM LOGIN USER' in response.data

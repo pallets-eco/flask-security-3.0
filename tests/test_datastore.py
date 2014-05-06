@@ -133,8 +133,11 @@ def test_add_role_to_user(app, datastore):
 def test_create_user_with_roles(app, datastore):
     init_app_with_options(app, datastore)
 
+    role = datastore.find_role('admin')
+    datastore.commit()
+
     user = datastore.create_user(email='dude@lp.com', username='dude',
-                                 password='password', roles=['admin'])
+                                 password='password', roles=[role])
     datastore.commit()
     user = datastore.find_user(email='dude@lp.com')
     assert user.has_role('admin') is True

@@ -6,16 +6,14 @@
     Trackable tests
 """
 
-from utils import authenticate, logout, init_app_with_options
+import pytest
+
+from utils import authenticate, logout
+
+pytestmark = pytest.mark.trackable()
 
 
-def test_trackable_flag(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_TRACKABLE': True
-    })
-
-    client = app.test_client()
-
+def test_trackable_flag(app, client):
     e = 'matt@lp.com'
     authenticate(client, email=e)
     logout(client)

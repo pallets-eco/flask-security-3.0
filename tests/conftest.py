@@ -23,7 +23,7 @@ from utils import populate_data, Response
 
 
 @pytest.fixture()
-def app():
+def app(request):
     app = Flask(__name__)
     app.response_class = Response
     app.debug = True
@@ -31,6 +31,14 @@ def app():
     app.config['TESTING'] = True
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
+
+    for opt in ['changeable', 'recoverable', 'registerable',
+                'trackable', 'passwordless', 'confirmable']:
+        app.config['SECURITY_' + opt.upper()] = opt in request.keywords
+
+    if 'settings' in request.keywords:
+        for key, value in request.keywords['settings'].kwargs.items():
+            app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
     app.mail = mail

@@ -6,7 +6,7 @@
     Email functionality tests
 """
 
-from pytest import raises
+import pytest
 
 from flask_security import Security
 from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
@@ -17,18 +17,14 @@ from flask_security.utils import capture_reset_password_requests
 from utils import authenticate, init_app_with_options, populate_data
 
 
-def test_async_email_task(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_RECOVERABLE': True
-    })
-
+@pytest.mark.recoverable()
+def test_async_email_task(app, client):
     app.mail_sent = False
 
     @app.security.send_mail_task
     def send_email(msg):
         app.mail_sent = True
 
-    client = app.test_client()
     client.post('/reset', data=dict(email='matt@lp.com'))
     assert app.mail_sent is True
 
@@ -40,11 +36,10 @@ def test_register_blueprint_flag(app, sqlalchemy_datastore):
     assert response.status_code == 404
 
 
+@pytest.mark.registerable()
+@pytest.mark.recoverable()
+@pytest.mark.changeable()
 def test_basic_custom_forms(app, sqlalchemy_datastore):
-    app.config['SECURITY_REGISTERABLE'] = True
-    app.config['SECURITY_RECOVERABLE'] = True
-    app.config['SECURITY_CHANGEABLE'] = True
-
     class MyLoginForm(LoginForm):
         email = TextField('My Login Email Address Field')
 
@@ -70,7 +65,6 @@ def test_basic_custom_forms(app, sqlalchemy_datastore):
                             change_password_form=MyChangePasswordForm)
 
     populate_data(app)
-
     client = app.test_client()
 
     response = client.get('/login')
@@ -95,6 +89,8 @@ def test_basic_custom_forms(app, sqlalchemy_datastore):
     assert b'My Change Password Field' in response.data
 
 
+@pytest.mark.registerable()
+@pytest.mark.confirmable()
 def test_confirmable_custom_form(app, sqlalchemy_datastore):
     app.config['SECURITY_REGISTERABLE'] = True
     app.config['SECURITY_CONFIRMABLE'] = True
@@ -154,7 +150,7 @@ def test_flash_messages_off(app, sqlalchemy_datastore, get_message):
 
 
 def test_invalid_hash_scheme(app, sqlalchemy_datastore, get_message):
-    with raises(ValueError):
+    with pytest.raises(ValueError):
         init_app_with_options(app, sqlalchemy_datastore, **{
             'SECURITY_PASSWORD_HASH': 'bogus'
         })

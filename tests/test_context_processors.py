@@ -6,26 +6,24 @@
     Context processor tests
 """
 
-from utils import authenticate, init_app_with_options
+import pytest
+
+from utils import authenticate
 
 
-def test_context_processors(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_RECOVERABLE': True,
-        'SECURITY_REGISTERABLE': True,
-        'SECURITY_CONFIRMABLE': True,
-        'SECURITY_CHANGEABLE': True,
-        'SECURITY_LOGIN_WITHOUT_CONFIRMATION': True,
-        'SECURITY_CHANGE_PASSWORD_TEMPLATE': 'custom_security/change_password.html',
-        'SECURITY_LOGIN_USER_TEMPLATE': 'custom_security/login_user.html',
-        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
-        'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html',
-        'SECURITY_SEND_CONFIRMATION_TEMPLATE': 'custom_security/send_confirmation.html',
-        'SECURITY_REGISTER_USER_TEMPLATE': 'custom_security/register_user.html'
-    })
-
-    client = app.test_client()
-
+@pytest.mark.recoverable()
+@pytest.mark.registerable()
+@pytest.mark.confirmable()
+@pytest.mark.changeable()
+@pytest.mark.settings(
+    login_without_confirmation=True,
+    change_password_template='custom_security/change_password.html',
+    login_user_template='custom_security/login_user.html',
+    reset_password_template='custom_security/reset_password.html',
+    forgot_password_template='custom_security/forgot_password.html',
+    send_confirmation_template='custom_security/send_confirmation.html',
+    register_user_template='custom_security/register_user.html')
+def test_context_processors(client, app):
     @app.security.forgot_password_context_processor
     def forgot_password():
         return {'foo': 'bar'}
@@ -77,17 +75,12 @@ def test_context_processors(app, sqlalchemy_datastore):
         client.post('/reset', data=dict(email='matt@lp.com'))
 
     email = outbox[0]
-    assert b'bar' in email.html
+    assert 'bar' in email.html
 
 
-def test_passwordless_login_context_processor(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_PASSWORDLESS': True,
-        'SECURITY_SEND_LOGIN_TEMPLATE': 'custom_security/send_login.html',
-    })
-
-    client = app.test_client()
-
+@pytest.mark.passwordless()
+@pytest.mark.settings(send_login_template='custom_security/send_login.html')
+def test_passwordless_login_context_processor(app, client):
     @app.security.send_login_context_processor
     def send_login():
         return {'foo': 'bar'}

@@ -6,23 +6,16 @@
     Changeable tests
 """
 
+import pytest
+
 from flask_security.signals import password_changed
 
-from utils import authenticate, init_app_with_options
+from utils import authenticate
+
+pytestmark = pytest.mark.changeable()
 
 
-def _get_client(app, datastore, **options):
-    config = {
-        'SECURITY_CHANGEABLE': True
-    }
-    config.update(options)
-    init_app_with_options(app, datastore, **config)
-    return app.test_client()
-
-
-def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
-    client = _get_client(app, sqlalchemy_datastore)
-
+def test_recoverable_flag(app, client, get_message):
     recorded = []
 
     @password_changed.connect_via(app)
@@ -97,32 +90,22 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
     assert response.headers['Content-Type'] == 'application/json'
 
 
-def test_custom_change_url(app, sqlalchemy_datastore, get_message):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_CHANGE_URL': '/custom_change'
-    })
-
+@pytest.mark.settings(change_url='/custom_change')
+def test_custom_change_url(client):
     authenticate(client)
     response = client.get('/custom_change')
     assert response.status_code == 200
 
 
-def test_custom_change_template(app, sqlalchemy_datastore, get_message):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_CHANGE_PASSWORD_TEMPLATE': 'custom_security/change_password.html'
-    })
-
+@pytest.mark.settings(change_password_template='custom_security/change_password.html')
+def test_custom_change_template(client):
     authenticate(client)
     response = client.get('/change')
     assert b'CUSTOM CHANGE PASSWORD' in response.data
 
 
-def test_disable_change_emails(app, sqlalchemy_datastore):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_SEND_PASSWORD_CHANGE_EMAIL': False
-    })
-    authenticate(client)
-
+@pytest.mark.settings(send_password_change_email=False)
+def test_disable_change_emails(app, client):
     with app.mail.record_messages() as outbox:
         client.post('/change', data={
             'password': 'password',
@@ -132,12 +115,9 @@ def test_disable_change_emails(app, sqlalchemy_datastore):
     assert len(outbox) == 0
 
 
-def test_custom_post_change_view(app, sqlalchemy_datastore):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_POST_CHANGE_VIEW': '/profile',
-    })
+@pytest.mark.settings(post_change_view='/profile')
+def test_custom_post_change_view(client):
     authenticate(client)
-
     response = client.post('/change', data={
         'password': 'password',
         'new_password': 'newpassword',

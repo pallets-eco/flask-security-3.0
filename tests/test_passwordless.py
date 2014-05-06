@@ -8,19 +8,17 @@
 
 import time
 
+import pytest
+
 from flask_security.signals import login_instructions_sent
 from flask_security.utils import capture_passwordless_login_requests
 
-from utils import logout, init_app_with_options
+from utils import logout
+
+pytestmark = pytest.mark.passwordless()
 
 
-def test_trackable_flag(app, sqlalchemy_datastore, get_message):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_PASSWORDLESS': True
-    })
-
-    client = app.test_client()
-
+def test_trackable_flag(app, client, get_message):
     recorded = []
 
     @login_instructions_sent.connect_via(app)
@@ -75,14 +73,8 @@ def test_trackable_flag(app, sqlalchemy_datastore, get_message):
     assert get_message('USER_DOES_NOT_EXIST') in response.data
 
 
-def test_expired_login_token(app, sqlalchemy_datastore, get_message):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_PASSWORDLESS': True,
-        'SECURITY_LOGIN_WITHIN': '1 milliseconds',
-    })
-
-    client = app.test_client()
-
+@pytest.mark.settings(login_within='1 milliseconds')
+def test_expired_login_token(client, app, get_message):
     e = 'matt@lp.com'
 
     with capture_passwordless_login_requests() as requests:

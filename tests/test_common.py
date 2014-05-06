@@ -40,8 +40,8 @@ def test_authenticate_with_invalid_next(client, get_message):
     assert get_message('INVALID_REDIRECT') in response.data
 
 
-def test_authenticate_case_insensitive_email(client):
-    response = authenticate(client, email='MATT@lp.com', follow_redirects=True)
+def test_authenticate_case_insensitive_email(app, client):
+    response = authenticate(client, 'MATT@lp.com', follow_redirects=True)
     assert b'Hello matt@lp.com' in response.data
 
 

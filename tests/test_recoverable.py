@@ -8,24 +8,17 @@
 
 import time
 
+import pytest
+
 from flask_security.signals import reset_password_instructions_sent, password_reset
 from flask_security.utils import capture_reset_password_requests
 
-from utils import authenticate, logout, init_app_with_options
+from utils import authenticate, logout
+
+pytestmark = pytest.mark.recoverable()
 
 
-def _get_client(app, datastore, **options):
-    config = {
-        'SECURITY_RECOVERABLE': True
-    }
-    config.update(options)
-    init_app_with_options(app, datastore, **config)
-    return app.test_client()
-
-
-def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
-    client = _get_client(app, sqlalchemy_datastore)
-
+def test_recoverable_flag(app, client, get_message):
     recorded_resets = []
     recorded_instructions_sent = []
 
@@ -105,12 +98,8 @@ def test_recoverable_flag(app, sqlalchemy_datastore, get_message):
     assert get_message('INVALID_RESET_PASSWORD_TOKEN') in response.data
 
 
-def test_expired_reset_token(app, sqlalchemy_datastore, get_message):
-    within = '1 milliseconds'
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_RESET_PASSWORD_WITHIN': within
-    })
-
+@pytest.mark.settings(reset_password_within='1 milliseconds')
+def test_expired_reset_token(client, get_message):
     with capture_reset_password_requests() as requests:
         client.post('/reset', data=dict(email='joe@lp.com'), follow_redirects=True)
 
@@ -124,24 +113,19 @@ def test_expired_reset_token(app, sqlalchemy_datastore, get_message):
         'password_confirm': 'newpassword'
     }, follow_redirects=True)
 
-    assert get_message('PASSWORD_RESET_EXPIRED', within=within, email=user.email) in response.data
+    msg = get_message('PASSWORD_RESET_EXPIRED', within='1 milliseconds', email=user.email)
+    assert msg in response.data
 
 
-def test_custom_reset_url(app, sqlalchemy_datastore, get_message):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_RESET_URL': '/custom_reset'
-    })
-
+@pytest.mark.settings(reset_url='/custom_reset')
+def test_custom_reset_url(client):
     response = client.get('/custom_reset')
     assert response.status_code == 200
 
 
-def test_custom_reset_templates(app, sqlalchemy_datastore):
-    client = _get_client(app, sqlalchemy_datastore, **{
-        'SECURITY_RESET_PASSWORD_TEMPLATE': 'custom_security/reset_password.html',
-        'SECURITY_FORGOT_PASSWORD_TEMPLATE': 'custom_security/forgot_password.html'
-    })
-
+@pytest.mark.settings(reset_password_template='custom_security/reset_password.html',
+                      forgot_password_template='custom_security/forgot_password.html')
+def test_custom_reset_templates(client):
     response = client.get('/reset')
     assert b'CUSTOM FORGOT PASSWORD' in response.data
 
