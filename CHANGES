@@ -6,8 +6,10 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 1.7.2
 -------------
 
-Released January 14th 2014
+Released May 6th 2014
 
+- Updated IP tracking to check for `X-Forwarded-For` header
+- Fixed a bug regarding the re-hashing of passwords with a new algorithm
 - Fixed a bug regarding the `password_changed` signal.
 
 
