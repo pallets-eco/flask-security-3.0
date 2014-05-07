@@ -42,7 +42,7 @@ def _render_json(form, include_auth_token=False, include_id=True):
         response = dict(errors=form.errors)
     else:
         code = 200
-    resonse = dict()
+        resonse = dict()
         if include_id:
             response['user'] = dict(id=str(form.user.id)))
         if include_auth_token:
