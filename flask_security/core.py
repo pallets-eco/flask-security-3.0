@@ -20,7 +20,7 @@ from passlib.utils import consteq
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types
+from .utils import config_value as cv, get_config, md5, url_for_security, string_types, PY3
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -202,7 +202,7 @@ def _token_loader(token):
             _data = _data.decode('utf-8')
             _hash = _hash.decode('utf-8')
 
-        if user and consteq(_data,_hash):
+        if user and consteq(_data, _hash):
             return user
     except:
         pass
