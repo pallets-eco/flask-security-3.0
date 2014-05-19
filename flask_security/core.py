@@ -194,8 +194,8 @@ def _token_loader(token):
     try:
         data = _security.remember_token_serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
-        if user and consteq(data[1].decode('utf-8'),
-                            md5(user.password).decode('utf-8')):
+        if user and consteq(data[1],
+                            md5(user.password)):
             return user
     except:
         pass
