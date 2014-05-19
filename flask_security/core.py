@@ -194,8 +194,15 @@ def _token_loader(token):
     try:
         data = _security.remember_token_serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
-        if user and consteq(data[1],
-                            md5(user.password)):
+
+        _data = data[1]
+        _hash = md5(user.password)
+
+        if not PY3:
+            _data = _data.decode('utf-8')
+            _hash = _hash.decode('utf-8')
+
+        if user and consteq(_data,_hash):
             return user
     except:
         pass
