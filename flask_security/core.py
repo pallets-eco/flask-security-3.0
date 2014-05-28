@@ -273,7 +273,8 @@ def _get_state(app, datastore, **kwargs):
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
         _context_processors={},
-        _send_mail_task=None
+        _send_mail_task=None,
+        _unauthorized_callback=None
     ))
 
     for key, value in _default_forms.items():
@@ -380,6 +381,9 @@ class _SecurityState(object):
 
     def send_mail_task(self, fn):
         self._send_mail_task = fn
+
+    def unauthorized_handler(self, fn):
+        self._unauthorized_callback = fn
 
 
 class Security(object):

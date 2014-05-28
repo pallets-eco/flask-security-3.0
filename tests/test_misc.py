@@ -192,3 +192,19 @@ def test_password_unicode_password_salt(client):
     assert response.status_code == 302
     response = authenticate(client, follow_redirects=True)
     assert b'Hello matt@lp.com' in response.data
+
+
+def test_set_unauthorized_handler(app, client):
+    @app.security.unauthorized_handler
+    def unauthorized():
+        app.unauthorized_handler_set = True
+        return 'unauthorized-handler-set', 401
+
+    app.unauthorized_handler_set = False
+
+    authenticate(client, "joe@lp.com")
+    response = client.get("/admin", follow_redirects=True)
+
+    assert app.unauthorized_handler_set is True
+    assert b'unauthorized-handler-set' in response.data
+    assert response.status_code == 401

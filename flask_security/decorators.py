@@ -90,9 +90,12 @@ def http_auth_required(realm):
         def wrapper(*args, **kwargs):
             if _check_http_auth():
                 return fn(*args, **kwargs)
-            r = _security.default_http_auth_realm if callable(realm) else realm
-            h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
-            return _get_unauthorized_response(headers=h)
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                r = _security.default_http_auth_realm if callable(realm) else realm
+                h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
+                return _get_unauthorized_response(headers=h)
         return wrapper
 
     if callable(realm):
@@ -112,7 +115,10 @@ def auth_token_required(fn):
     def decorated(*args, **kwargs):
         if _check_token():
             return fn(*args, **kwargs)
-        return _get_unauthorized_response()
+        if _security._unauthorized_callback:
+            return _security._unauthorized_callback()
+        else:
+            return _get_unauthorized_response()
     return decorated
 
 
@@ -145,7 +151,10 @@ def auth_required(*auth_methods):
                 elif method == 'basic':
                     r = _security.default_http_auth_realm
                     h['WWW-Authenticate'] = 'Basic realm="%s"' % r
-            return _get_unauthorized_response(headers=h)
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                return _get_unauthorized_response()
         return decorated_view
     return wrapper
 
@@ -170,7 +179,10 @@ def roles_required(*roles):
             perms = [Permission(RoleNeed(role)) for role in roles]
             for perm in perms:
                 if not perm.can():
-                    return _get_unauthorized_view()
+                    if _security._unauthorized_callback:
+                        return _security._unauthorized_callback()
+                    else:
+                        return _get_unauthorized_view()
             return fn(*args, **kwargs)
         return decorated_view
     return wrapper
@@ -196,7 +208,10 @@ def roles_accepted(*roles):
             perm = Permission(*[RoleNeed(role) for role in roles])
             if perm.can():
                 return fn(*args, **kwargs)
-            return _get_unauthorized_view()
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                return _get_unauthorized_view()
         return decorated_view
     return wrapper
 
