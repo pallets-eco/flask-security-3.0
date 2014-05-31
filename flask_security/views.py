@@ -42,7 +42,7 @@ def _render_json(form, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        resonse = dict()
+        response = dict()
         if current_app.config['INCLUDE_ID_IN_JSON']:
             response['user'] = dict(id=str(form.user.id))
         if include_auth_token:
