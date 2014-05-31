@@ -26,7 +26,7 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, get_config
+    url_for_security as url_for, config_value
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -45,7 +45,7 @@ def _render_json(form, include_auth_token=False):
         response = dict()
 
         # Check if we should include user IDs in the JSON response
-        if get_config('INCLUDE_ID_IN_JSON'):
+        if config_value('INCLUDE_ID_IN_JSON'):
             response['user'] = dict(id=str(form.user.id))
         # Check if we should include an authentication token
         if include_auth_token:
