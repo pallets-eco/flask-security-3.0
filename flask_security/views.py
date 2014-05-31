@@ -26,7 +26,7 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, config_value
+    url_for_security as url_for
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -56,7 +56,7 @@ def _render_json(form, include_auth_token=False):
                 response['user']['authentication_token'] = token
             else:
                 response['user'] = dict(authentication_token=token)
-                    
+
     return jsonify(dict(meta=dict(code=code), response=response))
 
 
