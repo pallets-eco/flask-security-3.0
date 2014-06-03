@@ -20,7 +20,8 @@ from passlib.utils import consteq
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types, PY3
+from .utils import config_value as cv, get_config, md5, url_for_security, \
+    string_types, PY3
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -234,7 +235,8 @@ def _get_login_manager(app):
 
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
-        lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
+        lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
+            'MSG_REFRESH', app=app)
     else:
         lm.login_message = None
         lm.needs_refresh_message = None
@@ -255,7 +257,8 @@ def _get_pwd_context(app):
     deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
-        raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
+        raise ValueError(
+            "Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
     return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
@@ -295,6 +298,7 @@ def _context_processor():
 
 
 class RoleMixin(object):
+
     """Mixin for `Role` model definitions"""
 
     def __eq__(self, other):
@@ -309,6 +313,7 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
+
     """Mixin for `User` model definitions"""
 
     def is_active(self):
@@ -331,6 +336,7 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     """AnonymousUser definition"""
 
     def __init__(self):
@@ -387,11 +393,13 @@ class _SecurityState(object):
 
 
 class Security(object):
+
     """The :class:`Security` class initializes the Flask-Security extension.
 
     :param app: The application.
     :param datastore: An instance of a user datastore.
     """
+
     def __init__(self, app=None, datastore=None, **kwargs):
         self.app = app
         self.datastore = datastore
