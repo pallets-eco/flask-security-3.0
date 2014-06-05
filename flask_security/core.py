@@ -376,6 +376,15 @@ class _SecurityState(object):
     def send_mail_task(self, fn):
         self._send_mail_task = fn
 
+    def token_loader(self, callback):
+        """set the callback for flask-login token_loader
+        Args:
+            callback : the function which will return the User
+        Return:
+            the callback itself (same behaviour as flask-login)
+        """
+        return self.login_manager.token_loader(callback)
+
 
 class Security(object):
     """The :class:`Security` class initializes the Flask-Security extension.
