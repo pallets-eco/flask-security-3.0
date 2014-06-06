@@ -209,18 +209,19 @@ def _token_loader(token):
 
 def _request_loader(request):
     # first, try to login using the api_key url arg
-    api_key = request.form['api_key']
-
-    if not api_key:
-    # no, try to login using Basic Auth
-        api_key = request.headers.get('Authorization')
-        if api_key:
-            api_key = api_key.replace('Basic ', '', 1)
-            try:
-                api_key = base64.b64decode(api_key)
-            except TypeError:
-                return None
     try:
+        api_key = request.form['api_key']
+
+        if not api_key:
+            # no, try to login using Basic Auth
+            api_key = request.headers.get('Authorization')
+            if api_key:
+                api_key = api_key.replace('Basic ', '', 1)
+                try:
+                    api_key = base64.b64decode(api_key)
+                except TypeError:
+                    return None
+
         user = _security.datastore.find_user(API_key=api_key)
 
         if user is not None:
