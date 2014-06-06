@@ -226,7 +226,7 @@ def _request_loader(request):
         if user is not None:
             return user
     except Exception as e:
-        print e
+        pass
     # finally, return AnonymousUser instance if both methods
     # did not login the user
     return None

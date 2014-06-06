@@ -47,8 +47,6 @@ def _get_unauthorized_response(text=None, headers=None, json_response=False):
         text = text or _default_unauthorized_html
     else:
         text = text or _default_unauthorized_json
-        print "ASDFALRGFAERIOGJAEROGJO"
-        print text
         response = jsonify(status=text)
         response.status_code = 401
         return response
