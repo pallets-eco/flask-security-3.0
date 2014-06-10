@@ -71,7 +71,7 @@ def test_recoverable_flag(app, client, get_message):
         'Content-Type': 'application/json'
     })
     assert response.headers['Content-Type'] == 'application/json'
-    assert 'user' in response.jdata['response']
+    assert 'user' not in response.jdata['response']
 
     logout(client)
 
