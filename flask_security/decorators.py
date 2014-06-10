@@ -12,9 +12,11 @@
 from collections import namedtuple
 from functools import wraps
 
-from flask import current_app, Response, request, redirect, _request_ctx_stack
+from flask import current_app, Response, request, redirect,\
+    _request_ctx_stack, jsonify
 from flask.ext.login import current_user, login_required  # pragma: no flakes
-from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
+from flask.ext.principal import RoleNeed, Permission,\
+    Identity, identity_changed
 from werkzeug.local import LocalProxy
 
 from . import utils
@@ -26,17 +28,29 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 
 _default_unauthorized_html = """
     <h1>Unauthorized</h1>
-    <p>The server could not verify that you are authorized to access the URL
+    <p>
+    The server could not verify that you are authorized to access the URL
     requested. You either supplied the wrong credentials (e.g. a bad password),
-    or your browser doesn't understand how to supply the credentials required.</p>
+    or your browser doesn't understand how to supply the credentials required.
+    </p>
     """
+
+_default_unauthorized_json = 'unauthorized'
 
 BasicAuth = namedtuple('BasicAuth', 'username, password')
 
 
-def _get_unauthorized_response(text=None, headers=None):
-    text = text or _default_unauthorized_html
+def _get_unauthorized_response(text=None, headers=None, json_response=False):
     headers = headers or {}
+
+    if not json_response:
+        text = text or _default_unauthorized_html
+    else:
+        text = text or _default_unauthorized_json
+        response = jsonify(status=text)
+        response.status_code = 401
+        return response
+
     return Response(text, 401, headers)
 
 
@@ -116,6 +130,20 @@ def auth_token_required(fn):
     return decorated
 
 
+def auth_request_required(json_response=False):
+    def auth_request_required_decorator(fn):
+        """Decorator that protects endpoints using a request authentication
+        """
+
+        @wraps(fn)
+        def decorated(*args, **kwargs):
+            if current_user.is_authenticated():
+                return fn(*args, **kwargs)
+            return _get_unauthorized_response(json_response=json_response)
+        return decorated
+    return auth_request_required_decorator
+
+
 def auth_required(*auth_methods):
     """
     Decorator that protects enpoints through multiple mechanisms
@@ -137,7 +165,8 @@ def auth_required(*auth_methods):
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
-            mechanisms = [login_mechanisms.get(method) for method in auth_methods]
+            mechanisms = [
+                login_mechanisms.get(method) for method in auth_methods]
             for mechanism in mechanisms:
                 if mechanism and mechanism():
                     return fn(*args, **kwargs)

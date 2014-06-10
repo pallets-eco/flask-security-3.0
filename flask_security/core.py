@@ -19,11 +19,14 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types
+from .utils import config_value as cv, get_config, md5,\
+    url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm
+
+import base64
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -106,7 +109,8 @@ _default_messages = {
     'UNAUTHORIZED': (
         'You do not have permission to view this resource.', 'error'),
     'CONFIRM_REGISTRATION': (
-        'Thank you. Confirmation instructions have been sent to %(email)s.', 'success'),
+        'Thank you. Confirmation instructions have been sent to %(email)s.',
+        'success'),
     'EMAIL_CONFIRMED': (
         'Thank you. Your email has been confirmed.', 'success'),
     'ALREADY_CONFIRMED': (
@@ -122,10 +126,11 @@ _default_messages = {
     'INVALID_REDIRECT': (
         'Redirections outside the domain are forbidden', 'error'),
     'PASSWORD_RESET_REQUEST': (
-        'Instructions to reset your password have been sent to %(email)s.', 'info'),
+        'Instructions to reset your password have been sent to %(email)s.',
+        'info'),
     'PASSWORD_RESET_EXPIRED': (
-        'You did not reset your password within %(within)s. New instructions have been sent '
-        'to %(email)s.', 'error'),
+        'You did not reset your password within %(within)s. New instructions '
+        'have been sent to %(email)s.', 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': (
         'Invalid reset password token.', 'error'),
     'CONFIRMATION_REQUIRED': (
@@ -133,11 +138,11 @@ _default_messages = {
     'CONFIRMATION_REQUEST': (
         'Confirmation instructions have been sent to %(email)s.', 'info'),
     'CONFIRMATION_EXPIRED': (
-        'You did not confirm your email within %(within)s. New instructions to confirm your email '
-        'have been sent to %(email)s.', 'error'),
+        'You did not confirm your email within %(within)s. New instructions to'
+        'confirm your email have been sent to %(email)s.', 'error'),
     'LOGIN_EXPIRED': (
-        'You did not login within %(within)s. New instructions to login have been sent to '
-        '%(email)s.', 'error'),
+        'You did not login within %(within)s. New instructions to login '
+        'have been sent to %(email)s.', 'error'),
     'LOGIN_EMAIL_SENT': (
         'Instructions to login have been sent to %(email)s.', 'success'),
     'INVALID_LOGIN_TOKEN': (
@@ -161,10 +166,12 @@ _default_messages = {
     'PASSWORDLESS_LOGIN_SUCCESSFUL': (
         'You have successfuly logged in.', 'success'),
     'PASSWORD_RESET': (
-        'You successfully reset your password and you have been logged in automatically.',
+        'You successfully reset your password and you have been '
+        'logged in automatically.',
         'success'),
     'PASSWORD_IS_THE_SAME': (
-        'Your new password must be different than your previous password.', 'error'),
+        'Your new password must be different than your previous password.',
+        'error'),
     'PASSWORD_CHANGE': (
         'You successfully changed your password.', 'success'),
     'LOGIN': (
@@ -200,6 +207,32 @@ def _token_loader(token):
     return AnonymousUser()
 
 
+def _request_loader(request):
+    # first, try to login using the api_key url arg
+    try:
+        api_key = request.form['api_key']
+
+        if not api_key:
+            # no, try to login using Basic Auth
+            api_key = request.headers.get('Authorization')
+            if api_key:
+                api_key = api_key.replace('Basic ', '', 1)
+                try:
+                    api_key = base64.b64decode(api_key)
+                except TypeError:
+                    return None
+
+        user = _security.datastore.find_user(API_key=api_key)
+
+        if user is not None:
+            return user
+    except Exception:
+        pass
+    # finally, return AnonymousUser instance if both methods
+    # did not login the user
+    return None
+
+
 def _identity_loader():
     if not isinstance(current_user._get_current_object(), AnonymousUser):
         identity = Identity(current_user.id)
@@ -222,10 +255,12 @@ def _get_login_manager(app):
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
+    lm.request_loader(_request_loader)
 
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
-        lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
+        lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
+            'MSG_REFRESH', app=app)
     else:
         lm.login_message = None
         lm.needs_refresh_message = None
@@ -246,7 +281,8 @@ def _get_pwd_context(app):
     deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
-        raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
+        raise ValueError(
+            "Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
     return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
@@ -286,6 +322,7 @@ def _context_processor():
 
 
 class RoleMixin(object):
+
     """Mixin for `Role` model definitions"""
 
     def __eq__(self, other):
@@ -300,6 +337,7 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
+
     """Mixin for `User` model definitions"""
 
     def is_active(self):
@@ -322,6 +360,7 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     """AnonymousUser definition"""
 
     def __init__(self):
@@ -378,11 +417,13 @@ class _SecurityState(object):
 
 
 class Security(object):
+
     """The :class:`Security` class initializes the Flask-Security extension.
 
     :param app: The application.
     :param datastore: An instance of a user datastore.
     """
+
     def __init__(self, app=None, datastore=None, **kwargs):
         self.app = app
         self.datastore = datastore
