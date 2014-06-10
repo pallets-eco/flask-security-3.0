@@ -203,7 +203,7 @@ def url_for_security(endpoint, **values):
 
 
 def validate_redirect_url(url):
-    if url is None or url == '':
+    if url is None or url.strip() == '':
         return False
     url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
