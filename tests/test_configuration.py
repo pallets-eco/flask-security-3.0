@@ -24,11 +24,11 @@ def test_view_configuration(client):
     assert b"<h1>Login</h1>" in response.data
 
     response = authenticate(client, endpoint='/custom_login')
-    assert b'location' in response.headers
+    assert 'location' in response.headers
     assert response.headers['Location'] == 'http://localhost/post_login'
 
     response = logout(client, endpoint='/custom_logout')
-    assert b'location' in response.headers
+    assert 'location' in response.headers
     assert response.headers['Location'] == 'http://localhost/post_logout'
 
     response = client.get('/http', headers={
