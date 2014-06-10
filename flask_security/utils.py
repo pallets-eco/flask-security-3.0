@@ -99,13 +99,15 @@ def get_hmac(password):
 
     :param password: The password to sign
     """
-    if _security.password_salt is None:
+    salt = _security.password_salt
+
+    if salt is None:
         raise RuntimeError(
             'The configuration value `SECURITY_PASSWORD_SALT` must '
             'not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
-    h = hmac.new(_security.password_salt.encode('utf-8'), password.encode('utf-8'), hashlib.sha512)
+    h = hmac.new(encode_string(salt), encode_string(password), hashlib.sha512)
     return base64.b64encode(h.digest())
 
 
@@ -149,8 +151,18 @@ def encrypt_password(password):
     return _pwd_context.encrypt(signed)
 
 
+def encode_string(string):
+    """Encodes a string to bytes, if it isn't already.
+
+    :param string: The string to encode"""
+
+    if isinstance(string, text_type):
+        string = string.encode('utf-8')
+    return string
+
+
 def md5(data):
-    return hashlib.md5(data.encode('utf-8')).hexdigest()
+    return hashlib.md5(encode_string(data)).hexdigest()
 
 
 def do_flash(message, category=None):
