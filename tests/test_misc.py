@@ -12,7 +12,7 @@ from flask_security import Security
 from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
     ChangePasswordForm, TextField, PasswordField, email_required, email_validator, valid_user_email
-from flask_security.utils import capture_reset_password_requests
+from flask_security.utils import capture_reset_password_requests, md5, string_types
 
 from utils import authenticate, init_app_with_options, populate_data
 
@@ -170,3 +170,19 @@ def test_change_hash_type(app, sqlalchemy_datastore):
 
     response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
     assert response.status_code == 302
+
+
+def test_md5():
+    data = md5(b'hello')
+    assert isinstance(data, string_types)
+    data = md5(u'hellö')
+    assert isinstance(data, string_types)
+
+
+@pytest.mark.settings(password_salt=u'öööööööööööööööööööööööööööööööööö',
+                      password_hash='bcrypt')
+def test_password_unicode_password_salt(client):
+    response = authenticate(client)
+    assert response.status_code == 302
+    response = authenticate(client, follow_redirects=True)
+    assert b'Hello matt@lp.com' in response.data
