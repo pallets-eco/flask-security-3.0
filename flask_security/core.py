@@ -99,7 +99,8 @@ _default_config = {
         # And always last one...
         'plaintext'
     ],
-    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'INCLUDE_ID_IN_JSON': True
 }
 
 #: Default Flask-Security messages

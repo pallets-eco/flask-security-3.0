@@ -42,10 +42,20 @@ def _render_json(form, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        response = dict(user=dict(id=str(form.user.id)))
+        response = dict()
+
+        # Check if we should include user IDs in the JSON response
+        if config_value('INCLUDE_ID_IN_JSON'):
+            response['user'] = dict(id=str(form.user.id))
+        # Check if we should include an authentication token
         if include_auth_token:
             token = form.user.get_auth_token()
-            response['user']['authentication_token'] = token
+
+            # If the user sub-dictionary is there, just add a key
+            if 'user' in response:
+                response['user']['authentication_token'] = token
+            else:
+                response['user'] = dict(authentication_token=token)
 
     return jsonify(dict(meta=dict(code=code), response=response))
 
