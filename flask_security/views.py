@@ -34,7 +34,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def _render_json(form, include_auth_token=False):
+def _render_json(form, include_user=True, include_auth_token=False):
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -42,7 +42,9 @@ def _render_json(form, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        response = dict(user=dict(id=str(form.user.id)))
+        response = dict()
+        if include_user:
+            response['user'] = dict(id=str(form.user.id))
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
@@ -78,7 +80,7 @@ def login():
             return redirect(get_post_login_redirect(form.next.data))
 
     if request.json:
-        return _render_json(form, True)
+        return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
                                      login_user_form=form,
@@ -121,7 +123,7 @@ def register():
 
         if not request.json:
             return redirect(get_post_register_redirect())
-        return _render_json(form, True)
+        return _render_json(form, include_auth_token=True)
 
     if request.json:
         return _render_json(form)
@@ -247,7 +249,7 @@ def forgot_password():
             do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(form, include_user=False)
 
     return _security.render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
                                      forgot_password_form=form,
