@@ -23,11 +23,13 @@ def test_view_configuration(client):
     response = client.get('/custom_login')
     assert b"<h1>Login</h1>" in response.data
 
-    response = authenticate(client, endpoint='/custom_login', follow_redirects=True)
-    assert b'Post Login' in response.data
+    response = authenticate(client, endpoint='/custom_login')
+    assert b'location' in response.headers
+    assert response.headers['Location'] == 'http://localhost/post_login'
 
-    response = logout(client, endpoint='/custom_logout', follow_redirects=True)
-    assert b'Post Logout' in response.data
+    response = logout(client, endpoint='/custom_logout')
+    assert b'location' in response.headers
+    assert response.headers['Location'] == 'http://localhost/post_logout'
 
     response = client.get('/http', headers={
         'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus")
