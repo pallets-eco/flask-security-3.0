@@ -44,7 +44,7 @@ class PyTest(TestCommand):
 
 setup(
     name='Flask-Security',
-    version='1.7.2',
+    version='1.7.3',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matt Wright',
