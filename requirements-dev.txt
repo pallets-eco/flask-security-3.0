@@ -8,3 +8,4 @@ pytest-cov>=1.6
 pytest-flakes>=0.2
 pytest-pep8>=1.0.5
 tox>=1.7.0
+mock>=1.0.1
