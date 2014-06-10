@@ -157,7 +157,7 @@ def encrypt_password(password):
 
 
 def md5(data):
-    return hashlib.md5(data.encode('ascii')).hexdigest()
+    return hashlib.md5(data.encode('utf-8')).hexdigest()
 
 
 def do_flash(message, category=None):
