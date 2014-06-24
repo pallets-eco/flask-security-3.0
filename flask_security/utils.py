@@ -143,7 +143,7 @@ def verify_and_update_password(password, user):
 def encrypt_password(password):
     """Encrypts the specified plaintext password using the configured encryption options.
 
-    :param password: The plaintext passwrod to encrypt
+    :param password: The plaintext password to encrypt
     """
     if _security.password_hash == 'plaintext':
         return password
