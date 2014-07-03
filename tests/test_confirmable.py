@@ -35,7 +35,8 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     email = 'dude@lp.com'
 
     with capture_registrations() as registrations:
-        response = client.post('/register', data=dict(email=email, password='password'))
+        data = dict(email=email, password='password', next='')
+        response = client.post('/register', data=data)
 
     assert response.status_code == 302
 
@@ -85,7 +86,8 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
 
     # Test user was deleted before confirmation
     with capture_registrations() as registrations:
-        client.post('/register', data=dict(email='mary@lp.com', password='password'))
+        data = dict(email='mary@lp.com', password='password', next='')
+        client.post('/register', data=data)
 
     user = registrations[0]['user']
     token = registrations[0]['confirm_token']
@@ -102,7 +104,7 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
 @pytest.mark.settings(confirm_email_within='1 milliseconds')
 def test_expired_confirmation_token(client, get_message):
     with capture_registrations() as registrations:
-        data = dict(email='mary@lp.com', password='password')
+        data = dict(email='mary@lp.com', password='password', next='')
         client.post('/register', data=data, follow_redirects=True)
 
     user = registrations[0]['user']
@@ -118,7 +120,7 @@ def test_expired_confirmation_token(client, get_message):
 @pytest.mark.registerable()
 @pytest.mark.settings(login_without_confirmation=True)
 def test_login_when_unconfirmed(client, get_message):
-    data = dict(email='mary@lp.com', password='password')
+    data = dict(email='mary@lp.com', password='password', next='')
     response = client.post('/register', data=data, follow_redirects=True)
     assert b'mary@lp.com' in response.data
 
@@ -131,7 +133,8 @@ def test_confirmation_different_user_when_logged_in(client, get_message):
 
     with capture_registrations() as registrations:
         for e in e1, e2:
-            client.post('/register', data=dict(email=e, password='password'))
+            data = dict(email=e, password='password', next='')
+            client.post('/register', data=data)
             logout(client)
 
     token1 = registrations[0]['confirm_token']
