@@ -122,7 +122,7 @@ def register():
             login_user(user)
 
         if not request.json:
-            return redirect(get_post_register_redirect())
+            return redirect(get_post_register_redirect(form.next.data))
         return _render_json(form, include_auth_token=True)
 
     if request.json:
