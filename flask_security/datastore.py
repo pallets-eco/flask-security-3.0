@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .utils import get_identity_attributes, string_types
+from .utils import get_identity_attributes, string_types, encrypt_password
 
 
 class Datastore(object):
@@ -292,6 +292,8 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
         roles = kwargs.pop('roles', [])
+        if 'password' in kwargs:
+            kwargs['password'] = encrypt_password(kwargs['password'])
         user = self.user_model(**self._prepare_create_user_args(**kwargs))
         user = self.put(user)
         for role in roles:
