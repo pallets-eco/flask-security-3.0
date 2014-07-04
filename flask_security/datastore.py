@@ -77,6 +77,8 @@ class UserDatastore(object):
     def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
         roles = kwargs.get('roles', [])
+        if 'password' in kwargs:
+            kwargs['password'] = encrypt_password(kwargs['password'])
         for i, role in enumerate(roles):
             rn = role.name if isinstance(role, self.role_model) else role
             # see if the role exists
@@ -292,8 +294,6 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
     def create_user(self, **kwargs):
         """Creates and returns a new user from the given parameters."""
         roles = kwargs.pop('roles', [])
-        if 'password' in kwargs:
-            kwargs['password'] = encrypt_password(kwargs['password'])
         user = self.user_model(**self._prepare_create_user_args(**kwargs))
         user = self.put(user)
         for role in roles:
