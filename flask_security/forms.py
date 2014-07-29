@@ -13,8 +13,8 @@ import inspect
 
 from flask import request, current_app, flash
 from flask_wtf import Form as BaseForm
-from wtforms import TextField, PasswordField, validators, \
-    SubmitField, HiddenField, BooleanField, ValidationError, Field
+from wtforms import PasswordField, validators, SubmitField, \
+    HiddenField, BooleanField, ValidationError, Field
 from wtforms.fields.html5 import EmailField
 from flask_login import current_user
 from werkzeug.local import LocalProxy
