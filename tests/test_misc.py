@@ -11,7 +11,8 @@ import pytest
 from flask_security import Security
 from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
-    ChangePasswordForm, EmailField, PasswordField, email_required, email_validator, valid_user_email
+    ChangePasswordForm, EmailField, PasswordField, email_required, email_validator, \
+    valid_user_email
 from flask_security.utils import capture_reset_password_requests, md5, string_types
 
 from utils import authenticate, init_app_with_options, populate_data
