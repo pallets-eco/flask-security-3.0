@@ -49,7 +49,7 @@ def test_basic_custom_forms(app, sqlalchemy_datastore):
 
     class MyForgotPasswordForm(ForgotPasswordForm):
         email = EmailField('My Forgot Email Address Field',
-                          validators=[email_required, email_validator, valid_user_email])
+                           validators=[email_required, email_validator, valid_user_email])
 
     class MyResetPasswordForm(ResetPasswordForm):
         password = EmailField('My Reset Password Field')
