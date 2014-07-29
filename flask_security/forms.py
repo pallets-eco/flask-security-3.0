@@ -244,8 +244,12 @@ class ConfirmRegisterForm(Form, RegisterFormMixin,
     pass
 
 
-class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
-    pass
+class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
+                   NextFormMixin):
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = request.args.get('next', '')
 
 
 class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):

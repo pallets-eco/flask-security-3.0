@@ -28,7 +28,10 @@ def test_registerable_flag(client, app, get_message):
     def on_user_registerd(app, user, confirm_token):
         recorded.append(user)
 
-    data = dict(email='dude@lp.com', password='password', password_confirm='password')
+    data = dict(
+        email='dude@lp.com', password='password', password_confirm='password',
+        next=''
+    )
     with app.mail.record_messages() as outbox:
         response = client.post('/register', data=data, follow_redirects=True)
 
@@ -45,7 +48,10 @@ def test_registerable_flag(client, app, get_message):
     logout(client)
 
     # Test registering with an existing email
-    data = dict(email='dude@lp.com', password='password', password_confirm='password')
+    data = dict(
+        email='dude@lp.com', password='password', password_confirm='password',
+        next=''
+    )
     response = client.post('/register', data=data, follow_redirects=True)
     assert get_message('EMAIL_ALREADY_ASSOCIATED', email='dude@lp.com') in response.data
 
@@ -68,7 +74,8 @@ def test_registerable_flag(client, app, get_message):
     # Test ?next param
     data = dict(email='dude3@lp.com',
                 password='password',
-                password_confirm='password')
+                password_confirm='password',
+                next='')
 
     response = client.post('/register?next=/page1', data=data, follow_redirects=True)
     assert b'Page 1' in response.data
@@ -81,7 +88,8 @@ def test_custom_register_url(client):
 
     data = dict(email='dude@lp.com',
                 password='password',
-                password_confirm='password')
+                password_confirm='password',
+                next='')
 
     response = client.post('/custom_register', data=data, follow_redirects=True)
     assert b'Post Register' in response.data
@@ -95,7 +103,10 @@ def test_custom_register_tempalate(client):
 
 @pytest.mark.settings(send_register_email=False)
 def test_disable_register_emails(client, app):
-    data = dict(email='dude@lp.com', password='password', password_confirm='password')
+    data = dict(
+        email='dude@lp.com', password='password', password_confirm='password',
+        next=''
+    )
     with app.mail.record_messages() as outbox:
         client.post('/register', data=data, follow_redirects=True)
     assert len(outbox) == 0

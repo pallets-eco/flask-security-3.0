@@ -234,8 +234,8 @@ def get_post_login_redirect(declared=None):
     return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW', declared)
 
 
-def get_post_register_redirect():
-    return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW')
+def get_post_register_redirect(declared=None):
+    return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW', declared)
 
 
 def find_redirect(key):
