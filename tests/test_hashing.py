@@ -36,3 +36,11 @@ def test_missing_hash_salt_option(app, sqlalchemy_datastore):
         init_app_with_options(app, sqlalchemy_datastore, **{
             'SECURITY_PASSWORD_HASH': 'bcrypt',
         })
+
+def test_missing_hash_salt_with_no_salt_option(app, sqlalchemy_datastore):
+    init_app_with_options(app, sqlalchemy_datastore, **{
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+        'SECURITY_PASSWORD_NO_SALT': True,
+    })
+    with app.app_context():
+        assert verify_password('pass', encrypt_password('pass'))

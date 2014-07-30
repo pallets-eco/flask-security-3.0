@@ -101,6 +101,9 @@ def get_hmac(password):
     """
     salt = _security.password_salt
 
+    if salt is None and _security.password_no_salt:
+        return password
+
     if salt is None:
         raise RuntimeError(
             'The configuration value `SECURITY_PASSWORD_SALT` must '
