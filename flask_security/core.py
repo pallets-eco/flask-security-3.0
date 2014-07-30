@@ -38,6 +38,7 @@ _default_config = {
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'PASSWORD_SALT': None,
+    'PASSWORD_NO_SALT': False,
     'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -266,7 +267,6 @@ def _get_state(app, datastore, **kwargs):
         datastore=datastore,
         login_manager=_get_login_manager(app),
         principal=_get_principal(app),
-        pwd_context=_get_pwd_context(app),
         remember_token_serializer=_get_serializer(app, 'remember'),
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),
@@ -395,7 +395,8 @@ class Security(object):
                  login_form=None, confirm_register_form=None,
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None):
+                 send_confirmation_form=None, passwordless_login_form=None,
+                 pwd_context=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -421,7 +422,8 @@ class Security(object):
                            reset_password_form=reset_password_form,
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form)
+                           passwordless_login_form=passwordless_login_form,
+                           pwd_context=pwd_context or _get_pwd_context(app))
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
