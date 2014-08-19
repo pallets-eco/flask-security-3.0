@@ -85,7 +85,7 @@ class UserDatastore(object):
         return kwargs
 
     def get_user(self, id_or_email):
-        """Returns a user matching the specified ID or email address"""
+        """Returns a user matching the specified ID or email address."""
         raise NotImplementedError
 
     def find_user(self, *args, **kwargs):
@@ -97,7 +97,7 @@ class UserDatastore(object):
         raise NotImplementedError
 
     def add_role_to_user(self, user, role):
-        """Adds a role tp a user
+        """Adds a role to a user.
 
         :param user: The user to manipulate
         :param role: The role to add to the user
@@ -110,7 +110,7 @@ class UserDatastore(object):
         return False
 
     def remove_role_from_user(self, user, role):
-        """Removes a role from a user
+        """Removes a role from a user.
 
         :param user: The user to manipulate
         :param role: The role to remove from the user
@@ -155,7 +155,7 @@ class UserDatastore(object):
 
     def find_or_create_role(self, name, **kwargs):
         """Returns a role matching the given name or creates it with any
-        additionally provided parameters
+        additionally provided parameters.
         """
         kwargs["name"] = name
         return self.find_role(name) or self.create_role(**kwargs)
@@ -167,7 +167,7 @@ class UserDatastore(object):
         return self.put(user)
 
     def delete_user(self, user):
-        """Delete the specified user
+        """Deletes the specified user.
 
         :param user: The user to delete
         """
@@ -300,7 +300,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         return user
 
     def add_role_to_user(self, user, role):
-        """Adds a role tp a user
+        """Adds a role to a user.
 
         :param user: The user to manipulate
         :param role: The role to add to the user
@@ -315,7 +315,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
             return True
 
     def remove_role_from_user(self, user, role):
-        """Removes a role from a user
+        """Removes a role from a user.
 
         :param user: The user to manipulate
         :param role: The role to remove from the user
