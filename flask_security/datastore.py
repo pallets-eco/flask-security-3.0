@@ -120,6 +120,7 @@ class UserDatastore(object):
         if role in user.roles:
             rv = True
             user.roles.remove(role)
+            self.put(user)
         return rv
 
     def toggle_active(self, user):
