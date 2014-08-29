@@ -115,7 +115,7 @@ def verify_password(password, password_hash):
     """Returns ``True`` if the password matches the supplied hash.
 
     :param password: A plaintext password to verify
-    :param password_hash: The expected hash value of the password (usually form your database)
+    :param password_hash: The expected hash value of the password (usually from your database)
     """
     if _security.password_hash != 'plaintext':
         password = get_hmac(password)
@@ -143,7 +143,7 @@ def verify_and_update_password(password, user):
 def encrypt_password(password):
     """Encrypts the specified plaintext password using the configured encryption options.
 
-    :param password: The plaintext passwrod to encrypt
+    :param password: The plaintext password to encrypt
     """
     if _security.password_hash == 'plaintext':
         return password
