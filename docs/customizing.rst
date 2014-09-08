@@ -2,7 +2,7 @@ Customizing Views
 =================
 
 Flask-Security bootstraps your application with various views for handling its
-configured features to get you up and running as quick as possible. However,
+configured features to get you up and running as quickly as possible. However,
 you'll probably want to change the way these views look to be more in line with
 your application's visual design.
 
@@ -36,7 +36,7 @@ Flask application context processor:
 * ``<template_name>_form``: A form object for the view
 * ``security``: The Flask-Security extension object
 
-To add more values to the template context you can specify a context processor
+To add more values to the template context, you can specify a context processor
 for all views or a specific view. For example::
 
     security = Security(app, user_datastore)
@@ -131,7 +131,7 @@ Overriding these templates is simple:
 
 Each template is passed a template context object that includes values for any
 links that are required in the email. If you require more values in the
-templates you can specify an email context processor with the
+templates, you can specify an email context processor with the
 ``mail_context_processor`` decorator. For example::
 
     security = Security(app, user_datastore)
@@ -146,7 +146,7 @@ Emails with Celery
 ------------------
 
 Sometimes it makes sense to send emails via a task queue, such as `Celery`_.
-To delay the sending of emails you can use the ``@security.send_mail_task``
+To delay the sending of emails, you can use the ``@security.send_mail_task``
 decorator like so::
 
     # Setup the task

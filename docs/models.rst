@@ -32,7 +32,7 @@ Confirmable
 ^^^^^^^^^^^
 
 If you enable account confirmation by setting your application's
-`SECURITY_CONFIRMABLE` configuration value to `True` your `User` model will
+`SECURITY_CONFIRMABLE` configuration value to `True`, your `User` model will
 require the following additional field:
 
 * ``confirmed_at``
@@ -41,7 +41,7 @@ Trackable
 ^^^^^^^^^
 
 If you enable user tracking by setting your application's `SECURITY_TRACKABLE`
-configuration value to `True` your `User` model will require the following
+configuration value to `True`, your `User` model will require the following
 additional fields:
 
 * ``last_login_at``
