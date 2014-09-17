@@ -350,6 +350,9 @@ class _SecurityState(object):
                 rv.update(fn())
         return rv
 
+    def context_processor(self, fn):
+        self._add_ctx_processor(None, fn)
+
     def forgot_password_context_processor(self, fn):
         self._add_ctx_processor('forgot_password', fn)
 
