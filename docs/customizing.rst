@@ -106,7 +106,7 @@ The following is a list of all the available form overrides:
 Emails
 ------
 
-Flask-Security is also packaged with a default tempalte for each email that it
+Flask-Security is also packaged with a default template for each email that it
 may send. Templates are located within the subfolder named ``security/email``.
 The following is a list of email templates:
 
