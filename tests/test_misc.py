@@ -156,13 +156,15 @@ def test_invalid_hash_scheme(app, sqlalchemy_datastore, get_message):
         })
 
 
-def test_change_hash_type(app, sqlalchemy_datastore):
+def test_change_hash_type(app, sqlalchemy_datastore,
+                          old_hash='plaintext', new_hash='bcrypt'):
     init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_PASSWORD_SCHEMES': ['bcrypt', 'plaintext']
+        'SECURITY_PASSWORD_SCHEMES': ['bcrypt', 'plaintext'],
+        'SECURITY_PASSWORD_HASH': old_hash,
+        'SECURITY_PASSWORD_SALT': 'salty'
     })
 
-    app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
-    app.config['SECURITY_PASSWORD_SALT'] = 'salty'
+    app.config['SECURITY_PASSWORD_HASH'] = new_hash
 
     app.security = Security(app, datastore=sqlalchemy_datastore, register_blueprint=False)
 
@@ -170,6 +172,17 @@ def test_change_hash_type(app, sqlalchemy_datastore):
 
     response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
     assert response.status_code == 302
+
+    # login again, now that the re-hashed password is already in the datastore
+    response = client.get('/logout')
+    assert response.status_code == 302
+    response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
+    assert response.status_code == 302
+
+
+def test_change_hash_type_to_plaintext(app, sqlalchemy_datastore):
+    return test_change_hash_type(app, sqlalchemy_datastore,
+                                 old_hash='bcrypt', new_hash='plaintext')
 
 
 def test_md5():

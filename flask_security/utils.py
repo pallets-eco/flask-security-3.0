@@ -131,12 +131,26 @@ def verify_and_update_password(password, user):
     :param user: The user to verify against
     """
 
-    if _pwd_context.identify(user.password) != 'plaintext':
-        password = get_hmac(password)
-    verified, new_password = _pwd_context.verify_and_update(password, user.password)
+    stored_password_salting = _pwd_context.identify(user.password) != 'plaintext'
+    if stored_password_salting:
+        salted_password = get_hmac(password)
+    else:
+        salted_password = password
+
+    verified, new_password = _pwd_context.verify_and_update(salted_password, user.password)
+
     if verified and new_password:
+        # check if transitioning from plaintext to salted passwords, or vice versa
+        new_password_salting = _security.password_hash != 'plaintext'
+        if stored_password_salting != new_password_salting:
+            if new_password_salting:
+                salted_password = get_hmac(password)
+            else:
+                salted_password = password
+            new_password = _pwd_context.encrypt(salted_password)
         user.password = new_password
         _datastore.put(user)
+
     return verified
 
 
