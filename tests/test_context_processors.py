@@ -85,7 +85,7 @@ def test_context_processors(client, app):
         client.post('/reset', data=dict(email='matt@lp.com'))
 
     email = outbox[0]
-    assert b'global' in email.html
+    assert 'global' in email.html
     assert 'bar' in email.html
 
 
