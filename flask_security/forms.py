@@ -175,6 +175,14 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
 
     submit = SubmitField(get_form_field_label('recover_password'))
 
+    def validate(self):
+        if not super(ForgotPasswordForm, self).validate():
+            return False
+        if requires_confirmation(self.user):
+            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            return False
+        return True
+
 
 class PasswordlessLoginForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
