@@ -70,7 +70,7 @@ All forms can be overridden. For each form used, you can specify a
 replacement class. This allows you to add extra fields to the
 register form or override validators::
 
-    from flask_security.forms import RegisterForm
+    from flask.ext.security.forms import RegisterForm
 
     class ExtendedRegisterForm(RegisterForm):
         first_name = TextField('First Name', [Required()])
@@ -153,7 +153,7 @@ decorator like so::
     @celery.task
     def send_security_email(msg):
         # Use the Flask-Mail extension instance to send the incoming ``msg`` parameter
-        # which is an instance of `flask_mail.Message`
+        # which is an instance of `flask.ext.mail.Message`
         mail.send(msg)
 
     @security.send_mail_task
