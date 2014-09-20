@@ -13,7 +13,7 @@ import inspect
 
 from flask import request, current_app, flash
 from flask_wtf import Form as BaseForm
-from wtforms import TextField, PasswordField, validators, \
+from wtforms import StringField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
 from flask_login import current_user
 from werkzeug.local import LocalProxy
@@ -94,20 +94,20 @@ class Form(BaseForm):
 
 
 class EmailFormMixin():
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator])
 
 
 class UserEmailFormMixin():
     user = None
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, valid_user_email])
 
 
 class UniqueEmailFormMixin():
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, unique_user_email])
 
@@ -204,7 +204,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = TextField(get_form_field_label('email'))
+    email = StringField(get_form_field_label('email'))
     password = PasswordField(get_form_field_label('password'))
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
