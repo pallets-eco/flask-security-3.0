@@ -432,7 +432,7 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
-        
+
         self._state = state
 
     def render_template(self, *args, **kwargs):
