@@ -392,7 +392,7 @@ class Security(object):
         self.datastore = datastore
 
         if app is not None and datastore is not None:
-            self._state = self.init_app(app, datastore, **kwargs)
+            self.init_app(app, datastore, **kwargs)
 
     def init_app(self, app, datastore=None, register_blueprint=True,
                  login_form=None, confirm_register_form=None,
@@ -432,8 +432,8 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
-
-        return state
+        
+        self._state = state
 
     def render_template(self, *args, **kwargs):
         return render_template(*args, **kwargs)
