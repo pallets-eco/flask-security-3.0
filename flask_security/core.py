@@ -75,6 +75,7 @@ _default_config = {
     'EMAIL_SENDER': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
+    'TOKEN_MAX_AGE': None,
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
@@ -192,7 +193,7 @@ def _user_loader(user_id):
 
 def _token_loader(token):
     try:
-        data = _security.remember_token_serializer.loads(token)
+        data = _security.remember_token_serializer.loads(token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
         if user and safe_str_cmp(md5(user.password), data[1]):
             return user
