@@ -38,9 +38,6 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import pytest
-        import _pytest.config
-        pm = _pytest.config.get_plugin_manager()
-        pm.consider_setuptools_entrypoints()
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
