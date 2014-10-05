@@ -18,6 +18,7 @@ from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
+from werkzeug.security import safe_str_cmp
 
 from .utils import config_value as cv, get_config, md5, url_for_security, string_types
 from .views import create_blueprint
@@ -193,7 +194,7 @@ def _token_loader(token):
     try:
         data = _security.remember_token_serializer.loads(token)
         user = _security.datastore.find_user(id=data[0])
-        if user and md5(user.password) == data[1]:
+        if user and safe_str_cmp(md5(user.password), data[1]):
             return user
     except:
         pass

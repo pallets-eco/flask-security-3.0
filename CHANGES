@@ -3,6 +3,18 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.7.3
+-------------
+
+Released June 10th 2014
+
+- Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not respected
+- Fixed string encoding in various places to be friendly to unicode
+- Now using `werkzeug.security.safe_str_cmp` to check tokens
+- Removed user information from JSON output on `/reset` responses
+- Added Python 3.4 support
+
+
 Version 1.7.2
 -------------
 
