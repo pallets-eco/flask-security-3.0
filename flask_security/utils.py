@@ -117,8 +117,8 @@ def verify_password(password, password_hash):
     :param password: A plaintext password to verify
     :param password_hash: The expected hash value of the password (usually from your database)
     """
-    if _security.password_hash != 'plaintext':
-        password = get_hmac(password)
+    if _pwd_context.verify(get_hmac(password), password_hash):
+        return True
 
     return _pwd_context.verify(password, password_hash)
 
@@ -131,13 +131,20 @@ def verify_and_update_password(password, user):
     :param user: The user to verify against
     """
 
-    if _pwd_context.identify(user.password) != 'plaintext':
-        password = get_hmac(password)
-    verified, new_password = _pwd_context.verify_and_update(password, user.password)
-    if verified and new_password:
+    verified, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
+    if verified:
+      if new_password:
         user.password = new_password
         _datastore.put(user)
-    return verified
+      return True
+
+    # Try without HMAC if verification failed
+    if _pwd_context.verify(password, user.password):
+        user.password = encrypt_password(password)
+        _datastore.put(user)
+        return True
+
+    return False
 
 
 def encrypt_password(password):
