@@ -32,10 +32,12 @@ class SQLAlchemyDatastore(Datastore):
 
     def put(self, model):
         self.db.session.add(model)
+        self.commit()
         return model
 
     def delete(self, model):
         self.db.session.delete(model)
+        self.commit()
 
 
 class MongoEngineDatastore(Datastore):
