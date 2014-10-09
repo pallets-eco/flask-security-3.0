@@ -179,7 +179,7 @@ def sqlalchemy_datastore(request, app, tmpdir):
         login_count = db.Column(db.Integer)
         active = db.Column(db.Boolean())
         confirmed_at = db.Column(db.DateTime())
-        roles = db.relationship('Role', secondary=roles_users,
+        roles = db.relationship(Role, secondary=roles_users,
                                 backref=db.backref('users', lazy='dynamic'))
 
     with app.app_context():
