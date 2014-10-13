@@ -75,13 +75,13 @@ def get_form_field_label(key):
 
 
 def unique_user_email(form, field):
-    if _datastore.find_user(email=field.data) is not None:
+    if _datastore.get_user(field.data) is not None:
         msg = get_message('EMAIL_ALREADY_ASSOCIATED', email=field.data)[0]
         raise ValidationError(msg)
 
 
 def valid_user_email(form, field):
-    form.user = _datastore.find_user(email=field.data)
+    form.user = _datastore.get_user(field.data)
     if form.user is None:
         raise ValidationError(get_message('USER_DOES_NOT_EXIST')[0])
 

@@ -55,6 +55,14 @@ def test_registerable_flag(client, app, get_message):
     response = client.post('/register', data=data, follow_redirects=True)
     assert get_message('EMAIL_ALREADY_ASSOCIATED', email='dude@lp.com') in response.data
 
+    # Test registering with an existing email but case insensitive
+    data = dict(
+        email='Dude@lp.com', password='password', password_confirm='password',
+        next=''
+    )
+    response = client.post('/register', data=data, follow_redirects=True)
+    assert get_message('EMAIL_ALREADY_ASSOCIATED', email='Dude@lp.com') in response.data
+
     # Test registering with JSON
     data = '{ "email": "dude2@lp.com", "password": "password"}'
     response = client.post('/register', data=data, headers={'Content-Type': 'application/json'})
