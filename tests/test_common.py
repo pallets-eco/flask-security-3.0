@@ -40,6 +40,12 @@ def test_authenticate_with_invalid_next(client, get_message):
     assert get_message('INVALID_REDIRECT') in response.data
 
 
+def test_authenticate_with_invalid_malformed_next(client, get_message):
+    data = dict(email='matt@lp.com', password='password')
+    response = client.post('/login?next=http:///google.com', data=data)
+    assert get_message('INVALID_REDIRECT') in response.data
+
+
 def test_authenticate_case_insensitive_email(app, client):
     response = authenticate(client, 'MATT@lp.com', follow_redirects=True)
     assert b'Hello matt@lp.com' in response.data
