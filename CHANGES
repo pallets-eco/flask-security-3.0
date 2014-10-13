@@ -10,6 +10,7 @@ Released October 13th 2014
 
 - Fixed a bug related to changing existing passwords from plaintext to hashed
 - Fixed a bug in form validation that did not enforce case insensivitiy
+- Fixed a bug with validating redirects
 
 
 Version 1.7.3
