@@ -100,7 +100,7 @@ class AddRoleCommand(_RoleCommand):
 
 
 class RemoveRoleCommand(_RoleCommand):
-    """Add a role to a user"""
+    """Remove a role from a user"""
 
     @commit
     def run(self, user_identifier, role_name):
