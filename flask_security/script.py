@@ -18,13 +18,16 @@ except ImportError:
 import re
 
 from flask import current_app
-from flask.ext.script import Command, Option
+from flask.ext.script import Command, Option, Manager
 from werkzeug.local import LocalProxy
 
 from .utils import encrypt_password
 
 
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
+
+
+manager = Manager(usage="Flask-Security extension commands")
 
 
 def pprint(obj):
@@ -38,12 +41,26 @@ def commit(fn):
     return wrapper
 
 
+def get_user(user_identifier):
+    user = _datastore.get_user(user_identifier)
+    if user is None:
+        raise ValueError("User '%s' doesn't exist" % user_identifier)
+    return user
+
+
+def find_role(role_name):
+    role = _datastore.find_role(role_name)
+    if role is None:
+        raise ValueError("Role '%s' doesn't exist" % role_name)
+    return role
+
+
 class CreateUserCommand(Command):
     """Create a user"""
 
     option_list = (
-        Option('-e', '--email', dest='email', default=None),
-        Option('-p', '--password', dest='password', default=None),
+        Option('-e', '--email', dest='email', required=True),
+        Option('-p', '--password', dest='password', required=True),
         Option('-a', '--active', dest='active', default=''),
     )
 
@@ -69,11 +86,24 @@ class CreateUserCommand(Command):
             pprint(form.errors)
 
 
+class DeleteUserCommand(Command):
+    """Delete a user"""
+
+    option_list = (
+        Option('-u', '--user', dest='user_identifier', required=True),
+    )
+
+    @commit
+    def run(self, user_identifier):
+        _datastore.delete_user(get_user(user_identifier))
+        print("User '%s' has been deleted" % user_identifier)
+
+
 class CreateRoleCommand(Command):
     """Create a role"""
 
     option_list = (
-        Option('-n', '--name', dest='name', default=None),
+        Option('-n', '--name', dest='name', required=True),
         Option('-d', '--desc', dest='description', default=None),
     )
 
@@ -85,8 +115,8 @@ class CreateRoleCommand(Command):
 
 class _RoleCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
-        Option('-r', '--role', dest='role_name'),
+        Option('-u', '--user', dest='user_identifier', required=True),
+        Option('-r', '--role', dest='role_name', required=True),
     )
 
 
@@ -95,7 +125,8 @@ class AddRoleCommand(_RoleCommand):
 
     @commit
     def run(self, user_identifier, role_name):
-        _datastore.add_role_to_user(user_identifier, role_name)
+        _datastore.add_role_to_user(
+            get_user(user_identifier), find_role(role_name))
         print("Role '%s' added to user '%s' successfully" % (role_name, user_identifier))
 
 
@@ -104,13 +135,14 @@ class RemoveRoleCommand(_RoleCommand):
 
     @commit
     def run(self, user_identifier, role_name):
-        _datastore.remove_role_from_user(user_identifier, role_name)
+        _datastore.remove_role_from_user(
+            get_user(user_identifier), find_role(role_name))
         print("Role '%s' removed from user '%s' successfully" % (role_name, user_identifier))
 
 
 class _ToggleActiveCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
+        Option('-u', '--user', dest='user_identifier', required=True),
     )
 
 
@@ -119,14 +151,29 @@ class DeactivateUserCommand(_ToggleActiveCommand):
 
     @commit
     def run(self, user_identifier):
-        _datastore.deactivate_user(user_identifier)
+        _datastore.deactivate_user(get_user(user_identifier))
         print("User '%s' has been deactivated" % user_identifier)
 
 
 class ActivateUserCommand(_ToggleActiveCommand):
-    """Deactive a user"""
+    """Activate a user"""
 
     @commit
     def run(self, user_identifier):
-        _datastore.activate_user(user_identifier)
+        _datastore.activate_user(get_user(user_identifier))
         print("User '%s' has been activated" % user_identifier)
+
+
+_commands_name = [
+    ('create_user',  CreateUserCommand),
+    ('delete_user',  DeleteUserCommand),
+    ('create_role',  CreateRoleCommand),
+    ('add_role',     AddRoleCommand),
+    ('remove_role',  RemoveRoleCommand),
+    ('deactivate',   DeactivateUserCommand),
+    ('activate',     ActivateUserCommand),
+]
+
+
+for name, cls in _commands_name:
+    manager.add_command(name, cls())
