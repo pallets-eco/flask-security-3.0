@@ -174,6 +174,22 @@ _default_messages = {
         'Please reauthenticate to access this page.', 'info'),
 }
 
+_default_field_labels = {
+    'EMAIL': 'Email Address',
+    'PASSWORD': 'Password',
+    'REMEMBER_ME': 'Remember Me',
+    'LOGIN': 'Login',
+    'RETYPE_PASSWORD': 'Retype Password',
+    'REGISTER': 'Register',
+    'SEND_CONFIRMATION': 'Resend Confirmation Instructions',
+    'RECOVER_PASSWORD': 'Recover Password',
+    'RESET_PASSWORD': 'Reset Password',
+    'RETYPE_PASSWORD': 'Retype Password',
+    'NEW_PASSWORD': 'New Password',
+    'CHANGE_PASSWORD': 'Change Password',
+    'SEND_LOGIN_LINK': 'Send Login Link'
+}
+
 _allowed_password_hash_schemes = [
     'bcrypt',
     'des_crypt',
