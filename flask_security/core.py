@@ -174,6 +174,17 @@ _default_messages = {
         'Please reauthenticate to access this page.', 'info'),
 }
 
+_allowed_password_hash_schemes = [
+    'bcrypt',
+    'des_crypt',
+    'pbkdf2_sha256',
+    'pbkdf2_sha512',
+    'sha256_crypt',
+    'sha512_crypt',
+    # And always last one...
+    'plaintext'
+]
+
 _default_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
@@ -413,6 +424,9 @@ class Security(object):
 
         for key, value in _default_messages.items():
             app.config.setdefault('SECURITY_MSG_' + key, value)
+
+        for key, value in _default_field_labels.items():
+            app.config.setdefault('SECURITY_LABEL_' + key, value)
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
