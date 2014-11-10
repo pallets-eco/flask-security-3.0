@@ -19,7 +19,6 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-
 from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url, get_label
 
 # Convenient reference
