@@ -393,6 +393,7 @@ class Security(object):
 
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
+            self._getattr = lambda name: getattr(self._state, name, None)
 
     def init_app(self, app, datastore=None, register_blueprint=True,
                  login_form=None, confirm_register_form=None,
@@ -432,6 +433,7 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
+        self._getattr = lambda name: getattr(_security, name, None)
 
         return state
 
@@ -439,4 +441,4 @@ class Security(object):
         return render_template(*args, **kwargs)
 
     def __getattr__(self, name):
-        return getattr(self._state, name, None)
+        return self._getattr(name)
