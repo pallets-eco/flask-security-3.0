@@ -189,7 +189,9 @@ def get_url(endpoint_or_url):
 
 
 def slash_url_suffix(url, suffix):
-    """Adds a slash either to the beginning or the end of a suffix (which is to be appended to a URL), depending on whether or not the URL ends with a slash."""
+    """Adds a slash either to the beginning or the end of a suffix
+    (which is to be appended to a URL), depending on whether or not
+    the URL ends with a slash."""
 
     return url.endswith('/') and ('%s/' % suffix) or ('/%s' % suffix)
 
