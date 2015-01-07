@@ -55,6 +55,8 @@ def _check_token():
         token = request.json.get(args_key, token)
 
     user = _security.login_manager.token_callback(token)
+    if user == None:
+        return False
 
     if user and user.is_authenticated():
         app = current_app._get_current_object()
