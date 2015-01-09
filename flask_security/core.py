@@ -190,9 +190,9 @@ def _user_loader(user_id):
     return _security.datastore.find_user(id=user_id)
 
 
-def _token_loader(token):
+def _token_loader(token, max_age=None):
     try:
-        data = _security.remember_token_serializer.loads(token)
+        data = _security.remember_token_serializer.loads(token, max_age=max_age)
         user = _security.datastore.find_user(id=data[0])
         if user and safe_str_cmp(md5(user.password), data[1]):
             return user
