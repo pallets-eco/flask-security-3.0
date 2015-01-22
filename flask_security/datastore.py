@@ -38,6 +38,17 @@ class SQLAlchemyDatastore(Datastore):
         self.db.session.delete(model)
 
 
+class PonyDatastore(Datastore):
+    def commit(self):
+        self.db.commit()
+
+    def put(self, model):
+        return model
+
+    def delete(self, model):
+        model.delete()
+
+
 class MongoEngineDatastore(Datastore):
     def put(self, model):
         model.save()
@@ -204,6 +215,36 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
 
     def find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()
+
+
+class PonyUserDatastore(PonyDatastore, UserDatastore):
+    """A Pony ORM datastore implementation for Flask-Security.
+    """
+    def __init__(self, db, user_model, role_model):
+        PonyDatastore.__init__(self, db)
+    	UserDatastore.__init__(self, user_model, role_model)
+
+    def get_user(self, identifier):
+        if self._is_numeric(identifier):
+            return self.user_model[identifier]
+        for attr in get_identity_attributes():
+            query = getattr(self.user_model, attr).ilike(identifier)
+            rv = self.user_model.get(query)
+            if rv is not None:
+                return rv
+
+    def _is_numeric(self, value):
+        try:
+            int(value)
+        except ValueError:
+            return False
+        return True
+
+    def find_user(self, **kwargs):
+	return self.user_model.get(**kwargs)
+
+    def find_role(self, role):
+    	return self.role_model.get(name=role)
 
 
 class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
