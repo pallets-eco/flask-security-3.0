@@ -253,6 +253,9 @@ Miscellaneous
 ``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``       Specifies whether password change
                                               email is sent. Defaults to
                                               ``True``.
+``SECURITY_SEND_PASSWORD_RESET_EMAIL``        Specifies whether password reset
+                                              email is sent. Defaults to
+                                              ``True``.
 ``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL`` Specifies whether password reset
                                               notice email is sent. Defaults to
                                               ``True``.
