@@ -32,9 +32,10 @@ def send_reset_password_instructions(user):
     token = generate_reset_password_token(user)
     reset_link = url_for_security('reset_password', token=token, _external=True)
 
-    send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'), user.email,
-              'reset_instructions',
-              user=user, reset_link=reset_link)
+    if config_value('SEND_PASSWORD_RESET_EMAIL'):
+        send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'), user.email,
+                  'reset_instructions',
+                  user=user, reset_link=reset_link)
 
     reset_password_instructions_sent.send(app._get_current_object(), user=user, token=token)
 
