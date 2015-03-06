@@ -198,11 +198,11 @@ def _token_loader(token):
             return user
     except:
         pass
-    return AnonymousUser()
+    return _security.login_manager.anonymous_user()
 
 
 def _identity_loader():
-    if not isinstance(current_user._get_current_object(), AnonymousUser):
+    if not isinstance(current_user._get_current_object(), AnonymousUserMixin):
         identity = Identity(current_user.id)
         return identity
 
@@ -217,9 +217,9 @@ def _on_identity_loaded(sender, identity):
     identity.user = current_user
 
 
-def _get_login_manager(app):
+def _get_login_manager(app, anonymous_user):
     lm = LoginManager()
-    lm.anonymous_user = AnonymousUser
+    lm.anonymous_user = anonymous_user or AnonymousUser
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
@@ -257,14 +257,14 @@ def _get_serializer(app, name):
     return URLSafeTimedSerializer(secret_key=secret_key, salt=salt)
 
 
-def _get_state(app, datastore, **kwargs):
+def _get_state(app, datastore, anonymous_user=None, **kwargs):
     for key, value in get_config(app).items():
         kwargs[key.lower()] = value
 
     kwargs.update(dict(
         app=app,
         datastore=datastore,
-        login_manager=_get_login_manager(app),
+        login_manager=_get_login_manager(app, anonymous_user),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
         remember_token_serializer=_get_serializer(app, 'remember'),
@@ -398,7 +398,8 @@ class Security(object):
                  login_form=None, confirm_register_form=None,
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None):
+                 send_confirmation_form=None, passwordless_login_form=None,
+                 anonymous_user=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -424,7 +425,8 @@ class Security(object):
                            reset_password_form=reset_password_form,
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form)
+                           passwordless_login_form=passwordless_login_form,
+                           anonymous_user=anonymous_user)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
