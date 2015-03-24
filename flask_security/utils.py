@@ -117,10 +117,13 @@ def verify_password(password, password_hash):
     :param password: A plaintext password to verify
     :param password_hash: The expected hash value of the password (usually from your database)
     """
-    if _security.password_hash != 'plaintext':
-        password = get_hmac(password)
-
-    return _pwd_context.verify(password, password_hash)
+    if not _pwd_context.verify(password, password_hash):
+        if _security.password_salt:
+            # try legacy HMAC-based encryption
+            password = get_hmac(password)
+            return _pwd_context.verify(password, password_hash)
+        return False
+    return True
 
 
 def verify_and_update_password(password, user):
@@ -130,14 +133,23 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-
-    if _pwd_context.identify(user.password) != 'plaintext':
-        password = get_hmac(password)
     verified, new_password = _pwd_context.verify_and_update(password, user.password)
-    if verified and new_password:
-        user.password = encrypt_password(password)
-        _datastore.put(user)
-    return verified
+    if verified:
+        if new_password:
+            user.password = new_password
+            _datastore.put(user)
+        return True
+
+    if _security.password_salt:
+        # try legacy HMAC-based encryption
+        verified = _pwd_context.verify(get_hmac(password), user.password)
+        if verified:
+            # update to the new system
+            user.password = encrypt_password(password)
+            _datastore.put(user)
+        return verified
+
+    return False
 
 
 def encrypt_password(password):
@@ -145,10 +157,7 @@ def encrypt_password(password):
 
     :param password: The plaintext password to encrypt
     """
-    if _security.password_hash == 'plaintext':
-        return password
-    signed = get_hmac(password).decode('ascii')
-    return _pwd_context.encrypt(signed)
+    return _pwd_context.encrypt(password)
 
 
 def encode_string(string):
