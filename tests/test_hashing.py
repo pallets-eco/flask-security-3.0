@@ -8,7 +8,8 @@
 
 from pytest import raises
 
-from flask_security.utils import verify_password, verify_and_update_password, encrypt_password, get_hmac
+from flask_security.utils import verify_password, verify_and_update_password, encrypt_password, \
+        get_hmac
 
 from utils import authenticate, init_app_with_options
 
