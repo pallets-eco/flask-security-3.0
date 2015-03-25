@@ -19,9 +19,11 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
+from .utils import get_message, config_value, validate_redirect_url
 
 # Convenient reference
+_security = LocalProxy(lambda: current_app.extensions['security'])
+
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 _default_field_labels = {
@@ -235,7 +237,7 @@ class LoginForm(Form, NextFormMixin):
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
             return False
-        if not verify_and_update_password(self.password.data, self.user):
+        if not _security.verify_and_update_password(self.password.data, self.user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
@@ -283,7 +285,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if not super(ChangePasswordForm, self).validate():
             return False
 
-        if not verify_and_update_password(self.password.data, current_user):
+        if not _security.verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if self.password.data.strip() == self.new_password.data.strip():
