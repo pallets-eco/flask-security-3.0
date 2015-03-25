@@ -10,8 +10,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '1.7.4'
-
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, PeeweeUserDatastore
 from .decorators import auth_token_required, http_auth_required, \
@@ -21,3 +19,5 @@ from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
 from .signals import confirm_instructions_sent, password_reset, \
     reset_password_instructions_sent, user_confirmed, user_registered
 from .utils import login_user, logout_user, url_for_security
+
+__version__ = '1.7.4'
