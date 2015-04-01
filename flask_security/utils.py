@@ -115,7 +115,7 @@ def verify_password(password, password_hash):
     """Returns ``True`` if the password matches the supplied hash.
 
     :param password: A plaintext password to verify
-    :param password_hash: The expected hash value of the password (usually form your database)
+    :param password_hash: The expected hash value of the password (usually from your database)
     """
     if _security.password_hash != 'plaintext':
         password = get_hmac(password)
@@ -135,7 +135,7 @@ def verify_and_update_password(password, user):
         password = get_hmac(password)
     verified, new_password = _pwd_context.verify_and_update(password, user.password)
     if verified and new_password:
-        user.password = new_password
+        user.password = encrypt_password(password)
         _datastore.put(user)
     return verified
 
@@ -143,7 +143,7 @@ def verify_and_update_password(password, user):
 def encrypt_password(password):
     """Encrypts the specified plaintext password using the configured encryption options.
 
-    :param password: The plaintext passwrod to encrypt
+    :param password: The plaintext password to encrypt
     """
     if _security.password_hash == 'plaintext':
         return password
@@ -212,7 +212,7 @@ def validate_redirect_url(url):
         return False
     url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
-    if url_next.netloc and url_next.netloc != url_base.netloc:
+    if (url_next.netloc or url_next.scheme) and url_next.netloc != url_base.netloc:
         return False
     return True
 

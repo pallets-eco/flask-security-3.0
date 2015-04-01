@@ -171,6 +171,11 @@ def test_change_hash_type(app, sqlalchemy_datastore):
     response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
     assert response.status_code == 302
 
+    response = client.get('/logout')
+
+    response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
+    assert response.status_code == 302
+
 
 def test_md5():
     data = md5(b'hello')

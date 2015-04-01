@@ -24,11 +24,16 @@ from utils import authenticate
     send_confirmation_template='custom_security/send_confirmation.html',
     register_user_template='custom_security/register_user.html')
 def test_context_processors(client, app):
+    @app.security.context_processor
+    def default_ctx_processor():
+        return {'global': 'global'}
+
     @app.security.forgot_password_context_processor
     def forgot_password():
         return {'foo': 'bar'}
 
     response = client.get('/reset')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.login_context_processor
@@ -36,6 +41,7 @@ def test_context_processors(client, app):
         return {'foo': 'bar'}
 
     response = client.get('/login')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.register_context_processor
@@ -43,6 +49,7 @@ def test_context_processors(client, app):
         return {'foo': 'bar'}
 
     response = client.get('/register')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.reset_password_context_processor
@@ -50,6 +57,7 @@ def test_context_processors(client, app):
         return {'foo': 'bar'}
 
     response = client.get('/reset')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.change_password_context_processor
@@ -58,6 +66,7 @@ def test_context_processors(client, app):
 
     authenticate(client)
     response = client.get('/change')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.send_confirmation_context_processor
@@ -65,6 +74,7 @@ def test_context_processors(client, app):
         return {'foo': 'bar'}
 
     response = client.get('/confirm')
+    assert b'global' in response.data
     assert b'bar' in response.data
 
     @app.security.mail_context_processor
@@ -75,6 +85,7 @@ def test_context_processors(client, app):
         client.post('/reset', data=dict(email='matt@lp.com'))
 
     email = outbox[0]
+    assert 'global' in email.html
     assert 'bar' in email.html
 
 
