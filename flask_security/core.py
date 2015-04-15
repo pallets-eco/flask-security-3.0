@@ -389,7 +389,7 @@ class Security(object):
     """
     def __init__(self, app=None, datastore=None, **kwargs):
         self.app = app
-        self.datastore = datastore
+        self._datastore = datastore
 
         if app is not None and datastore is not None:
             self._state = self.init_app(app, datastore, **kwargs)
@@ -406,7 +406,7 @@ class Security(object):
         :param datastore: An instance of a user datastore.
         :param register_blueprint: to register the Security blueprint or not.
         """
-        datastore = datastore or self.datastore
+        datastore = datastore or self._datastore
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
