@@ -175,6 +175,23 @@ _default_messages = {
         'Please reauthenticate to access this page.', 'info'),
 }
 
+
+_default_field_labels = {
+    'EMAIL': 'Email Address',
+    'PASSWORD': 'Password',
+    'REMEMBER_ME': 'Remember Me',
+    'LOGIN': 'Login',
+    'RETYPE_PASSWORD': 'Retype Password',
+    'REGISTER': 'Register',
+    'SEND_CONFIRMATION': 'Resend Confirmation Instructions',
+    'RECOVER_PASSWORD': 'Recover Password',
+    'RESET_PASSWORD': 'Reset Password',
+    'RETYPE_PASSWORD': 'Retype Password',
+    'NEW_PASSWORD': 'New Password',
+    'CHANGE_PASSWORD': 'Change Password',
+    'SEND_LOGIN_LINK': 'Send Login Link'
+}
+
 _default_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
@@ -419,6 +436,9 @@ class Security(object):
 
         for key, value in _default_messages.items():
             app.config.setdefault('SECURITY_MSG_' + key, value)
+
+        for key, value in _default_field_labels.items():
+            app.config.setdefault('SECURITY_LABEL_' + key, value)
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
