@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.views
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.views
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security views module
 

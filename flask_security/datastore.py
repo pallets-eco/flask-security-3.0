@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.datastore
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.datastore
+    ~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module contains an user datastore classes.
 

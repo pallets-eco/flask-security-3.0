@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.decorators
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.decorators
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security decorators module
 
@@ -13,8 +13,8 @@ from collections import namedtuple
 from functools import wraps
 
 from flask import current_app, Response, request, redirect, _request_ctx_stack
-from flask.ext.login import current_user, login_required  # pragma: no flakes
-from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
+from flask_login import current_user, login_required  # pragma: no flakes
+from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 
 from . import utils

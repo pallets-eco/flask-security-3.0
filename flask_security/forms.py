@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.forms
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.forms
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security forms module
 

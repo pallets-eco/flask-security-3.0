@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.recoverable
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.recoverable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security recoverable module
 

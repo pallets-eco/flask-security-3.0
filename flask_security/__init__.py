@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security
-    ~~~~~~~~~~~~~~~~~~
+    flask_security
+    ~~~~~~~~~~~~~~
 
     Flask-Security is a Flask extension that aims to add quick and simple
     security via Flask-Login, Flask-Principal, Flask-WTF, and passlib.

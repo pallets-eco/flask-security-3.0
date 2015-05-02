@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.script
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.script
+    ~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security script module
 
@@ -18,7 +18,7 @@ except ImportError:
 import re
 
 from flask import current_app
-from flask.ext.script import Command, Option
+from flask_script import Command, Option
 from werkzeug.local import LocalProxy
 
 from .utils import encrypt_password

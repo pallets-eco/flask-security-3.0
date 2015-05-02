@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.core
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.core
+    ~~~~~~~~~~~~~~~~~~~
 
     Flask-Security core module
 
@@ -10,9 +10,9 @@
 """
 
 from flask import current_app, render_template
-from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
+from flask_login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
-from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
+from flask_principal import Principal, RoleNeed, UserNeed, Identity, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext

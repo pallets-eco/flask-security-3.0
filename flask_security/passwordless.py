@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.passwordless
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.passwordless
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security passwordless module
 
