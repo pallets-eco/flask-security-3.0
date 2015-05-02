@@ -2,6 +2,7 @@ Flask-SQLAlchemy>=1.0
 bcrypt>=1.0.2
 flask-mongoengine>=0.7.0
 flask-peewee>=0.6.5
+pymongo==2.8
 pytest>=2.5.2
 pytest-cache>=1.0
 pytest-cov>=1.6
