@@ -238,6 +238,7 @@ def confirm_email(token):
                     get_url(_security.post_login_view))
 
 
+@anonymous_user_required
 def forgot_password():
     """View function that handles a forgotten password request."""
 
