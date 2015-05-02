@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.changeable
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.changeable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security recoverable module
 
@@ -29,8 +29,8 @@ def send_password_changed_notice(user):
     :param user: The user to send the notice to
     """
     if config_value('SEND_PASSWORD_CHANGE_EMAIL'):
-        send_mail(config_value('EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE'), user.email,
-              'change_notice', user=user)
+        subject = config_value('EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE')
+        send_mail(subject, user.email, 'change_notice', user=user)
 
 
 def change_user_password(user, password):
@@ -42,4 +42,5 @@ def change_user_password(user, password):
     user.password = encrypt_password(password)
     _datastore.put(user)
     send_password_changed_notice(user)
-    password_changed.send(app._get_current_object(), user=user)
+    password_changed.send(app._get_current_object(),
+                          user=user._get_current_object())

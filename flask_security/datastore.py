@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.datastore
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.datastore
+    ~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module contains an user datastore classes.
 
@@ -85,7 +85,7 @@ class UserDatastore(object):
         return kwargs
 
     def get_user(self, id_or_email):
-        """Returns a user matching the specified ID or email address"""
+        """Returns a user matching the specified ID or email address."""
         raise NotImplementedError
 
     def find_user(self, *args, **kwargs):
@@ -97,7 +97,7 @@ class UserDatastore(object):
         raise NotImplementedError
 
     def add_role_to_user(self, user, role):
-        """Adds a role tp a user
+        """Adds a role to a user.
 
         :param user: The user to manipulate
         :param role: The role to add to the user
@@ -110,7 +110,7 @@ class UserDatastore(object):
         return False
 
     def remove_role_from_user(self, user, role):
-        """Removes a role from a user
+        """Removes a role from a user.
 
         :param user: The user to manipulate
         :param role: The role to remove from the user
@@ -120,6 +120,7 @@ class UserDatastore(object):
         if role in user.roles:
             rv = True
             user.roles.remove(role)
+            self.put(user)
         return rv
 
     def toggle_active(self, user):
@@ -155,7 +156,7 @@ class UserDatastore(object):
 
     def find_or_create_role(self, name, **kwargs):
         """Returns a role matching the given name or creates it with any
-        additionally provided parameters
+        additionally provided parameters.
         """
         kwargs["name"] = name
         return self.find_role(name) or self.create_role(**kwargs)
@@ -167,7 +168,7 @@ class UserDatastore(object):
         return self.put(user)
 
     def delete_user(self, user):
-        """Delete the specified user
+        """Deletes the specified user.
 
         :param user: The user to delete
         """
@@ -194,7 +195,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
     def _is_numeric(self, value):
         try:
             int(value)
-        except ValueError:
+        except (TypeError, ValueError):
             return False
         return True
 
@@ -237,17 +238,18 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         query = QCombination(QCombination.AND, queries)
         try:
             return self.user_model.objects(query).first()
-        except ValidationError:
+        except ValidationError:  # pragma: no cover
             return None
 
     def find_role(self, role):
         return self.role_model.objects(name=role).first()
 
-    def add_role_to_user(self, user, role):
-        rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
-        if rv:
-            self.put(user)
-        return rv
+    # TODO: Not sure why this was added but tests pass without it
+    # def add_role_to_user(self, user, role):
+    #     rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+    #     if rv:
+    #         self.put(user)
+    #     return rv
 
 
 class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
@@ -295,10 +297,11 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         user = self.put(user)
         for role in roles:
             self.add_role_to_user(user, role)
+        self.put(user)
         return user
 
     def add_role_to_user(self, user, role):
-        """Adds a role tp a user
+        """Adds a role to a user.
 
         :param user: The user to manipulate
         :param role: The role to add to the user
@@ -309,11 +312,11 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         if result.count():
             return False
         else:
-            self.UserRole.create(user=user.id, role=role.id)
+            self.put(self.UserRole.create(user=user.id, role=role.id))
             return True
 
     def remove_role_from_user(self, user, role):
-        """Removes a role from a user
+        """Removes a role from a user.
 
         :param user: The user to manipulate
         :param role: The role to remove from the user

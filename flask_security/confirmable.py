@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.confirmable
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.confirmable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security confirmable module
 
@@ -58,7 +58,9 @@ def generate_confirmation_token(user):
 
 def requires_confirmation(user):
     """Returns `True` if the user requires confirmation."""
-    return _security.confirmable and not _security.login_without_confirmation and user.confirmed_at == None
+    return (_security.confirmable and
+            not _security.login_without_confirmation and
+            user.confirmed_at is None)
 
 
 def confirm_email_token_status(token):
@@ -77,6 +79,9 @@ def confirm_user(user):
 
     :param user: The user to confirm
     """
+    if user.confirmed_at is not None:
+        return False
     user.confirmed_at = datetime.utcnow()
     _datastore.put(user)
     user_confirmed.send(app._get_current_object(), user=user)
+    return True

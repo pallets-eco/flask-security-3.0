@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.views
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.views
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security views module
 
@@ -26,7 +26,7 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for
+    url_for_security as url_for, slash_url_suffix
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -34,7 +34,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def _render_json(form, include_auth_token=False):
+def _render_json(form, include_user=True, include_auth_token=False):
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -42,7 +42,9 @@ def _render_json(form, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        response = dict(user=dict(id=str(form.user.id)))
+        response = dict()
+        if include_user:
+            response['user'] = dict(id=str(form.user.id))
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
@@ -75,13 +77,10 @@ def login():
         after_this_request(_commit)
 
         if not request.json:
-            return redirect(get_post_login_redirect())
-
-    form.next.data = get_url(request.args.get('next')) \
-                     or get_url(request.form.get('next')) or ''
+            return redirect(get_post_login_redirect(form.next.data))
 
     if request.json:
-        return _render_json(form, True)
+        return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
                                      login_user_form=form,
@@ -123,8 +122,13 @@ def register():
             login_user(user)
 
         if not request.json:
-            return redirect(get_post_register_redirect())
-        return _render_json(form, True)
+            if 'next' in form:
+                redirect_url = get_post_register_redirect(form.next.data)
+            else:
+                redirect_url = get_post_register_redirect()
+
+            return redirect(redirect_url)
+        return _render_json(form, include_auth_token=True)
 
     if request.json:
         return _render_json(form)
@@ -222,14 +226,19 @@ def confirm_email(token):
         logout_user()
         login_user(user)
 
-    confirm_user(user)
-    after_this_request(_commit)
-    do_flash(*get_message('EMAIL_CONFIRMED'))
+    if confirm_user(user):
+        after_this_request(_commit)
+        msg = 'EMAIL_CONFIRMED'
+    else:
+        msg = 'ALREADY_CONFIRMED'
+
+    do_flash(*get_message(msg))
 
     return redirect(get_url(_security.post_confirm_view) or
                     get_url(_security.post_login_view))
 
 
+@anonymous_user_required
 def forgot_password():
     """View function that handles a forgotten password request."""
 
@@ -246,7 +255,7 @@ def forgot_password():
             do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
 
     if request.json:
-        return _render_json(form)
+        return _render_json(form, include_user=False)
 
     return _security.render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
                                      forgot_password_form=form,
@@ -325,7 +334,7 @@ def create_blueprint(state, import_name):
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
-        bp.route(state.login_url + '/<token>',
+        bp.route(state.login_url + slash_url_suffix(state.login_url, '<token>'),
                  endpoint='token_login')(token_login)
     else:
         bp.route(state.login_url,
@@ -341,7 +350,7 @@ def create_blueprint(state, import_name):
         bp.route(state.reset_url,
                  methods=['GET', 'POST'],
                  endpoint='forgot_password')(forgot_password)
-        bp.route(state.reset_url + '/<token>',
+        bp.route(state.reset_url + slash_url_suffix(state.reset_url, '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
 
@@ -354,7 +363,7 @@ def create_blueprint(state, import_name):
         bp.route(state.confirm_url,
                  methods=['GET', 'POST'],
                  endpoint='send_confirmation')(send_confirmation)
-        bp.route(state.confirm_url + '/<token>',
+        bp.route(state.confirm_url + slash_url_suffix(state.confirm_url, '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='confirm_email')(confirm_email)
 

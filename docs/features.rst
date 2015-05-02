@@ -24,7 +24,7 @@ instance, you may assign roles such as `Admin`, `Editor`, `SuperUser`, or a
 combination of said roles to a user. Access control is based on the role name
 and all roles should be uniquely named. This feature is implemented using the
 `Flask-Principal`_ extension. If you'd like to implement more granular access
-control you can refer to the Flask-Princpal `documentation on this topic`_.
+control, you can refer to the Flask-Principal `documentation on this topic`_.
 
 
 Password Encryption

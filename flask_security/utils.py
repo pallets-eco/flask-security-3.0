@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.utils
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.utils
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security utils module
 
@@ -10,26 +10,26 @@
 """
 
 import base64
-import blinker
-import functools
 import hashlib
 import hmac
 import sys
+
+try:
+    from urlparse import urlsplit
+except ImportError:  # pragma: no cover
+    from urllib.parse import urlsplit
 
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
-from flask.ext.login import login_user as _login_user, \
-    logout_user as _logout_user
-from flask.ext.mail import Message
-from flask.ext.principal import Identity, AnonymousIdentity, identity_changed
+from flask_login import login_user as _login_user, logout_user as _logout_user
+from flask_mail import Message
+from flask_principal import Identity, AnonymousIdentity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
-from .signals import user_registered, user_confirmed, \
-    confirm_instructions_sent, login_instructions_sent, \
-    password_reset, password_changed, reset_password_instructions_sent
+from .signals import user_registered, login_instructions_sent, reset_password_instructions_sent
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -40,12 +40,12 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
 PY3 = sys.version_info[0] == 3
 
-if PY3:
-    string_types = str,
-    text_type = str
-else:
-    string_types = basestring,
-    text_type = unicode
+if PY3:  # pragma: no cover
+    string_types = str,  # pragma: no flakes
+    text_type = str  # pragma: no flakes
+else:  # pragma: no cover
+    string_types = basestring,  # pragma: no flakes
+    text_type = unicode  # pragma: no flakes
 
 
 def login_user(user, remember=None):
@@ -58,12 +58,16 @@ def login_user(user, remember=None):
     if remember is None:
         remember = config_value('DEFAULT_REMEMBER_ME')
 
-    if not _login_user(user, remember):
+    if not _login_user(user, remember):  # pragma: no cover
         return False
 
     if _security.trackable:
+        if 'X-Forwarded-For' in request.headers:
+            remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+        else:
+            remote_addr = request.remote_addr or 'untrackable'
+
         old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
-        remote_addr = request.remote_addr or 'untrackable'
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 
         user.last_login_at = old_current_login or new_current_login
@@ -95,13 +99,15 @@ def get_hmac(password):
 
     :param password: The password to sign
     """
-    if _security.password_salt is None:
+    salt = _security.password_salt
+
+    if salt is None:
         raise RuntimeError(
             'The configuration value `SECURITY_PASSWORD_SALT` must '
             'not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
-    h = hmac.new(_security.password_salt.encode('utf-8'), password.encode('utf-8'), hashlib.sha512)
+    h = hmac.new(encode_string(salt), encode_string(password), hashlib.sha512)
     return base64.b64encode(h.digest())
 
 
@@ -109,7 +115,7 @@ def verify_password(password, password_hash):
     """Returns ``True`` if the password matches the supplied hash.
 
     :param password: A plaintext password to verify
-    :param password_hash: The expected hash value of the password (usually form your database)
+    :param password_hash: The expected hash value of the password (usually from your database)
     """
     if _security.password_hash != 'plaintext':
         password = get_hmac(password)
@@ -125,11 +131,11 @@ def verify_and_update_password(password, user):
     :param user: The user to verify against
     """
 
-    if _security.password_hash != 'plaintext':
+    if _pwd_context.identify(user.password) != 'plaintext':
         password = get_hmac(password)
     verified, new_password = _pwd_context.verify_and_update(password, user.password)
     if verified and new_password:
-        user.password = new_password
+        user.password = encrypt_password(password)
         _datastore.put(user)
     return verified
 
@@ -137,7 +143,7 @@ def verify_and_update_password(password, user):
 def encrypt_password(password):
     """Encrypts the specified plaintext password using the configured encryption options.
 
-    :param password: The plaintext passwrod to encrypt
+    :param password: The plaintext password to encrypt
     """
     if _security.password_hash == 'plaintext':
         return password
@@ -145,8 +151,18 @@ def encrypt_password(password):
     return _pwd_context.encrypt(signed)
 
 
+def encode_string(string):
+    """Encodes a string to bytes, if it isn't already.
+
+    :param string: The string to encode"""
+
+    if isinstance(string, text_type):
+        string = string.encode('utf-8')
+    return string
+
+
 def md5(data):
-    return hashlib.md5(data.encode('ascii')).hexdigest()
+    return hashlib.md5(encode_string(data)).hexdigest()
 
 
 def do_flash(message, category=None):
@@ -172,6 +188,14 @@ def get_url(endpoint_or_url):
         return endpoint_or_url
 
 
+def slash_url_suffix(url, suffix):
+    """Adds a slash either to the beginning or the end of a suffix
+    (which is to be appended to a URL), depending on whether or not
+    the URL ends with a slash."""
+
+    return url.endswith('/') and ('%s/' % suffix) or ('/%s' % suffix)
+
+
 def get_security_endpoint_name(endpoint):
     return '%s.%s' % (_security.blueprint_name, endpoint)
 
@@ -191,18 +215,35 @@ def url_for_security(endpoint, **values):
     return url_for(endpoint, **values)
 
 
-def get_post_action_redirect(config_key):
-    return (get_url(request.args.get('next')) or
-            get_url(request.form.get('next')) or
-            find_redirect(config_key))
+def validate_redirect_url(url):
+    if url is None or url.strip() == '':
+        return False
+    url_next = urlsplit(url)
+    url_base = urlsplit(request.host_url)
+    if (url_next.netloc or url_next.scheme) and url_next.netloc != url_base.netloc:
+        return False
+    return True
 
 
-def get_post_login_redirect():
-    return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW')
+def get_post_action_redirect(config_key, declared=None):
+    urls = [
+        get_url(request.args.get('next')),
+        get_url(request.form.get('next')),
+        find_redirect(config_key)
+    ]
+    if declared:
+        urls.insert(0, declared)
+    for url in urls:
+        if validate_redirect_url(url):
+            return url
 
 
-def get_post_register_redirect():
-    return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW')
+def get_post_login_redirect(declared=None):
+    return get_post_action_redirect('SECURITY_POST_LOGIN_VIEW', declared)
+
+
+def get_post_register_redirect(declared=None):
+    return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW', declared)
 
 
 def find_redirect(key):
@@ -321,11 +362,7 @@ def get_token_status(token, serializer, max_age=None):
     except SignatureExpired:
         d, data = serializer.loads_unsafe(token)
         expired = True
-    except BadSignature:
-        invalid = True
-    except TypeError:
-        invalid = True
-    except ValueError:
+    except (BadSignature, TypeError, ValueError):
         invalid = True
 
     if data:
@@ -398,56 +435,3 @@ def capture_reset_password_requests(reset_password_sent_at=None):
         yield reset_requests
     finally:
         reset_password_instructions_sent.disconnect(_on)
-
-
-class CaptureSignals(object):
-    """Testing utility for capturing blinker signals.
-
-    Context manager which mocks out selected signals and registers which are `sent` on and what
-    arguments were sent. Instantiate with a list of blinker `NamedSignals` to patch. Each signal
-    has it's `send` mocked out.
-    """
-    def __init__(self, signals):
-        """Patch all given signals and make them available as attributes.
-
-        :param signals: list of signals
-        """
-        self._records = {}
-        self._receivers = {}
-        for signal in signals:
-            self._records[signal] = []
-            self._receivers[signal] = functools.partial(self._record, signal)
-
-    def __getitem__(self, signal):
-        """All captured signals are available via `ctxt[signal]`.
-        """
-        if isinstance(signal, blinker.base.NamedSignal):
-            return self._records[signal]
-        else:
-            super(CaptureSignals, self).__setitem__(signal)
-
-    def _record(self, signal, *args, **kwargs):
-        self._records[signal].append((args, kwargs))
-
-    def __enter__(self):
-        for signal, receiver in self._receivers.items():
-            signal.connect(receiver)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        for signal, receiver in self._receivers.items():
-            signal.disconnect(receiver)
-
-    def signals_sent(self):
-        """Return a set of the signals sent.
-        :rtype: list of blinker `NamedSignals`.
-        """
-        return set([signal for signal, _ in self._records.items() if self._records[signal]])
-
-
-def capture_signals():
-    """Factory method that creates a `CaptureSignals` with all the flask_security signals."""
-    return CaptureSignals([user_registered, user_confirmed,
-                           confirm_instructions_sent, login_instructions_sent,
-                           password_reset, password_changed,
-                           reset_password_instructions_sent])

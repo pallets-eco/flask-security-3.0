@@ -15,7 +15,7 @@ Core
 ``SECURITY_URL_PREFIX``                  Specifies the URL prefix for the
                                          Flask-Security blueprint. Defaults to
                                          ``None``.
-``SECURITY_FLASH_MESSAGES``              Specifies wether or not to flash
+``SECURITY_FLASH_MESSAGES``              Specifies whether or not to flash
                                          messages during security procedures.
                                          Defaults to ``True``.
 ``SECURITY_PASSWORD_HASH``               Specifies the password hash algorithm to
@@ -31,12 +31,16 @@ Core
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to
                                          ``no-reply@localhost``.
-``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query sting parameter to
+``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query string parameter to
                                          read when using token authentication.
                                          Defaults to ``auth_token``.
 ``SECURITY_TOKEN_AUTHENTICATION_HEADER`` Specifies the HTTP header to read when
                                          using token authentication. Defaults to
                                          ``Authentication-Token``.
+``SECURITY_TOKEN_MAX_AGE``               Specifies the number of seconds before
+                                         an authentication token expires.
+                                         Defaults to None, meaning the token
+                                         never expires.
 ``SECURITY_DEFAULT_HTTP_AUTH_REALM``     Specifies the default authentication
                                          realm when using basic HTTP auth.
                                          Defaults to ``Login Required``
@@ -69,37 +73,37 @@ URLs and Views
 ``SECURITY_CONFIRM_ERROR_VIEW`` Specifies the view to redirect to if a
                                 confirmation error occurs. This value can be set
                                 to a URL or an endpoint name. If this value is
-                                ``None`` the user is presented the default view
+                                ``None``, the user is presented the default view
                                 to resend a confirmation link. Defaults to
                                 ``None``.
 ``SECURITY_POST_REGISTER_VIEW`` Specifies the view to redirect to after a user
                                 successfully registers. This value can be set to
                                 a URL or an endpoint name. If this value is
-                                ``None`` the user is redirected to the value of
+                                ``None``, the user is redirected to the value of
                                 ``SECURITY_POST_LOGIN_VIEW``. Defaults to
                                 ``None``.
 ``SECURITY_POST_CONFIRM_VIEW``  Specifies the view to redirect to after a user
                                 successfully confirms their email. This value
                                 can be set to a URL or an endpoint name. If this
-                                value is ``None`` the user is redirected  to the
+                                value is ``None``, the user is redirected  to the
                                 value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
                                 to ``None``.
 ``SECURITY_POST_RESET_VIEW``    Specifies the view to redirect to after a user
                                 successfully resets their password. This value
                                 can be set to a URL or an endpoint name. If this
-                                value is ``None`` the user is redirected  to the
+                                value is ``None``, the user is redirected  to the
                                 value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
                                 to ``None``.
 ``SECURITY_POST_CHANGE_VIEW``   Specifies the view to redirect to after a user
                                 successfully changes their password. This value
                                 can be set to a URL or an endpoint name. If this
-                                value is ``None`` the user is redirected  to the
+                                value is ``None``, the user is redirected  to the
                                 value of ``SECURITY_POST_LOGIN_VIEW``. Defaults
                                 to ``None``.
 ``SECURITY_UNAUTHORIZED_VIEW``  Specifies the view to redirect to if a user
                                 attempts to access a URL/endpoint that they do
                                 not have permission to access. If this value is
-                                ``None`` the user is presented with a default
+                                ``None``, the user is presented with a default
                                 HTTP 403 response. Defaults to ``None``.
 =============================== ================================================
 
@@ -144,7 +148,7 @@ Feature Flags
 ========================= ======================================================
 ``SECURITY_CONFIRMABLE``  Specifies if users are required to confirm their email
                           address when registering a new account. If this value
-                          is `True` Flask-Security creates an endpoint to handle
+                          is `True`, Flask-Security creates an endpoint to handle
                           confirmations and requests to resend confirmation
                           instructions. The URL for this endpoint is specified
                           by the ``SECURITY_CONFIRM_URL`` configuration option.
@@ -158,11 +162,12 @@ Feature Flags
                           specified by the ``SECURITY_RESET_URL`` configuration
                           option. Defaults to ``False``.
 ``SECURITY_TRACKABLE``    Specifies if Flask-Security should track basic user
-                          login statistics. If set to ``True`` ensure your
-                          models have the required fields/attribues. Defaults to
+                          login statistics. If set to ``True``, ensure your
+                          models have the required fields/attribues. Be sure to
+                          use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>` if you are using a proxy. Defaults to
                           ``False``
 ``SECURITY_PASSWORDLESS`` Specifies if Flask-Security should enable the
-                          passwordless login feature. If set to ``True`` users
+                          passwordless login feature. If set to ``True``, users
                           are not required to enter a password to login but are
                           sent an email with a login link. This feature is
                           experimental and should be used with caution. Defaults

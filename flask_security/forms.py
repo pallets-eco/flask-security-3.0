@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.forms
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.forms
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security forms module
 
@@ -10,20 +10,16 @@
 """
 
 import inspect
-try:
-    from urlparse import urlsplit
-except ImportError:
-    from urllib.parse import urlsplit
 
-from flask import request, current_app
+from flask import request, current_app, flash
 from flask_wtf import Form as BaseForm
-from wtforms import TextField, PasswordField, validators, \
+from wtforms import StringField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value
+from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -79,13 +75,13 @@ def get_form_field_label(key):
 
 
 def unique_user_email(form, field):
-    if _datastore.find_user(email=field.data) is not None:
+    if _datastore.get_user(field.data) is not None:
         msg = get_message('EMAIL_ALREADY_ASSOCIATED', email=field.data)[0]
         raise ValidationError(msg)
 
 
 def valid_user_email(form, field):
-    form.user = _datastore.find_user(email=field.data)
+    form.user = _datastore.get_user(field.data)
     if form.user is None:
         raise ValidationError(get_message('USER_DOES_NOT_EXIST')[0])
 
@@ -98,20 +94,20 @@ class Form(BaseForm):
 
 
 class EmailFormMixin():
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator])
 
 
 class UserEmailFormMixin():
     user = None
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, valid_user_email])
 
 
 class UniqueEmailFormMixin():
-    email = TextField(
+    email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, unique_user_email])
 
@@ -137,12 +133,10 @@ class NextFormMixin():
     next = HiddenField()
 
     def validate_next(self, field):
-        if field.data:
-            url_next = urlsplit(field.data)
-            url_base = urlsplit(request.host_url)
-            if url_next.netloc and url_next.netloc != url_base.netloc:
-                field.data = ''
-                raise ValidationError(get_message('INVALID_REDIRECT')[0])
+        if field.data and not validate_redirect_url(field.data):
+            field.data = ''
+            flash(*get_message('INVALID_REDIRECT'))
+            raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
 class RegisterFormMixin():
@@ -181,6 +175,14 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
 
     submit = SubmitField(get_form_field_label('recover_password'))
 
+    def validate(self):
+        if not super(ForgotPasswordForm, self).validate():
+            return False
+        if requires_confirmation(self.user):
+            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            return False
+        return True
+
 
 class PasswordlessLoginForm(Form, UserEmailFormMixin):
     """The passwordless login form"""
@@ -202,13 +204,15 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = TextField(get_form_field_label('email'))
+    email = StringField(get_form_field_label('email'))
     password = PasswordField(get_form_field_label('password'))
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = request.args.get('next', '')
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
 
     def validate(self):
@@ -222,7 +226,6 @@ class LoginForm(Form, NextFormMixin):
         if self.password.data.strip() == '':
             self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
-
 
         self.user = _datastore.get_user(self.email.data)
 
@@ -249,8 +252,12 @@ class ConfirmRegisterForm(Form, RegisterFormMixin,
     pass
 
 
-class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin):
-    pass
+class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
+                   NextFormMixin):
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = request.args.get('next', '')
 
 
 class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
@@ -276,9 +283,6 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if not super(ChangePasswordForm, self).validate():
             return False
 
-        if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
-            return False
         if not verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False

@@ -3,6 +3,38 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.7.4
+-------------
+
+Released October 13th 2014
+
+- Fixed a bug related to changing existing passwords from plaintext to hashed
+- Fixed a bug in form validation that did not enforce case insensivitiy
+- Fixed a bug with validating redirects
+
+
+Version 1.7.3
+-------------
+
+Released June 10th 2014
+
+- Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not respected
+- Fixed string encoding in various places to be friendly to unicode
+- Now using `werkzeug.security.safe_str_cmp` to check tokens
+- Removed user information from JSON output on `/reset` responses
+- Added Python 3.4 support
+
+
+Version 1.7.2
+-------------
+
+Released May 6th 2014
+
+- Updated IP tracking to check for `X-Forwarded-For` header
+- Fixed a bug regarding the re-hashing of passwords with a new algorithm
+- Fixed a bug regarding the `password_changed` signal.
+
+
 Version 1.7.1
 -------------
 

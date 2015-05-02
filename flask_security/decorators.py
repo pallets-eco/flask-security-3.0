@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.decorators
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.decorators
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security decorators module
 
@@ -13,8 +13,8 @@ from collections import namedtuple
 from functools import wraps
 
 from flask import current_app, Response, request, redirect, _request_ctx_stack
-from flask.ext.login import current_user, login_required
-from flask.ext.principal import RoleNeed, Permission, Identity, identity_changed
+from flask_login import current_user, login_required  # pragma: no flakes
+from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 
 from . import utils
@@ -90,9 +90,12 @@ def http_auth_required(realm):
         def wrapper(*args, **kwargs):
             if _check_http_auth():
                 return fn(*args, **kwargs)
-            r = _security.default_http_auth_realm if callable(realm) else realm
-            h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
-            return _get_unauthorized_response(headers=h)
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                r = _security.default_http_auth_realm if callable(realm) else realm
+                h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
+                return _get_unauthorized_response(headers=h)
         return wrapper
 
     if callable(realm):
@@ -112,7 +115,10 @@ def auth_token_required(fn):
     def decorated(*args, **kwargs):
         if _check_token():
             return fn(*args, **kwargs)
-        return _get_unauthorized_response()
+        if _security._unauthorized_callback:
+            return _security._unauthorized_callback()
+        else:
+            return _get_unauthorized_response()
     return decorated
 
 
@@ -137,11 +143,18 @@ def auth_required(*auth_methods):
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
-            mechanisms = [login_mechanisms.get(method) for method in auth_methods]
-            for mechanism in mechanisms:
+            h = {}
+            mechanisms = [(method, login_mechanisms.get(method)) for method in auth_methods]
+            for method, mechanism in mechanisms:
                 if mechanism and mechanism():
                     return fn(*args, **kwargs)
-            return _get_unauthorized_response()
+                elif method == 'basic':
+                    r = _security.default_http_auth_realm
+                    h['WWW-Authenticate'] = 'Basic realm="%s"' % r
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                return _get_unauthorized_response(headers=h)
         return decorated_view
     return wrapper
 
@@ -166,7 +179,10 @@ def roles_required(*roles):
             perms = [Permission(RoleNeed(role)) for role in roles]
             for perm in perms:
                 if not perm.can():
-                    return _get_unauthorized_view()
+                    if _security._unauthorized_callback:
+                        return _security._unauthorized_callback()
+                    else:
+                        return _get_unauthorized_view()
             return fn(*args, **kwargs)
         return decorated_view
     return wrapper
@@ -192,7 +208,10 @@ def roles_accepted(*roles):
             perm = Permission(*[RoleNeed(role) for role in roles])
             if perm.can():
                 return fn(*args, **kwargs)
-            return _get_unauthorized_view()
+            if _security._unauthorized_callback:
+                return _security._unauthorized_callback()
+            else:
+                return _get_unauthorized_view()
         return decorated_view
     return wrapper
 
