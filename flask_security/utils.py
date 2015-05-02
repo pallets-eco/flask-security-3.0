@@ -63,7 +63,8 @@ def login_user(user, remember=None):
 
     if _security.trackable:
         if 'X-Forwarded-For' in request.headers:
-            remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+            remote_addr = request.headers.getlist(
+                "X-Forwarded-For")[0].rpartition(' ')[-1]
         else:
             remote_addr = request.remote_addr or 'untrackable'
 
@@ -133,7 +134,8 @@ def verify_and_update_password(password, user):
 
     if _pwd_context.identify(user.password) != 'plaintext':
         password = get_hmac(password)
-    verified, new_password = _pwd_context.verify_and_update(password, user.password)
+    verified, new_password = _pwd_context.verify_and_update(
+        password, user.password)
     if verified and new_password:
         user.password = encrypt_password(password)
         _datastore.put(user)
@@ -331,9 +333,9 @@ def send_mail(subject, recipient, template, **context):
 
     ctx = ('security/email', template)
     if config_value('EMAIL_PLAINTEXT'):
-	    msg.body = render_template('%s/%s.txt' % ctx, **context)
+        msg.body = render_template('%s/%s.txt' % ctx, **context)
     if config_value('EMAIL_HTML'):
-	    msg.html = render_template('%s/%s.html' % ctx, **context)
+        msg.html = render_template('%s/%s.html' % ctx, **context)
 
     if _security._send_mail_task:
         _security._send_mail_task(msg)
