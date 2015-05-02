@@ -11,7 +11,8 @@ import pytest
 from flask_security import Security
 from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
-    ChangePasswordForm, TextField, PasswordField, email_required, email_validator, valid_user_email
+    ChangePasswordForm, StringField, PasswordField, email_required, email_validator, \
+    valid_user_email
 from flask_security.utils import capture_reset_password_requests, md5, string_types
 
 from utils import authenticate, init_app_with_options, populate_data
@@ -41,17 +42,17 @@ def test_register_blueprint_flag(app, sqlalchemy_datastore):
 @pytest.mark.changeable()
 def test_basic_custom_forms(app, sqlalchemy_datastore):
     class MyLoginForm(LoginForm):
-        email = TextField('My Login Email Address Field')
+        email = StringField('My Login Email Address Field')
 
     class MyRegisterForm(RegisterForm):
-        email = TextField('My Register Email Address Field')
+        email = StringField('My Register Email Address Field')
 
     class MyForgotPasswordForm(ForgotPasswordForm):
-        email = TextField('My Forgot Email Address Field',
-                          validators=[email_required, email_validator, valid_user_email])
+        email = StringField('My Forgot Email Address Field',
+                            validators=[email_required, email_validator, valid_user_email])
 
     class MyResetPasswordForm(ResetPasswordForm):
-        password = TextField('My Reset Password Field')
+        password = StringField('My Reset Password Field')
 
     class MyChangePasswordForm(ChangePasswordForm):
         password = PasswordField('My Change Password Field')
@@ -96,10 +97,10 @@ def test_confirmable_custom_form(app, sqlalchemy_datastore):
     app.config['SECURITY_CONFIRMABLE'] = True
 
     class MyRegisterForm(ConfirmRegisterForm):
-        email = TextField('My Register Email Address Field')
+        email = StringField('My Register Email Address Field')
 
     class MySendConfirmationForm(SendConfirmationForm):
-        email = TextField('My Send Confirmation Email Address Field')
+        email = StringField('My Send Confirmation Email Address Field')
 
     app.security = Security(app,
                             datastore=sqlalchemy_datastore,
@@ -119,7 +120,7 @@ def test_passwordless_custom_form(app, sqlalchemy_datastore):
     app.config['SECURITY_PASSWORDLESS'] = True
 
     class MyPasswordlessLoginForm(PasswordlessLoginForm):
-        email = TextField('My Passwordless Email Address Field')
+        email = StringField('My Passwordless Email Address Field')
 
     app.security = Security(app,
                             datastore=sqlalchemy_datastore,
