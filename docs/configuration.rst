@@ -31,7 +31,7 @@ Core
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to
                                          ``no-reply@localhost``.
-``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query sting parameter to
+``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query string parameter to
                                          read when using token authentication.
                                          Defaults to ``auth_token``.
 ``SECURITY_TOKEN_AUTHENTICATION_HEADER`` Specifies the HTTP header to read when
