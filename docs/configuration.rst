@@ -37,6 +37,10 @@ Core
 ``SECURITY_TOKEN_AUTHENTICATION_HEADER`` Specifies the HTTP header to read when
                                          using token authentication. Defaults to
                                          ``Authentication-Token``.
+``SECURITY_TOKEN_MAX_AGE``               Specifies the number of seconds before
+                                         an authentication token expires.
+                                         Defaults to None, meaning the token
+                                         never expires.
 ``SECURITY_DEFAULT_HTTP_AUTH_REALM``     Specifies the default authentication
                                          realm when using basic HTTP auth.
                                          Defaults to ``Login Required``
