@@ -333,7 +333,7 @@ def send_mail(subject, recipient, template, **context):
     mail.send(msg)
 
 
-def get_token_status(token, serializer, max_age=None):
+def get_token_status(token, serializer, max_age=None, return_data=False):
     """Get the status of a token.
 
     :param token: The token to check
@@ -359,7 +359,11 @@ def get_token_status(token, serializer, max_age=None):
         user = _datastore.find_user(id=data[0])
 
     expired = expired and (user is not None)
-    return expired, invalid, user
+
+    if return_data:
+        return expired, invalid, user, data
+    else:
+        return expired, invalid, user
 
 
 def get_identity_attributes(app=None):
