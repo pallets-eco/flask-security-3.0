@@ -35,8 +35,7 @@ def send_reset_password_instructions(user):
               'reset_instructions',
               user=user, reset_link=reset_link)
 
-    reset_password_instructions_sent.send(app._get_current_object(),
-                                          user=user, token=token)
+    reset_password_instructions_sent.send(app._get_current_object(), user=user, token=token)
 
 
 def send_password_reset_notice(user):

@@ -10,6 +10,8 @@ import time
 
 import pytest
 
+from flask import Flask
+from flask_security.core import UserMixin
 from flask_security.signals import user_confirmed, confirm_instructions_sent
 from flask_security.utils import capture_registrations
 
@@ -25,10 +27,14 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
 
     @user_confirmed.connect_via(app)
     def on_confirmed(app, user):
+        assert isinstance(app, Flask)
+        assert isinstance(user, UserMixin)
         recorded_confirms.append(user)
 
     @confirm_instructions_sent.connect_via(app)
     def on_instructions_sent(app, user):
+        assert isinstance(app, Flask)
+        assert isinstance(user, UserMixin)
         recorded_instructions_sent.append(user)
 
     # Test login before confirmation
