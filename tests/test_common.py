@@ -226,6 +226,19 @@ def test_multi_auth_basic(client):
     assert response.status_code == 401
 
 
+def test_multi_auth_basic_invalid(client):
+    response = client.get('/multi_auth', headers={
+        'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
+    })
+    assert b'<h1>Unauthorized</h1>' in response.data
+    assert 'WWW-Authenticate' in response.headers
+    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
+
+    response = client.get('/multi_auth')
+    print(response.headers)
+    assert response.status_code == 401
+
+
 def test_multi_auth_token(client):
     response = json_authenticate(client)
     token = response.jdata['response']['user']['authentication_token']

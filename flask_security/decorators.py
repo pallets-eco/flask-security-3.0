@@ -137,11 +137,15 @@ def auth_required(*auth_methods):
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
-            mechanisms = [login_mechanisms.get(method) for method in auth_methods]
-            for mechanism in mechanisms:
+            h = {}
+            mechanisms = [(method, login_mechanisms.get(method)) for method in auth_methods]
+            for method, mechanism in mechanisms:
                 if mechanism and mechanism():
                     return fn(*args, **kwargs)
-            return _get_unauthorized_response()
+                elif method == 'basic':
+                    r = _security.default_http_auth_realm
+                    h['WWW-Authenticate'] = 'Basic realm="%s"' % r
+            return _get_unauthorized_response(headers=h)
         return decorated_view
     return wrapper
 
