@@ -154,7 +154,7 @@ def auth_required(*auth_methods):
             if _security._unauthorized_callback:
                 return _security._unauthorized_callback()
             else:
-                return _get_unauthorized_response()
+                return _get_unauthorized_response(headers=h)
         return decorated_view
     return wrapper
 
