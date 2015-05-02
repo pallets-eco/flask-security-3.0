@@ -195,7 +195,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
     def _is_numeric(self, value):
         try:
             int(value)
-        except ValueError:
+        except (TypeError, ValueError):
             return False
         return True
 
