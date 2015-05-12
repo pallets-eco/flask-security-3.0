@@ -148,6 +148,21 @@ def test_used_reset_token(client, get_message):
     assert msg in response2.data
 
 
+def test_reset_passwordless_user(client, get_message):
+    with capture_reset_password_requests() as requests:
+        client.post('/reset', data=dict(email='jess@lp.com'), follow_redirects=True)
+
+    token = requests[0]['token']
+
+    # use the token
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    }, follow_redirects=True)
+
+    assert get_message('PASSWORD_RESET') in response.data
+
+
 @pytest.mark.settings(reset_url='/custom_reset')
 def test_custom_reset_url(client):
     response = client.get('/custom_reset')
