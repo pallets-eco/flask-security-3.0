@@ -11,6 +11,7 @@
 
 from flask import current_app as app
 from werkzeug.local import LocalProxy
+from werkzeug.security import safe_str_cmp
 
 from .signals import password_reset, reset_password_instructions_sent
 from .utils import send_mail, md5, encrypt_password, url_for_security, \
@@ -66,11 +67,13 @@ def reset_password_token_status(token):
 
     :param token: The password reset token
     """
-    expired, invalid, user, data = get_token_status(token, 'reset', 'RESET_PASSWORD', return_data=True)
+    expired, invalid, user, data = get_token_status(token, 'reset', 'RESET_PASSWORD',
+                                                    return_data=True)
     if not invalid:
-        password_hash = md5(user.password) if user.password else None
-        if password_hash != data[1]:
-            invalid = True
+        if user.password:
+            password_hash = md5(user.password)
+            if not safe_str_cmp(password_hash, data[1]):
+                invalid = True
 
     return expired, invalid, user
 
