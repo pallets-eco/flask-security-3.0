@@ -137,7 +137,7 @@ def auth_required(*auth_methods):
     login_mechanisms = {
         'token': lambda: _check_token(),
         'basic': lambda: _check_http_auth(),
-        'session': lambda: current_user.is_authenticated()
+        'session': lambda: current_user.is_authenticated
     }
 
     def wrapper(fn):
@@ -219,7 +219,7 @@ def roles_accepted(*roles):
 def anonymous_user_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             return redirect(utils.get_url(_security.post_login_view))
         return f(*args, **kwargs)
     return wrapper
