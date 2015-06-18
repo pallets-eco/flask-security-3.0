@@ -187,6 +187,10 @@ _default_forms = {
 }
 
 
+# TMP : small fix to current_user to handle different flask-login's UserMixin version during transition
+if not isinstance(AnonymousUserMixin.is_authenticated, property):
+    AnonymousUserMixin.is_authenticated = property(lambda self: False)
+
 def _user_loader(user_id):
     return _security.datastore.find_user(id=user_id)
 
