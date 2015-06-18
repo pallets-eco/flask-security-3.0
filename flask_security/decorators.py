@@ -56,7 +56,7 @@ def _check_token():
 
     user = _security.login_manager.token_callback(token)
 
-    if user and user.is_authenticated:
+    if user and user.is_authenticated_compat:
 
         app = current_app._get_current_object()
         _request_ctx_stack.top.user = user
@@ -138,7 +138,7 @@ def auth_required(*auth_methods):
     login_mechanisms = {
         'token': lambda: _check_token(),
         'basic': lambda: _check_http_auth(),
-        'session': lambda: current_user.is_authenticated
+        'session': lambda: current_user.is_authenticated_compat
     }
 
     def wrapper(fn):
@@ -220,7 +220,7 @@ def roles_accepted(*roles):
 def anonymous_user_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if current_user.is_authenticated:
+        if current_user.is_authenticated_compat:
             return redirect(utils.get_url(_security.post_login_view))
         return f(*args, **kwargs)
     return wrapper

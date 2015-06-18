@@ -90,7 +90,7 @@ def login():
 def logout():
     """View function which handles a logout request."""
 
-    if current_user.is_authenticated:
+    if current_user.is_authenticated_compat:
         logout_user()
 
     return redirect(request.args.get('next', None) or
