@@ -23,7 +23,10 @@ Core
                                          passwords. Recommended values for
                                          production systems are ``bcrypt``,
                                          ``sha512_crypt``, or ``pbkdf2_sha512``.
-                                         Defaults to ``plaintext``.
+                                         Defaults to ``plaintext``. Note:
+                                         ``bcrypt>=2.0.0`` is not currently
+                                         supported. If ``bcrypt`` is preferred,
+                                         please use ``bcrypt<2.0``.
 ``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
                                          used if the password hash type is set
                                          to something other than plain text.
