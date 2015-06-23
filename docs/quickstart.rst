@@ -27,8 +27,8 @@ possible using SQLAlchemy:
 ::
 
     from flask import Flask, render_template
-    from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.security import Security, SQLAlchemyUserDatastore, \
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_security import Security, SQLAlchemyUserDatastore, \
         UserMixin, RoleMixin, login_required
 
     # Create app
@@ -100,8 +100,8 @@ possible using MongoEngine:
 ::
 
     from flask import Flask, render_template
-    from flask.ext.mongoengine import MongoEngine
-    from flask.ext.security import Security, MongoEngineUserDatastore, \
+    from flask_mongoengine import MongoEngine
+    from flask_security import Security, MongoEngineUserDatastore, \
         UserMixin, RoleMixin, login_required
 
     # Create app
@@ -169,7 +169,7 @@ possible using Peewee:
     from flask import Flask, render_template
     from flask_peewee.db import Database
     from peewee import *
-    from flask.ext.security import Security, PeeweeUserDatastore, \
+    from flask_security import Security, PeeweeUserDatastore, \
         UserMixin, RoleMixin, login_required
 
     # Create app
