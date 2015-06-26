@@ -268,4 +268,9 @@ Miscellaneous
 ``SECURITY_DEFAULT_REMEMBER_ME``              Specifies the default "remember
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
+``POST_LOGIN_ALLOW_REDIRECT_DOMAIN``          Specifies domain allowed to be
+                                              redirected to after login. You can
+                                              use wildcard patterns like 
+                                              ``*.doumail.com``. Defaults to the
+                                              host of the login view.
 ============================================= ==================================
