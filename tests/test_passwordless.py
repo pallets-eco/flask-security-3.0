@@ -10,8 +10,10 @@ import time
 
 import pytest
 
+from flask import Flask
+from flask_security.core import UserMixin
 from flask_security.signals import login_instructions_sent
-from flask_security.utils import capture_passwordless_login_requests
+from flask_security.utils import capture_passwordless_login_requests, string_types
 
 from utils import logout
 
@@ -23,6 +25,9 @@ def test_trackable_flag(app, client, get_message):
 
     @login_instructions_sent.connect_via(app)
     def on_instructions_sent(app, user, login_token):
+        assert isinstance(app, Flask)
+        assert isinstance(user, UserMixin)
+        assert isinstance(login_token, string_types)
         recorded.append(user)
 
     # Test disabled account

@@ -10,8 +10,10 @@ import time
 
 import pytest
 
+from flask import Flask
+from flask_security.core import UserMixin
 from flask_security.signals import reset_password_instructions_sent, password_reset
-from flask_security.utils import capture_reset_password_requests
+from flask_security.utils import capture_reset_password_requests, string_types
 
 from utils import authenticate, logout
 
@@ -28,6 +30,9 @@ def test_recoverable_flag(app, client, get_message):
 
     @reset_password_instructions_sent.connect_via(app)
     def on_instructions_sent(app, user, token):
+        assert isinstance(app, Flask)
+        assert isinstance(user, UserMixin)
+        assert isinstance(token, string_types)
         recorded_instructions_sent.append(user)
 
     # Test the reset view
@@ -115,6 +120,47 @@ def test_expired_reset_token(client, get_message):
 
     msg = get_message('PASSWORD_RESET_EXPIRED', within='1 milliseconds', email=user.email)
     assert msg in response.data
+
+
+def test_used_reset_token(client, get_message):
+    with capture_reset_password_requests() as requests:
+        client.post('/reset', data=dict(email='joe@lp.com'), follow_redirects=True)
+
+    token = requests[0]['token']
+
+    # use the token
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    }, follow_redirects=True)
+
+    assert get_message('PASSWORD_RESET') in response.data
+
+    logout(client)
+
+    # attempt to use it a second time
+    response2 = client.post('/reset/' + token, data={
+        'password': 'otherpassword',
+        'password_confirm': 'otherpassword'
+    }, follow_redirects=True)
+
+    msg = get_message('INVALID_RESET_PASSWORD_TOKEN')
+    assert msg in response2.data
+
+
+def test_reset_passwordless_user(client, get_message):
+    with capture_reset_password_requests() as requests:
+        client.post('/reset', data=dict(email='jess@lp.com'), follow_redirects=True)
+
+    token = requests[0]['token']
+
+    # use the token
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    }, follow_redirects=True)
+
+    assert get_message('PASSWORD_RESET') in response.data
 
 
 @pytest.mark.settings(reset_url='/custom_reset')

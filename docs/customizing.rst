@@ -73,8 +73,8 @@ register form or override validators::
     from flask_security.forms import RegisterForm
 
     class ExtendedRegisterForm(RegisterForm):
-        first_name = TextField('First Name', [Required()])
-        last_name = TextField('Last Name', [Required()])
+        first_name = StringField('First Name', [Required()])
+        last_name = StringField('Last Name', [Required()])
 
     security = Security(app, user_datastore,
              register_form=ExtendedRegisterForm)
