@@ -115,7 +115,7 @@ class _ToggleActiveCommand(Command):
 
 
 class DeactivateUserCommand(_ToggleActiveCommand):
-    """Deactive a user"""
+    """Deactivate a user"""
 
     @commit
     def run(self, user_identifier):
