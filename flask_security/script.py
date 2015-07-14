@@ -15,8 +15,6 @@ try:
 except ImportError:
     import json
 
-import re
-
 from flask import current_app
 from flask_script import Command, Option
 from werkzeug.local import LocalProxy
@@ -44,15 +42,11 @@ class CreateUserCommand(Command):
     option_list = (
         Option('-e', '--email', dest='email', default=None),
         Option('-p', '--password', dest='password', default=None),
-        Option('-a', '--active', dest='active', default=''),
+        Option('-a', '--active', dest='active', action='store_true'),
     )
 
     @commit
     def run(self, **kwargs):
-        # sanitize active input
-        ai = re.sub(r'\s', '', str(kwargs['active']))
-        kwargs['active'] = ai.lower() in ['', 'y', 'yes', '1', 'active']
-
         from flask_security.forms import ConfirmRegisterForm
         from werkzeug.datastructures import MultiDict
 
