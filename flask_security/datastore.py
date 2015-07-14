@@ -84,6 +84,11 @@ class UserDatastore(object):
         kwargs['roles'] = roles
         return kwargs
 
+    def _prepare_active_modify_args(self, user):
+        if isinstance(user, string_types):
+            user = self.find_user(email=user)
+        return user
+
     def get_user(self, id_or_email):
         """Returns a user matching the specified ID or email address."""
         raise NotImplementedError
@@ -125,6 +130,8 @@ class UserDatastore(object):
 
     def toggle_active(self, user):
         """Toggles a user's active status. Always returns True."""
+        user = self._prepare_active_modify_args(user)
+
         user.active = not user.active
         return True
 
@@ -133,6 +140,8 @@ class UserDatastore(object):
 
         :param user: The user to deactivate
         """
+        user = self._prepare_active_modify_args(user)
+
         if user.active:
             user.active = False
             return True
@@ -143,6 +152,8 @@ class UserDatastore(object):
 
         :param user: The user to activate
         """
+        user = self._prepare_active_modify_args(user)
+
         if not user.active:
             user.active = True
             return True
