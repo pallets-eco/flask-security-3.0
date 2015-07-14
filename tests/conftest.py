@@ -210,7 +210,7 @@ def peewee_datastore(request, app, tmpdir):
 
     class User(db.Model, UserMixin):
         email = TextField()
-        username = TextField()
+        username = TextField(null=True)
         password = TextField(null=True)
         last_login_at = DateTimeField(null=True)
         current_login_at = DateTimeField(null=True)
