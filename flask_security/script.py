@@ -40,7 +40,7 @@ class CreateUserCommand(Command):
     """Create a user"""
 
     option_list = (
-        Option('-e', '--email', dest='email', default=None),
+        Option('-e', '--email', dest='email', default=None, required=True),
         Option('-p', '--password', dest='password', default=None),
         Option('-a', '--active', dest='active', action='store_true'),
     )
@@ -67,7 +67,7 @@ class CreateRoleCommand(Command):
     """Create a role"""
 
     option_list = (
-        Option('-n', '--name', dest='name', default=None),
+        Option('-n', '--name', dest='name', default=None, required=True),
         Option('-d', '--desc', dest='description', default=None),
     )
 
@@ -79,8 +79,8 @@ class CreateRoleCommand(Command):
 
 class _RoleCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
-        Option('-r', '--role', dest='role_name'),
+        Option('-u', '--user', dest='user_identifier', required=True),
+        Option('-r', '--role', dest='role_name', required=True),
     )
 
 
@@ -104,7 +104,7 @@ class RemoveRoleCommand(_RoleCommand):
 
 class _ToggleActiveCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
+        Option('-u', '--user', dest='user_identifier', required=True),
     )
 
 
