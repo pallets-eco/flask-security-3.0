@@ -55,6 +55,17 @@ def test_create_active_user(manager, datastore):
     assert user.active
 
 
+def test_create_existing_user(manager, datastore):
+    with pytest.raises(SystemExit) as excinfo:
+        manager.handle('manage', args=(
+            'create-user',
+            '--email', 'tiya@lp.com',
+            '--password', 'too many cooks',
+            '--active'))
+
+    assert excinfo.value.code != 0
+
+
 def test_toggle_user_active(manager, datastore):
     email = 'tiya@lp.com'
     user = datastore.find_user(email=email)

@@ -61,6 +61,7 @@ class CreateUserCommand(Command):
         else:
             print('Error creating user')
             pprint(form.errors)
+            raise SystemExit(1)
 
 
 class CreateRoleCommand(Command):
