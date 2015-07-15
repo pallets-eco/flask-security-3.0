@@ -133,6 +133,7 @@ class UserDatastore(object):
         user = self._prepare_active_modify_args(user)
 
         user.active = not user.active
+        self.put(user)
         return True
 
     def deactivate_user(self, user):
@@ -144,6 +145,7 @@ class UserDatastore(object):
 
         if user.active:
             user.active = False
+            self.put(user)
             return True
         return False
 
@@ -156,6 +158,7 @@ class UserDatastore(object):
 
         if not user.active:
             user.active = True
+            self.put(user)
             return True
         return False
 
