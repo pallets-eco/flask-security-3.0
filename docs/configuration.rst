@@ -23,7 +23,10 @@ Core
                                          passwords. Recommended values for
                                          production systems are ``bcrypt``,
                                          ``sha512_crypt``, or ``pbkdf2_sha512``.
-                                         Defaults to ``plaintext``.
+                                         Defaults to ``plaintext``. Note:
+                                         ``bcrypt>=2.0.0`` is not currently
+                                         supported. If ``bcrypt`` is preferred,
+                                         please use ``bcrypt<2.0``.
 ``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
                                          used if the password hash type is set
                                          to something other than plain text.
@@ -266,3 +269,44 @@ Miscellaneous
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
 ============================================= ==================================
+
+Messages
+-------------
+
+The following are the messages Flask-Security uses.  They are tuples; the first
+element is the message and the second element is the error level.
+
+The default messages and error levels can be found in ``core.py``.
+
+* ``SECURITY_MSG_ALREADY_CONFIRMED``
+* ``SECURITY_MSG_CONFIRMATION_EXPIRED``
+* ``SECURITY_MSG_CONFIRMATION_REQUEST``
+* ``SECURITY_MSG_CONFIRMATION_REQUIRED``
+* ``SECURITY_MSG_CONFIRM_REGISTRATION``
+* ``SECURITY_MSG_DISABLED_ACCOUNT``
+* ``SECURITY_MSG_EMAIL_ALREADY_ASSOCIATED``
+* ``SECURITY_MSG_EMAIL_CONFIRMED``
+* ``SECURITY_MSG_EMAIL_NOT_PROVIDED``
+* ``SECURITY_MSG_INVALID_CONFIRMATION_TOKEN``
+* ``SECURITY_MSG_INVALID_EMAIL_ADDRESS``
+* ``SECURITY_MSG_INVALID_LOGIN_TOKEN``
+* ``SECURITY_MSG_INVALID_PASSWORD``
+* ``SECURITY_MSG_INVALID_REDIRECT``
+* ``SECURITY_MSG_INVALID_RESET_PASSWORD_TOKEN``
+* ``SECURITY_MSG_LOGIN``
+* ``SECURITY_MSG_LOGIN_EMAIL_SENT``
+* ``SECURITY_MSG_LOGIN_EXPIRED``
+* ``SECURITY_MSG_PASSWORDLESS_LOGIN_SUCCESSFUL``
+* ``SECURITY_MSG_PASSWORD_CHANGE``
+* ``SECURITY_MSG_PASSWORD_INVALID_LENGTH``
+* ``SECURITY_MSG_PASSWORD_IS_THE_SAME``
+* ``SECURITY_MSG_PASSWORD_MISMATCH``
+* ``SECURITY_MSG_PASSWORD_NOT_PROVIDED``
+* ``SECURITY_MSG_PASSWORD_NOT_SET``
+* ``SECURITY_MSG_PASSWORD_RESET``
+* ``SECURITY_MSG_PASSWORD_RESET_EXPIRED``
+* ``SECURITY_MSG_PASSWORD_RESET_REQUEST``
+* ``SECURITY_MSG_REFRESH``
+* ``SECURITY_MSG_RETYPE_PASSWORD_MISMATCH``
+* ``SECURITY_MSG_UNAUTHORIZED``
+* ``SECURITY_MSG_USER_DOES_NOT_EXIST``
