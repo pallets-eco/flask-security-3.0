@@ -281,8 +281,6 @@ def get_label(key, **kwargs):
     return rv % kwargs
 
 
-
-
 def config_value(key, app=None, default=None):
     """Get a Flask-Security configuration value.
 

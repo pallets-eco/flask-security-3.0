@@ -19,7 +19,8 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url, get_label
+from .utils import verify_and_update_password, get_message, \
+    config_value, validate_redirect_url, get_label, text_type
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -54,7 +55,7 @@ password_required = Required(message='PASSWORD_NOT_PROVIDED')
 password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
 
-class LabelProxy(unicode):
+class LabelProxy(text_type):
     def __init__(self, key):
         self._key = key
 
@@ -63,6 +64,7 @@ class LabelProxy(unicode):
 
     def __unicode__(self):
         return get_label(self._key)
+
 
 def get_form_field_label(key):
     return LabelProxy(key)
