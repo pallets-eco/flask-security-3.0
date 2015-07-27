@@ -161,7 +161,7 @@ _default_messages = {
     'INVALID_PASSWORD': (
         'Invalid password', 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': (
-        'You have successfuly logged in.', 'success'),
+        'You have successfully logged in.', 'success'),
     'PASSWORD_RESET': (
         'You successfully reset your password and you have been logged in automatically.',
         'success'),
