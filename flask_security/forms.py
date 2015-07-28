@@ -74,7 +74,7 @@ def get_form_field_label(key):
 
 
 def set_validator_message(validator):
-    if validator.message and validator.message.isupper():
+    if hasattr(validator, 'message') and validator.message.isupper():
         validator.message = get_message(validator.message)[0]
 
 
