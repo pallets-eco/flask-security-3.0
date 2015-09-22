@@ -288,6 +288,20 @@ def _context_processor():
     return dict(url_for_security=url_for_security, security=_security)
 
 
+def _is_authenticated(user):
+    """This is a workaround to fix a bug caused by
+    flask-login current_user.is_authenticated returning a bool
+    instead of being a callable function
+    """
+
+    if callable(user.is_authenticated):
+        authenticated = user.is_authenticated()
+    if isinstance(user.is_authenticated, bool):
+        authenticated = user.is_authenticated
+
+    return authenticated
+
+
 class RoleMixin(object):
     """Mixin for `Role` model definitions"""
 
@@ -439,6 +453,9 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
+
+        # this is to fix a bug caused by changes in flask-login
+        app.add_template_global(_is_authenticated)
 
         return state
 

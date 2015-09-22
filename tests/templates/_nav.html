@@ -1,4 +1,4 @@
-{%- if current_user.is_authenticated() -%}
+{%- if _is_authenticated(current_user) -%}
   <p>Hello {{ current_user.email }}</p>
 {%- endif %}
 <ul>
@@ -11,7 +11,7 @@
   <li><a href="{{ url_for('admin_or_editor') }}">Admin or Editor</a></li>
   {% endif -%}
   <li>
-    {%- if current_user.is_authenticated() -%}
+    {%- if _is_authenticated(current_user) -%}
       <a href="{{ url_for('security.logout') }}">Log out</a>
     {%- else -%}
       <a href="{{ url_for('security.login') }}">Log in</a>
