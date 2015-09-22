@@ -93,6 +93,19 @@ def logout_user():
     _logout_user()
 
 
+def user_is_authenticated(current_user):
+    """ flask login changed is_authenticated from a function to a bool
+    this is a wrapper that intends to preserve backwards compatibility
+    """
+
+    if callable(current_user.is_authenticated):
+        authenticated = current_user.is_authenticated()
+    if isinstance(current_user.is_authenticated, bool):
+        authenticated = current_user.is_authenticated
+
+    return authenticated
+
+
 def get_hmac(password):
     """Returns a Base64 encoded HMAC+SHA512 of the password signed with the salt specified
     by ``SECURITY_PASSWORD_SALT``.

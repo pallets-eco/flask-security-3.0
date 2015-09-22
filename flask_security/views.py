@@ -26,7 +26,7 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, slash_url_suffix
+    url_for_security as url_for, slash_url_suffix, user_is_authenticated
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -90,7 +90,7 @@ def login():
 def logout():
     """View function which handles a logout request."""
 
-    if current_user.is_authenticated():
+    if user_is_authenticated(current_user):
         logout_user()
 
     return redirect(request.args.get('next', None) or
