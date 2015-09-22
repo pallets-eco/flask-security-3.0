@@ -220,7 +220,13 @@ def roles_accepted(*roles):
 def anonymous_user_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if current_user.is_authenticated():
+        # flask_login changed is_authenticated from function to bool
+        if callable(current_user.is_authenticated):
+            authenticated = current_user.is_authenticated()
+        if isinstance(current_user.is_authenticated, bool):
+            authenticated = current_user.is_authenticated
+
+        if authenticated: 
             return redirect(utils.get_url(_security.post_login_view))
         return f(*args, **kwargs)
     return wrapper
