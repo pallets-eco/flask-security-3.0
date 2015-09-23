@@ -44,3 +44,5 @@ Session.vim
 *~
 
 .eggs/README.txt
+.pytest.restart
+tests/.pytest.restart
