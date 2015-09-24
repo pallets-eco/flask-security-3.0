@@ -15,7 +15,7 @@ SQLAlchemy Install requirements
 ::
 
      $ mkvirtualenv <your-app-name>
-     $ pip install flask-security flask-sqlalchemy
+     $ pip install flask-security sqlalchemy
 
 
 SQLAlchemy Application
@@ -60,7 +60,7 @@ possible using SQLAlchemy:
                                 backref=db.backref('users', lazy='dynamic'))
 
     # Setup Flask-Security
-    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    user_datastore = SQLAlchemyUserDatastore(db.session, User, Role)
     security = Security(app, user_datastore)
 
     # Create a user to test with

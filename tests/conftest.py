@@ -150,44 +150,45 @@ def mongoengine_datastore(request, app):
 
 @pytest.fixture()
 def sqlalchemy_datastore(request, app, tmpdir):
-    from flask_sqlalchemy import SQLAlchemy
+    from sqlalchemy import Table, Column, Integer, ForeignKey, String, DateTime, Boolean, MetaData, create_engine
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import relationship, backref, sessionmaker
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    metadata = MetaData()
+    Model = declarative_base(metadata=metadata)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
-    db = SQLAlchemy(app)
+    roles_users = Table(
+        'roles_users', metadata,
+        Column('user_id', Integer(), ForeignKey('user.id')),
+        Column('role_id', Integer(), ForeignKey('role.id')))
 
-    roles_users = db.Table(
-        'roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+    class Role(Model, RoleMixin):
+        __tablename__ = 'role'
+        id = Column(Integer(), primary_key=True)
+        name = Column(String(80), unique=True)
+        description = Column(String(255))
 
-    class Role(db.Model, RoleMixin):
-        id = db.Column(db.Integer(), primary_key=True)
-        name = db.Column(db.String(80), unique=True)
-        description = db.Column(db.String(255))
+    class User(Model, UserMixin):
+        __tablename__ = 'user'
+        id = Column(Integer, primary_key=True)
+        email = Column(String(255), unique=True)
+        username = Column(String(255))
+        password = Column(String(255))
+        last_login_at = Column(DateTime())
+        current_login_at = Column(DateTime())
+        last_login_ip = Column(String(100))
+        current_login_ip = Column(String(100))
+        login_count = Column(Integer)
+        active = Column(Boolean())
+        confirmed_at = Column(DateTime())
+        roles = relationship('Role', secondary=roles_users,
+                                backref=backref('users', lazy='dynamic'))
 
-    class User(db.Model, UserMixin):
-        id = db.Column(db.Integer, primary_key=True)
-        email = db.Column(db.String(255), unique=True)
-        username = db.Column(db.String(255))
-        password = db.Column(db.String(255))
-        last_login_at = db.Column(db.DateTime())
-        current_login_at = db.Column(db.DateTime())
-        last_login_ip = db.Column(db.String(100))
-        current_login_ip = db.Column(db.String(100))
-        login_count = db.Column(db.Integer)
-        active = db.Column(db.Boolean())
-        confirmed_at = db.Column(db.DateTime())
-        roles = db.relationship('Role', secondary=roles_users,
-                                backref=db.backref('users', lazy='dynamic'))
+    engine = create_engine('sqlite:///:memory:')
+    metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
 
-    with app.app_context():
-        db.create_all()
-
-    request.addfinalizer(lambda: os.remove(path))
-
-    return SQLAlchemyUserDatastore(db, User, Role)
+    return SQLAlchemyUserDatastore(Session(), User, Role)
 
 
 @pytest.fixture()
