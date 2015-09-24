@@ -150,7 +150,8 @@ def mongoengine_datastore(request, app):
 
 @pytest.fixture()
 def sqlalchemy_datastore(request, app, tmpdir):
-    from sqlalchemy import Table, Column, Integer, ForeignKey, String, DateTime, Boolean, MetaData, create_engine
+    from sqlalchemy import create_engine,\
+        Table, Column, Integer, ForeignKey, String, DateTime, Boolean, MetaData
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import relationship, backref, sessionmaker
 
@@ -181,8 +182,8 @@ def sqlalchemy_datastore(request, app, tmpdir):
         login_count = Column(Integer)
         active = Column(Boolean())
         confirmed_at = Column(DateTime())
-        roles = relationship('Role', secondary=roles_users,
-                                backref=backref('users', lazy='dynamic'))
+        roles = relationship('Role',
+                             secondary=roles_users, backref=backref('users', lazy='dynamic'))
 
     engine = create_engine('sqlite:///:memory:')
     metadata.create_all(engine)
