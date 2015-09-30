@@ -149,7 +149,7 @@ def mongoengine_datastore(request, app):
 
 
 @pytest.fixture()
-def sqlalchemy_datastore(request, app, tmpdir):
+def sqlalchemy_datastore():
     from sqlalchemy import create_engine,\
         Table, Column, Integer, ForeignKey, String, DateTime, Boolean, MetaData
     from sqlalchemy.ext.declarative import declarative_base
@@ -185,7 +185,7 @@ def sqlalchemy_datastore(request, app, tmpdir):
         roles = relationship('Role',
                              secondary=roles_users, backref=backref('users', lazy='dynamic'))
 
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine('sqlite://')
     metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 
@@ -264,7 +264,7 @@ def mongoengine_app(app, mongoengine_datastore):
 
 
 @pytest.fixture()
-def client(request, sqlalchemy_app):
+def client(sqlalchemy_app):
     app = sqlalchemy_app()
     populate_data(app)
     return app.test_client()

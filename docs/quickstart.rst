@@ -7,7 +7,7 @@ Quick Start
 -  `Mail Configuration <#mail-configuration>`_
 
 Basic SQLAlchemy Application
-=============================
+============================
 
 SQLAlchemy Install requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,62 +26,73 @@ possible using SQLAlchemy:
 
 ::
 
-    from flask import Flask, render_template
-    from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.security import Security, SQLAlchemyUserDatastore, \
+    from flask import Flask
+    from sqlalchemy import Table, Column, ForeignKey, MetaData, create_engine,\
+        Integer, String, Boolean, DateTime
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import relationship, backref, sessionmaker
+    from flask_security import Security, SQLAlchemyUserDatastore,\
         UserMixin, RoleMixin, login_required
 
     # Create app
     app = Flask(__name__)
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'super-secret'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-
-    # Create database connection object
-    db = SQLAlchemy(app)
 
     # Define models
-    roles_users = db.Table('roles_users',
-            db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-            db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+    metadata = MetaData()
+    Model = declarative_base(metadata=metadata)
 
-    class Role(db.Model, RoleMixin):
-        id = db.Column(db.Integer(), primary_key=True)
-        name = db.Column(db.String(80), unique=True)
-        description = db.Column(db.String(255))
+    roles_users = Table(
+        'roles_users', metadata,
+        Column('user_id', Integer(), ForeignKey('user.id')),
+        Column('role_id', Integer(), ForeignKey('role.id')))
 
-    class User(db.Model, UserMixin):
-        id = db.Column(db.Integer, primary_key=True)
-        email = db.Column(db.String(255), unique=True)
-        password = db.Column(db.String(255))
-        active = db.Column(db.Boolean())
-        confirmed_at = db.Column(db.DateTime())
-        roles = db.relationship('Role', secondary=roles_users,
-                                backref=db.backref('users', lazy='dynamic'))
+    class Role(Model, RoleMixin):
+        __tablename__ = 'role'
+        id = Column(Integer(), primary_key=True)
+        name = Column(String(80), unique=True)
+        description = Column(String(255))
+
+    class User(Model, UserMixin):
+        __tablename__ = 'user'
+        id = Column(Integer, primary_key=True)
+        email = Column(String(255), unique=True)
+        password = Column(String(255))
+        active = Column(Boolean())
+        confirmed_at = Column(DateTime())
+        roles = relationship('Role',
+                             secondary=roles_users,
+                             backref=backref('users', lazy='dynamic'))
+
+    # Create database connection object
+    engine = create_engine('sqlite://')
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
     # Setup Flask-Security
-    user_datastore = SQLAlchemyUserDatastore(db.session, User, Role)
+    user_datastore = SQLAlchemyUserDatastore(session, User, Role)
     security = Security(app, user_datastore)
 
     # Create a user to test with
     @app.before_first_request
     def create_user():
-        db.create_all()
+        metadata.create_all(engine)
         user_datastore.create_user(email='matt@nobien.net', password='password')
-        db.session.commit()
+        session.commit()
 
     # Views
     @app.route('/')
     @login_required
     def home():
-        return render_template('index.html')
+        return 'logged in'
 
     if __name__ == '__main__':
         app.run()
 
 
 Basic MongoEngine Application
-==============================
+=============================
 
 MongoEngine Install requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,7 +237,7 @@ possible using Peewee:
 
 
 Mail Configuration
-===================
+==================
 
 Flask-Security integrates with Flask-Mail to handle all email
 communications between user and site, so it's important to configure
