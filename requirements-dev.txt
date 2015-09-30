@@ -1,4 +1,4 @@
-Flask-SQLAlchemy>=1.0
+SQLAlchemy>=1.0
 bcrypt>=1.0.2,<2.0.0
 flask-mongoengine>=0.7.0
 flask-peewee>=0.6.5

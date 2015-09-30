@@ -28,14 +28,14 @@ class Datastore(object):
 
 class SQLAlchemyDatastore(Datastore):
     def commit(self):
-        self.db.session.commit()
+        self.db.commit()
 
     def put(self, model):
-        self.db.session.add(model)
+        self.db.add(model)
         return model
 
     def delete(self, model):
-        self.db.session.delete(model)
+        self.db.delete(model)
 
 
 class MongoEngineDatastore(Datastore):
@@ -176,19 +176,17 @@ class UserDatastore(object):
 
 
 class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
-    """A SQLAlchemy datastore implementation for Flask-Security that assumes the
-    use of the Flask-SQLAlchemy extension.
-    """
+    """A SQLAlchemy datastore implementation for Flask-Security."""
     def __init__(self, db, user_model, role_model):
         SQLAlchemyDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
     def get_user(self, identifier):
         if self._is_numeric(identifier):
-            return self.user_model.query.get(identifier)
+            return self.db.query(self.user_model).get(identifier)
         for attr in get_identity_attributes():
             query = getattr(self.user_model, attr).ilike(identifier)
-            rv = self.user_model.query.filter(query).first()
+            rv = self.db.query(self.user_model).filter(query).first()
             if rv is not None:
                 return rv
 
@@ -200,10 +198,10 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         return True
 
     def find_user(self, **kwargs):
-        return self.user_model.query.filter_by(**kwargs).first()
+        return self.db.query(self.user_model).filter_by(**kwargs).first()
 
     def find_role(self, role):
-        return self.role_model.query.filter_by(name=role).first()
+        return self.db.query(self.role_model).filter_by(name=role).first()
 
 
 class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
