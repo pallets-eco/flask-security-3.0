@@ -305,9 +305,8 @@ class RoleMixin(object):
 class UserMixin(BaseUserMixin):
     """Mixin for `User` model definitions"""
 
-    def is_active(self):
-        """Returns `True` if the user is active."""
-        return self.active
+    is_active = False
+    """Returns `True` if the user is active."""
 
     def get_auth_token(self):
         """Returns the user's authentication token."""
