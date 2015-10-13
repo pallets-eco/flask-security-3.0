@@ -384,6 +384,21 @@ def get_identity_attributes(app=None):
     return attrs
 
 
+def is_authenticated(user):
+    """Check if a user is authenticated.
+
+    :param user: the user instance to be checked
+
+    This check supports both callable and non-callable
+    ``is_authenicated`` attributes to support versions of Flask-Login
+    before and after the base UserMixin defined this as a property.
+    """
+    function = getattr(user, 'is_authenticated')
+    if callable(function):
+        return function()
+    return function
+
+
 @contextmanager
 def capture_passwordless_login_requests():
     login_requests = []

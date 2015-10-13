@@ -32,7 +32,7 @@ class PyTest(TestCommand):
             '--cov-report', 'term-missing',
             '--pep8',
             '--flakes',
-            '--clearcache'
+            '--cache-clear'
         ]
         self.test_suite = True
 

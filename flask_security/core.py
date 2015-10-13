@@ -20,7 +20,8 @@ from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types
+from .utils import config_value as cv, get_config, is_authenticated, md5, \
+    url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -285,7 +286,11 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
 
 
 def _context_processor():
-    return dict(url_for_security=url_for_security, security=_security)
+    return dict(
+        url_for_security=url_for_security,
+        security=_security,
+        security_is_authenticated=is_authenticated,
+    )
 
 
 class RoleMixin(object):
