@@ -27,7 +27,9 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 def generate_confirmation_link(user):
     token = generate_confirmation_token(user)
-    return url_for_security('confirm_email', token=token, _external=True), token
+    return url_for_security(
+        'confirm_email', token=token, _external=True,
+        _scheme=config_value('URL_SCHEME')), token
 
 
 def send_confirmation_instructions(user):
