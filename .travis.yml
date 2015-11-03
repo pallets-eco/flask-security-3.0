@@ -5,12 +5,20 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
+  - "3.5"
   - "pypy"
 
 install:
   - pip install -r requirements.txt -r requirements-dev.txt -e .
   - pip install coverage coveralls
   - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib; fi"
+
+addons:
+  apt:
+    sources:
+      - deadsnakes
+    packages:
+      - python3.5
 
 services:
   - mongodb
