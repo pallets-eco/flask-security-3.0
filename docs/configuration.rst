@@ -53,6 +53,8 @@ Core
 ``SECURITY_DEPRECATED_HASHING_SCHEMES``  List of deprecated algorithms used for
                                          creating and validating tokens.
                                          Defaults to ``hex_md5``.
+``SECURITY_PASSWORD_HASH_OPTIONS``       Specifies additional options to be passed
+                                         to the hashing method.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to value set
                                          to ``MAIL_DEFAULT_SENDER`` if
