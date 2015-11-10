@@ -192,7 +192,12 @@ def hash_password(password):
     """
     if use_double_hash():
         password = get_hmac(password).decode('ascii')
-    return _pwd_context.hash(password)
+
+    return _pwd_context.hash(
+        password,
+        **config_value('PASSWORD_HASH_OPTIONS', default={}).get(
+            _security.password_hash, {})
+    )
 
 
 def encode_string(string):

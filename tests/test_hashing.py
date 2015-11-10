@@ -32,6 +32,16 @@ def test_verify_password_bcrypt_single_hash(app, sqlalchemy_datastore):
         assert verify_password('pass', encrypt_password('pass'))
 
 
+def test_verify_password_bcrypt_rounds_too_low(app, sqlalchemy_datastore):
+    with raises(ValueError) as exc_msg:
+        init_app_with_options(app, sqlalchemy_datastore, **{
+            'SECURITY_PASSWORD_HASH': 'bcrypt',
+            'SECURITY_PASSWORD_SALT': 'salty',
+            'SECURITY_PASSWORD_HASH_OPTIONS': {'bcrypt': {'rounds': 3}}
+        })
+    assert all(s in str(exc_msg) for s in ['rounds', 'too low'])
+
+
 def test_login_with_bcrypt_enabled(app, sqlalchemy_datastore):
     init_app_with_options(app, sqlalchemy_datastore, **{
         'SECURITY_PASSWORD_HASH': 'bcrypt',
