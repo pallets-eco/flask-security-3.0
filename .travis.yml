@@ -9,6 +9,10 @@ python:
 
 sudo: false
 
+cache:
+  - apt
+  - pip
+
 install:
   - pip install -r requirements.txt -r requirements-dev.txt -e .
   - pip install coverage coveralls
