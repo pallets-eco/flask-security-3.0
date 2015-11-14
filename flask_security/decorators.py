@@ -68,6 +68,8 @@ def _check_token():
 
 def _check_http_auth():
     auth = request.authorization or BasicAuth(username=None, password=None)
+    if not auth.username:
+        return False
     user = _security.datastore.get_user(auth.username)
 
     if user and utils.verify_and_update_password(auth.password, user):
