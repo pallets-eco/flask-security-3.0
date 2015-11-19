@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, render_template
+from flask import current_app, render_template, g
 from flask_login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask_principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -188,8 +188,9 @@ _default_forms = {
 
 
 def _user_loader(user_id):
-    return _security.datastore.find_user(id=user_id)
-
+    user = _security.datastore.find_user(id=user_id)
+    g.user = user
+    return user
 
 def _token_loader(token):
     try:
