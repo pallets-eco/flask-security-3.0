@@ -8,7 +8,8 @@
 
 from pytest import raises
 
-from flask_security.utils import verify_password, encrypt_password
+from flask_security.utils import verify_password, verify_and_update_password, encrypt_password, \
+        get_hmac
 
 from utils import authenticate, init_app_with_options
 
@@ -31,8 +32,28 @@ def test_login_with_bcrypt_enabled(app, sqlalchemy_datastore):
     assert b'Home Page' in response.data
 
 
-def test_missing_hash_salt_option(app, sqlalchemy_datastore):
-    with raises(RuntimeError):
-        init_app_with_options(app, sqlalchemy_datastore, **{
-            'SECURITY_PASSWORD_HASH': 'bcrypt',
-        })
+def test_passlib_compatibility(app, sqlalchemy_datastore):
+    init_app_with_options(app, sqlalchemy_datastore, **{
+        'SECURITY_PASSWORD_HASH': 'bcrypt',
+        'SECURITY_PASSWORD_SALT': 'salty'
+    })
+    with app.app_context():
+        # encrypt solely with passlib
+        enc = app.extensions['security'].pwd_context.encrypt('pass')
+        assert verify_password('pass', enc)
+
+        user = app.security.datastore.create_user(password=enc)
+        assert verify_and_update_password('pass', user)
+        assert user.password == enc
+
+        # passlib should be able to verify our encryption
+        enc = encrypt_password('pass')
+        assert app.extensions['security'].pwd_context.verify('pass', enc)
+
+        # ensure we can verify legacy HMAC encryption
+        enc = encrypt_password(get_hmac('pass'))
+        assert verify_password('pass', enc)
+
+        user = app.security.datastore.create_user(password=enc)
+        assert verify_and_update_password('pass', user)
+        assert user.password != enc
