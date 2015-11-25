@@ -65,14 +65,14 @@ def login_user(user, remember=None):
         if 'X-Forwarded-For' in request.headers:
             remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
         else:
-            remote_addr = request.remote_addr or 'untrackable'
+            remote_addr = request.remote_addr or None  # make sure it is None and not ''
 
         old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 
         user.last_login_at = old_current_login or new_current_login
         user.current_login_at = new_current_login
-        user.last_login_ip = old_current_ip or new_current_ip
+        user.last_login_ip = old_current_ip
         user.current_login_ip = new_current_ip
         user.login_count = user.login_count + 1 if user.login_count else 1
 
