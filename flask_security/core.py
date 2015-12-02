@@ -305,6 +305,7 @@ class RoleMixin(object):
 class UserMixin(BaseUserMixin):
     """Mixin for `User` model definitions"""
 
+    @property
     def is_active(self):
         """Returns `True` if the user is active."""
         return self.active
