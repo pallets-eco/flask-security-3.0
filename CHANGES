@@ -3,6 +3,26 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 1.7.5
+-------------
+
+Released December 2nd 2015
+
+- Added `SECURITY_TOKEN_MAX_AGE` configuration setting
+- Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns `False` instead of raising a `TypeError`
+- Fixed URL generation adding extra slashes in some cases (see GitHub #343)
+- Fixed handling of trackable IP addresses when the `X-Forwarded-For` header contains multiple values
+- Include WWW-Authenticate headers in `@auth_required` authentication checks
+- Fixed error when `check_token` function is used with a json list
+- Added support for custom `AnonymousUser` classes
+- Restricted `forgot_password` endpoint to anonymous users
+- Allowed unauthorized callback to be overridden
+- Fixed issue where passwords cannot be reset if currently set to `None`
+- Ensured that password reset tokens are invalidated after use
+- Updated `is_authenticated` and `is_active` functions to support Flask-Login changes
+- Various documentation improvements
+
+
 Version 1.7.4
 -------------
 
