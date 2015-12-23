@@ -151,3 +151,11 @@ def test_delete_user(app, datastore):
     datastore.commit()
     user = datastore.find_user(email='matt@lp.com')
     assert user is None
+
+
+def test_prepare_user_activate_args(app, datastore):
+    init_app_with_options(app, datastore)
+
+    user = datastore.find_user(email='matt@lp.com')
+    assert datastore._prepare_user_activate_args(user) == user
+    assert datastore._prepare_user_activate_args(user.email) == user
