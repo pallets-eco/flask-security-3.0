@@ -47,6 +47,13 @@ Core
 ``SECURITY_DEFAULT_HTTP_AUTH_REALM``     Specifies the default authentication
                                          realm when using basic HTTP auth.
                                          Defaults to ``Login Required``
+``SECURITY_JSON_INCLUDE_CSRF``           Specifies if CSRF tokens are included
+                                         in json responses. This allows
+                                         clients to pass Flask-WTF's CSRF
+                                         protection by including its value as
+                                         the ``X-CSRFToken`` header when making
+                                         application/json requests.
+                                         Defaults to ``False``.
 ======================================== =======================================
 
 

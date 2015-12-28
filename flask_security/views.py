@@ -12,6 +12,7 @@
 from flask import current_app, redirect, request, jsonify, \
     after_this_request, Blueprint
 from flask_login import current_user
+from flask_wtf import csrf
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
@@ -49,6 +50,8 @@ def _render_json(form, include_user=True, include_auth_token=False):
         if include_auth_token and has_user:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
+        if _security.json_include_csrf:
+            response['csrf_token'] = csrf.generate_csrf()
 
     return jsonify(dict(meta=dict(code=code), response=response))
 
