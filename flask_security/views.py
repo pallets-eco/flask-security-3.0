@@ -43,9 +43,10 @@ def _render_json(form, include_user=True, include_auth_token=False):
     else:
         code = 200
         response = dict()
-        if include_user:
+        has_user = hasattr(form, 'user') and form.user
+        if include_user and has_user:
             response['user'] = dict(id=str(form.user.id))
-        if include_auth_token:
+        if include_auth_token and has_user:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
 
