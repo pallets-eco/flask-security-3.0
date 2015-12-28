@@ -303,7 +303,7 @@ def reset_password(token):
     )
 
 
-@auth_required('token', 'session')
+@auth_required('session', 'token', 'basic')
 def change_password():
     """View function which handles a change password request."""
 
