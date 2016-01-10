@@ -276,7 +276,12 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = _security.reset_password_form()
+    form_class = _security.reset_password_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
 
     if form.validate_on_submit():
         after_this_request(_commit)
