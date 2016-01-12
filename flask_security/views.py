@@ -294,11 +294,12 @@ def reset_password(token):
             return redirect(get_url(_security.post_reset_view) or
                             get_url(_security.post_login_view))
         else:
-            return {}, 200
+            return _render_json(form, False)
 
     # not valid
     if is_api:
-        return {"msg": "Not valid token", "code": 500}, 500
+        form.errors = "Not valid token"
+        return _render_json(form, False)
 
     return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                                      reset_password_form=form,
