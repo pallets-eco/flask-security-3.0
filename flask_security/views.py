@@ -313,7 +313,7 @@ def change_password():
 
     if request.json:
         form.user = current_user
-        return _render_json(form)
+        return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
                                      change_password_form=form,
