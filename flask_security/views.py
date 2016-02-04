@@ -67,7 +67,7 @@ def login():
 
     form_class = _security.login_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form = form_class(MultiDict(request.json))
     else:
         form = form_class()
@@ -76,10 +76,10 @@ def login():
         login_user(form.user, remember=form.remember.data)
         after_this_request(_commit)
 
-        if not request.json:
+        if not isinstance(request.json, dict):
             return redirect(get_post_login_redirect(form.next.data))
 
-    if request.json:
+    if isinstance(request.json, dict):
         return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
@@ -101,12 +101,12 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable or request.json:
+    if _security.confirmable or isinstance(request.json, dict):
         form_class = _security.confirm_register_form
     else:
         form_class = _security.register_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form_data = MultiDict(request.json)
     else:
         form_data = request.form
@@ -121,7 +121,7 @@ def register():
             after_this_request(_commit)
             login_user(user)
 
-        if not request.json:
+        if not isinstance(request.json, dict):
             if 'next' in form:
                 redirect_url = get_post_register_redirect(form.next.data)
             else:
@@ -130,7 +130,7 @@ def register():
             return redirect(redirect_url)
         return _render_json(form, include_auth_token=True)
 
-    if request.json:
+    if isinstance(request.json, dict):
         return _render_json(form)
 
     return _security.render_template(config_value('REGISTER_USER_TEMPLATE'),
@@ -143,7 +143,7 @@ def send_login():
 
     form_class = _security.passwordless_login_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form = form_class(MultiDict(request.json))
     else:
         form = form_class()
@@ -153,7 +153,7 @@ def send_login():
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
 
-    if request.json:
+    if isinstance(request.json, dict):
         return _render_json(form)
 
     return _security.render_template(config_value('SEND_LOGIN_TEMPLATE'),
@@ -188,7 +188,7 @@ def send_confirmation():
 
     form_class = _security.send_confirmation_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form = form_class(MultiDict(request.json))
     else:
         form = form_class()
@@ -198,7 +198,7 @@ def send_confirmation():
         if request.json is None:
             do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
 
-    if request.json:
+    if isinstance(request.json, dict):
         return _render_json(form)
 
     return _security.render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
@@ -244,7 +244,7 @@ def forgot_password():
 
     form_class = _security.forgot_password_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form = form_class(MultiDict(request.json))
     else:
         form = form_class()
@@ -254,7 +254,7 @@ def forgot_password():
         if request.json is None:
             do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
 
-    if request.json:
+    if isinstance(request.json, dict):
         return _render_json(form, include_user=False)
 
     return _security.render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
@@ -298,7 +298,7 @@ def change_password():
 
     form_class = _security.change_password_form
 
-    if request.json:
+    if isinstance(request.json, dict):
         form = form_class(MultiDict(request.json))
     else:
         form = form_class()
@@ -311,7 +311,7 @@ def change_password():
             return redirect(get_url(_security.post_change_view) or
                             get_url(_security.post_login_view))
 
-    if request.json:
+    if isinstance(request.json, dict):
         form.user = current_user
         return _render_json(form)
 
