@@ -12,6 +12,7 @@ import pytest
 
 from flask import Flask
 from flask_security.core import UserMixin
+from flask_security.forms import LoginForm
 from flask_security.signals import reset_password_instructions_sent, password_reset
 from flask_security.utils import capture_reset_password_requests, string_types
 
@@ -101,6 +102,14 @@ def test_recoverable_flag(app, client, get_message):
         'password_confirm': 'newpassword'
     }, follow_redirects=True)
     assert get_message('INVALID_RESET_PASSWORD_TOKEN') in response.data
+
+
+def test_login_form_description(sqlalchemy_app):
+    app = sqlalchemy_app()
+    with app.test_request_context('/login'):
+        login_form = LoginForm()
+        expected = '<a href="/reset">Forgot password?</a>'
+        assert login_form.password.description == expected
 
 
 @pytest.mark.settings(reset_password_within='1 milliseconds')
