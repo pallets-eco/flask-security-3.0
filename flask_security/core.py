@@ -51,7 +51,7 @@ _default_config = {
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
-    'UNAUTHORIZED_VIEW': None,
+    'UNAUTHORIZED_VIEW': lambda: None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_USER_TEMPLATE': 'security/login_user.html',
     'REGISTER_USER_TEMPLATE': 'security/register_user.html',
