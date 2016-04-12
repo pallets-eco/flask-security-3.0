@@ -213,6 +213,9 @@ Miscellaneous
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 ============================================= ==================================
+``SECURITY_USER_IDENTITY_ATTRIBUTES``         Specifies which attributes of the
+                                              user object can be used for login.
+                                              Defaults to ``['email']``.
 ``SECURITY_SEND_REGISTER_EMAIL``              Specifies whether registration
                                               email is sent. Defaults to
                                               ``True``.
