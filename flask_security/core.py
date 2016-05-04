@@ -52,7 +52,7 @@ _default_config = {
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
-    'UNAUTHORIZED_VIEW': None,
+    'UNAUTHORIZED_VIEW': lambda: None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_USER_TEMPLATE': 'security/login_user.html',
     'REGISTER_USER_TEMPLATE': 'security/register_user.html',
@@ -103,9 +103,11 @@ _default_config = {
     ],
     'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
 
-    'TWO_FACTOR_MAIL_AUTHENTICATION': False,
-    'TWO_FACTOR_GOOGLE_AUTHENTICATOR_AUTHENTICATION': False,
-    'TWO_FACTOR_SMS_AUTHENTICATION': False,
+    'TWO_FACTOR_METHODS': {
+        'MAIL': False,
+        'GOOGLE_AUTHENTICATOR': False,
+        'SMS': False,
+    },
 
     'TWO_FACTOR_AUTHENTICATION': False,
     'TWO_FACTOR_LOGIN_USER_TEMPLATE': 'security/two_factor_login.html',
@@ -113,9 +115,6 @@ _default_config = {
     'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
     'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_PASSWORD_TEMPLATE': 'security/two_factor_change_method.html',
-
-    'TWO_FACTOR_SUBJECT': 'Authentication Code',
-    'TWO_FACTOR_VALID_WITHIN': '30 seconds',
 
     'TWO_FACTOR_SMS_SERVICE': 'Dummy',
     'TWO_FACTOR_SMS_SERVICE_CONFIG': {
@@ -205,6 +204,9 @@ _default_messages = {
         'Invalid password.', 'error'),
     'TWO_FACTOR_METHOD_IS_THE_SAME': (
         'Your new method must be different than your previous method.', 'error'),
+    'TWO_FACTOR_EMAIL_SUBJECT': (
+        'Two Factor Authentication'
+    ),
 }
 
 _default_forms = {
@@ -442,8 +444,7 @@ class Security(object):
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
                  anonymous_user=None, two_factor_enter_phone_form=None, two_factor_verify_code_form=None,
-                 two_factor_setup_form=None, two_factor_change_method_form=None,
-):
+                 two_factor_setup_form=None, two_factor_change_method_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 

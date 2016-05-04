@@ -274,6 +274,7 @@ def reset_password(token):
     if invalid:
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
     if expired:
+        send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
     if invalid or expired:
@@ -537,6 +538,7 @@ def perform_user_login(user):
 
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
+
     bp = Blueprint(state.blueprint_name, import_name,
                    url_prefix=state.url_prefix,
                    subdomain=state.subdomain,
@@ -560,7 +562,6 @@ def create_blueprint(state, import_name):
                  endpoint='two_factor_token_validation')(two_factor_token_validation)
         bp.route(state.login_url + slash_url_suffix(state.login_url, 'two_factor_qrcode'),
                  endpoint='two_factor_qrcode')(two_factor_qrcode)
-
 
     else:
         bp.route(state.login_url,

@@ -12,11 +12,12 @@
 from collections import namedtuple
 from functools import wraps
 
-from flask import current_app, Response, request, redirect, _request_ctx_stack
+from flask import abort, current_app, Response, request, \
+                   url_for, redirect, _request_ctx_stack
 from flask_login import current_user, login_required  # pragma: no flakes
 from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
-
+from werkzeug.routing import BuildError
 from . import utils
 
 
@@ -41,9 +42,18 @@ def _get_unauthorized_response(text=None, headers=None):
 
 
 def _get_unauthorized_view():
-    cv = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
-    utils.do_flash(*utils.get_message('UNAUTHORIZED'))
-    return redirect(cv or request.referrer or '/')
+    view = utils.get_url(utils.config_value('UNAUTHORIZED_VIEW'))
+    if view:
+        if callable(view):
+            view = view()
+        else:
+            try:
+                view = url_for(view)
+            except BuildError:
+                  view = None
+        utils.do_flash(*utils.get_message('UNAUTHORIZED'))
+        return redirect(view or request.referrer or '/')
+    abort(403)
 
 
 def _check_token():

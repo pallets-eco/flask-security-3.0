@@ -38,7 +38,6 @@ _default_field_labels = {
     'new_password': 'New Password',
     'change_password': 'Change Password',
     'send_login_link': 'Send Login Link',
-
     'phone': 'Phone Number',
     'change_method': 'Change Method'
 }
