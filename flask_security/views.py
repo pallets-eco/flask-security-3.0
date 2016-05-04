@@ -8,9 +8,9 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
-
+import pyqrcode
 from flask import current_app, redirect, request, jsonify, \
-    after_this_request, Blueprint
+    after_this_request, Blueprint, session
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
@@ -27,6 +27,9 @@ from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
     url_for_security as url_for, slash_url_suffix
+
+from .twofactor import send_security_token, get_totp_uri, \
+    get_totp_password, verify_totp, generate_totp
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -271,7 +274,6 @@ def reset_password(token):
     if invalid:
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
     if expired:
-        send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
     if invalid or expired:
@@ -321,9 +323,220 @@ def change_password():
                                      **_ctx('change_password'))
 
 
+@login_required
+def two_factor_change_method():
+    """View function which handles a change second factor method request."""
+
+    form_class = _security.two_factor_change_method_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
+
+    if form.validate_on_submit():
+        # after_this_request(_commit)
+        # change_user_password(current_user, form.new_password.data)
+        if request.json is None:
+            do_flash(*get_message('TWO_FACTOR_METHOD_CHANGE_SUCCEEDED'))
+            two_factor_verify_code_form = _security.two_factor_verify_code_form
+            two_factor_setup_form = _security.two_factor_setup_form
+            if request.json:
+                two_factor_verify_code_form = two_factor_verify_code_form(MultiDict(request.json))
+                two_factor_setup_form = two_factor_setup_form(MultiDict(request.json))
+            else:
+                two_factor_verify_code_form = two_factor_verify_code_form()
+                two_factor_setup_form = two_factor_setup_form()
+                # change user's totp - qrcode will be unique everytime choose method template is called
+                current_user.totp = generate_totp()
+
+            return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                                     two_factor_verify_code_form=two_factor_verify_code_form,
+                                     two_factor_setup_form=two_factor_setup_form,
+                                     next_endpoint='two_factor_change_method_token_validation',
+                                     **_ctx('two_factor_change_method_token_validation'))
+    if request.json:
+        form.user = current_user
+        return _render_json(form)
+
+    return _security.render_template(config_value('TWO_FACTOR_CHANGE_METHOD_TEMPLATE'),
+                                     two_factor_change_method_form=form,
+                                     **_ctx('two_factor_change_method'))
+
+
+@anonymous_user_required
+def two_factor_login():
+    """View function for two factor authentication login"""
+    form_class = _security.login_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
+
+    if form.validate_on_submit():
+        session['username'] = form.user.username
+        user = _datastore.find_user(username=session['username'])
+        primary = user.two_factor_primary_method
+
+        two_factor_verify_code_form = _security.two_factor_verify_code_form
+        if request.json:
+            two_factor_verify_code_form = two_factor_verify_code_form(MultiDict(request.json))
+        else:
+            two_factor_verify_code_form = two_factor_verify_code_form()
+
+        if primary is None:
+            two_factor_setup_form = _security.two_factor_setup_form
+            if request.json:
+                two_factor_setup_form = two_factor_setup_form(MultiDict(request.json))
+            else:
+                two_factor_setup_form = two_factor_setup_form()
+
+            return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                                             two_factor_verify_code_form=two_factor_verify_code_form,
+                                             two_factor_setup_form=two_factor_setup_form,
+                                             next_endpoint='two_factor_token_validation',
+                                             **_ctx('two_factor_token_validation'))
+        else:
+            send_security_token(user=user, method=primary)
+            return _security.render_template(config_value('TWO_FACTOR_VERIFY_CODE_TEMPLATE'),
+                                             two_factor_verify_code_form=two_factor_verify_code_form)
+
+    if request.json:
+        form.user = current_user
+        return _render_json(form)
+
+    return _security.render_template(config_value('TWO_FACTOR_LOGIN_USER_TEMPLATE'),
+                                         login_user_form=form,
+                                         **_ctx('login'))
+
+@login_required
+def two_factor_change_method_token_validation():
+    """View function for changing the two factor authentication method"""
+    user = current_user
+    session['username'] = user.username
+    session['two_factor_primary'] = user.two_factor_primary_method
+    next_endpoint = 'two_factor_change_method_token_validation'
+    return token_validation(user, next_endpoint)
+
+@anonymous_user_required
+def two_factor_token_validation():
+    """View function for validating the code entered during two factor authentication"""
+    user = _datastore.find_user(username=session['username'])
+    next_endpoint = 'two_factor_token_validation'
+    return token_validation(user, next_endpoint)
+
+
+def token_validation(user, next_endpoint):
+    form = request.form
+    two_factor_verify_code_form, two_factor_setup_form, two_factor_enter_phone_form = construct_two_factor_setup_forms()
+    # Relevant to users who wants to submit a phone number to get codes to
+
+    if form.has_key('phone'):
+        form.setup = 'sms'
+        user.phone_number = form['phone']
+    # Relevant for mail, google authenticator and sms methods and help determines html
+    if form.has_key('setup'):
+        method = form['setup']
+        if next_endpoint == 'two_factor_change_method_token_validation' and \
+                                                            method == user.two_factor_primary_method:
+            do_flash(*get_message('TWO_FACTOR_METHOD_IS_THE_SAME'))
+            return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                                                 two_factor_verify_code_form=two_factor_verify_code_form,
+                                                 two_factor_setup_form=two_factor_setup_form,
+                                                 two_factor_enter_phone_form=two_factor_enter_phone_form,
+                                                 next_endpoint=next_endpoint,
+                                                 **_ctx(next_endpoint))
+        else:
+            session['two_factor_primary'] = method
+            send_security_token(user=user, method=method)
+            return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                                                 two_factor_verify_code_form=two_factor_verify_code_form,
+                                                 two_factor_setup_form=two_factor_setup_form,
+                                                 two_factor_enter_phone_form=two_factor_enter_phone_form,
+                                                 chosen_method=method,
+                                                 next_endpoint =next_endpoint,
+                                                 **_ctx(next_endpoint))
+
+    if form.has_key('code'):
+        code_entered = form['code']
+        if 'two_factor_primary' in session and session['two_factor_primary'] == 'google_authenticator':
+            window = 0
+        else:
+            window = 1
+
+        if verify_totp(user=user, token=code_entered, window=window):
+            perform_user_login(user)
+            return redirect(get_post_login_redirect())
+        else:
+            do_flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
+            return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                                                 two_factor_setup_form=two_factor_setup_form,
+                                                 two_factor_verify_code_form=two_factor_verify_code_form,
+                                                 next_endpoint=next_endpoint,
+                                                 **_ctx(next_endpoint))
+
+    if request.json:
+        form.user = current_user
+        return _render_json(form)
+
+    return _security.render_template(config_value('TWO_FACTOR_VERIFY_CODE_TEMPLATE'),
+                                     two_factor_setup_form=two_factor_setup_form,
+                                     two_factor_verify_code_form=two_factor_verify_code_form,
+                                      **_ctx('verify_code'))
+
+@anonymous_user_required
+def two_factor_qrcode():
+    """View function for generating a qrcode svg for two factor authentication"""
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = _datastore.find_user(username=session['username'])
+    if user is None:
+        return redirect(url_for('login'))
+    url = pyqrcode.create(get_totp_uri(user))
+    from StringIO import StringIO
+    stream = StringIO()
+    url.svg(stream, scale=3)
+    return stream.getvalue().encode('utf-8'), 200, {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
+
+def construct_two_factor_setup_forms():
+    two_factor_verify_code_form = _security.two_factor_verify_code_form
+    two_factor_setup_form = _security.two_factor_setup_form
+    two_factor_enter_phone_form = _security.two_factor_enter_phone_form
+
+    if request.json:
+        two_factor_verify_code_form = two_factor_verify_code_form(MultiDict(request.json))
+        two_factor_setup_form = two_factor_setup_form(MultiDict(request.json))
+        two_factor_enter_phone_form = two_factor_enter_phone_form(MultiDict(request.json))
+
+    else:
+        two_factor_verify_code_form = two_factor_verify_code_form()
+        two_factor_setup_form = two_factor_setup_form()
+        two_factor_enter_phone_form = two_factor_enter_phone_form()
+
+    return two_factor_verify_code_form, two_factor_setup_form, two_factor_enter_phone_form
+
+
+def perform_user_login(user):
+    """ helper function that del unnecessary information before logging user in, and commits after request"""
+    del session['username']
+    if user.two_factor_primary_method == None:
+        user.two_factor_primary_method = session['two_factor_primary']
+    else:
+        user.two_factor_secondary_method = user.two_factor_primary_method
+        user.two_factor_primary_method = session['two_factor_primary']
+    del session['two_factor_primary']
+
+    login_user(user)
+    after_this_request(_commit)
+    do_flash(*get_message('TWO_FACTOR_LOGIN_SUCCESSFUL'))
+
 def create_blueprint(state, import_name):
     """Creates the security extension blueprint"""
-
     bp = Blueprint(state.blueprint_name, import_name,
                    url_prefix=state.url_prefix,
                    subdomain=state.subdomain,
@@ -337,6 +550,18 @@ def create_blueprint(state, import_name):
                  endpoint='login')(send_login)
         bp.route(state.login_url + slash_url_suffix(state.login_url, '<token>'),
                  endpoint='token_login')(token_login)
+
+    elif state.two_factor_authentication:
+        bp.route(state.login_url,
+                 methods=['GET', 'POST'],
+                 endpoint='login')(two_factor_login)
+        bp.route(state.login_url + slash_url_suffix(state.login_url, 'two_factor_token_validation'),
+                 methods=['GET', 'POST'],
+                 endpoint='two_factor_token_validation')(two_factor_token_validation)
+        bp.route(state.login_url + slash_url_suffix(state.login_url, 'two_factor_qrcode'),
+                 endpoint='two_factor_qrcode')(two_factor_qrcode)
+
+
     else:
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
@@ -359,6 +584,13 @@ def create_blueprint(state, import_name):
         bp.route(state.change_url,
                  methods=['GET', 'POST'],
                  endpoint='change_password')(change_password)
+        bp.route(state.change_url + slash_url_suffix(state.change_url, 'two_factor_change_method'),
+                 methods=['GET', 'POST'],
+                 endpoint='two_factor_change_method')(two_factor_change_method)
+        bp.route(state.change_url + slash_url_suffix(state.change_url, 'two_factor_change_method_token_validation'),
+                 methods=['GET', 'POST'],
+                 endpoint='two_factor_change_method_token_validation')(two_factor_change_method_token_validation)
+
 
     if state.confirmable:
         bp.route(state.confirm_url,

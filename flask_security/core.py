@@ -24,7 +24,8 @@ from .utils import config_value as cv, get_config, md5, url_for_security, string
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessLoginForm, TwoFactorEnterPhoneForm, TwoFactorVerifyCodeForm, \
+    TwoFactorSetupForm, TwoFactorChangeMethodForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -51,7 +52,7 @@ _default_config = {
     'POST_CONFIRM_VIEW': None,
     'POST_RESET_VIEW': None,
     'POST_CHANGE_VIEW': None,
-    'UNAUTHORIZED_VIEW': lambda: None,
+    'UNAUTHORIZED_VIEW': None,
     'FORGOT_PASSWORD_TEMPLATE': 'security/forgot_password.html',
     'LOGIN_USER_TEMPLATE': 'security/login_user.html',
     'REGISTER_USER_TEMPLATE': 'security/register_user.html',
@@ -100,7 +101,28 @@ _default_config = {
         # And always last one...
         'plaintext'
     ],
-    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+
+    'TWO_FACTOR_MAIL_AUTHENTICATION': False,
+    'TWO_FACTOR_GOOGLE_AUTHENTICATOR_AUTHENTICATION': False,
+    'TWO_FACTOR_SMS_AUTHENTICATION': False,
+
+    'TWO_FACTOR_AUTHENTICATION': False,
+    'TWO_FACTOR_LOGIN_USER_TEMPLATE': 'security/two_factor_login.html',
+    'TWO_FACTOR_SEND_PHONE_TEMPLATE': 'security/two_factor_enter_phone.html',
+    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
+    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
+    'TWO_FACTOR_CHANGE_PASSWORD_TEMPLATE': 'security/two_factor_change_method.html',
+
+    'TWO_FACTOR_SUBJECT': 'Authentication Code',
+    'TWO_FACTOR_VALID_WITHIN': '30 seconds',
+
+    'TWO_FACTOR_SMS_SERVICE': 'Dummy',
+    'TWO_FACTOR_SMS_SERVICE_CONFIG': {
+        'ACCOUNT_SID': None,
+        'AUTH_TOKEN': None,
+        'PHONE_NUMBER': None,
+    }
 }
 
 #: Default Flask-Security messages
@@ -173,6 +195,16 @@ _default_messages = {
         'Please log in to access this page.', 'info'),
     'REFRESH': (
         'Please reauthenticate to access this page.', 'info'),
+    'TWO_FACTOR_INVALID_TOKEN': (
+        'Invalid Token', 'error'),
+    'TWO_FACTOR_LOGIN_SUCCESSFUL': (
+        'Your token have been confirmed. You have successfuly logged in', 'success'),
+    'TWO_FACTOR_METHOD_CHANGE_SUCCEEDED': (
+        'You successfully entered your password. Now you can change your two factor method.', 'success'),
+    'TWO_FACTOR_METHOD_CHANGE_FAILED': (
+        'Invalid password.', 'error'),
+    'TWO_FACTOR_METHOD_IS_THE_SAME': (
+        'Your new method must be different than your previous method.', 'error'),
 }
 
 _default_forms = {
@@ -184,6 +216,10 @@ _default_forms = {
     'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
+    'two_factor_enter_phone_form': TwoFactorEnterPhoneForm,
+    'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
+    'two_factor_setup_form': TwoFactorSetupForm,
+    'two_factor_change_method_form': TwoFactorChangeMethodForm,
 }
 
 
@@ -405,7 +441,9 @@ class Security(object):
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
-                 anonymous_user=None):
+                 anonymous_user=None, two_factor_enter_phone_form=None, two_factor_verify_code_form=None,
+                 two_factor_setup_form=None, two_factor_change_method_form=None,
+):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -432,7 +470,11 @@ class Security(object):
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form,
-                           anonymous_user=anonymous_user)
+                           anonymous_user=anonymous_user,
+                           two_factor_enter_phone_form=two_factor_enter_phone_form,
+                           two_factor_verify_code_form=two_factor_verify_code_form,
+                           two_factor_setup_form=two_factor_setup_form,
+                           two_factor_change_method_form=two_factor_change_method_form)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
