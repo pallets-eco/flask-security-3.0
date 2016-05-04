@@ -108,14 +108,13 @@ _default_config = {
         'GOOGLE_AUTHENTICATOR': False,
         'SMS': False,
     },
-
     'TWO_FACTOR_AUTHENTICATION': False,
     'TWO_FACTOR_LOGIN_USER_TEMPLATE': 'security/two_factor_login.html',
     'TWO_FACTOR_SEND_PHONE_TEMPLATE': 'security/two_factor_enter_phone.html',
     'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
     'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_PASSWORD_TEMPLATE': 'security/two_factor_change_method.html',
-
+    'TWO_FACTOR_EMAIL_SUBJECT': 'Two Factor Authenticaion',
     'TWO_FACTOR_SMS_SERVICE': 'Dummy',
     'TWO_FACTOR_SMS_SERVICE_CONFIG': {
         'ACCOUNT_SID': None,
@@ -204,9 +203,6 @@ _default_messages = {
         'Invalid password.', 'error'),
     'TWO_FACTOR_METHOD_IS_THE_SAME': (
         'Your new method must be different than your previous method.', 'error'),
-    'TWO_FACTOR_EMAIL_SUBJECT': (
-        'Two Factor Authentication'
-    ),
 }
 
 _default_forms = {

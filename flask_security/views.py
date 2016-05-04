@@ -431,12 +431,9 @@ def two_factor_token_validation():
 def token_validation(user, next_endpoint):
     form = request.form
     two_factor_verify_code_form, two_factor_setup_form, two_factor_enter_phone_form = construct_two_factor_setup_forms()
-    # Relevant to users who wants to submit a phone number to get codes to
-
     if form.has_key('phone'):
         form.setup = 'sms'
         user.phone_number = form['phone']
-    # Relevant for mail, google authenticator and sms methods and help determines html
     if form.has_key('setup'):
         method = form['setup']
         if next_endpoint == 'two_factor_change_method_token_validation' and \
@@ -476,7 +473,6 @@ def token_validation(user, next_endpoint):
                                                  two_factor_verify_code_form=two_factor_verify_code_form,
                                                  next_endpoint=next_endpoint,
                                                  **_ctx(next_endpoint))
-
     if request.json:
         form.user = current_user
         return _render_json(form)
@@ -486,10 +482,10 @@ def token_validation(user, next_endpoint):
                                      two_factor_verify_code_form=two_factor_verify_code_form,
                                       **_ctx('verify_code'))
 
-@anonymous_user_required
+# @anonymous_user_required
 def two_factor_qrcode():
     """View function for generating a qrcode svg for two factor authentication"""
-    if 'username' not in session:
+    if 'username' not in session or 'two_factor_primary' not in session:
         return redirect(url_for('login'))
     user = _datastore.find_user(username=session['username'])
     if user is None:

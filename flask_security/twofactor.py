@@ -17,9 +17,7 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 from twilio.rest import TwilioRestClient
 
-from .signals import login_instructions_sent
-from .utils import send_mail, url_for_security, get_token_status, \
-    config_value
+from .utils import send_mail, config_value
 
 import onetimepass
 
@@ -37,7 +35,7 @@ def send_security_token(user, method):
     """
     token = get_totp_password(user)
     if method == 'mail':
-        send_mail(config_value('TWO_FACTOR_SUBJECT'), user.email,
+        send_mail(config_value('TWO_FACTOR_EMAIL_SUBJECT'), user.email,
                   'two_factor_instructions', user=user, token=token)
     elif method == 'sms':
         msg = "Use this code to log in: %s" % token

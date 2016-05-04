@@ -39,7 +39,8 @@ _default_field_labels = {
     'change_password': 'Change Password',
     'send_login_link': 'Send Login Link',
     'phone': 'Phone Number',
-    'change_method': 'Change Method'
+    'change_method': 'Change Method',
+    'verify_passowrd': 'Verify Method'
 }
 
 
