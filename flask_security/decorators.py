@@ -19,7 +19,7 @@ from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 from werkzeug.routing import BuildError
 
-from . import utils
+from flask_security import utils
 
 
 # Convenient references
