@@ -48,7 +48,6 @@ def send_security_token(user, method):
         return
 
 
-
 def get_totp_uri(user):
     """ Generate provisioning url for use with the qrcode scanner built into the app
     :param user:
@@ -73,7 +72,6 @@ def generate_totp():
     return base64.b32encode(os.urandom(10)).decode('utf-8')
 
 
-
 class SmsSenderBaseClass(object):
     __metaclass__ = abc.ABCMeta
 
@@ -95,13 +93,12 @@ class TwilioSmsSender(SmsSenderBaseClass):
         client.messages.create(
             to=to_number,
             from_=from_number,
-            body=msg,
-        )
+            body=msg,)
 
 class DummySmsSender(SmsSenderBaseClass):
-
     def send_sms(self, from_number, to_number, msg):
         return
+
 
 class SmsSenderFactory(object):
     senders = {

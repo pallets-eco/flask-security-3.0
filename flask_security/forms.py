@@ -203,6 +203,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
             return False
         return True
 
+
 class TwoFactorEnterPhoneForm(Form, UserEmailFormMixin):
     """The Two Factor enter phone form"""
 
@@ -220,12 +221,15 @@ class TwoFactorEnterPhoneForm(Form, UserEmailFormMixin):
             return False
         return True
 
+
 class TwoFactorSetupForm(Form, UserEmailFormMixin):
     """The Two Factor token validation form"""
+
     setup = RadioField('Label', choices=[('mail', 'Set Up Using Mail'),
-                                         ('google_authenticator', 'Set Up Using Google Authenticator'),
-                                         ('sms', 'Set Up Using SMS')])
+                                        ('google_authenticator', 'Set Up Using Google Authenticator'),
+                                        ('sms', 'Set Up Using SMS')])
     submit = SubmitField(get_form_field_label('sumbit_choice'))
+
     def __init__(self, *args, **kwargs):
         super(TwoFactorSetupForm, self).__init__(*args, **kwargs)
 
@@ -253,6 +257,7 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
             # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
+
 
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
@@ -343,6 +348,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
             self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
             return False
         return True
+
 
 class TwoFactorChangeMethodForm(Form, PasswordFormMixin):
     """The default change password form"""

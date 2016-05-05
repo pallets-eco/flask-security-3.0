@@ -102,12 +102,9 @@ _default_config = {
         'plaintext'
     ],
     'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'TWO_FACTOR_EXISTING_METHODS': ['mail', 'google_authenticator', 'sms'],
+    'TWO_FACTOR_WANTED_METHODS': ['mail', 'google_authenticator', 'sms'],
 
-    'TWO_FACTOR_METHODS': {
-        'MAIL': False,
-        'GOOGLE_AUTHENTICATOR': False,
-        'SMS': False,
-    },
     'TWO_FACTOR_AUTHENTICATION': False,
     'TWO_FACTOR_LOGIN_USER_TEMPLATE': 'security/two_factor_login.html',
     'TWO_FACTOR_SEND_PHONE_TEMPLATE': 'security/two_factor_enter_phone.html',

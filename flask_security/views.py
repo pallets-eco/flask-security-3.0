@@ -348,13 +348,14 @@ def two_factor_change_method():
             else:
                 two_factor_verify_code_form = two_factor_verify_code_form()
                 two_factor_setup_form = two_factor_setup_form()
-                # change user's totp - qrcode will be unique everytime choose method template is called
-                current_user.totp = generate_totp()
+            # change user's totp - qrcode will be unique everytime choose method template is called
+            current_user.totp = generate_totp()
 
             return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
                                      two_factor_verify_code_form=two_factor_verify_code_form,
                                      two_factor_setup_form=two_factor_setup_form,
                                      next_endpoint='two_factor_change_method_token_validation',
+                                     choices=config_value('TWO_FACTOR_WANTED_METHODS'),
                                      **_ctx('two_factor_change_method_token_validation'))
     if request.json:
         form.user = current_user
@@ -397,6 +398,7 @@ def two_factor_login():
                                              two_factor_verify_code_form=two_factor_verify_code_form,
                                              two_factor_setup_form=two_factor_setup_form,
                                              next_endpoint='two_factor_token_validation',
+                                             choices=config_value('TWO_FACTOR_WANTED_METHODS'),
                                              **_ctx('two_factor_token_validation'))
         else:
             send_security_token(user=user, method=primary)
@@ -410,6 +412,7 @@ def two_factor_login():
     return _security.render_template(config_value('TWO_FACTOR_LOGIN_USER_TEMPLATE'),
                                          login_user_form=form,
                                          **_ctx('login'))
+
 
 @login_required
 def two_factor_change_method_token_validation():
@@ -444,6 +447,7 @@ def token_validation(user, next_endpoint):
                                                  two_factor_setup_form=two_factor_setup_form,
                                                  two_factor_enter_phone_form=two_factor_enter_phone_form,
                                                  next_endpoint=next_endpoint,
+                                                 choices=config_value('TWO_FACTOR_WANTED_METHODS'),
                                                  **_ctx(next_endpoint))
         else:
             session['two_factor_primary'] = method
@@ -454,6 +458,7 @@ def token_validation(user, next_endpoint):
                                                  two_factor_enter_phone_form=two_factor_enter_phone_form,
                                                  chosen_method=method,
                                                  next_endpoint =next_endpoint,
+                                                 choices=config_value('TWO_FACTOR_WANTED_METHODS'),
                                                  **_ctx(next_endpoint))
 
     if form.has_key('code'):
@@ -472,6 +477,7 @@ def token_validation(user, next_endpoint):
                                                  two_factor_setup_form=two_factor_setup_form,
                                                  two_factor_verify_code_form=two_factor_verify_code_form,
                                                  next_endpoint=next_endpoint,
+                                                 choices=config_value('TWO_FACTOR_WANTED_METHODS'),
                                                  **_ctx(next_endpoint))
     if request.json:
         form.user = current_user
@@ -482,9 +488,21 @@ def token_validation(user, next_endpoint):
                                      two_factor_verify_code_form=two_factor_verify_code_form,
                                       **_ctx('verify_code'))
 
-# @anonymous_user_required
+
+@login_required
+def two_factor_change_method_qrcode():
+    user = current_user
+    session['username'] = user.username
+    session['two_factor_primary'] = user.two_factor_primary_method
+    return two_factor_generate_qrcode()
+
+
+@anonymous_user_required
 def two_factor_qrcode():
-    """View function for generating a qrcode svg for two factor authentication"""
+    return two_factor_generate_qrcode()
+
+
+def two_factor_generate_qrcode():
     if 'username' not in session or 'two_factor_primary' not in session:
         return redirect(url_for('login'))
     user = _datastore.find_user(username=session['username'])
@@ -501,6 +519,7 @@ def two_factor_qrcode():
         'Expires': '0'}
 
 def construct_two_factor_setup_forms():
+    """View function for generating a qrcode svg for two factor authentication"""
     two_factor_verify_code_form = _security.two_factor_verify_code_form
     two_factor_setup_form = _security.two_factor_setup_form
     two_factor_enter_phone_form = _security.two_factor_enter_phone_form
@@ -587,7 +606,8 @@ def create_blueprint(state, import_name):
         bp.route(state.change_url + slash_url_suffix(state.change_url, 'two_factor_change_method_token_validation'),
                  methods=['GET', 'POST'],
                  endpoint='two_factor_change_method_token_validation')(two_factor_change_method_token_validation)
-
+        bp.route(state.login_url + slash_url_suffix(state.login_url, 'two_factor_change_method_qrcode'),
+                 endpoint='two_factor_change_method_qrcode')(two_factor_change_method_qrcode)
 
     if state.confirmable:
         bp.route(state.confirm_url,
