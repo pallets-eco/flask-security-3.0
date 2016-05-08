@@ -7,6 +7,7 @@
 """
 
 import time
+import json
 
 import pytest
 
@@ -77,6 +78,19 @@ def test_trackable_flag(app, client, get_message):
     response = client.post('/login', data=dict(email='bogus@bogus.com'))
     assert get_message('USER_DOES_NOT_EXIST') in response.data
 
+    # Test json based failed login
+    response = client.get('/login/bogus',
+                          headers=dict(Accept="application/json"))
+    assert get_message('INVALID_LOGIN_TOKEN') in response.data
+
+    # Test json based login
+    response = client.get('/login/' + token,
+                          headers=dict(Accept="application/json"))
+    assert 'next' in response.data
+    response_user = json.loads(response.data)['response']['user']
+    assert 'authentication_token' in response_user
+
+    logout(client)
 
 @pytest.mark.settings(login_within='1 milliseconds')
 def test_expired_login_token(client, app, get_message):
