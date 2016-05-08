@@ -407,7 +407,7 @@ class Security(object):
                  send_confirmation_form=None, passwordless_login_form=None,
                  anonymous_user=None):
         """Initializes the Flask-Security extension for the specified
-        application and datastore implentation.
+        application and datastore implementation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
