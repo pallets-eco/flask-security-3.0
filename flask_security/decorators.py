@@ -12,8 +12,8 @@
 from collections import namedtuple
 from functools import wraps
 
-from flask import abort, current_app, Response, request, \
-                   url_for, redirect, _request_ctx_stack
+from flask import (abort, current_app, Response, request,
+                   url_for, redirect, _request_ctx_stack)
 from flask_login import current_user, login_required  # pragma: no flakes
 from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
@@ -50,7 +50,7 @@ def _get_unauthorized_view():
             try:
                 view = url_for(view)
             except BuildError:
-                  view = None
+                view = None
         utils.do_flash(*utils.get_message('UNAUTHORIZED'))
         return redirect(view or request.referrer or '/')
     abort(403)

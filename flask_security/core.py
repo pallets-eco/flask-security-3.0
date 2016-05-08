@@ -24,7 +24,7 @@ from .utils import config_value as cv, get_config, md5, url_for_security, string
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm, TwoFactorEnterPhoneForm, TwoFactorVerifyCodeForm, \
+    SendConfirmationForm, PasswordlessLoginForm, TwoFactorVerifyCodeForm, \
     TwoFactorSetupForm, TwoFactorChangeMethodForm
 
 # Convenient references
@@ -90,6 +90,7 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'EMAIL_SUBJECT_TWO_FACTOR': 'Two Factor Authentication',
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -102,16 +103,13 @@ _default_config = {
         'plaintext'
     ],
     'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
-    'TWO_FACTOR_EXISTING_METHODS': ['mail', 'google_authenticator', 'sms'],
-    'TWO_FACTOR_WANTED_METHODS': ['mail', 'google_authenticator', 'sms'],
-
-    'TWO_FACTOR_AUTHENTICATION': False,
+    'TWO_FACTOR_ENABLED_METHODS': ['mail', 'google_authenticator'],
+    'TWO_FACTOR': False,
     'TWO_FACTOR_LOGIN_USER_TEMPLATE': 'security/two_factor_login.html',
     'TWO_FACTOR_SEND_PHONE_TEMPLATE': 'security/two_factor_enter_phone.html',
     'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
     'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_PASSWORD_TEMPLATE': 'security/two_factor_change_method.html',
-    'TWO_FACTOR_EMAIL_SUBJECT': 'Two Factor Authenticaion',
     'TWO_FACTOR_SMS_SERVICE': 'Dummy',
     'TWO_FACTOR_SMS_SERVICE_CONFIG': {
         'ACCOUNT_SID': None,
@@ -194,8 +192,6 @@ _default_messages = {
         'Invalid Token', 'error'),
     'TWO_FACTOR_LOGIN_SUCCESSFUL': (
         'Your token have been confirmed. You have successfuly logged in', 'success'),
-    'TWO_FACTOR_METHOD_CHANGE_SUCCEEDED': (
-        'You successfully entered your password. Now you can change your two factor method.', 'success'),
     'TWO_FACTOR_METHOD_CHANGE_FAILED': (
         'Invalid password.', 'error'),
     'TWO_FACTOR_METHOD_IS_THE_SAME': (
@@ -211,7 +207,6 @@ _default_forms = {
     'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
-    'two_factor_enter_phone_form': TwoFactorEnterPhoneForm,
     'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
     'two_factor_setup_form': TwoFactorSetupForm,
     'two_factor_change_method_form': TwoFactorChangeMethodForm,
@@ -436,8 +431,8 @@ class Security(object):
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
-                 anonymous_user=None, two_factor_enter_phone_form=None, two_factor_verify_code_form=None,
-                 two_factor_setup_form=None, two_factor_change_method_form=None):
+                 two_factor_verify_code_form=None, two_factor_setup_form=None,
+                 two_factor_change_method_form=None, anonymous_user=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -465,7 +460,6 @@ class Security(object):
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form,
                            anonymous_user=anonymous_user,
-                           two_factor_enter_phone_form=two_factor_enter_phone_form,
                            two_factor_verify_code_form=two_factor_verify_code_form,
                            two_factor_setup_form=two_factor_setup_form,
                            two_factor_change_method_form=two_factor_change_method_form)

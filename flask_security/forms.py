@@ -204,61 +204,6 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return True
 
 
-class TwoFactorEnterPhoneForm(Form, UserEmailFormMixin):
-    """The Two Factor enter phone form"""
-
-    phone = StringField(get_form_field_label('phone'))
-    submit = SubmitField(get_form_field_label('send_phone'))
-
-    def __init__(self, *args, **kwargs):
-        super(TwoFactorEnterPhoneForm, self).__init__(*args, **kwargs)
-
-    def validate(self):
-        if not super(TwoFactorEnterPhoneForm, self).validate():
-            return False
-        if not self.user.is_active:
-            # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
-            return False
-        return True
-
-
-class TwoFactorSetupForm(Form, UserEmailFormMixin):
-    """The Two Factor token validation form"""
-
-    setup = RadioField('Label', choices=[('mail', 'Set Up Using Mail'),
-                                        ('google_authenticator', 'Set Up Using Google Authenticator'),
-                                        ('sms', 'Set Up Using SMS')])
-    submit = SubmitField(get_form_field_label('sumbit_choice'))
-
-    def __init__(self, *args, **kwargs):
-        super(TwoFactorSetupForm, self).__init__(*args, **kwargs)
-
-    def validate(self):
-        if not super(TwoFactorSetupForm, self).validate():
-            return False
-        if not self.user.is_active:
-            # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
-            return False
-        return True
-
-class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
-    """The Two Factor token validation form"""
-
-    code = StringField(get_form_field_label('code'))
-    submit = SubmitField(get_form_field_label('submit_code'))
-
-    def __init__(self, *args, **kwargs):
-        super(TwoFactorVerifyCodeForm, self).__init__(*args, **kwargs)
-
-    def validate(self):
-        if not super(TwoFactorVerifyCodeForm, self).validate():
-            return False
-        if not self.user.is_active:
-            # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
-            return False
-        return True
-
-
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
@@ -346,6 +291,45 @@ class ChangePasswordForm(Form, PasswordFormMixin):
             return False
         if self.password.data.strip() == self.new_password.data.strip():
             self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
+            return False
+        return True
+
+
+class TwoFactorSetupForm(Form, UserEmailFormMixin):
+    """The Two Factor token validation form"""
+
+    setup = RadioField('Label', choices=[('mail', 'Set Up Using Mail'),
+                                        ('google_authenticator', 'Set Up Using Google Authenticator'),
+                                        ('sms', 'Set Up Using SMS')])
+    phone = StringField(get_form_field_label('phone'))
+    submit = SubmitField(get_form_field_label('sumbit'))
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorSetupForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+        if not super(TwoFactorSetupForm, self).validate():
+            return False
+        if not self.user.is_active:
+            # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            return False
+        return True
+
+
+class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
+    """The Two Factor token validation form"""
+
+    code = StringField(get_form_field_label('code'))
+    submit = SubmitField(get_form_field_label('submit_code'))
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorVerifyCodeForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+        if not super(TwoFactorVerifyCodeForm, self).validate():
+            return False
+        if not self.user.is_active:
+            # self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
 
