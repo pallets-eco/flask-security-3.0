@@ -9,6 +9,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from sqlalchemy import func as alchemyFn
+from peewee import fn as peeweeFn
 from .utils import get_identity_attributes, string_types
 
 
@@ -187,7 +189,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         if self._is_numeric(identifier):
             return self.user_model.query.get(identifier)
         for attr in get_identity_attributes():
-            query = getattr(self.user_model, attr).ilike(identifier)
+            query = alchemyFn.lower(getattr(self.user_model, attr)) == alchemyFn.lower(identifier)
             rv = self.user_model.query.filter(query).first()
             if rv is not None:
                 return rv
@@ -274,7 +276,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         for attr in get_identity_attributes():
             column = getattr(self.user_model, attr)
             try:
-                return self.user_model.get(column ** identifier)
+                return self.user_model.get(peeweeFn.Lower(column) == peeweeFn.Lower(identifier))
             except self.user_model.DoesNotExist:
                 pass
 

@@ -99,6 +99,10 @@ def test_get_user(app, datastore):
         user = datastore.get_user('matt')
         assert user is not None
 
+        # Regression check
+        user = datastore.get_user('%lp.com')
+        assert user is None
+
 
 def test_find_role(app, datastore):
     init_app_with_options(app, datastore)
