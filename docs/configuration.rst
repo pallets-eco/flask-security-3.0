@@ -15,6 +15,9 @@ Core
 ``SECURITY_URL_PREFIX``                  Specifies the URL prefix for the
                                          Flask-Security blueprint. Defaults to
                                          ``None``.
+``SECURITY_SUBDOMAIN``                   Specifies the subdomain for the 
+                                         Flask-Security blueprint. Defaults to
+                                         ``None``.
 ``SECURITY_FLASH_MESSAGES``              Specifies whether or not to flash
                                          messages during security procedures.
                                          Defaults to ``True``.
