@@ -1,0 +1,339 @@
+# Russian translations for Flask-Security.
+# Copyright (C) 2016 True Positive Lab
+# This file is distributed under the same license as the Flask-Security
+# project.
+# Vladislav Bortnikov <bortnikov.vladislav@e-sakha.ru>, 2016
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security VERSION\n"
+"Report-Msgid-Bugs-To: facepalmlite@gmail.com\n"
+"POT-Creation-Date: 2016-05-18 18:17+0300\n"
+"PO-Revision-Date: 2016-05-18 15:35+0300\n"
+"Last-Translator: Vladislav Bortnikov <bortnikov.vladislav@e-sakha.ru>\n"
+"Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: ../flask_security/core.py:86
+msgid "Login Required"
+msgstr "Необходим вход"
+
+#: ../flask_security/core.py:87
+#: ../flask_security/templates/security/email/login_instructions.html:1
+#: ../flask_security/templates/security/email/welcome.html:1
+msgid "Welcome"
+msgstr "Добро пожаловать"
+
+#: ../flask_security/core.py:88
+msgid "Please confirm your email"
+msgstr "Пожалуйста, подтвердите свой e-mail"
+
+#: ../flask_security/core.py:89
+msgid "Login instructions"
+msgstr "Инструкция по входу на сайт"
+
+#: ../flask_security/core.py:90
+#: ../flask_security/templates/security/email/reset_notice.html:1
+msgid "Your password has been reset"
+msgstr "Ваш пароль был сброшен"
+
+#: ../flask_security/core.py:91
+msgid "Your password has been changed"
+msgstr "Ваш пароль был изменён"
+
+#: ../flask_security/core.py:92
+msgid "Password reset instructions"
+msgstr "Инструкция по сбросу пароля"
+
+#: ../flask_security/core.py:110
+msgid "You do not have permission to view this resource."
+msgstr "У вас нет прав на просмотр этого ресурса"
+
+#: ../flask_security/core.py:112
+#, python-format
+msgid "Thank you. Confirmation instructions have been sent to %%(email)s."
+msgstr "Спасибо. Инструкция по подтверждению аккаунта отправлена на %%(email)s."
+
+#: ../flask_security/core.py:114
+msgid "Thank you. Your email has been confirmed."
+msgstr "Спасибо. E-mail подтверждён."
+
+#: ../flask_security/core.py:116
+msgid "Your email has already been confirmed."
+msgstr "Ваш e-mail уже был подтверждён."
+
+#: ../flask_security/core.py:118
+msgid "Invalid confirmation token."
+msgstr "Неправильный ключ подтверждения."
+
+#: ../flask_security/core.py:120
+#, python-format
+msgid "%%(email)s is already associated with an account."
+msgstr "%%(email)s уже используется."
+
+#: ../flask_security/core.py:122
+msgid "Password does not match"
+msgstr "Пароль не подходит"
+
+#: ../flask_security/core.py:124
+msgid "Passwords do not match"
+msgstr "Пароли не совпадают"
+
+#: ../flask_security/core.py:126
+msgid "Redirections outside the domain are forbidden"
+msgstr "Перенаправление вне домена запрещено"
+
+#: ../flask_security/core.py:128
+#, python-format
+msgid "Instructions to reset your password have been sent to %%(email)s."
+msgstr "Инструкция по сбросу пароля отправлена на %%(email)s."
+
+#: ../flask_security/core.py:130
+#, python-format
+msgid ""
+"You did not reset your password within %%(within)s. New instructions have"
+" been sent to %%(email)s."
+msgstr ""
+"Вы не сбросили свой пароль за отведённые %%(within)s. Новая инструкция "
+"отправлена на %%(email)s."
+
+#: ../flask_security/core.py:133
+msgid "Invalid reset password token."
+msgstr "Неправильный ключ сброса пароля."
+
+#: ../flask_security/core.py:135
+msgid "Email requires confirmation."
+msgstr "E-mail требует подтверждения."
+
+#: ../flask_security/core.py:137
+#, python-format
+msgid "Confirmation instructions have been sent to %%(email)s."
+msgstr "Инструкция по подтвержению аккаунта отправлена на %%(email)s."
+
+#: ../flask_security/core.py:139
+#, python-format
+msgid ""
+"You did not confirm your email within %%(within)s. New instructions to "
+"confirm your email have been sent to %%(email)s."
+msgstr ""
+"Вы не подтвердили свой e-mail за отведённые %%(within)s. Новая инструкция"
+" отправлена на %%(email)s."
+
+#: ../flask_security/core.py:142
+#, python-format
+msgid ""
+"You did not login within %%(within)s. New instructions to login have been"
+" sent to %%(email)s."
+msgstr ""
+"Вы не вошли на сайт за отведённые %%(within)s. Новая инструкция "
+"отправлена на %%(email)s."
+
+#: ../flask_security/core.py:145
+#, python-format
+msgid "Instructions to login have been sent to %%(email)s."
+msgstr "Инструкция по входу на сайт отправлена на %%(email)s."
+
+#: ../flask_security/core.py:147
+msgid "Invalid login token."
+msgstr "Неправильный ключ входа."
+
+#: ../flask_security/core.py:149
+msgid "Account is disabled."
+msgstr "Аккаунт отключён."
+
+#: ../flask_security/core.py:151
+msgid "Email not provided"
+msgstr "Не заполнен e-mail"
+
+#: ../flask_security/core.py:153
+msgid "Invalid email address"
+msgstr "Неправильный e-mail"
+
+#: ../flask_security/core.py:155
+msgid "Password not provided"
+msgstr "Не заполнен пароль"
+
+#: ../flask_security/core.py:157
+msgid "No password is set for this user"
+msgstr "Пароль для этого пользователя пуст"
+
+#: ../flask_security/core.py:159
+msgid "Password must be at least 6 characters"
+msgstr "Пароль должен содержать больше 5 символов"
+
+#: ../flask_security/core.py:161
+msgid "Specified user does not exist"
+msgstr "Требуемый пользователь не существует"
+
+#: ../flask_security/core.py:163
+msgid "Invalid password"
+msgstr "Неправильный пароль"
+
+#: ../flask_security/core.py:165
+msgid "You have successfully logged in."
+msgstr "Вы успешно вошли."
+
+#: ../flask_security/core.py:167
+msgid ""
+"You successfully reset your password and you have been logged in "
+"automatically."
+msgstr "Вы успешно сбросили пароль и вошли на сайт автоматически."
+
+#: ../flask_security/core.py:170
+msgid "Your new password must be different than your previous password."
+msgstr "Новый пароль должен отличаться от старого."
+
+#: ../flask_security/core.py:172
+msgid "You successfully changed your password."
+msgstr "Вы успешно сменили пароль."
+
+#: ../flask_security/core.py:174
+msgid "Please log in to access this page."
+msgstr "Войдите, чтобы попасть на эту страницу."
+
+#: ../flask_security/core.py:176
+msgid "Please reauthenticate to access this page."
+msgstr "Пожалуйста, войдите снова, чтобы попасть на эту страницу."
+
+#: ../flask_security/forms.py:29
+msgid "Email Address"
+msgstr "E-mail"
+
+#: ../flask_security/forms.py:30
+msgid "Password"
+msgstr "Пароль"
+
+#: ../flask_security/forms.py:31
+msgid "Remember Me"
+msgstr "Запомнить меня"
+
+#: ../flask_security/forms.py:32
+#: ../flask_security/templates/security/_menu.html:4
+#: ../flask_security/templates/security/login_user.html:3
+#: ../flask_security/templates/security/send_login.html:3
+msgid "Login"
+msgstr "Войти"
+
+#: ../flask_security/forms.py:33 ../flask_security/forms.py:38
+msgid "Retype Password"
+msgstr "Повторите пароль"
+
+#: ../flask_security/forms.py:34
+#: ../flask_security/templates/security/_menu.html:6
+#: ../flask_security/templates/security/register_user.html:3
+msgid "Register"
+msgstr "Зарегестрироваться"
+
+#: ../flask_security/forms.py:35
+msgid "Resend Confirmation Instructions"
+msgstr "Отправить инструкцию для подтверждения аккаунта"
+
+#: ../flask_security/forms.py:36
+msgid "Recover Password"
+msgstr "Восстановить пароль"
+
+#: ../flask_security/forms.py:37
+msgid "Reset Password"
+msgstr "Сбросить пароль"
+
+#: ../flask_security/forms.py:39
+msgid "New Password"
+msgstr "Новый пароль"
+
+#: ../flask_security/forms.py:40
+msgid "Change Password"
+msgstr "Сменить пароль"
+
+#: ../flask_security/forms.py:41
+msgid "Send Login Link"
+msgstr "Отправить ссылку для входа"
+
+#: ../flask_security/templates/security/_menu.html:2
+msgid "Menu"
+msgstr "Меню"
+
+#: ../flask_security/templates/security/_menu.html:9
+msgid "Forgot password"
+msgstr "Забыли пароль"
+
+#: ../flask_security/templates/security/_menu.html:12
+msgid "Confirm account"
+msgstr "Подтвердить аккаунт"
+
+#: ../flask_security/templates/security/change_password.html:3
+msgid "Change password"
+msgstr "Сменить пароль"
+
+#: ../flask_security/templates/security/forgot_password.html:3
+msgid "Send password reset instructions"
+msgstr "Отправить инструкцию для сброса пароля"
+
+#: ../flask_security/templates/security/reset_password.html:3
+msgid "Reset password"
+msgstr "Сбросить пароль"
+
+#: ../flask_security/templates/security/send_confirmation.html:3
+msgid "Resend confirmation instructions"
+msgstr "Отправить инструкцию для подтверждения аккаунта"
+
+#: ../flask_security/templates/security/email/change_notice.html:1
+msgid "Your password has been changed."
+msgstr "Ваш пароль изменён."
+
+#: ../flask_security/templates/security/email/change_notice.html:3
+msgid "If you did not change your password,"
+msgstr "Если вы не меняли ваш пароль"
+
+#: ../flask_security/templates/security/email/change_notice.html:3
+msgid "click here to reset it"
+msgstr "нажмите здесь, чтобы сбросить его"
+
+#: ../flask_security/templates/security/email/confirmation_instructions.html:1
+msgid "Please confirm your email through the link below:"
+msgstr "Пожалуйста, подтвердите свой e-mail, используя эту ссылку"
+
+#: ../flask_security/templates/security/email/confirmation_instructions.html:3
+#: ../flask_security/templates/security/email/welcome.html:6
+msgid "Confirm my account"
+msgstr "Подтвердить мой аккаунт"
+
+#: ../flask_security/templates/security/email/login_instructions.html:3
+msgid "You can log into your through the link below:"
+msgstr "Вы можете войти на сайт, используя эту ссылку:"
+
+#: ../flask_security/templates/security/email/login_instructions.html:5
+msgid "Login now"
+msgstr "Войти сейчас"
+
+#: ../flask_security/templates/security/email/reset_instructions.html:1
+msgid "Click here to reset your password"
+msgstr "Нажмите здесь, чтобы сбросить свой пароль"
+
+#: ../flask_security/templates/security/email/welcome.html:4
+msgid "You can confirm your email through the link below:"
+msgstr "Вы можете подтвердить свой e-mail, используя эту ссылку:"
+
+#~ msgid "Thank you. Confirmation instructions have been sent to %(email)s."
+#~ msgstr "Спасибо. Инструкции по подверждению были отправлены на %(email)s."
+
+#~ msgid "%(email)s is already associated with an account."
+#~ msgstr "Адрес %(email)s уже используется."
+
+#~ msgid "Instructions to reset your password have been sent to %(email)s."
+#~ msgstr "Инструкции по сбросу пароля отправлены на %(email)s"
+
+#~ msgid ""
+#~ msgstr ""
+
+#~ msgid "Confirmation instructions have been sent to %(email)s."
+#~ msgstr "Инструкции для подтверждения адреса отправлены на %(email)s."
+
+#~ msgid "Instructions to login have been sent to %(email)s."
+#~ msgstr "Инструкции для входа на сайт отправлены на %(email)s."
+

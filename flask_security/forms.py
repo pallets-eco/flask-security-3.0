@@ -18,6 +18,7 @@ from wtforms import StringField, PasswordField, validators, \
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
+from .babel import lazy_gettext as _
 from .confirmable import requires_confirmation
 from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
 
@@ -25,23 +26,24 @@ from .utils import verify_and_update_password, get_message, config_value, valida
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 _default_field_labels = {
-    'email': 'Email Address',
-    'password': 'Password',
-    'remember_me': 'Remember Me',
-    'login': 'Login',
-    'retype_password': 'Retype Password',
-    'register': 'Register',
-    'send_confirmation': 'Resend Confirmation Instructions',
-    'recover_password': 'Recover Password',
-    'reset_password': 'Reset Password',
-    'retype_password': 'Retype Password',
-    'new_password': 'New Password',
-    'change_password': 'Change Password',
-    'send_login_link': 'Send Login Link'
+    'email': _('Email Address'),
+    'password': _('Password'),
+    'remember_me': _('Remember Me'),
+    'login': _('Login'),
+    'retype_password': _('Retype Password'),
+    'register': _('Register'),
+    'send_confirmation': _('Resend Confirmation Instructions'),
+    'recover_password': _('Recover Password'),
+    'reset_password': _('Reset Password'),
+    'retype_password': _('Retype Password'),
+    'new_password': _('New Password'),
+    'change_password': _('Change Password'),
+    'send_login_link': _('Send Login Link')
 }
 
 
 class ValidatorMixin(object):
+
     def __call__(self, form, field):
         if self.message and self.message.isupper():
             self.message = get_message(self.message)[0]
@@ -87,6 +89,7 @@ def valid_user_email(form, field):
 
 
 class Form(BaseForm):
+
     def __init__(self, *args, **kwargs):
         if current_app.testing:
             self.TIME_LIMIT = None
@@ -224,7 +227,8 @@ class LoginForm(Form, NextFormMixin):
             return False
 
         if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
+            self.password.errors.append(
+                get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
 
         self.user = _datastore.get_user(self.email.data)
@@ -254,6 +258,7 @@ class ConfirmRegisterForm(Form, RegisterFormMixin,
 
 class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
                    NextFormMixin):
+
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         if not self.next.data:

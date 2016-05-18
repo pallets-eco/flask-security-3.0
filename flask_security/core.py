@@ -20,6 +20,7 @@ from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
+from .babel import lazy_gettext as _
 from .utils import config_value as cv, get_config, md5, url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
@@ -82,13 +83,13 @@ _default_config = {
     'CHANGE_SALT': 'change-salt',
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_REMEMBER_ME': False,
-    'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
-    'EMAIL_SUBJECT_REGISTER': 'Welcome',
-    'EMAIL_SUBJECT_CONFIRM': 'Please confirm your email',
-    'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
-    'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
-    'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
-    'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'DEFAULT_HTTP_AUTH_REALM': _('Login Required'),
+    'EMAIL_SUBJECT_REGISTER': _('Welcome'),
+    'EMAIL_SUBJECT_CONFIRM': _('Please confirm your email'),
+    'EMAIL_SUBJECT_PASSWORDLESS': _('Login instructions'),
+    'EMAIL_SUBJECT_PASSWORD_NOTICE': _('Your password has been reset'),
+    'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': _('Your password has been changed'),
+    'EMAIL_SUBJECT_PASSWORD_RESET': _('Password reset instructions'),
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -106,73 +107,73 @@ _default_config = {
 #: Default Flask-Security messages
 _default_messages = {
     'UNAUTHORIZED': (
-        'You do not have permission to view this resource.', 'error'),
+        _('You do not have permission to view this resource.'), 'error'),
     'CONFIRM_REGISTRATION': (
-        'Thank you. Confirmation instructions have been sent to %(email)s.', 'success'),
+        _('Thank you. Confirmation instructions have been sent to %%(email)s.'), 'success'),
     'EMAIL_CONFIRMED': (
-        'Thank you. Your email has been confirmed.', 'success'),
+        _('Thank you. Your email has been confirmed.'), 'success'),
     'ALREADY_CONFIRMED': (
-        'Your email has already been confirmed.', 'info'),
+        _('Your email has already been confirmed.'), 'info'),
     'INVALID_CONFIRMATION_TOKEN': (
-        'Invalid confirmation token.', 'error'),
+        _('Invalid confirmation token.'), 'error'),
     'EMAIL_ALREADY_ASSOCIATED': (
-        '%(email)s is already associated with an account.', 'error'),
+        _('%%(email)s is already associated with an account.'), 'error'),
     'PASSWORD_MISMATCH': (
-        'Password does not match', 'error'),
+        _('Password does not match'), 'error'),
     'RETYPE_PASSWORD_MISMATCH': (
-        'Passwords do not match', 'error'),
+        _('Passwords do not match'), 'error'),
     'INVALID_REDIRECT': (
-        'Redirections outside the domain are forbidden', 'error'),
+        _('Redirections outside the domain are forbidden'), 'error'),
     'PASSWORD_RESET_REQUEST': (
-        'Instructions to reset your password have been sent to %(email)s.', 'info'),
+        _('Instructions to reset your password have been sent to %%(email)s.'), 'info'),
     'PASSWORD_RESET_EXPIRED': (
-        'You did not reset your password within %(within)s. New instructions have been sent '
-        'to %(email)s.', 'error'),
+        _('You did not reset your password within %%(within)s. New instructions have been sent '
+          'to %%(email)s.'), 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': (
-        'Invalid reset password token.', 'error'),
+        _('Invalid reset password token.'), 'error'),
     'CONFIRMATION_REQUIRED': (
-        'Email requires confirmation.', 'error'),
+        _('Email requires confirmation.'), 'error'),
     'CONFIRMATION_REQUEST': (
-        'Confirmation instructions have been sent to %(email)s.', 'info'),
+        _('Confirmation instructions have been sent to %%(email)s.'), 'info'),
     'CONFIRMATION_EXPIRED': (
-        'You did not confirm your email within %(within)s. New instructions to confirm your email '
-        'have been sent to %(email)s.', 'error'),
+        _('You did not confirm your email within %%(within)s. New instructions to '
+          'confirm your email have been sent to %%(email)s.'), 'error'),
     'LOGIN_EXPIRED': (
-        'You did not login within %(within)s. New instructions to login have been sent to '
-        '%(email)s.', 'error'),
+        _('You did not login within %%(within)s. New instructions to login have been sent to '
+          '%%(email)s.'), 'error'),
     'LOGIN_EMAIL_SENT': (
-        'Instructions to login have been sent to %(email)s.', 'success'),
+        _('Instructions to login have been sent to %%(email)s.'), 'success'),
     'INVALID_LOGIN_TOKEN': (
-        'Invalid login token.', 'error'),
+        _('Invalid login token.'), 'error'),
     'DISABLED_ACCOUNT': (
-        'Account is disabled.', 'error'),
+        _('Account is disabled.'), 'error'),
     'EMAIL_NOT_PROVIDED': (
-        'Email not provided', 'error'),
+        _('Email not provided'), 'error'),
     'INVALID_EMAIL_ADDRESS': (
-        'Invalid email address', 'error'),
+        _('Invalid email address'), 'error'),
     'PASSWORD_NOT_PROVIDED': (
-        'Password not provided', 'error'),
+        _('Password not provided'), 'error'),
     'PASSWORD_NOT_SET': (
-        'No password is set for this user', 'error'),
+        _('No password is set for this user'), 'error'),
     'PASSWORD_INVALID_LENGTH': (
-        'Password must be at least 6 characters', 'error'),
+        _('Password must be at least 6 characters'), 'error'),
     'USER_DOES_NOT_EXIST': (
-        'Specified user does not exist', 'error'),
+        _('Specified user does not exist'), 'error'),
     'INVALID_PASSWORD': (
-        'Invalid password', 'error'),
+        _('Invalid password'), 'error'),
     'PASSWORDLESS_LOGIN_SUCCESSFUL': (
-        'You have successfully logged in.', 'success'),
+        _('You have successfully logged in.'), 'success'),
     'PASSWORD_RESET': (
-        'You successfully reset your password and you have been logged in automatically.',
+        _('You successfully reset your password and you have been logged in automatically.'),
         'success'),
     'PASSWORD_IS_THE_SAME': (
-        'Your new password must be different than your previous password.', 'error'),
+        _('Your new password must be different than your previous password.'), 'error'),
     'PASSWORD_CHANGE': (
-        'You successfully changed your password.', 'success'),
+        _('You successfully changed your password.'), 'success'),
     'LOGIN': (
-        'Please log in to access this page.', 'info'),
+        _('Please log in to access this page.'), 'info'),
     'REFRESH': (
-        'Please reauthenticate to access this page.', 'info'),
+        _('Please reauthenticate to access this page.'), 'info'),
 }
 
 _default_forms = {
@@ -193,7 +194,8 @@ def _user_loader(user_id):
 
 def _token_loader(token):
     try:
-        data = _security.remember_token_serializer.loads(token, max_age=_security.token_max_age)
+        data = _security.remember_token_serializer.loads(
+            token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
         if user and safe_str_cmp(md5(user.password), data[1]):
             return user
@@ -227,7 +229,8 @@ def _get_login_manager(app, anonymous_user):
 
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
-        lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
+        lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
+            'MSG_REFRESH', app=app)
     else:
         lm.login_message = None
         lm.needs_refresh_message = None
@@ -248,7 +251,8 @@ def _get_pwd_context(app):
     deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
-        raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
+        raise ValueError(
+            "Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
     return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
@@ -393,6 +397,7 @@ class Security(object):
     :param app: The application.
     :param datastore: An instance of a user datastore.
     """
+
     def __init__(self, app=None, datastore=None, **kwargs):
         self.app = app
         self.datastore = datastore
