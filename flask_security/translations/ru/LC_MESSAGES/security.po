@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security VERSION\n"
 "Report-Msgid-Bugs-To: facepalmlite@gmail.com\n"
-"POT-Creation-Date: 2016-05-18 17:43+0300\n"
+"POT-Creation-Date: 2016-05-18 18:17+0300\n"
 "PO-Revision-Date: 2016-05-18 15:35+0300\n"
 "Last-Translator: Vladislav Bortnikov <bortnikov.vladislav@e-sakha.ru>\n"
 "Language: ru\n"
@@ -265,6 +265,10 @@ msgstr "Забыли пароль"
 #: ../flask_security/templates/security/_menu.html:12
 msgid "Confirm account"
 msgstr "Подтвердить аккаунт"
+
+#: ../flask_security/templates/security/change_password.html:3
+msgid "Change password"
+msgstr "Сменить пароль"
 
 #: ../flask_security/templates/security/forgot_password.html:3
 msgid "Send password reset instructions"

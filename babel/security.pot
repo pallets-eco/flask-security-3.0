@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-18 17:45+0300\n"
+"POT-Creation-Date: 2016-05-18 18:19+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -256,6 +256,10 @@ msgstr ""
 
 #: ../flask_security/templates/security/_menu.html:12
 msgid "Confirm account"
+msgstr ""
+
+#: ../flask_security/templates/security/change_password.html:3
+msgid "Change password"
 msgstr ""
 
 #: ../flask_security/templates/security/forgot_password.html:3

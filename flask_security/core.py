@@ -136,8 +136,8 @@ _default_messages = {
     'CONFIRMATION_REQUEST': (
         _('Confirmation instructions have been sent to %%(email)s.'), 'info'),
     'CONFIRMATION_EXPIRED': (
-        _('You did not confirm your email within %%(within)s. New instructions to confirm your email '
-          'have been sent to %%(email)s.'), 'error'),
+        _('You did not confirm your email within %%(within)s. New instructions to '
+          'confirm your email have been sent to %%(email)s.'), 'error'),
     'LOGIN_EXPIRED': (
         _('You did not login within %%(within)s. New instructions to login have been sent to '
           '%%(email)s.'), 'error'),

@@ -15,11 +15,26 @@ import pytest
 from flask import Flask, render_template
 from flask_mail import Mail
 
+from flask_babelex import Babel
+
 from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
     PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
     auth_token_required, auth_required, roles_required, roles_accepted
 
 from utils import populate_data, Response
+
+# We need to use custom JSONEncoder because of lazy strings
+from flask.json import JSONEncoder as BaseEncoder
+from speaklater import is_lazy_string
+
+
+class JSONEncoder(BaseEncoder):
+
+    def default(self, o):
+        if is_lazy_string(o):
+            return str(o)
+
+        return BaseEncoder.default(self, o)
 
 
 @pytest.fixture()
@@ -41,7 +56,10 @@ def app(request):
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
+    babel = Babel(app)
+    app.json_encoder = JSONEncoder
     app.mail = mail
+    app.babel = babel
 
     @app.route('/')
     def index():
@@ -152,7 +170,8 @@ def mongoengine_datastore(request, app):
 def sqlalchemy_datastore(request, app, tmpdir):
     from flask_sqlalchemy import SQLAlchemy
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
     db = SQLAlchemy(app)
@@ -195,7 +214,8 @@ def peewee_datastore(request, app, tmpdir):
     from peewee import TextField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
     from flask_peewee.db import Database
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['DATABASE'] = {
         'name': path,
