@@ -3,5 +3,6 @@ include requirements.txt
 include requirements-dev.txt
 include tox.ini
 recursive-include flask_security/templates *.*
+recursive-include flask_security/translations *
 recursive-include tests *
 recursive-exclude tests/__pycache__ *

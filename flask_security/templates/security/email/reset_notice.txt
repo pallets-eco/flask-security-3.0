@@ -1,1 +1,1 @@
-Your password has been reset
+{{ _('Your password has been reset') }}
