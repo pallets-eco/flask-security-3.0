@@ -20,8 +20,8 @@ from utils import logout
 
 pytestmark = pytest.mark.passwordless()
 
-
-def test_trackable_flag(app, client, get_message):
+@pytest.fixture()
+def instructions_sent(app):
     recorded = []
 
     @login_instructions_sent.connect_via(app)
@@ -30,28 +30,35 @@ def test_trackable_flag(app, client, get_message):
         assert isinstance(user, UserMixin)
         assert isinstance(login_token, string_types)
         recorded.append(user)
+    return recorded
 
-    # Test disabled account
+
+def test_disabled_count(app, client, get_message):
     response = client.post('/login', data=dict(email='tiya@lp.com'), follow_redirects=True)
     assert get_message('DISABLED_ACCOUNT') in response.data
 
-    # Test login with json and valid email
+def test_valid_json_login_existing_user(app, client, get_message, instructions_sent):
     data = '{"email": "matt@lp.com", "password": "password"}'
     response = client.post('/login', data=data, headers={'Content-Type': 'application/json'})
     assert response.status_code == 200
-    assert len(recorded) == 1
+    assert len(instructions_sent) == 1
 
-    # Test login with json and invalid email
+'''
+def test_valid_json_login_new_user(app, client, get_message, instructions_sent):
     data = '{"email": "nobody@lp.com", "password": "password"}'
     response = client.post('/login', data=data, headers={'Content-Type': 'application/json'})
-    assert b'errors' in response.data
+    assert response.status_code == 200
+    assert len(instructions_sent) == 1
+'''
 
+def test_trackable_flag(app, client, get_message, instructions_sent):
     # Test sends email and shows appropriate response
     with capture_passwordless_login_requests() as requests:
         with app.mail.record_messages() as outbox:
-            response = client.post('/login', data=dict(email='matt@lp.com'), follow_redirects=True)
+            response = client.post('/login', data=dict(email='matt@lp.com'),
+                                   follow_redirects=True)
 
-    assert len(recorded) == 2
+    assert len(instructions_sent) == 1
     assert len(requests) == 1
     assert len(outbox) == 1
     assert 'user' in requests[0]
@@ -70,27 +77,28 @@ def test_trackable_flag(app, client, get_message):
 
     logout(client)
 
-    # Test invalid token
-    response = client.get('/login/bogus', follow_redirects=True)
-    assert get_message('INVALID_LOGIN_TOKEN') in response.data
-
-    # Test login request with invalid email
-    response = client.post('/login', data=dict(email='bogus@bogus.com'))
-    assert get_message('USER_DOES_NOT_EXIST') in response.data
-
-    # Test json based failed login
-    response = client.get('/login/bogus',
-                          headers=dict(Accept="application/json"))
-    assert get_message('INVALID_LOGIN_TOKEN') in response.data
-
     # Test json based login
     response = client.get('/login/' + token,
                           headers=dict(Accept="application/json"))
     assert 'next' in response.data
     response_user = json.loads(response.data)['response']['user']
     assert 'authentication_token' in response_user
+    assert response_user['authentication_token'] != token
 
     logout(client)
+
+
+def test_invalid_login_token(app, client, get_message):
+    response = client.get('/login/bogus', follow_redirects=True)
+    assert get_message('INVALID_LOGIN_TOKEN') in response.data
+
+
+def test_invalid_login_token_json(app, client, get_message):
+    # Test json based failed login
+    response = client.get('/login/bogus',
+                          headers=dict(Accept="application/json"))
+    assert get_message('INVALID_LOGIN_TOKEN') in response.data
+
 
 @pytest.mark.settings(login_within='1 milliseconds')
 def test_expired_login_token(client, app, get_message):

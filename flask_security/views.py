@@ -151,6 +151,10 @@ def send_login():
         form = form_class()
 
     if form.validate_on_submit():
+        user_data = form.to_dict()
+        if not form.user:
+            user = _datastore.create_user(**user_data)
+            form.user = user
         send_login_instructions(form.user)
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))

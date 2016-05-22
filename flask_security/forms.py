@@ -184,9 +184,13 @@ class ForgotPasswordForm(Form, UserEmailFormMixin):
         return True
 
 
-class PasswordlessLoginForm(Form, UserEmailFormMixin):
+class PasswordlessLoginForm(Form):
     """The passwordless login form"""
 
+    user = None
+    email = StringField(
+        get_form_field_label('email'),
+        validators=[email_required, email_validator])
     submit = SubmitField(get_form_field_label('send_login_link'))
 
     def __init__(self, *args, **kwargs):
@@ -195,10 +199,21 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
     def validate(self):
         if not super(PasswordlessLoginForm, self).validate():
             return False
-        if not self.user.is_active:
+
+        self.user = _datastore.get_user(self.email.data)
+        if self.user and not self.user.is_active:
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
+
+    def to_dict(form):
+        def is_field_and_user_attr(member):
+            return isinstance(member, Field) and \
+                hasattr(_datastore.user_model, member.name)
+
+        fields = inspect.getmembers(form, is_field_and_user_attr)
+        return dict((key, value.data) for key, value in fields)
+
 
 
 class LoginForm(Form, NextFormMixin):
