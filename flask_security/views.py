@@ -141,7 +141,9 @@ def register():
 
 
 def send_login():
-    """View function that sends login instructions for passwordless login"""
+    """View function that creates a new user, ot updates an existing user with 
+       fields from the form and sends passwordless login instructions
+    """
 
     form_class = _security.passwordless_login_form
 
@@ -155,6 +157,13 @@ def send_login():
         if not form.user:
             user = _datastore.create_user(**user_data)
             form.user = user
+        else:
+            for k,v in user_data.items():
+                try:
+                    setattr(form.user, k, v)
+                except KeyError:
+                    continue
+            _datastore.put(form.user)
         send_login_instructions(form.user)
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
