@@ -31,9 +31,9 @@ def app(request):
     app.config['TESTING'] = True
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
-
+    app.config['SECURITY_TWO_FACTOR_SMS_SERVICE'] = 'test'
     for opt in ['changeable', 'recoverable', 'registerable',
-                'trackable', 'passwordless', 'confirmable']:
+                'trackable', 'passwordless', 'confirmable', 'two_factor']:
         app.config['SECURITY_' + opt.upper()] = opt in request.keywords
 
     if 'settings' in request.keywords:
@@ -135,6 +135,9 @@ def mongoengine_datastore(request, app):
         password = db.StringField(required=False, max_length=255)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()
+        two_factor_primary_method = db.StringField(max_length=255)
+        totp_secret = db.StringField(max_length=255)
+        phone_number = db.StringField(max_length=255)
         last_login_ip = db.StringField(max_length=100)
         current_login_ip = db.StringField(max_length=100)
         login_count = db.IntField()
@@ -173,6 +176,9 @@ def sqlalchemy_datastore(request, app, tmpdir):
         username = db.Column(db.String(255))
         password = db.Column(db.String(255))
         last_login_at = db.Column(db.DateTime())
+        two_factor_primary_method = db.Column(db.String(255))
+        totp_secret = db.Column(db.String(255))
+        phone_number = db.Column(db.String(255))
         current_login_at = db.Column(db.DateTime())
         last_login_ip = db.Column(db.String(100))
         current_login_ip = db.Column(db.String(100))
@@ -214,6 +220,9 @@ def peewee_datastore(request, app, tmpdir):
         password = TextField(null=True)
         last_login_at = DateTimeField(null=True)
         current_login_at = DateTimeField(null=True)
+        two_factor_primary_method = TextField(null=True)
+        totp_secret = TextField(null=True)
+        phone_number = TextField(null=True)
         last_login_ip = TextField(null=True)
         current_login_ip = TextField(null=True)
         login_count = IntegerField(null=True)
