@@ -11,8 +11,13 @@
 """
 
 import inspect
+import os
 
 from flask import Markup, current_app, flash, request
+from flask import request, current_app, flash, session
+from flask_wtf import Form as BaseForm
+from wtforms import StringField, PasswordField, validators, \
+    SubmitField, HiddenField, BooleanField, ValidationError, Field, RadioField
 from flask_login import current_user
 from flask_wtf import FlaskForm as BaseForm
 from speaklater import make_lazy_gettext
@@ -22,6 +27,7 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
     localize_callback, url_for_security, validate_redirect_url
+from .twofactor import verify_totp
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -38,6 +44,9 @@ _default_field_labels = {
     'new_password': _('New Password'),
     'change_password': _('Change Password'),
     'send_login_link': _('Send Login Link')
+    'verify_password': 'Verify Method'
+    'change_method': 'Change Method',
+    'phone': 'Phone Number',
 }
 
 
@@ -297,4 +306,100 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if self.password.data == self.new_password.data:
             self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
             return False
+        return True
+
+
+class TwoFactorSetupForm(Form, UserEmailFormMixin):
+    """The Two Factor token validation form"""
+
+    setup = RadioField('Available Methods', choices=[('mail', 'Set Up Using Mail'),
+                                                     ('google_authenticator',
+                                                      'Set Up Using Google Authenticator'),
+                                                     ('sms', 'Set Up Using SMS')])
+    phone = StringField(get_form_field_label('phone'))
+    submit = SubmitField(get_form_field_label('sumbit'))
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorSetupForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+        if 'setup' not in self.data or self.data['setup']\
+                not in config_value('TWO_FACTOR_ENABLED_METHODS'):
+            do_flash(*get_message('TWO_FACTOR_METHOD_NOT_AVAILABLE'))
+            return False
+
+        return True
+
+
+class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
+    """The Two Factor token validation form"""
+
+    code = StringField(get_form_field_label('code'))
+    submit = SubmitField(get_form_field_label('submit code'))
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorVerifyCodeForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+        if 'email' in session:
+            self.user = _datastore.find_user(email=session['email'])
+        elif 'password_confirmed' in session:
+            self.user = current_user
+        else:
+            os.abort()
+        # codes sent by sms or mail will be valid for another window cycle
+        if session['primary_method'] == 'google_authenticator':
+            self.window = config_value('TWO_FACTOR_GOOGLE_AUTH_VALIDITY')
+        elif session['primary_method'] == 'mail':
+            self.window = config_value('TWO_FACTOR_MAIL_VALIDITY')
+        elif session['primary_method'] == 'sms':
+            self.window = config_value('TWO_FACTOR_SMS_VALIDITY')
+        else:
+            return False
+
+        # verify entered token with user's totp secret
+        if not verify_totp(token=self.code.data, totp_secret=session['totp_secret'],
+                           window=self.window):
+            do_flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
+            return False
+
+        return True
+
+
+class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
+    """The default change password form"""
+
+    submit = SubmitField(get_form_field_label('verify_password'))
+
+    def validate(self):
+        if not super(TwoFactorChangeMethodVerifyPasswordForm, self).validate():
+            do_flash(*get_message('INVALID_PASSWORD'))
+            return False
+
+        if not verify_and_update_password(self.password.data, current_user):
+            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
+            return False
+
+        return True
+
+
+class TwoFactorRescueForm(Form, UserEmailFormMixin):
+    """The Two Factor Rescue validation form"""
+
+    help_setup = RadioField('Trouble Accessing Your Account?',
+                            choices=[('lost_device', 'Can not access mobile device?'),
+                                     ('no_mail_access', 'Can not access mail account?')])
+    submit = SubmitField(get_form_field_label('submit'))
+
+    def __init__(self, *args, **kwargs):
+        super(TwoFactorRescueForm, self).__init__(*args, **kwargs)
+
+    def validate(self):
+
+        self.user = _datastore.find_user(email=session['email'])
+
+        if 'primary_method' not in session or 'totp_secret' not in session:
+            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            return False
+
         return True
