@@ -201,6 +201,15 @@ def _token_loader(token):
         pass
     return _security.login_manager.anonymous_user()
 
+def _request_loader(request):
+    header_key = _security.token_authentication_header
+    args_key = _security.token_authentication_key
+    header_token = request.headers.get(header_key, None)
+    token = request.args.get(args_key, header_token)
+    if request.get_json(silent=True):
+        if not isinstance(request.json, list):
+            token = request.json.get(args_key, token)
+    return _token_loader(token)
 
 def _identity_loader():
     if not isinstance(current_user._get_current_object(), AnonymousUserMixin):
@@ -224,7 +233,8 @@ def _get_login_manager(app, anonymous_user):
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.token_loader(_token_loader)
-
+    lm.request_loader(_request_loader)
+    
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
         lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
