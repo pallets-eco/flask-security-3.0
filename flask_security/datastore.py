@@ -27,6 +27,15 @@ class Datastore(object):
 
 
 class SQLAlchemyDatastore(Datastore):
+    def __init__(self, db):
+        try:
+            from flask_sqlalchemy import SQLAlchemy
+            if isinstance(db, SQLAlchemy):
+                db = db.session
+        except ImportError:
+            pass
+        super(SQLAlchemyDatastore, self).__init__(db)
+
     def commit(self):
         self.db.commit()
 

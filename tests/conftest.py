@@ -191,6 +191,42 @@ def sqlalchemy_datastore():
 
     return SQLAlchemyUserDatastore(Session(), User, Role)
 
+@pytest.fixture()
+def flask_sqlalchemy_datastore(app):
+    from flask_sqlalchemy import SQLAlchemy
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+    db = SQLAlchemy(app)
+
+    roles_users = db.Table(
+        'roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
+    class Role(db.Model, RoleMixin):
+        id = db.Column(db.Integer(), primary_key=True)
+        name = db.Column(db.String(80), unique=True)
+        description = db.Column(db.String(255))
+
+    class User(db.Model, UserMixin):
+        id = db.Column(db.Integer, primary_key=True)
+        email = db.Column(db.String(255), unique=True)
+        username = db.Column(db.String(255))
+        password = db.Column(db.String(255))
+        last_login_at = db.Column(db.DateTime())
+        current_login_at = db.Column(db.DateTime())
+        last_login_ip = db.Column(db.String(100))
+        current_login_ip = db.Column(db.String(100))
+        login_count = db.Column(db.Integer)
+        active = db.Column(db.Boolean())
+        confirmed_at = db.Column(db.DateTime())
+        roles = db.relationship('Role', secondary=roles_users,
+                                backref=db.backref('users', lazy='dynamic'))
+
+    with app.app_context():
+        db.create_all()
+
+    return SQLAlchemyUserDatastore(db, User, Role)
 
 @pytest.fixture()
 def peewee_datastore(request, app, tmpdir):
@@ -278,10 +314,12 @@ def get_message(app):
     return fn
 
 
-@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
-def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
+@pytest.fixture(params=['sqlalchemy', 'flask_sqlalchemy', 'mongoengine', 'peewee'])
+def datastore(request, sqlalchemy_datastore, flask_sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
+    elif request.param == 'flask_sqlalchemy':
+        rv = flask_sqlalchemy_datastore
     elif request.param == 'mongoengine':
         rv = mongoengine_datastore
     elif request.param == 'peewee':
