@@ -6,19 +6,15 @@
     Test fixtures and what not
 """
 
-import os
-import tempfile
 import time
 
 import pytest
-
 from flask import Flask, render_template
 from flask_mail import Mail
 
 from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
     PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
     auth_token_required, auth_required, roles_required, roles_accepted
-
 from utils import populate_data, Response
 
 
@@ -228,15 +224,14 @@ def flask_sqlalchemy_datastore(app):
 
     return SQLAlchemyUserDatastore(db, User, Role)
 
+
 @pytest.fixture()
-def peewee_datastore(request, app, tmpdir):
+def peewee_datastore(app):
     from peewee import TextField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
     from flask_peewee.db import Database
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
-
     app.config['DATABASE'] = {
-        'name': path,
+        'name': ':memory:',
         'engine': 'peewee.SqliteDatabase'
     }
 
@@ -269,8 +264,6 @@ def peewee_datastore(request, app, tmpdir):
     with app.app_context():
         for Model in (Role, User, UserRoles):
             Model.create_table()
-
-    request.addfinalizer(lambda: os.remove(path))
 
     return PeeweeUserDatastore(db, User, Role, UserRoles)
 
