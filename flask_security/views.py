@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.views
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.views
+    ~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security views module
 
@@ -26,7 +26,7 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for
+    url_for_security as url_for, slash_url_suffix
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -90,7 +90,7 @@ def login():
 def logout():
     """View function which handles a logout request."""
 
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         logout_user()
 
     return redirect(request.args.get('next', None) or
@@ -238,6 +238,7 @@ def confirm_email(token):
                     get_url(_security.post_login_view))
 
 
+@anonymous_user_required
 def forgot_password():
     """View function that handles a forgotten password request."""
 
@@ -333,7 +334,7 @@ def create_blueprint(state, import_name):
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
-        bp.route(state.login_url + '/<token>',
+        bp.route(state.login_url + slash_url_suffix(state.login_url, '<token>'),
                  endpoint='token_login')(token_login)
     else:
         bp.route(state.login_url,
@@ -349,7 +350,7 @@ def create_blueprint(state, import_name):
         bp.route(state.reset_url,
                  methods=['GET', 'POST'],
                  endpoint='forgot_password')(forgot_password)
-        bp.route(state.reset_url + '/<token>',
+        bp.route(state.reset_url + slash_url_suffix(state.reset_url, '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
 
@@ -362,7 +363,7 @@ def create_blueprint(state, import_name):
         bp.route(state.confirm_url,
                  methods=['GET', 'POST'],
                  endpoint='send_confirmation')(send_confirmation)
-        bp.route(state.confirm_url + '/<token>',
+        bp.route(state.confirm_url + slash_url_suffix(state.confirm_url, '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='confirm_email')(confirm_email)
 

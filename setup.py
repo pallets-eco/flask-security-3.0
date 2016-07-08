@@ -32,7 +32,7 @@ class PyTest(TestCommand):
             '--cov-report', 'term-missing',
             '--pep8',
             '--flakes',
-            '--clearcache'
+            '--cache-clear'
         ]
         self.test_suite = True
 
@@ -44,7 +44,7 @@ class PyTest(TestCommand):
 
 setup(
     name='Flask-Security',
-    version='1.7.4',
+    version='1.7.5',
     url='https://github.com/mattupstate/flask-security',
     license='MIT',
     author='Matt Wright',

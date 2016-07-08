@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.passwordless
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.passwordless
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security passwordless module
 
@@ -35,8 +35,7 @@ def send_login_instructions(user):
     send_mail(config_value('EMAIL_SUBJECT_PASSWORDLESS'), user.email,
               'login_instructions', user=user, login_link=login_link)
 
-    login_instructions_sent.send(app._get_current_object(),
-                                 user=user, login_token=token)
+    login_instructions_sent.send(app._get_current_object(), user=user, login_token=token)
 
 
 def generate_login_token(user):

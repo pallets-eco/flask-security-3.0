@@ -8,6 +8,8 @@
 
 import pytest
 
+from flask import Flask
+from flask_security.core import UserMixin
 from flask_security.signals import user_registered
 
 from utils import authenticate, logout
@@ -26,6 +28,9 @@ def test_registerable_flag(client, app, get_message):
     # Test registering is successful, sends email, and fires signal
     @user_registered.connect_via(app)
     def on_user_registerd(app, user, confirm_token):
+        assert isinstance(app, Flask)
+        assert isinstance(user, UserMixin)
+        assert confirm_token is None
         recorded.append(user)
 
     data = dict(

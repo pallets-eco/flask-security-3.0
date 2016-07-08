@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security
-    ~~~~~~~~~~~~~~~~~~
+    flask_security
+    ~~~~~~~~~~~~~~
 
     Flask-Security is a Flask extension that aims to add quick and simple
     security via Flask-Login, Flask-Principal, Flask-WTF, and passlib.
@@ -9,8 +9,6 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
-
-__version__ = '1.7.4'
 
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, PeeweeUserDatastore
@@ -21,3 +19,5 @@ from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
 from .signals import confirm_instructions_sent, password_reset, \
     reset_password_instructions_sent, user_confirmed, user_registered
 from .utils import login_user, logout_user, url_for_security
+
+__version__ = '1.7.5'

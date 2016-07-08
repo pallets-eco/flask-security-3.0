@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.security.confirmable
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    flask_security.confirmable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask-Security confirmable module
 

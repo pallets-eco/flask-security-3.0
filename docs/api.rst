@@ -87,43 +87,38 @@ sends the following signals.
 
 .. data:: user_registered
 
-   Sent when a user registers on the site. It is passed a dict with
-   the `user` and `confirm_token`, the user being logged in and the
-   (if so configured) the confirmation token issued.
+   Sent when a user registers on the site. In addition to the app (which is the
+   sender), it is passed `user` and `confirm_token` arguments.
 
 .. data:: user_confirmed
 
-   Sent when a user is confirmed. It is passed `user`, which is the
-   user being confirmed.
+   Sent when a user is confirmed. In addition to the app (which is the
+   sender), it is passed a `user` argument.
 
 .. data:: confirm_instructions_sent
 
-   Sent when a user requests confirmation instructions. It is passed
-   the `user`.
+   Sent when a user requests confirmation instructions. In addition to the app
+   (which is the sender), it is passed a `user` argument.
 
 .. data:: login_instructions_sent
 
-   Sent when passwordless login is used and user logs in. It is passed
-   a dict with the `user` and `login_token`, the user being logged in
-   and the (if so configured) the login token issued.
+   Sent when passwordless login is used and user logs in. In addition to the app
+   (which is the sender), it is passed `user` and `login_token` arguments.
 
 .. data:: password_reset
 
-   Sent when a user completes a password reset. It is passed the
-   `user`.
+   Sent when a user completes a password reset. In addition to the app (which is
+   the sender), it is passed a `user` argument.
 
 .. data:: password_changed
 
-   Sent when a user completes a password change. It is passed the
-   `user`.
+   Sent when a user completes a password change. In addition to the app (which is
+   the sender), it is passed a `user` argument.
 
 .. data:: reset_password_instructions_sent
 
-   Sent when a user requests a password reset. It is passed a dict
-   with the `user` and `token`, the user being logged in and
-   the (if so configured) the reset token issued.
+   Sent when a user requests a password reset. In addition to the app (which is
+   the sender), it is passed `user` and `token` arguments.
 
-All signals are also passed a `app` keyword argument, which is the
-current application.
 
 .. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/
