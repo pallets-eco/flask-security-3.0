@@ -267,27 +267,45 @@ def reset_password(token):
     """View function that handles a reset password request."""
 
     expired, invalid, user = reset_password_token_status(token)
+    form_class = _security.reset_password_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
 
     if invalid:
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+        form.errors['invalid'] = get_message('INVALID_RESET_PASSWORD_TOKEN')
     if expired:
         send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
-    if invalid or expired:
-        return redirect(url_for('forgot_password'))
+        form.errors['expired'] = get_message('PASSWORD_RESET_EXPIRED', email=user.email,
+                              within=_security.reset_password_within)
 
-    form = _security.reset_password_form()
+    if invalid or expired:
+        if request.json:
+            return _render_json(form, False)
+        else:
+            return redirect(url_for('forgot_password'))
 
     if form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user)
-        return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.post_login_view))
 
-    return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
+        if request.json:
+            return _render_json(form, False)
+        else:
+            do_flash(*get_message('PASSWORD_RESET'))
+            login_user(user)
+            return redirect(get_url(_security.post_reset_view) or
+                            get_url(_security.post_login_view))
+
+    if request.json:
+        return _render_json(form, False)
+    else:
+        return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                                      reset_password_form=form,
                                      reset_password_token=token,
                                      **_ctx('reset_password'))
