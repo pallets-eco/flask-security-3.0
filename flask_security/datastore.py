@@ -218,7 +218,7 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         from mongoengine import ValidationError
         try:
             return self.user_model.objects(id=identifier).first()
-        except ValidationError:
+        except (ValidationError, ValueError):
             pass
         for attr in get_identity_attributes():
             query_key = '%s__iexact' % attr
