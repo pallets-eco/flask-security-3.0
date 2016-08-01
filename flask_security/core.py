@@ -90,6 +90,13 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
     'USER_IDENTITY_ATTRIBUTES': ['email'],
+    'LDAP_URI': None,
+    'LDAP_BASE_DN': None,
+    'LDAP_SEARCH_FILTER': "(uid={})",
+    'LDAP_BIND_DN': "",
+    'LDAP_BIND_PASSWORD': "",
+    'LDAP_EMAIL_FIELDNAME': "mailSenderAddress",
+    'LDAP_ACTIVE_FIELDNAME': "accountStatus",
     'PASSWORD_SCHEMES': [
         'bcrypt',
         'des_crypt',
@@ -148,6 +155,8 @@ _default_messages = {
         'Account is disabled.', 'error'),
     'EMAIL_NOT_PROVIDED': (
         'Email not provided', 'error'),
+    'USERID_NOT_PROVIDED': (
+        'User ID not provided', 'error'),
     'INVALID_EMAIL_ADDRESS': (
         'Invalid email address', 'error'),
     'PASSWORD_NOT_PROVIDED': (
