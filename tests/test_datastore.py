@@ -159,3 +159,4 @@ def test_access_datastore_from_factory(app, datastore):
     security.init_app(app, datastore)
 
     assert security.datastore is not None
+    assert security.app is not None
