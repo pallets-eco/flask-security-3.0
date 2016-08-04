@@ -413,7 +413,9 @@ class Security(object):
         :param datastore: An instance of a user datastore.
         :param register_blueprint: to register the Security blueprint or not.
         """
-        datastore = datastore or self.datastore
+        if not self.datastore:
+            self.datastore = datastore
+        datastore = self.datastore
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
