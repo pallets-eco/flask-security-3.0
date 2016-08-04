@@ -152,7 +152,6 @@ def test_delete_user(app, datastore):
     datastore.commit()
     user = datastore.find_user(email='matt@lp.com')
     assert user is None
-    assert False
 
 
 def test_access_datastore_from_factory(app, datastore):
