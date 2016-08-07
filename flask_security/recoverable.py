@@ -54,7 +54,8 @@ def generate_reset_password_token(user):
 
     :param user: The user to work with
     """
-    data = [str(user.id), md5(user.password)]
+    password_hash = md5(user.password) if user.password else None
+    data = [str(user.id), password_hash]
     return _security.reset_serializer.dumps(data)
 
 
@@ -62,11 +63,17 @@ def reset_password_token_status(token):
     """Returns the expired status, invalid status, and user of a password reset
     token. For example::
 
-        expired, invalid, user = reset_password_token_status('...')
+        expired, invalid, user, data = reset_password_token_status('...')
 
     :param token: The password reset token
     """
-    return get_token_status(token, 'reset', 'RESET_PASSWORD')
+    expired, invalid, user, data = get_token_status(token, 'reset', 'RESET_PASSWORD', return_data=True)
+    if not invalid:
+        password_hash = md5(user.password) if user.password else None
+        if password_hash != data[1]:
+            invalid = True
+
+    return expired, invalid, user
 
 
 def update_password(user, password):
