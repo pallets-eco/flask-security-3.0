@@ -276,6 +276,11 @@ def get_message(key, **kwargs):
     return rv[0] % kwargs, rv[1]
 
 
+def get_label(key, **kwargs):
+    rv = config_value('LABEL_' + key, default="")
+    return rv % kwargs
+
+
 def config_value(key, app=None, default=None):
     """Get a Flask-Security configuration value.
 
