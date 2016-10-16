@@ -12,7 +12,7 @@
 import inspect
 
 from flask import request, current_app, flash
-from flask_wtf import Form as BaseForm
+from flask_wtf import FlaskForm as BaseForm
 from wtforms import StringField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
 from flask_login import current_user
