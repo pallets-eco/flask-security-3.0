@@ -53,7 +53,7 @@ class PeeweeDatastore(Datastore):
         return model
 
     def delete(self, model):
-        model.delete_instance()
+        model.delete_instance(recursive=True)
 
 
 class UserDatastore(object):
