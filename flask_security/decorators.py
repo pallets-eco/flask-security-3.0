@@ -58,15 +58,7 @@ def _get_unauthorized_view():
 
 
 def _check_token():
-    header_key = _security.token_authentication_header
-    args_key = _security.token_authentication_key
-    header_token = request.headers.get(header_key, None)
-    token = request.args.get(args_key, header_token)
-    if request.get_json(silent=True):
-        if not isinstance(request.json, list):
-            token = request.json.get(args_key, token)
-
-    user = _security.login_manager.token_callback(token)
+    user = _security.login_manager.request_callback(request)
 
     if user and user.is_authenticated:
         app = current_app._get_current_object()
