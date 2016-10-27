@@ -11,7 +11,7 @@
 
 import inspect
 
-from flask import request, current_app, flash
+from flask import request, current_app, flash, Markup
 from flask_wtf import FlaskForm as BaseForm
 from wtforms import StringField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field
@@ -19,7 +19,10 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
+from .utils import (
+    verify_and_update_password, get_message, config_value,
+    validate_redirect_url, url_for_security
+)
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -214,6 +217,13 @@ class LoginForm(Form, NextFormMixin):
         if not self.next.data:
             self.next.data = request.args.get('next', '')
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
+        if current_app.extensions['security'].recoverable and \
+                not self.password.description:
+            html = Markup('<a href="{url}">{message}</a>'.format(
+                url=url_for_security("forgot_password"),
+                message=get_message("FORGOT_PASSWORD")[0],
+            ))
+            self.password.description = html
 
     def validate(self):
         if not super(LoginForm, self).validate():
