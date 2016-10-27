@@ -62,10 +62,7 @@ def login_user(user, remember=None):
         return False
 
     if _security.trackable:
-        if 'X-Forwarded-For' in request.headers:
-            remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
-        else:
-            remote_addr = request.remote_addr or None  # make sure it is None and not ''
+        remote_addr = request.remote_addr or None  # make sure it is None and not ''
 
         old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
