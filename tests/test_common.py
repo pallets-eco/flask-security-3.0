@@ -271,7 +271,7 @@ def test_remember_token(client):
     assert b'profile' in response.data
 
 
-def test_token_loader_does_not_fail_with_invalid_token(client):
+def test_request_loader_does_not_fail_with_invalid_token(client):
     c = Cookie(version=0, name='remember_token', value='None', port=None,
                port_specified=False, domain='www.example.com',
                domain_specified=False, domain_initial_dot=False, path='/',
