@@ -66,7 +66,7 @@ Email Confirmation
 ------------------
 
 If desired you can require that new users confirm their email address.
-Flask-Security will send an email message to any new users with an confirmation
+Flask-Security will send an email message to any new users with a confirmation
 link. Upon navigating to the confirmation link, the user will be automatically
 logged in. There is also view for resending a confirmation link to a given email
 if the user happens to try to use an expired token or has lost the previous
