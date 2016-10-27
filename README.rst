@@ -1,30 +1,30 @@
-Flask-Security
-==============
+Flask-Security-Fork
+===================
 
-.. image:: https://secure.travis-ci.org/mattupstate/flask-security.png?branch=develop
+.. image:: https://img.shields.io/travis/inveniosoftware/flask-security-fork.svg
+    :target: https://travis-ci.org/inveniosoftware/flask-security-fork
 
-.. image:: https://pypip.in/v/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi/Flask-Security/
-    :alt: Latest Version
+.. image:: https://img.shields.io/coveralls/inveniosoftware/flask-security-fork.svg
+    :target: https://coveralls.io/r/inveniosoftware/flask-security-fork
 
-.. image:: https://coveralls.io/repos/mattupstate/flask-security/badge.png?branch=develop
-    :target: https://coveralls.io/r/mattupstate/flask-security
+.. image:: https://img.shields.io/github/tag/inveniosoftware/flask-security-fork.svg
+    :target: https://github.com/inveniosoftware/flask-security-fork/releases
 
-.. image:: https://pypip.in/d/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi//Flask-Security/
+.. image:: https://img.shields.io/pypi/dm/flask-security-fork.svg
+    :target: https://pypi.python.org/pypi/flask-security-fork
     :alt: Downloads
 
-.. image:: https://pypip.in/license/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi/Flask-Security/
+.. image:: https://img.shields.io/github/license/inveniosoftware/flask-security-fork.svg
+    :target: https://github.com/inveniosoftware/flask-security-fork/blob/master/LICENSE
     :alt: License
 
-Flask-Security quickly adds security features to your Flask application.
+This is a fork of the official Flask-Security extension.
+
+It quickly adds security features to your Flask application.
 
 Resources
 ---------
 
-- `Documentation <http://packages.python.org/Flask-Security/>`_
-- `Issue Tracker <http://github.com/mattupstate/flask-security/issues>`_
-- `Code <http://github.com/mattupstate/flask-security/>`_
-- `Development Version
-  <http://github.com/mattupstate/flask-security/zipball/develop#egg=Flask-Security-dev>`_
+- `Documentation <https://flask-security-fork.readthedocs.io/>`_
+- `Issue Tracker <https://github.com/mattupstate/flask-security/issues>`_
+- `Code <https://github.com/inveniosoftware/flask-security-fork/>`_
