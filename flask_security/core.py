@@ -24,7 +24,8 @@ from .utils import config_value as cv, get_config, md5, url_for_security, string
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessLoginForm, TwoFactorVerifyCodeForm, \
+    TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, TwoFactorRescueForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -59,20 +60,29 @@ _default_config = {
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
+    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
+    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
+    'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
+        'security/two_factor_change_method_password_confimration.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
     'PASSWORDLESS': False,
     'CHANGEABLE': False,
+    'TWO_FACTOR': False,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
     'SEND_PASSWORD_RESET_NOTICE_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
+    'TWO_FACTOR_GOOGLE_AUTH_VALIDITY': 0,
+    'TWO_FACTOR_MAIL_VALIDITY': 1,
+    'TWO_FACTOR_SMS_VALIDITY': 5,
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
     'EMAIL_SENDER': 'no-reply@localhost',
+    'TWO_FACTOR_RESCUE_MAIL': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
     'TOKEN_MAX_AGE': None,
@@ -89,6 +99,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'EMAIL_SUBJECT_TWO_FACTOR': 'Two Factor Login',
+    'EMAIL_SUBJECT_TWO_FACTOR_RESCUE': 'Two Factor Rescue',
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -100,7 +112,15 @@ _default_config = {
         # And always last one...
         'plaintext'
     ],
-    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'TWO_FACTOR_ENABLED_METHODS': ['mail', 'google_authenticator', 'sms'],
+    'TWO_FACTOR_URI_SERVICE_NAME': 'service_name',
+    'TWO_FACTOR_SMS_SERVICE': 'Dummy',
+    'TWO_FACTOR_SMS_SERVICE_CONFIG': {
+        'ACCOUNT_SID': None,
+        'AUTH_TOKEN': None,
+        'PHONE_NUMBER': None,
+    }
 }
 
 #: Default Flask-Security messages
@@ -173,6 +193,20 @@ _default_messages = {
         'Please log in to access this page.', 'info'),
     'REFRESH': (
         'Please reauthenticate to access this page.', 'info'),
+    'TWO_FACTOR_INVALID_TOKEN': (
+        'Invalid Token', 'error'),
+    'TWO_FACTOR_LOGIN_SUCCESSFUL': (
+        'Your token has been confirmed', 'success'),
+    'TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL': (
+        'You successfully changed your two factor method.', 'success'),
+    'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
+        'You successfully confirmed password', 'success'),
+    'TWO_FACTOR_PASSWORD_CONFIRMATION_NEEDED': (
+        'Password confirmation is needed in order to access page', 'error'),
+    'TWO_FACTOR_PERMISSION_DENIED': (
+        'You currently do not have permissions to access this page', 'error'),
+    'TWO_FACTOR_METHOD_NOT_AVAILABLE': (
+        'Marked method is not valid', 'error'),
 }
 
 _default_forms = {
@@ -184,6 +218,10 @@ _default_forms = {
     'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
+    'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
+    'two_factor_setup_form': TwoFactorSetupForm,
+    'two_factor_change_method_verify_password_form': TwoFactorChangeMethodVerifyPasswordForm,
+    'two_factor_rescue_form': TwoFactorRescueForm
 }
 
 
@@ -405,6 +443,8 @@ class Security(object):
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
+                 two_factor_verify_code_form=None, two_factor_setup_form=None,
+                 two_factor_change_method_verify_password_form=None, two_factor_rescue_form=None,
                  anonymous_user=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
@@ -423,8 +463,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
-                           login_form=login_form,
+        state = _get_state(app, datastore, login_form=login_form,
                            confirm_register_form=confirm_register_form,
                            register_form=register_form,
                            forgot_password_form=forgot_password_form,
@@ -432,6 +471,11 @@ class Security(object):
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form,
+                           two_factor_verify_code_form=two_factor_verify_code_form,
+                           two_factor_setup_form=two_factor_setup_form,
+                           two_factor_change_method_verify_password_form=
+                           two_factor_change_method_verify_password_form,
+                           two_factor_rescue_form=two_factor_rescue_form,
                            anonymous_user=anonymous_user)
 
         if register_blueprint:
@@ -440,6 +484,21 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
+
+        # configuration mismatch check
+        if cv('TWO_FACTOR', app=app) is True and len(cv('TWO_FACTOR_ENABLED_METHODS', app=app))\
+                < 1:
+            raise ValueError()
+
+        flag = False
+        try:
+            from twilio.rest import TwilioRestClient
+            flag = True
+        except:
+            pass
+
+        if flag is False and cv('TWO_FACTOR_SMS_SERVICE', app=app) == 'Twilio':
+            raise ValueError()
 
         return state
 
