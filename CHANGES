@@ -1,3 +1,32 @@
+Flask-Security-Fork Changelog
+=============================
+
+Here you can see the full list of changes between each Flask-Security-Fork release.
+
+Version 1.8.0
+-------------
+
+Released October 28th 2016
+
+- Replaced token loader with request loader.
+- Changed trackable behavior of `login_user` when IP can not be detected from a request from 'untrackable' to `None` value.
+- Use ProxyFix instead of inspecting X-Forwarded-For header.
+- Fix identical problem with app as with datastore.
+- Removed always-failing assertion.
+- Fixed failure of init_app to set self.datastore.
+- Changed to new style flask imports.
+- Added proper error code when returning JSON response.
+- Changed obsolette Required validator from WTForms to DataRequired. Bumped Flask-WTF to 0.13.
+- Fixed missing `SECURITY_SUBDOMAIN` in config docs.
+- Added cascade delete in PeeweeDatastore.
+- Added notes to docs about `SECURITY_USER_IDENTITY_ATTRIBUTES`.
+- Inspect value of `SECURITY_UNAUTHORIZED_VIEW`.
+- Send password reset instructions if an attempt has expired.
+- Added "Forgot password?" link to LoginForm description.
+- Upgraded passlib, and removed bcrypt version restriction.
+- Removed a duplicate line ('retype_password': 'Retype Password') in forms.py.
+- Various documentation improvement.
+
 Flask-Security Changelog
 ========================
 

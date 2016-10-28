@@ -44,7 +44,7 @@ class PyTest(TestCommand):
 
 setup(
     name='Flask-Security-Fork',
-    version='1.8.0dev20161028',
+    version='1.8.0',
     url='https://github.com/inveniosoftware/flask-security-fork',
     license='MIT',
     author='Matt Wright',
