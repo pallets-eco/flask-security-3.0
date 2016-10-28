@@ -32,7 +32,6 @@ _default_field_labels = {
     'password': 'Password',
     'remember_me': 'Remember Me',
     'login': 'Login',
-    'retype_password': 'Retype Password',
     'register': 'Register',
     'send_confirmation': 'Resend Confirmation Instructions',
     'recover_password': 'Recover Password',
