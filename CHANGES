@@ -3,6 +3,14 @@ Flask-Security-Fork Changelog
 
 Here you can see the full list of changes between each Flask-Security-Fork release.
 
+Version 1.8.1
+-------------
+
+Released November 15th 2016
+
+- Fixed a security bug when validating a confirmation token, also checks
+  if the email that the token was created with matches the user's current email.
+
 Version 1.8.0
 -------------
 
