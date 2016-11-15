@@ -71,7 +71,12 @@ def confirm_email_token_status(token):
 
     :param token: The confirmation token
     """
-    return get_token_status(token, 'confirm', 'CONFIRM_EMAIL')
+    expired, invalid, user, token_data = \
+        get_token_status(token, 'confirm', 'CONFIRM_EMAIL', return_data=True)
+    if not invalid and user:
+        user_id, token_email_md5 = token_data
+        invalid = md5(user.email) != token_email_md5
+    return expired, invalid, user
 
 
 def confirm_user(user):
