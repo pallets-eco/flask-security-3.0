@@ -49,7 +49,8 @@ else:  # pragma: no cover
 
 
 def login_user(user, remember=None):
-    """Performs the login routine.
+    """Performs the login routine. If SECURITY_TRACKABLE is used, make sure you commit
+    changes after this request (i.e. ``app.security.datastore.commit()``).
 
     :param user: The user to login
     :param remember: Flag specifying if the remember cookie should be set. Defaults to ``False``
