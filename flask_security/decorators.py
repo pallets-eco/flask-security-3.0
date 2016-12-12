@@ -18,7 +18,6 @@ from flask_login import current_user, login_required  # pragma: no flakes
 from flask_principal import RoleNeed, Permission, Identity, identity_changed
 from werkzeug.local import LocalProxy
 from werkzeug.routing import BuildError
-
 from . import utils
 
 
