@@ -1,8 +1,18 @@
+include .editorconfig
+include AUTHORS
+include CHANGES
 include LICENSE
 include README.rst
-include requirements.txt
-include requirements-dev.txt
+include pytest.ini
 include tox.ini
+recursive-exclude tests/__pycache__ *
+recursive-include artwork *.svg
+recursive-include docs *.html
+recursive-include docs *.inc
+recursive-include docs *.png
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
 recursive-include flask_security/templates *.*
 recursive-include tests *
-recursive-exclude tests/__pycache__ *
+prune scripts
