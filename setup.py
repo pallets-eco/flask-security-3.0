@@ -40,8 +40,8 @@ setup_requires = [
 ]
 
 install_requires = [
-    'Flask>=0.9',
-    'Flask-Login>=0.3.0,<0.4',
+    'Flask>=0.10',
+    'Flask-Login>=0.3.0',
     'Flask-Mail>=0.7.3',
     'Flask-Principal>=0.3.3',
     'Flask-WTF>=0.8',
