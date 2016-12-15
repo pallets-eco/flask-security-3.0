@@ -15,6 +15,7 @@ tests_require = [
     'coverage>=4.0',
     'isort>=4.2.2',
     'mock>=1.3.0',
+    'mongoengine>=0.10.0',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=2.4.0',
@@ -41,7 +42,7 @@ setup_requires = [
 
 install_requires = [
     'Flask>=0.10',
-    'Flask-Login>=0.3.0',
+    'Flask-Login>=0.3.0,<0.4.0',
     'Flask-Mail>=0.7.3',
     'Flask-Principal>=0.3.3',
     'Flask-WTF>=0.13.1',
