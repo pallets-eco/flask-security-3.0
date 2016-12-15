@@ -128,7 +128,8 @@ def test_expired_confirmation_token(client, get_message):
 
 
 @pytest.mark.registerable()
-def test_email_conflict_for_confirmation_token(app, client, get_message, sqlalchemy_datastore):
+def test_email_conflict_for_confirmation_token(app, client, get_message,
+                                               sqlalchemy_datastore):
     with capture_registrations() as registrations:
         data = dict(email='mary@lp.com', password='password', next='')
         client.post('/register', data=data, follow_redirects=True)

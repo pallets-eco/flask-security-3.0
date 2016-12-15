@@ -52,7 +52,10 @@ else:  # pragma: no cover
 
 
 def login_user(user, remember=None):
-    """Performs the login routine.
+    """Perform the login routine.
+
+    If SECURITY_TRACKABLE is used, make sure you commit changes after this
+    request (i.e. ``app.security.datastore.commit()``).
 
     :param user: The user to login
     :param remember: Flag specifying if the remember cookie should be set.
@@ -66,7 +69,7 @@ def login_user(user, remember=None):
         return False
 
     if _security.trackable:
-        remote_addr = request.remote_addr or None  # make sure it is None and not ''
+        remote_addr = request.remote_addr or None  # make sure it is None
 
         old_current_login, new_current_login = (
             user.current_login_at, datetime.utcnow()
