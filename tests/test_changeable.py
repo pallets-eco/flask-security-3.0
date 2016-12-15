@@ -7,12 +7,11 @@
 """
 
 import pytest
-
 from flask import Flask
+from utils import authenticate
+
 from flask_security.core import UserMixin
 from flask_security.signals import password_changed
-
-from utils import authenticate
 
 pytestmark = pytest.mark.changeable()
 
@@ -89,7 +88,11 @@ def test_recoverable_flag(app, client, get_message):
     # Test JSON
     data = ('{"password": "newpassword", "new_password": "newpassword2", '
             '"new_password_confirm": "newpassword2"}')
-    response = client.post('/change', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/change',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
 
@@ -101,7 +104,8 @@ def test_custom_change_url(client):
     assert response.status_code == 200
 
 
-@pytest.mark.settings(change_password_template='custom_security/change_password.html')
+@pytest.mark.settings(
+    change_password_template='custom_security/change_password.html')
 def test_custom_change_template(client):
     authenticate(client)
     response = client.get('/change')

@@ -11,15 +11,15 @@ import tempfile
 import time
 
 import pytest
-
 from flask import Flask, render_template
 from flask_mail import Mail
 
-from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
-    PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
-    auth_token_required, auth_required, roles_required, roles_accepted
-
-from utils import populate_data, Response
+from flask_security import (MongoEngineUserDatastore, PeeweeUserDatastore,
+                            RoleMixin, Security, SQLAlchemyUserDatastore,
+                            UserMixin, auth_required, auth_token_required,
+                            http_auth_required, login_required, roles_accepted,
+                            roles_required)
+from utils import Response, populate_data
 
 
 @pytest.fixture()
@@ -75,7 +75,9 @@ def app(request):
     @app.route('/multi_auth')
     @auth_required('session', 'token', 'basic')
     def multi_auth():
-        return render_template('index.html', content='Session, Token, Basic auth')
+        return render_template(
+            'index.html',
+            content='Session, Token, Basic auth')
 
     @app.route('/post_logout')
     def post_logout():
@@ -110,8 +112,8 @@ def app(request):
     return app
 
 
-@pytest.fixture()
-def mongoengine_datastore(request, app):
+@pytest.yield_fixture()
+def mongoengine_datastore(app):
     from flask_mongoengine import MongoEngine
 
     db_name = 'flask_security_test_%s' % str(time.time()).replace('.', '_')
@@ -143,16 +145,18 @@ def mongoengine_datastore(request, app):
         roles = db.ListField(db.ReferenceField(Role), default=[])
         meta = {"db_alias": db_name}
 
-    request.addfinalizer(lambda: db.connection.drop_database(db_name))
+    yield MongoEngineUserDatastore(db, User, Role)
 
-    return MongoEngineUserDatastore(db, User, Role)
+    with app.app_context():
+        db.connection.drop_database(db_name)
 
 
 @pytest.fixture()
 def sqlalchemy_datastore(request, app, tmpdir):
     from flask_sqlalchemy import SQLAlchemy
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
     db = SQLAlchemy(app)
@@ -192,10 +196,12 @@ def sqlalchemy_datastore(request, app, tmpdir):
 
 @pytest.fixture()
 def peewee_datastore(request, app, tmpdir):
-    from peewee import TextField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+    from peewee import TextField, DateTimeField, IntegerField, BooleanField, \
+        ForeignKeyField
     from flask_peewee.db import Database
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['DATABASE'] = {
         'name': path,
@@ -277,7 +283,11 @@ def get_message(app):
 
 
 @pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
-def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
+def datastore(
+        request,
+        sqlalchemy_datastore,
+        mongoengine_datastore,
+        peewee_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
     elif request.param == 'mongoengine':

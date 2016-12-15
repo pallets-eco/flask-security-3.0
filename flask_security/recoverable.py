@@ -14,9 +14,8 @@ from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
 from .signals import password_reset, reset_password_instructions_sent
-from .utils import send_mail, md5, encrypt_password, url_for_security, \
-    get_token_status, config_value
-
+from .utils import config_value, encrypt_password, get_token_status, md5, \
+    send_mail, url_for_security
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -30,13 +29,17 @@ def send_reset_password_instructions(user):
     :param user: The user to send the instructions to
     """
     token = generate_reset_password_token(user)
-    reset_link = url_for_security('reset_password', token=token, _external=True)
+    reset_link = url_for_security(
+        'reset_password', token=token, _external=True
+    )
 
     send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'), user.email,
               'reset_instructions',
               user=user, reset_link=reset_link)
 
-    reset_password_instructions_sent.send(app._get_current_object(), user=user, token=token)
+    reset_password_instructions_sent.send(
+        app._get_current_object(), user=user, token=token
+    )
 
 
 def send_password_reset_notice(user):
@@ -67,8 +70,9 @@ def reset_password_token_status(token):
 
     :param token: The password reset token
     """
-    expired, invalid, user, data = get_token_status(token, 'reset', 'RESET_PASSWORD',
-                                                    return_data=True)
+    expired, invalid, user, data = get_token_status(
+        token, 'reset', 'RESET_PASSWORD', return_data=True
+    )
     if not invalid:
         if user.password:
             password_hash = md5(user.password)

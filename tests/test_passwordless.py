@@ -9,13 +9,13 @@
 import time
 
 import pytest
-
 from flask import Flask
+from utils import logout
+
 from flask_security.core import UserMixin
 from flask_security.signals import login_instructions_sent
-from flask_security.utils import capture_passwordless_login_requests, string_types
-
-from utils import logout
+from flask_security.utils import capture_passwordless_login_requests, \
+    string_types
 
 pytestmark = pytest.mark.passwordless()
 
@@ -31,24 +31,40 @@ def test_trackable_flag(app, client, get_message):
         recorded.append(user)
 
     # Test disabled account
-    response = client.post('/login', data=dict(email='tiya@lp.com'), follow_redirects=True)
+    response = client.post(
+        '/login',
+        data=dict(
+            email='tiya@lp.com'),
+        follow_redirects=True)
     assert get_message('DISABLED_ACCOUNT') in response.data
 
     # Test login with json and valid email
     data = '{"email": "matt@lp.com", "password": "password"}'
-    response = client.post('/login', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/login',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert response.status_code == 200
     assert len(recorded) == 1
 
     # Test login with json and invalid email
     data = '{"email": "nobody@lp.com", "password": "password"}'
-    response = client.post('/login', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/login',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert b'errors' in response.data
 
     # Test sends email and shows appropriate response
     with capture_passwordless_login_requests() as requests:
         with app.mail.record_messages() as outbox:
-            response = client.post('/login', data=dict(email='matt@lp.com'), follow_redirects=True)
+            response = client.post(
+                '/login',
+                data=dict(
+                    email='matt@lp.com'),
+                follow_redirects=True)
 
     assert len(recorded) == 2
     assert len(requests) == 1
@@ -91,4 +107,7 @@ def test_expired_login_token(client, app, get_message):
     time.sleep(1)
 
     response = client.get('/login/' + token, follow_redirects=True)
-    assert get_message('LOGIN_EXPIRED', within='1 milliseconds', email=user.email) in response.data
+    assert get_message(
+        'LOGIN_EXPIRED',
+        within='1 milliseconds',
+        email=user.email) in response.data

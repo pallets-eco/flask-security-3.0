@@ -7,10 +7,9 @@
 """
 
 from pytest import raises
-
-from flask_security.utils import verify_password, encrypt_password
-
 from utils import authenticate, init_app_with_options
+
+from flask_security.utils import encrypt_password, verify_password
 
 
 def test_verify_password_bcrypt(app, sqlalchemy_datastore):

@@ -7,11 +7,10 @@
 """
 
 from pytest import raises
-
-from flask_security import UserMixin, RoleMixin
-from flask_security.datastore import Datastore, UserDatastore
-
 from utils import init_app_with_options
+
+from flask_security import RoleMixin, UserMixin
+from flask_security.datastore import Datastore, UserDatastore
 
 
 class User(UserMixin):

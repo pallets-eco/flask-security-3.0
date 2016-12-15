@@ -7,15 +7,15 @@
 """
 
 import pytest
+from utils import authenticate, init_app_with_options, populate_data
 
 from flask_security import Security
-from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
-    SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
-    ChangePasswordForm, StringField, PasswordField, email_required, email_validator, \
-    valid_user_email
-from flask_security.utils import capture_reset_password_requests, md5, string_types
-
-from utils import authenticate, init_app_with_options, populate_data
+from flask_security.forms import ChangePasswordForm, ConfirmRegisterForm, \
+    ForgotPasswordForm, LoginForm, PasswordField, PasswordlessLoginForm, \
+    RegisterForm, ResetPasswordForm, SendConfirmationForm, StringField, \
+    email_required, email_validator, valid_user_email
+from flask_security.utils import capture_reset_password_requests, md5, \
+    string_types
 
 
 @pytest.mark.recoverable()
@@ -48,8 +48,12 @@ def test_basic_custom_forms(app, sqlalchemy_datastore):
         email = StringField('My Register Email Address Field')
 
     class MyForgotPasswordForm(ForgotPasswordForm):
-        email = StringField('My Forgot Email Address Field',
-                            validators=[email_required, email_validator, valid_user_email])
+        email = StringField(
+            'My Forgot Email Address Field',
+            validators=[
+                email_required,
+                email_validator,
+                valid_user_email])
 
     class MyResetPasswordForm(ResetPasswordForm):
         password = StringField('My Reset Password Field')
@@ -165,16 +169,27 @@ def test_change_hash_type(app, sqlalchemy_datastore):
     app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
     app.config['SECURITY_PASSWORD_SALT'] = 'salty'
 
-    app.security = Security(app, datastore=sqlalchemy_datastore, register_blueprint=False)
+    app.security = Security(
+        app,
+        datastore=sqlalchemy_datastore,
+        register_blueprint=False)
 
     client = app.test_client()
 
-    response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
+    response = client.post(
+        '/login',
+        data=dict(
+            email='matt@lp.com',
+            password='password'))
     assert response.status_code == 302
 
     response = client.get('/logout')
 
-    response = client.post('/login', data=dict(email='matt@lp.com', password='password'))
+    response = client.post(
+        '/login',
+        data=dict(
+            email='matt@lp.com',
+            password='password'))
     assert response.status_code == 302
 
 

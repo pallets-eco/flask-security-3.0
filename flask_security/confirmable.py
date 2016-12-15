@@ -14,10 +14,9 @@ from datetime import datetime
 from flask import current_app as app
 from werkzeug.local import LocalProxy
 
-from .utils import send_mail, md5, url_for_security, get_token_status,\
-    config_value
-from .signals import user_confirmed, confirm_instructions_sent
-
+from .signals import confirm_instructions_sent, user_confirmed
+from .utils import config_value, get_token_status, md5, send_mail, \
+    url_for_security
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -27,7 +26,10 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 def generate_confirmation_link(user):
     token = generate_confirmation_token(user)
-    return url_for_security('confirm_email', token=token, _external=True), token
+    return (
+        url_for_security('confirm_email', token=token, _external=True),
+        token
+    )
 
 
 def send_confirmation_instructions(user):

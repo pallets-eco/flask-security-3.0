@@ -8,12 +8,12 @@
 
 import base64
 
+from utils import authenticate, json_authenticate, logout
+
 try:
     from cookielib import Cookie
 except ImportError:
     from http.cookiejar import Cookie
-
-from utils import authenticate, json_authenticate, logout
 
 
 def test_login_view(client):
@@ -30,7 +30,10 @@ def test_authenticate(client):
 
 def test_authenticate_with_next(client):
     data = dict(email='matt@lp.com', password='password')
-    response = client.post('/login?next=/page1', data=data, follow_redirects=True)
+    response = client.post(
+        '/login?next=/page1',
+        data=data,
+        follow_redirects=True)
     assert b'Page 1' in response.data
 
 
@@ -177,7 +180,8 @@ def test_token_auth_via_header_invalid_token(client):
 
 def test_http_auth(client):
     response = client.get('/http', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"joe@lp.com:password").decode('utf-8')
     })
     assert b'HTTP Authentication' in response.data
 
@@ -186,30 +190,36 @@ def test_http_auth_no_authorization(client):
     response = client.get('/http', headers={})
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
+    assert 'Basic realm="Login Required"' == response.headers[
+        'WWW-Authenticate']
 
 
 def test_invalid_http_auth_invalid_username(client):
     response = client.get('/http', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"bogus:bogus").decode('utf-8')
     })
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
+    assert 'Basic realm="Login Required"' == response.headers[
+        'WWW-Authenticate']
 
 
 def test_invalid_http_auth_bad_password(client):
     response = client.get('/http', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"joe@lp.com:bogus").decode('utf-8')
     })
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
+    assert 'Basic realm="Login Required"' == response.headers[
+        'WWW-Authenticate']
 
 
 def test_custom_http_auth_realm(client):
     response = client.get('/http_custom_realm', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"joe@lp.com:bogus").decode('utf-8')
     })
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
@@ -218,7 +228,8 @@ def test_custom_http_auth_realm(client):
 
 def test_multi_auth_basic(client):
     response = client.get('/multi_auth', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"joe@lp.com:password").decode('utf-8')
     })
     assert b'Basic' in response.data
 
@@ -228,11 +239,13 @@ def test_multi_auth_basic(client):
 
 def test_multi_auth_basic_invalid(client):
     response = client.get('/multi_auth', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
+        'Authorization': 'Basic %s' % base64.b64encode(
+            b"bogus:bogus").decode('utf-8')
     })
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
+    assert 'Basic realm="Login Required"' == response.headers[
+        'WWW-Authenticate']
 
     response = client.get('/multi_auth')
     print(response.headers)
@@ -288,5 +301,9 @@ def test_sending_auth_token_with_json(client):
     response = json_authenticate(client)
     token = response.jdata['response']['user']['authentication_token']
     data = '{"auth_token": "%s"}' % token
-    response = client.post('/token', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/token',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert b'Token Authentication' in response.data

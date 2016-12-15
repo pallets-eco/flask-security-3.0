@@ -1,71 +1,89 @@
-"""
-Flask-Security
-==============
-"""
+# -*- coding: utf-8 -*-
 
-import multiprocessing  # pragma: no flakes
-import sys
+"""Simple security for Flask apps."""
 
-from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
+from setuptools import find_packages, setup
 
+readme = open('README.rst').read()
 
-def get_requirements(suffix=''):
-    with open('requirements%s.txt' % suffix) as f:
-        rv = f.read().splitlines()
-    return rv
+tests_require = [
+    'Flask-Mongoengine>=0.7.0',
+    'Flask-Peewee>=0.6.5',
+    'Flask-SQLAlchemy>=1.0',
+    'bcrypt>=1.0.2',
+    'check-manifest>=0.25',
+    'coverage>=4.0',
+    'isort>=4.2.2',
+    'mock>=1.3.0',
+    'pydocstyle>=1.0.0',
+    'pytest-cache>=1.0',
+    'pytest-cov>=1.8.0',
+    'pytest-flakes>=0.2',
+    'pytest-pep8>=1.0.6',
+    'pytest>=2.8.0',
+]
 
+extras_require = {
+    'docs': [
+        'Flask-Sphinx-Themes>=1.0.1',
+        'Sphinx>=1.4.2',
+    ],
+    'tests': tests_require,
+}
 
-def get_long_description():
-    with open('README.rst') as f:
-        rv = f.read()
-    return rv
+extras_require['all'] = []
+for reqs in extras_require.values():
+    extras_require['all'].extend(reqs)
 
+setup_requires = [
+    'pytest-runner>=2.6.2',
+]
 
-class PyTest(TestCommand):
+install_requires = [
+    'Flask>=0.9',
+    'Flask-Login>=0.3.0,<0.4',
+    'Flask-Mail>=0.7.3',
+    'Flask-Principal>=0.3.3',
+    'Flask-WTF>=0.8',
+    'itsdangerous>=0.21',
+    'passlib>=1.6.4',
+]
 
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = [
-            '-xrs',
-            '--cov', 'flask_security',
-            '--cov-report', 'term-missing',
-            '--pep8',
-            '--flakes',
-            '--cache-clear'
-        ]
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        errno = pytest.main(self.test_args)
-        sys.exit(errno)
-
+packages = find_packages()
 
 setup(
     name='Flask-Security',
     version='1.7.5',
-    url='https://github.com/mattupstate/flask-security',
+    description=__doc__,
+    long_description=readme,
+    keywords='flask security',
     license='MIT',
     author='Matt Wright',
     author_email='matt@nobien.net',
-    description='Simple security for Flask apps',
-    long_description=get_long_description(),
-    packages=find_packages(),
+    url='https://github.com/mattupstate/flask-security',
+    packages=packages,
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=get_requirements(),
-    tests_require=get_requirements('-dev'),
-    cmdclass={'test': PyTest},
+    extras_require=extras_require,
+    install_requires=install_requires,
+    setup_requires=setup_requires,
+    tests_require=tests_require,
     classifiers=[
-        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Software Development :: Libraries :: Python Modules'
-    ]
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Development Status :: 4 - Beta',
+    ],
 )
