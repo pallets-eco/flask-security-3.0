@@ -17,10 +17,10 @@ tests_require = [
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
-    'pytest-cov>=1.8.0',
-    'pytest-flakes>=0.2',
+    'pytest-cov>=2.4.0',
+    'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
-    'pytest>=2.8.0',
+    'pytest>=3.0.5',
 ]
 
 extras_require = {
