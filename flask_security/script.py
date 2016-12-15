@@ -10,11 +10,6 @@
 """
 from __future__ import print_function
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import re
 
 from flask import current_app
@@ -23,6 +18,10 @@ from werkzeug.local import LocalProxy
 
 from .utils import encrypt_password
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
@@ -96,7 +95,8 @@ class AddRoleCommand(_RoleCommand):
     @commit
     def run(self, user_identifier, role_name):
         _datastore.add_role_to_user(user_identifier, role_name)
-        print("Role '%s' added to user '%s' successfully" % (role_name, user_identifier))
+        print("Role '%s' added to user '%s' successfully" % (
+            role_name, user_identifier))
 
 
 class RemoveRoleCommand(_RoleCommand):
@@ -105,7 +105,8 @@ class RemoveRoleCommand(_RoleCommand):
     @commit
     def run(self, user_identifier, role_name):
         _datastore.remove_role_from_user(user_identifier, role_name)
-        print("Role '%s' removed from user '%s' successfully" % (role_name, user_identifier))
+        print("Role '%s' removed from user '%s' successfully" % (
+            role_name, user_identifier))
 
 
 class _ToggleActiveCommand(Command):

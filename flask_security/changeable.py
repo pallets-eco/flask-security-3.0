@@ -14,8 +14,7 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import password_changed
-from .utils import send_mail, encrypt_password, config_value
-
+from .utils import config_value, encrypt_password, send_mail
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])

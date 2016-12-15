@@ -13,23 +13,26 @@ import base64
 import hashlib
 import hmac
 import sys
+from contextlib import contextmanager
+from datetime import datetime, timedelta
+
+from flask import current_app, flash, render_template, request, session, \
+    url_for
+from flask_login import login_user as _login_user
+from flask_login import logout_user as _logout_user
+from flask_mail import Message
+from flask_principal import AnonymousIdentity, Identity, identity_changed
+from itsdangerous import BadSignature, SignatureExpired
+from werkzeug.local import LocalProxy
+
+from .signals import login_instructions_sent, \
+    reset_password_instructions_sent, user_registered
 
 try:
     from urlparse import urlsplit
 except ImportError:  # pragma: no cover
     from urllib.parse import urlsplit
 
-from contextlib import contextmanager
-from datetime import datetime, timedelta
-
-from flask import url_for, flash, current_app, request, session, render_template
-from flask_login import login_user as _login_user, logout_user as _logout_user
-from flask_mail import Message
-from flask_principal import Identity, AnonymousIdentity, identity_changed
-from itsdangerous import BadSignature, SignatureExpired
-from werkzeug.local import LocalProxy
-
-from .signals import user_registered, login_instructions_sent, reset_password_instructions_sent
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -52,7 +55,8 @@ def login_user(user, remember=None):
     """Performs the login routine.
 
     :param user: The user to login
-    :param remember: Flag specifying if the remember cookie should be set. Defaults to ``False``
+    :param remember: Flag specifying if the remember cookie should be set.
+                     Defaults to ``False``
     """
 
     if remember is None:
@@ -64,7 +68,9 @@ def login_user(user, remember=None):
     if _security.trackable:
         remote_addr = request.remote_addr or None  # make sure it is None and not ''
 
-        old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
+        old_current_login, new_current_login = (
+            user.current_login_at, datetime.utcnow()
+        )
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 
         user.last_login_at = old_current_login or new_current_login
@@ -81,7 +87,10 @@ def login_user(user, remember=None):
 
 
 def logout_user():
-    """Logs out the current. This will also clean up the remember me cookie if it exists."""
+    """Logs out the current.
+
+    This will also clean up the remember me cookie if it exists.
+    """
 
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
@@ -91,8 +100,8 @@ def logout_user():
 
 
 def get_hmac(password):
-    """Returns a Base64 encoded HMAC+SHA512 of the password signed with the salt specified
-    by ``SECURITY_PASSWORD_SALT``.
+    """Returns a Base64 encoded HMAC+SHA512 of the password signed with
+    the salt specified by ``SECURITY_PASSWORD_SALT``.
 
     :param password: The password to sign
     """
@@ -112,7 +121,8 @@ def verify_password(password, password_hash):
     """Returns ``True`` if the password matches the supplied hash.
 
     :param password: A plaintext password to verify
-    :param password_hash: The expected hash value of the password (usually from your database)
+    :param password_hash: The expected hash value of the password
+                          (usually from your database)
     """
     if _security.password_hash != 'plaintext':
         password = get_hmac(password)
@@ -121,8 +131,10 @@ def verify_password(password, password_hash):
 
 
 def verify_and_update_password(password, user):
-    """Returns ``True`` if the password is valid for the specified user. Additionally, the hashed
-    password in the database is updated if the hashing algorithm happens to have changed.
+    """Returns ``True`` if the password is valid for the specified user.
+
+    Additionally, the hashed password in the database is updated if the
+    hashing algorithm happens to have changed.
 
     :param password: A plaintext password to verify
     :param user: The user to verify against
@@ -130,7 +142,8 @@ def verify_and_update_password(password, user):
 
     if _pwd_context.identify(user.password) != 'plaintext':
         password = get_hmac(password)
-    verified, new_password = _pwd_context.verify_and_update(password, user.password)
+    verified, new_password = _pwd_context.verify_and_update(
+        password, user.password)
     if verified and new_password:
         user.password = encrypt_password(password)
         _datastore.put(user)
@@ -138,7 +151,9 @@ def verify_and_update_password(password, user):
 
 
 def encrypt_password(password):
-    """Encrypts the specified plaintext password using the configured encryption options.
+    """Encrypt the specified plaintext password.
+
+    It uses the configured encryption options.
 
     :param password: The plaintext password to encrypt
     """
@@ -217,7 +232,8 @@ def validate_redirect_url(url):
         return False
     url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
-    if (url_next.netloc or url_next.scheme) and url_next.netloc != url_base.netloc:
+    if (url_next.netloc or url_next.scheme) and \
+            url_next.netloc != url_base.netloc:
         return False
     return True
 
@@ -277,8 +293,8 @@ def config_value(key, app=None, default=None):
     """Get a Flask-Security configuration value.
 
     :param key: The configuration key without the prefix `SECURITY_`
-    :param app: An optional specific application to inspect. Defaults to Flask's
-                `current_app`
+    :param app: An optional specific application to inspect. Defaults to
+                Flask's `current_app`
     :param default: An optional default value if the value is not set
     """
     app = app or current_app
@@ -345,7 +361,8 @@ def get_token_status(token, serializer, max_age=None, return_data=False):
     :param serializer: The name of the seriailzer. Can be one of the
                        following: ``confirm``, ``login``, ``reset``
     :param max_age: The name of the max age config option. Can be on of
-                    the following: ``CONFIRM_EMAIL``, ``LOGIN``, ``RESET_PASSWORD``
+                    the following: ``CONFIRM_EMAIL``, ``LOGIN``,
+                    ``RESET_PASSWORD``
     """
     serializer = getattr(_security, serializer + '_serializer')
     max_age = get_max_age(max_age)

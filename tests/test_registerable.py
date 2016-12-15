@@ -7,12 +7,11 @@
 """
 
 import pytest
-
 from flask import Flask
+from utils import authenticate, logout
+
 from flask_security.core import UserMixin
 from flask_security.signals import user_registered
-
-from utils import authenticate, logout
 
 pytestmark = pytest.mark.registerable()
 
@@ -58,7 +57,9 @@ def test_registerable_flag(client, app, get_message):
         next=''
     )
     response = client.post('/register', data=data, follow_redirects=True)
-    assert get_message('EMAIL_ALREADY_ASSOCIATED', email='dude@lp.com') in response.data
+    assert get_message(
+        'EMAIL_ALREADY_ASSOCIATED',
+        email='dude@lp.com') in response.data
 
     # Test registering with an existing email but case insensitive
     data = dict(
@@ -66,11 +67,17 @@ def test_registerable_flag(client, app, get_message):
         next=''
     )
     response = client.post('/register', data=data, follow_redirects=True)
-    assert get_message('EMAIL_ALREADY_ASSOCIATED', email='Dude@lp.com') in response.data
+    assert get_message(
+        'EMAIL_ALREADY_ASSOCIATED',
+        email='Dude@lp.com') in response.data
 
     # Test registering with JSON
     data = '{ "email": "dude2@lp.com", "password": "password"}'
-    response = client.post('/register', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/register',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert response.headers['content-type'] == 'application/json'
     assert response.jdata['meta']['code'] == 200
 
@@ -78,7 +85,11 @@ def test_registerable_flag(client, app, get_message):
 
     # Test registering with invalid JSON
     data = '{ "email": "bogus", "password": "password"}'
-    response = client.post('/register', data=data, headers={'Content-Type': 'application/json'})
+    response = client.post(
+        '/register',
+        data=data,
+        headers={
+            'Content-Type': 'application/json'})
     assert response.headers['content-type'] == 'application/json'
     assert response.jdata['meta']['code'] == 400
 
@@ -90,11 +101,16 @@ def test_registerable_flag(client, app, get_message):
                 password_confirm='password',
                 next='')
 
-    response = client.post('/register?next=/page1', data=data, follow_redirects=True)
+    response = client.post(
+        '/register?next=/page1',
+        data=data,
+        follow_redirects=True)
     assert b'Page 1' in response.data
 
 
-@pytest.mark.settings(register_url='/custom_register', post_register_view='/post_register')
+@pytest.mark.settings(
+    register_url='/custom_register',
+    post_register_view='/post_register')
 def test_custom_register_url(client):
     response = client.get('/custom_register')
     assert b"<h1>Register</h1>" in response.data
@@ -104,11 +120,15 @@ def test_custom_register_url(client):
                 password_confirm='password',
                 next='')
 
-    response = client.post('/custom_register', data=data, follow_redirects=True)
+    response = client.post(
+        '/custom_register',
+        data=data,
+        follow_redirects=True)
     assert b'Post Register' in response.data
 
 
-@pytest.mark.settings(register_user_template='custom_security/register_user.html')
+@pytest.mark.settings(
+    register_user_template='custom_security/register_user.html')
 def test_custom_register_tempalate(client):
     response = client.get('/register')
     assert b'CUSTOM REGISTER USER' in response.data

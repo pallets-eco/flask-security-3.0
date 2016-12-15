@@ -11,7 +11,8 @@
 """
 
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
-from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, PeeweeUserDatastore
+from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, \
+    PeeweeUserDatastore
 from .decorators import auth_token_required, http_auth_required, \
     login_required, roles_accepted, roles_required, auth_required
 from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
@@ -21,3 +22,33 @@ from .signals import confirm_instructions_sent, password_reset, \
 from .utils import login_user, logout_user, url_for_security
 
 __version__ = '1.8.1'
+__all__ = (
+    'AnonymousUser',
+    'ConfirmRegisterForm',
+    'ForgotPasswordForm',
+    'LoginForm',
+    'MongoEngineUserDatastore',
+    'PasswordlessLoginForm',
+    'PeeweeUserDatastore',
+    'RegisterForm',
+    'ResetPasswordForm',
+    'RoleMixin',
+    'SQLAlchemyUserDatastore',
+    'Security',
+    'UserMixin',
+    'auth_required',
+    'auth_token_required',
+    'confirm_instructions_sent',
+    'current_user',
+    'http_auth_required',
+    'login_required',
+    'login_user',
+    'logout_user',
+    'password_reset',
+    'reset_password_instructions_sent',
+    'roles_accepted',
+    'roles_required',
+    'url_for_security',
+    'user_confirmed',
+    'user_registered',
+)

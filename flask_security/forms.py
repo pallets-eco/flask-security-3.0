@@ -11,18 +11,16 @@
 
 import inspect
 
-from flask import request, current_app, flash, Markup
-from flask_wtf import FlaskForm as BaseForm
-from wtforms import StringField, PasswordField, validators, \
-    SubmitField, HiddenField, BooleanField, ValidationError, Field
+from flask import Markup, current_app, flash, request
 from flask_login import current_user
+from flask_wtf import Form as BaseForm
 from werkzeug.local import LocalProxy
+from wtforms import BooleanField, Field, HiddenField, PasswordField, \
+    StringField, SubmitField, ValidationError, validators
 
 from .confirmable import requires_confirmation
-from .utils import (
-    verify_and_update_password, get_message, config_value,
-    validate_redirect_url, url_for_security
-)
+from .utils import config_value, get_message, url_for_security, \
+    validate_redirect_url, verify_and_update_password
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -233,7 +231,8 @@ class LoginForm(Form, NextFormMixin):
             return False
 
         if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
+            self.password.errors.append(
+                get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
 
         self.user = _datastore.get_user(self.email.data)
@@ -284,7 +283,8 @@ class ChangePasswordForm(Form, PasswordFormMixin):
 
     new_password_confirm = PasswordField(
         get_form_field_label('retype_password'),
-        validators=[EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
+        validators=[EqualTo('new_password',
+                            message='RETYPE_PASSWORD_MISMATCH')])
 
     submit = SubmitField(get_form_field_label('change_password'))
 

@@ -6,15 +6,17 @@
     Entity tests
 """
 
-from flask_security import RoleMixin, UserMixin, AnonymousUser
+from flask_security import AnonymousUser, RoleMixin, UserMixin
 
 
 class Role(RoleMixin):
+
     def __init__(self, name):
         self.name = name
 
 
 class User(UserMixin):
+
     def __init__(self, roles):
         self.roles = roles
 

@@ -7,7 +7,6 @@
 """
 
 import pytest
-
 from utils import authenticate, logout
 from werkzeug.contrib.fixers import ProxyFix
 

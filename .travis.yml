@@ -4,20 +4,36 @@ notifications:
 language: python
 
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "pypy"
 
 sudo: false
 
+addons:
+  apt:
+    sources:
+      - deadsnakes
+    packages:
+      - python3.5
+
 cache:
   - apt
   - pip
 
-install:
+services:
+  - mongodb
+
+env:
+  - REQUIREMENTS=lowest
+  - REQUIREMENTS=release
+
+before_install:
+  - "travis_retry pip install --upgrade pip setuptools"
+  - "travis_retry pip install twine wheel coveralls requirements-builder"
+  - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
+  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
   - |
       if [ "$TRAVIS_PYTHON_VERSION" = "pypy" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
@@ -31,21 +47,12 @@ install:
         virtualenv --python="$PYENV_ROOT/versions/pypy-$PYPY_VERSION/bin/python" "$HOME/virtualenvs/pypy-$PYPY_VERSION"
         source "$HOME/virtualenvs/pypy-$PYPY_VERSION/bin/activate"
       fi
-  - pip install -r requirements.txt -r requirements-dev.txt -e .
-  - pip install coverage coveralls
-  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib; fi"
 
-addons:
-  apt:
-    sources:
-      - deadsnakes
-    packages:
-      - python3.5
+install:
+  - "pip install -r .travis-${REQUIREMENTS}-requirements.txt"
+  - "pip install -e .[all]"
 
-services:
-  - mongodb
-
-script: py.test --cov flask_security --cov-report term-missing --pep8 --flakes
+script: python setup.py test
 
 after_script:
   - coveralls

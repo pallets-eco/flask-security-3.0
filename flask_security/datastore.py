@@ -246,7 +246,8 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
 
     # TODO: Not sure why this was added but tests pass without it
     # def add_role_to_user(self, user, role):
-    #     rv = super(MongoEngineUserDatastore, self).add_role_to_user(user, role)
+    #     rv = super(MongoEngineUserDatastore, self).add_role_to_user(
+    #         user, role)
     #     if rv:
     #         self.put(user)
     #     return rv
@@ -307,8 +308,10 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         :param role: The role to add to the user
         """
         user, role = self._prepare_role_modify_args(user, role)
-        result = self.UserRole.select() \
-            .where(self.UserRole.user == user.id, self.UserRole.role == role.id)
+        result = self.UserRole.select().where(
+            self.UserRole.user == user.id,
+            self.UserRole.role == role.id,
+        )
         if result.count():
             return False
         else:
@@ -322,8 +325,10 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         :param role: The role to remove from the user
         """
         user, role = self._prepare_role_modify_args(user, role)
-        result = self.UserRole.select() \
-            .where(self.UserRole.user == user, self.UserRole.role == role)
+        result = self.UserRole.select().where(
+            self.UserRole.user == user,
+            self.UserRole.role == role,
+        )
         if result.count():
             query = self.UserRole.delete().where(
                 self.UserRole.user == user, self.UserRole.role == role)
