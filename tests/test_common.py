@@ -90,6 +90,12 @@ def test_logout(client):
     assert b'Home Page' in response.data
 
 
+def test_logout_with_next(client, get_message):
+    authenticate(client)
+    response = client.get('/logout?next=http://google.com')
+    assert 'google.com' not in response.location
+
+
 def test_missing_session_access(client, get_message):
     response = client.get('/profile', follow_redirects=True)
     assert get_message('LOGIN') in response.data
