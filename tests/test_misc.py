@@ -223,3 +223,26 @@ def test_set_unauthorized_handler(app, client):
     assert app.unauthorized_handler_set is True
     assert b'unauthorized-handler-set' in response.data
     assert response.status_code == 401
+
+
+@pytest.mark.registerable()
+def test_custom_forms_via_config(app, sqlalchemy_datastore):
+    class MyLoginForm(LoginForm):
+        email = StringField('My Login Email Address Field')
+
+    class MyRegisterForm(RegisterForm):
+        email = StringField('My Register Email Address Field')
+
+    app.config['SECURITY_LOGIN_FORM'] = MyLoginForm
+    app.config['SECURITY_REGISTER_FORM'] = MyRegisterForm
+
+    security = Security(datastore=sqlalchemy_datastore)
+    security.init_app(app)
+
+    client = app.test_client()
+
+    response = client.get('/login')
+    assert b'My Login Email Address Field' in response.data
+
+    response = client.get('/register')
+    assert b'My Register Email Address Field' in response.data
