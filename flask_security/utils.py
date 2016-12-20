@@ -262,6 +262,10 @@ def get_post_register_redirect(declared=None):
     return get_post_action_redirect('SECURITY_POST_REGISTER_VIEW', declared)
 
 
+def get_post_logout_redirect(declared=None):
+    return get_post_action_redirect('SECURITY_POST_LOGOUT_VIEW', declared)
+
+
 def find_redirect(key):
     """Returns the URL to redirect to after a user logs in successfully.
 

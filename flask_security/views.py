@@ -25,8 +25,9 @@ from .recoverable import reset_password_token_status, \
 from .registerable import register_user
 from .utils import url_for_security as url_for
 from .utils import config_value, do_flash, get_message, \
-    get_post_login_redirect, get_post_register_redirect, get_url, login_user, \
-    logout_user, slash_url_suffix
+    get_post_login_redirect, get_post_logout_redirect, \
+    get_post_register_redirect, get_url, login_user, logout_user, \
+    slash_url_suffix
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -93,8 +94,7 @@ def logout():
     if current_user.is_authenticated:
         logout_user()
 
-    return redirect(request.args.get('next', None) or
-                    get_url(_security.post_logout_view))
+    return redirect(get_post_logout_redirect())
 
 
 @anonymous_user_required
