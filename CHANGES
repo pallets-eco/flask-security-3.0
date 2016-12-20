@@ -3,6 +3,16 @@ Flask-Security-Fork Changelog
 
 Here you can see the full list of changes between each Flask-Security-Fork release.
 
+Version 1.8.2
+-------------
+
+Released December 20th 2016
+
+- Added validation and tests for next argument in logout endpoint. (see #499)
+- Bumped minimal required versions of several packages.
+- Extended test matric on Travis CI for minimal and released package versions.
+- Added of .editorconfig and forced tests for code style.
+
 Version 1.8.1
 -------------
 
