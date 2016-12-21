@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import re
+import warnings
 
 from flask import current_app
 from flask_script import Command, Option
@@ -22,6 +23,12 @@ try:
     import simplejson as json
 except ImportError:
     import json
+
+warnings.warn(
+    'Please use flask_security.cli instead of flask_security.script. '
+    'Support for Flask-Script will be removed in 2.1.',
+    DeprecationWarning
+)
 
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 

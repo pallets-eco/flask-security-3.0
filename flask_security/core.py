@@ -37,6 +37,8 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 #: Default Flask-Security configuration
 _default_config = {
     'BLUEPRINT_NAME': 'security',
+    'CLI_ROLES_NAME': 'roles',
+    'CLI_USERS_NAME': 'users',
     'URL_PREFIX': None,
     'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
@@ -470,6 +472,13 @@ class Security(object):
 
         state.render_template = self.render_template
         app.extensions['security'] = state
+
+        if hasattr(app, 'cli'):
+            from .cli import users, roles
+            if state.cli_users_name:
+                app.cli.add_command(users, state.cli_users_name)
+            if state.cli_roles_name:
+                app.cli.add_command(roles, state.cli_roles_name)
 
         return state
 

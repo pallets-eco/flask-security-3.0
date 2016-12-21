@@ -7,6 +7,7 @@ from setuptools import find_packages, setup
 readme = open('README.rst').read()
 
 tests_require = [
+    'Flask-CLI>=0.4.0',
     'Flask-Mongoengine>=0.7.0',
     'Flask-Peewee>=0.6.5',
     'Flask-SQLAlchemy>=1.0',
@@ -54,7 +55,7 @@ packages = find_packages()
 
 setup(
     name='Flask-Security-Fork',
-    version='1.8.2',
+    version='2.0.0.dev20161220',
     description=__doc__,
     long_description=readme,
     keywords='flask security',

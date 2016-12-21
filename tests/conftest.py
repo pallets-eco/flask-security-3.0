@@ -298,3 +298,19 @@ def datastore(
     elif request.param == 'peewee':
         rv = peewee_datastore
     return rv
+
+
+@pytest.fixture()
+def script_info(app, datastore):
+    try:
+        from flask.cli import ScriptInfo
+    except ImportError:
+        from flask_cli import ScriptInfo
+
+    def create_app(info):
+        app.config.update(**{
+            'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
+        })
+        app.security = Security(app, datastore=datastore)
+        return app
+    return ScriptInfo(create_app=create_app)
