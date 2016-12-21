@@ -12,6 +12,12 @@ Core
 ``SECURITY_BLUEPRINT_NAME``              Specifies the name for the
                                          Flask-Security blueprint. Defaults to
                                          ``security``.
+``SECURITY_CLI_USERS_NAME``              Specifies the name for the command
+                                         managing users. Disable by setting
+                                         ``False``. Defaults to ``users``.
+``SECURITY_CLI_ROLES_NAME``              Specifies the name for the command
+                                         managing roles. Disable by setting
+                                         ``False``. Defaults to ``roles``.
 ``SECURITY_URL_PREFIX``                  Specifies the URL prefix for the
                                          Flask-Security blueprint. Defaults to
                                          ``None``.

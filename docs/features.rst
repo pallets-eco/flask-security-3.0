@@ -120,6 +120,15 @@ JSON is supported for the following operations:
 * Passwordless login requests
 
 
+Command Line Interface
+----------------------
+
+Basic `Click`_ commands for managing users and roles are automatically
+registered. They can be completely disabled or their names can be changed.
+Run ``flask --help`` and look for users and roles.
+
+
+.. _Click: http://packages.python.org/Click/
 .. _Flask-Login: http://packages.python.org/Flask-Login/
 .. _alternative token: http://packages.python.org/Flask-Login/#alternative-tokens
 .. _Flask-Principal: http://packages.python.org/Flask-Principal/

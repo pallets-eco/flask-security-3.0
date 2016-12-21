@@ -21,10 +21,9 @@ and libraries. They include:
 1. `Flask-Login <http://packages.python.org/Flask-Login/>`_
 2. `Flask-Mail <http://packages.python.org/Flask-Mail/>`_
 3. `Flask-Principal <http://packages.python.org/Flask-Principal/>`_
-4. `Flask-Script <http://packages.python.org/Flask-Script/>`_
-5. `Flask-WTF <http://packages.python.org/Flask-WTF/>`_
-6. `itsdangerous <http://packages.python.org/itsdangerous/>`_
-7. `passlib <http://packages.python.org/passlib/>`_
+4. `Flask-WTF <http://packages.python.org/Flask-WTF/>`_
+5. `itsdangerous <http://packages.python.org/itsdangerous/>`_
+6. `passlib <http://packages.python.org/passlib/>`_
 
 Additionally, it assumes you'll be using a common library for your database
 connections and model definitions. Flask-Security supports the following Flask
