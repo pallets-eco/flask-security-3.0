@@ -28,6 +28,7 @@ from flask_mail import Message
 from flask_principal import Identity, AnonymousIdentity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
+from threading import Thread
 
 from .signals import user_registered, login_instructions_sent, reset_password_instructions_sent
 
@@ -338,7 +339,18 @@ def send_mail(subject, recipient, template, **context):
         return
 
     mail = current_app.extensions.get('mail')
+    thr = Thread(target=send_async_email, args=[mail, msg])
+
+
+def send_async_email(mail, msg):
+    """Send an email  asynchronously via Threading.
+
+    :param mail: The mail object with context
+    :param msg: The message to be sent
+    """
+
     mail.send(msg)
+
 
 
 def get_token_status(token, serializer, max_age=None, return_data=False):
