@@ -271,6 +271,9 @@ Miscellaneous
 ``SECURITY_DEFAULT_REMEMBER_ME``              Specifies the default "remember
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
+``SECURITY_DATETIME_FACTORY``                 Specifies the default datetime
+                                              factory. Defaults to
+                                              ``datetime.datetime.utcnow``.
 ============================================= ==================================
 
 Messages

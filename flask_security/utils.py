@@ -20,7 +20,7 @@ except ImportError:  # pragma: no cover
     from urllib.parse import urlsplit
 
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import url_for, flash, current_app, request, session, render_template
 from flask_login import login_user as _login_user, logout_user as _logout_user
@@ -67,7 +67,7 @@ def login_user(user, remember=None):
         else:
             remote_addr = request.remote_addr or 'untrackable'
 
-        old_current_login, new_current_login = user.current_login_at, datetime.utcnow()
+        old_current_login, new_current_login = user.current_login_at, _security.datetime_factory()
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 
         user.last_login_at = old_current_login or new_current_login
