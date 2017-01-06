@@ -14,7 +14,7 @@ import hashlib
 import hmac
 import sys
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import current_app, flash, render_template, request, session, \
     url_for
@@ -72,7 +72,7 @@ def login_user(user, remember=None):
         remote_addr = request.remote_addr or None  # make sure it is None
 
         old_current_login, new_current_login = (
-            user.current_login_at, datetime.utcnow()
+            user.current_login_at, _security.datetime_factory()
         )
         old_current_ip, new_current_ip = user.current_login_ip, remote_addr
 

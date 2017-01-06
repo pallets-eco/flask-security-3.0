@@ -4,6 +4,9 @@
     ~~~~~~~~
 
     Test fixtures and what not
+
+    :copyright: (c) 2017 by CERN.
+    :license: MIT, see LICENSE for more details.
 """
 
 import os
