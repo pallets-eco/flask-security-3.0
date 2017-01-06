@@ -6,6 +6,7 @@
     Flask-Security forms module
 
     :copyright: (c) 2012 by Matt Wright.
+    :copyright: (c) 2017 by CERN.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -13,7 +14,7 @@ import inspect
 
 from flask import Markup, current_app, flash, request
 from flask_login import current_user
-from flask_wtf import Form as BaseForm
+from flask_wtf import FlaskForm as BaseForm
 from werkzeug.local import LocalProxy
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
