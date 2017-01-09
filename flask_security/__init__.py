@@ -21,7 +21,7 @@ from .signals import confirm_instructions_sent, password_reset, \
     reset_password_instructions_sent, user_confirmed, user_registered
 from .utils import login_user, logout_user, url_for_security
 
-__version__ = '2.0.0.dev20161220'
+__version__ = '2.0.0'
 __all__ = (
     'AnonymousUser',
     'ConfirmRegisterForm',

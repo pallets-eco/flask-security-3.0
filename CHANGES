@@ -3,6 +3,20 @@ Flask-Security-Fork Changelog
 
 Here you can see the full list of changes between each Flask-Security-Fork release.
 
+Version 2.0.0
+-------------
+
+Released January 11th 2016
+
+- Added port of CLI using Click configurable using options
+  `SECURITY_CLI_USERS_NAME` and `SECURITY_CLI_ROLES_NAME`.
+- Added new configuration option `SECURITY_DATETIME_FACTORY` which can
+  be used to force default timezone for newly created datetimes.
+  (see mattupstate/flask-security#466)
+- Better IP tracking if using Flask 0.12.
+- Renamed deprecated Flask-WFT base form class.
+- Added tests for custom forms configured using app config.
+
 Version 1.8.2
 -------------
 

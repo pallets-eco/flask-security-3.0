@@ -55,7 +55,7 @@ packages = find_packages()
 
 setup(
     name='Flask-Security-Fork',
-    version='2.0.0.dev20161220',
+    version='2.0.0',
     description=__doc__,
     long_description=readme,
     keywords='flask security',
