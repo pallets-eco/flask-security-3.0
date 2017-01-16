@@ -31,7 +31,6 @@ def register_user(**kwargs):
 
     if _security.confirmable:
         confirmation_link, token = generate_confirmation_link(user)
-        do_flash(*get_message('CONFIRM_REGISTRATION', email=user.email))
 
     user_registered.send(app._get_current_object(),
                          user=user, confirm_token=token)
@@ -39,5 +38,8 @@ def register_user(**kwargs):
     if config_value('SEND_REGISTER_EMAIL'):
         send_mail(config_value('EMAIL_SUBJECT_REGISTER'), user.email, 'welcome',
                   user=user, confirmation_link=confirmation_link)
+        if confirmation_link:
+            do_flash(*get_message('CONFIRM_REGISTRATION', email=user.email))
+
 
     return user
