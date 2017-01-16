@@ -15,8 +15,6 @@ try:
 except ImportError:
     import json
 
-import re
-
 from flask import current_app
 from flask_script import Command, Option
 from werkzeug.local import LocalProxy
@@ -42,17 +40,13 @@ class CreateUserCommand(Command):
     """Create a user"""
 
     option_list = (
-        Option('-e', '--email', dest='email', default=None),
+        Option('-e', '--email', dest='email', default=None, required=True),
         Option('-p', '--password', dest='password', default=None),
-        Option('-a', '--active', dest='active', default=''),
+        Option('-a', '--active', dest='active', action='store_true'),
     )
 
     @commit
     def run(self, **kwargs):
-        # sanitize active input
-        ai = re.sub(r'\s', '', str(kwargs['active']))
-        kwargs['active'] = ai.lower() in ['', 'y', 'yes', '1', 'active']
-
         from flask_security.forms import ConfirmRegisterForm
         from werkzeug.datastructures import MultiDict
 
@@ -67,13 +61,14 @@ class CreateUserCommand(Command):
         else:
             print('Error creating user')
             pprint(form.errors)
+            raise SystemExit(1)
 
 
 class CreateRoleCommand(Command):
     """Create a role"""
 
     option_list = (
-        Option('-n', '--name', dest='name', default=None),
+        Option('-n', '--name', dest='name', default=None, required=True),
         Option('-d', '--desc', dest='description', default=None),
     )
 
@@ -85,8 +80,8 @@ class CreateRoleCommand(Command):
 
 class _RoleCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
-        Option('-r', '--role', dest='role_name'),
+        Option('-u', '--user', dest='user_identifier', required=True),
+        Option('-r', '--role', dest='role_name', required=True),
     )
 
 
@@ -110,7 +105,7 @@ class RemoveRoleCommand(_RoleCommand):
 
 class _ToggleActiveCommand(Command):
     option_list = (
-        Option('-u', '--user', dest='user_identifier'),
+        Option('-u', '--user', dest='user_identifier', required=True),
     )
 
 

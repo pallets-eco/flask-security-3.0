@@ -22,6 +22,27 @@ class Role(RoleMixin):
     pass
 
 
+class MockDatastore(Datastore):
+    def __init__(self):
+        super(MockDatastore, self).__init__(None)
+        self._puts = []
+        self._deletes = []
+
+    def put(self, model):
+        self._puts.append(model)
+        return model
+
+    def delete(self, model):
+        self._deletes.append(model)
+        return model
+
+
+class MockUserDatastore(MockDatastore, UserDatastore):
+    def __init__(self):
+        MockDatastore.__init__(self)
+        UserDatastore.__init__(self, None, None)
+
+
 def test_unimplemented_datastore_methods():
     datastore = Datastore(None)
     assert datastore.db is None
@@ -43,43 +64,48 @@ def test_unimplemented_user_datastore_methods():
 
 
 def test_toggle_active():
-    datastore = UserDatastore(None, None)
+    datastore = MockUserDatastore()
     user = User()
     user.active = True
     assert datastore.toggle_active(user) is True
     assert not user.active
     assert datastore.toggle_active(user) is True
     assert user.active is True
+    assert datastore._puts == [user, user]
 
 
 def test_deactivate_user():
-    datastore = UserDatastore(None, None)
+    datastore = MockUserDatastore()
     user = User()
     user.active = True
     assert datastore.deactivate_user(user) is True
     assert not user.active
+    assert datastore._puts == [user]
 
 
 def test_activate_user():
-    datastore = UserDatastore(None, None)
+    datastore = MockUserDatastore()
     user = User()
     user.active = False
     assert datastore.activate_user(user) is True
     assert user.active is True
+    assert datastore._puts == [user]
 
 
 def test_deactivate_returns_false_if_already_false():
-    datastore = UserDatastore(None, None)
+    datastore = MockUserDatastore()
     user = User()
     user.active = False
     assert not datastore.deactivate_user(user)
+    assert datastore._puts == []
 
 
 def test_activate_returns_false_if_already_true():
-    datastore = UserDatastore(None, None)
+    datastore = MockUserDatastore()
     user = User()
     user.active = True
     assert not datastore.activate_user(user)
+    assert datastore._puts == []
 
 
 def test_get_user(app, datastore):
