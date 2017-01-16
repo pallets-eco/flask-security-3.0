@@ -17,7 +17,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import send_confirmation_instructions, \
     confirm_user, confirm_email_token_status
-from .decorators import login_required, anonymous_user_required
+from .decorators import auth_required, anonymous_user_required
 from .passwordless import send_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
@@ -267,33 +267,51 @@ def reset_password(token):
     """View function that handles a reset password request."""
 
     expired, invalid, user = reset_password_token_status(token)
+    form_class = _security.reset_password_form
+
+    if request.json:
+        form = form_class(MultiDict(request.json))
+    else:
+        form = form_class()
 
     if invalid:
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+        form.errors['invalid'] = get_message('INVALID_RESET_PASSWORD_TOKEN')
     if expired:
         send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
-    if invalid or expired:
-        return redirect(url_for('forgot_password'))
+        form.errors['expired'] = get_message('PASSWORD_RESET_EXPIRED', email=user.email,
+                              within=_security.reset_password_within)
 
-    form = _security.reset_password_form()
+    if invalid or expired:
+        if request.json:
+            return _render_json(form, False)
+        else:
+            return redirect(url_for('forgot_password'))
 
     if form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user)
-        return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.post_login_view))
 
-    return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
+        if request.json:
+            return _render_json(form, False)
+        else:
+            do_flash(*get_message('PASSWORD_RESET'))
+            login_user(user)
+            return redirect(get_url(_security.post_reset_view) or
+                            get_url(_security.post_login_view))
+
+    if request.json:
+        return _render_json(form, False)
+    else:
+        return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                                      reset_password_form=form,
                                      reset_password_token=token,
                                      **_ctx('reset_password'))
 
 
-@login_required
+@auth_required('token', 'session')
 def change_password():
     """View function which handles a change password request."""
 
@@ -314,7 +332,7 @@ def change_password():
 
     if request.json:
         form.user = current_user
-        return _render_json(form)
+        return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
                                      change_password_form=form,
