@@ -417,13 +417,18 @@ class Security(object):
                  send_confirmation_form=None, passwordless_login_form=None,
                  anonymous_user=None):
         """Initializes the Flask-Security extension for the specified
-        application and datastore implentation.
+        application and datastore implementation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
         :param register_blueprint: to register the Security blueprint or not.
         """
-        datastore = datastore or self.datastore
+        assert app
+
+        self.app = app
+
+        if datastore is not None:
+            self.datastore = datastore
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
@@ -433,7 +438,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
+        state = _get_state(self.app, self.datastore,
                            login_form=login_form,
                            confirm_register_form=confirm_register_form,
                            register_form=register_form,
