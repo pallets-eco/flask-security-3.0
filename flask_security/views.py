@@ -49,7 +49,7 @@ def _render_json(form, include_user=True, include_auth_token=False):
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
 
-    return jsonify(dict(meta=dict(code=code), response=response))
+    return jsonify(dict(meta=dict(code=code), response=response)), code
 
 
 def _commit(response=None):
