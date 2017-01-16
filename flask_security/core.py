@@ -20,7 +20,8 @@ from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types
+from .utils import config_value as cv, get_config, md5, url_for_security, string_types, \
+    verify_password, verify_and_update_password, encrypt_password
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -277,6 +278,9 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),
         confirm_serializer=_get_serializer(app, 'confirm'),
+        verify_password=verify_password,
+        verify_and_update_password=verify_and_update_password,
+        encrypt_password=encrypt_password,
         _context_processors={},
         _send_mail_task=None,
         _unauthorized_callback=None

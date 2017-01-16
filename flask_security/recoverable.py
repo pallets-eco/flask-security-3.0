@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
 from .signals import password_reset, reset_password_instructions_sent
-from .utils import send_mail, md5, encrypt_password, url_for_security, \
+from .utils import send_mail, md5, url_for_security, \
     get_token_status, config_value
 
 
@@ -84,7 +84,7 @@ def update_password(user, password):
     :param user: The user to update_password
     :param password: The unencrypted new password
     """
-    user.password = encrypt_password(password)
+    user.password = _security.encrypt_password(password)
     _datastore.put(user)
     send_password_reset_notice(user)
     password_reset.send(app._get_current_object(), user=user)

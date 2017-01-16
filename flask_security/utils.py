@@ -137,7 +137,7 @@ def verify_and_update_password(password, user):
     verified, new_password = _pwd_context.verify_and_update(
         password, user.password)
     if verified and new_password:
-        user.password = encrypt_password(password)
+        user.password = _security.encrypt_password(password)
         _datastore.put(user)
     return verified
 

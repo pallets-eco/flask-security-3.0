@@ -81,7 +81,7 @@ def _check_http_auth():
     auth = request.authorization or BasicAuth(username=None, password=None)
     user = _security.datastore.find_user(email=auth.username)
 
-    if user and utils.verify_and_update_password(auth.password, user):
+    if user and _security.verify_and_update_password(auth.password, user):
         _security.datastore.commit()
         app = current_app._get_current_object()
         _request_ctx_stack.top.user = user

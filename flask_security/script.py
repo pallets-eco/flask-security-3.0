@@ -21,9 +21,7 @@ from flask import current_app
 from flask_script import Command, Option
 from werkzeug.local import LocalProxy
 
-from .utils import encrypt_password
-
-
+_security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
@@ -59,7 +57,7 @@ class CreateUserCommand(Command):
         form = ConfirmRegisterForm(MultiDict(kwargs), csrf_enabled=False)
 
         if form.validate():
-            kwargs['password'] = encrypt_password(kwargs['password'])
+            kwargs['password'] = _security.encrypt_password(kwargs['password'])
             _datastore.create_user(**kwargs)
             print('User created successfully.')
             kwargs['password'] = '****'

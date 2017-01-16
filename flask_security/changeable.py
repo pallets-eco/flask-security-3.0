@@ -14,7 +14,7 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import password_changed
-from .utils import send_mail, encrypt_password, config_value
+from .utils import send_mail, config_value
 
 
 # Convenient references
@@ -39,7 +39,7 @@ def change_user_password(user, password):
     :param user: The user to change_password
     :param password: The unencrypted new password
     """
-    user.password = encrypt_password(password)
+    user.password = _security.encrypt_password(password)
     _datastore.put(user)
     send_password_changed_notice(user)
     password_changed.send(app._get_current_object(),
