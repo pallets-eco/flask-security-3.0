@@ -9,7 +9,11 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, render_template
+from flask import current_app, render_template, _request_ctx_stack
+try:
+    from flask import _app_ctx_stack
+except ImportError:
+    _app_ctx_stack = None
 from flask_login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask_principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -25,6 +29,9 @@ from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm
+
+# Select stack, in flask 0.9 _app_ctx_stack is used
+_ctx_stack = _app_ctx_stack or _request_ctx_stack
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -263,7 +270,7 @@ def _get_serializer(app, name):
     return URLSafeTimedSerializer(secret_key=secret_key, salt=salt)
 
 
-def _get_state(app, datastore, anonymous_user=None, **kwargs):
+def create_state(app, datastore, anonymous_user=None, **kwargs):
     for key, value in get_config(app).items():
         kwargs[key.lower()] = value
 
@@ -287,6 +294,14 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
             kwargs[key] = value
 
     return _SecurityState(**kwargs)
+
+
+def get_state(app):
+    """Get social state of the app"""
+    assert 'security' in app.extensions, \
+        "The Security extension was not registered to the current application." \
+        "Please make sure to call init_app() first."
+    return app.extensions['security']
 
 
 def _context_processor():
@@ -404,11 +419,12 @@ class Security(object):
     """
 
     def __init__(self, app=None, datastore=None, **kwargs):
+        self._state = None
         self.app = app
         self.datastore = datastore
 
         if app is not None and datastore is not None:
-            self._state = self.init_app(app, datastore, **kwargs)
+            self.init_app(app, datastore, **kwargs)
 
     def init_app(self, app, datastore=None, register_blueprint=True,
                  login_form=None, confirm_register_form=None,
@@ -423,7 +439,8 @@ class Security(object):
         :param datastore: An instance of a user datastore.
         :param register_blueprint: to register the Security blueprint or not.
         """
-        datastore = datastore or self.datastore
+        if datastore is not None:
+            self.datastore = datastore
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
@@ -433,28 +450,31 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
-                           login_form=login_form,
-                           confirm_register_form=confirm_register_form,
-                           register_form=register_form,
-                           forgot_password_form=forgot_password_form,
-                           reset_password_form=reset_password_form,
-                           change_password_form=change_password_form,
-                           send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form,
-                           anonymous_user=anonymous_user)
+        self._state = create_state(app, self.datastore,
+                                   login_form=login_form,
+                                   confirm_register_form=confirm_register_form,
+                                   register_form=register_form,
+                                   forgot_password_form=forgot_password_form,
+                                   reset_password_form=reset_password_form,
+                                   change_password_form=change_password_form,
+                                   send_confirmation_form=send_confirmation_form,
+                                   passwordless_login_form=passwordless_login_form,
+                                   anonymous_user=anonymous_user)
 
         if register_blueprint:
-            app.register_blueprint(create_blueprint(state, __name__))
+            app.register_blueprint(create_blueprint(self._state, __name__))
             app.context_processor(_context_processor)
 
-        state.render_template = self.render_template
-        app.extensions['security'] = state
-
-        return state
+        self._state.render_template = self.render_template
+        app.extensions['security'] = self._state
 
     def render_template(self, *args, **kwargs):
         return render_template(*args, **kwargs)
 
     def __getattr__(self, name):
-        return getattr(self._state, name, None)
+        if self._state is not None:  # shortcut
+            return getattr(self._state, name)
+        ctx = _ctx_stack.top
+        if ctx is not None:
+            self._state = get_state(ctx.app)
+            return getattr(self._state, name)
