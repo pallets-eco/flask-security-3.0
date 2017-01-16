@@ -277,6 +277,10 @@ Miscellaneous
 ``SECURITY_DEFAULT_REMEMBER_ME``              Specifies the default "remember
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
+``SECURITY_DISABLE_ENCRYPTION``               Disables encryption (i.e. for
+                                              use with SQLAlchemy-Utils' 
+                                              PasswordType). Defaults to ``False``
+
 ============================================= ==================================
 
 Messages

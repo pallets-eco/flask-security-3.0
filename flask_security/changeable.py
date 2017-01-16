@@ -39,7 +39,8 @@ def change_user_password(user, password):
     :param user: The user to change_password
     :param password: The unencrypted new password
     """
-    user.password = encrypt_password(password)
+    if not config_value('DISABLE_ENCRYPTION'):
+        user.password = encrypt_password(password)
     _datastore.put(user)
     send_password_changed_notice(user)
     password_changed.send(app._get_current_object(),

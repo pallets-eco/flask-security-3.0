@@ -25,7 +25,8 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 def register_user(**kwargs):
     confirmation_link, token = None, None
-    kwargs['password'] = encrypt_password(kwargs['password'])
+    if not config_value('DISABLE_ENCRYPTION'):
+        kwargs['password'] = encrypt_password(kwargs['password'])
     user = _datastore.create_user(**kwargs)
     _datastore.commit()
 
