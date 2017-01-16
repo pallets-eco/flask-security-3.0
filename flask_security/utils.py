@@ -210,6 +210,8 @@ def url_for_security(endpoint, **values):
     :param _external: if set to `True`, an absolute URL is generated. Server
       address can be changed via `SERVER_NAME` configuration variable which
       defaults to `localhost`.
+    :param _scheme: a string specifying the desired URL scheme. The `_external`
+      parameter must be set to `True` or a `ValueError` is raised.
     :param _anchor: if provided this is added as anchor to the URL.
     :param _method: if provided this explicitly specifies an HTTP method.
     """

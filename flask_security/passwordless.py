@@ -30,7 +30,9 @@ def send_login_instructions(user):
     :param token: The login token
     """
     token = generate_login_token(user)
-    login_link = url_for_security('token_login', token=token, _external=True)
+    login_link = url_for_security(
+        'token_login', token=token, _external=True,
+        _scheme=config_value('URL_SCHEME'))
 
     send_mail(config_value('EMAIL_SUBJECT_PASSWORDLESS'), user.email,
               'login_instructions', user=user, login_link=login_link)
