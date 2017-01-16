@@ -26,3 +26,7 @@ password_reset = signals.signal("password-reset")
 password_changed = signals.signal("password-changed")
 
 reset_password_instructions_sent = signals.signal("password-reset-instructions-sent")
+
+ldap_user_registred = signals.signal('ldap-user-registred')
+
+ldap_user_login = signals.signal('ldap-user-login')
