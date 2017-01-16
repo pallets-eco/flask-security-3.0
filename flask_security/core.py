@@ -89,6 +89,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'EMAIL_PLAINTEXT': True,
+    'EMAIL_HTML': True,
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -193,7 +195,8 @@ def _user_loader(user_id):
 
 def _token_loader(token):
     try:
-        data = _security.remember_token_serializer.loads(token, max_age=_security.token_max_age)
+        data = _security.remember_token_serializer.loads(
+            token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
         if user and safe_str_cmp(md5(user.password), data[1]):
             return user
@@ -227,7 +230,8 @@ def _get_login_manager(app, anonymous_user):
 
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
-        lm.needs_refresh_message, lm.needs_refresh_message_category = cv('MSG_REFRESH', app=app)
+        lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
+            'MSG_REFRESH', app=app)
     else:
         lm.login_message = None
         lm.needs_refresh_message = None
@@ -248,7 +252,8 @@ def _get_pwd_context(app):
     deprecated = cv('DEPRECATED_PASSWORD_SCHEMES', app=app)
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
-        raise ValueError("Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
+        raise ValueError(
+            "Invalid hash scheme %r. Allowed values are %s" % (pw_hash, allowed))
     return CryptContext(schemes=schemes, default=pw_hash, deprecated=deprecated)
 
 
@@ -289,6 +294,7 @@ def _context_processor():
 
 
 class RoleMixin(object):
+
     """Mixin for `Role` model definitions"""
 
     def __eq__(self, other):
@@ -303,6 +309,7 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
+
     """Mixin for `User` model definitions"""
 
     @property
@@ -326,6 +333,7 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     """AnonymousUser definition"""
 
     def __init__(self):
@@ -388,11 +396,13 @@ class _SecurityState(object):
 
 
 class Security(object):
+
     """The :class:`Security` class initializes the Flask-Security extension.
 
     :param app: The application.
     :param datastore: An instance of a user datastore.
     """
+
     def __init__(self, app=None, datastore=None, **kwargs):
         self.app = app
         self.datastore = datastore
