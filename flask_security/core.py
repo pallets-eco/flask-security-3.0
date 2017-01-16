@@ -102,7 +102,8 @@ _default_config = {
         # And always last one...
         'plaintext'
     ],
-    'DEPRECATED_PASSWORD_SCHEMES': ['auto']
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'IGNORE_STATIC_ENDPOINTS': False,
 }
 
 #: Default Flask-Security messages
@@ -241,7 +242,7 @@ def _get_login_manager(app, anonymous_user):
 
 
 def _get_principal(app):
-    p = Principal(app, use_sessions=False)
+    p = Principal(app, use_sessions=False, skip_static=cv('IGNORE_STATIC_ENDPOINTS'))
     p.identity_loader(_identity_loader)
     return p
 
