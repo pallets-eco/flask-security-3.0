@@ -19,7 +19,7 @@ from flask_login import current_user
 from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
-from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
+from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url, get_hmac
 
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
@@ -226,7 +226,7 @@ class LoginForm(Form, NextFormMixin):
             self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
 
-        self.user = _datastore.get_user(self.email.data)
+        self.user = _datastore.get_user(get_hmac(self.email.data))
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
