@@ -26,7 +26,8 @@ from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, slash_url_suffix
+    request_wants_json, url_for_security as url_for, slash_url_suffix
+from .forms import Form
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -34,7 +35,7 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 
-def _render_json(form, include_user=True, include_auth_token=False):
+def _render_json(form, include_user=True, include_auth_token=False, data={}):
     has_errors = len(form.errors) > 0
 
     if has_errors:
@@ -42,9 +43,10 @@ def _render_json(form, include_user=True, include_auth_token=False):
         response = dict(errors=form.errors)
     else:
         code = 200
-        response = dict()
+        response = data.copy()
         if include_user:
             response['user'] = dict(id=str(form.user.id))
+
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
@@ -139,7 +141,9 @@ def register():
 
 
 def send_login():
-    """View function that sends login instructions for passwordless login"""
+    """View function that creates a new user, ot updates an existing user with 
+       fields from the form and sends passwordless login instructions
+    """
 
     form_class = _security.passwordless_login_form
 
@@ -149,6 +153,17 @@ def send_login():
         form = form_class()
 
     if form.validate_on_submit():
+        user_data = form.to_dict()
+        if not form.user:
+            user = _datastore.create_user(**user_data)
+            form.user = user
+        else:
+            for k,v in user_data.items():
+                try:
+                    setattr(form.user, k, v)
+                except KeyError:
+                    continue
+            _datastore.put(form.user)
         send_login_instructions(form.user)
         if request.json is None:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
@@ -174,13 +189,24 @@ def token_login(token):
         do_flash(*get_message('LOGIN_EXPIRED', email=user.email,
                               within=_security.login_within))
     if invalid or expired:
-        return redirect(url_for('login'))
+        if request_wants_json():
+            form = Form()
+            form._errors = [get_message('INVALID_LOGIN_TOKEN')[0]]
+            return _render_json(form)
+        else:
+            return redirect(url_for('login'))
 
     login_user(user)
     after_this_request(_commit)
     do_flash(*get_message('PASSWORDLESS_LOGIN_SUCCESSFUL'))
 
-    return redirect(get_post_login_redirect())
+    next = get_post_login_redirect()
+    if request_wants_json():
+        form = Form()
+        form.user = user
+        return _render_json(form, include_auth_token=True, data=dict(next=next))
+    else:
+        return redirect(next)
 
 
 def send_confirmation():
