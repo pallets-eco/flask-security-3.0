@@ -51,7 +51,7 @@ class EqualTo(ValidatorMixin, validators.EqualTo):
     pass
 
 
-class Required(ValidatorMixin, validators.Required):
+class Required(ValidatorMixin, validators.DataRequired):
     pass
 
 
