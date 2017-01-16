@@ -433,7 +433,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, datastore,
+        self._state = _get_state(app, datastore,
                            login_form=login_form,
                            confirm_register_form=confirm_register_form,
                            register_form=register_form,
@@ -445,11 +445,11 @@ class Security(object):
                            anonymous_user=anonymous_user)
 
         if register_blueprint:
-            app.register_blueprint(create_blueprint(state, __name__))
+            app.register_blueprint(create_blueprint(self._state, __name__))
             app.context_processor(_context_processor)
 
         state.render_template = self.render_template
-        app.extensions['security'] = state
+        app.extensions['security'] = self._state
 
         return state
 
