@@ -17,7 +17,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import send_confirmation_instructions, \
     confirm_user, confirm_email_token_status
-from .decorators import login_required, anonymous_user_required
+from .decorators import auth_required, anonymous_user_required
 from .passwordless import send_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
@@ -293,7 +293,7 @@ def reset_password(token):
                                      **_ctx('reset_password'))
 
 
-@login_required
+@auth_required('token', 'session')
 def change_password():
     """View function which handles a change password request."""
 
@@ -314,7 +314,7 @@ def change_password():
 
     if request.json:
         form.user = current_user
-        return _render_json(form)
+        return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
                                      change_password_form=form,
