@@ -214,7 +214,7 @@ def _request_loader(request):
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
     if request.get_json(silent=True):
-        if not isinstance(request.json, list):
+        if isinstance(request.json, dict):
             token = request.json.get(args_key, token)
 
     try:
