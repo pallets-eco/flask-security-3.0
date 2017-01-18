@@ -3,10 +3,21 @@ Flask-Security-Fork Changelog
 
 Here you can see the full list of changes between each Flask-Security-Fork release.
 
+Version 2.0.1
+-------------
+
+Released January 18th 2017
+
+- Added options `SECURITY_EMAIL_PLAINTEXT` and `SECURITY_EMAIL_HTML`
+  for sending respecively plaintext and HTML version of email.
+- Fixed validation when missing login information.
+- Fixed condition for token extraction from JSON body.
+- Better support for universal bdist wheel.
+
 Version 2.0.0
 -------------
 
-Released January 11th 2016
+Released January 11th 2017
 
 - Added port of CLI using Click configurable using options
   `SECURITY_CLI_USERS_NAME` and `SECURITY_CLI_ROLES_NAME`.
