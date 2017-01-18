@@ -321,7 +321,6 @@ def _context_processor():
 
 
 class RoleMixin(object):
-
     """Mixin for `Role` model definitions"""
 
     def __eq__(self, other):
@@ -336,7 +335,6 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
-
     """Mixin for `User` model definitions"""
 
     @property
@@ -360,7 +358,6 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
-
     """AnonymousUser definition"""
 
     def __init__(self):
@@ -423,7 +420,6 @@ class _SecurityState(object):
 
 
 class Security(object):
-
     """The :class:`Security` class initializes the Flask-Security extension.
 
     :param app: The application.
