@@ -54,6 +54,15 @@ def test_authenticate_case_insensitive_email(app, client):
     assert b'Hello matt@lp.com' in response.data
 
 
+def test_authenticate_with_invalid_input(client, get_message):
+    response = client.post(
+        '/login',
+        data='{}',
+        headers={'Content-Type': 'application/json'},
+    )
+    assert get_message('EMAIL_NOT_PROVIDED') in response.data
+
+
 def test_unprovided_username(client, get_message):
     response = authenticate(client, "")
     assert get_message('EMAIL_NOT_PROVIDED') in response.data

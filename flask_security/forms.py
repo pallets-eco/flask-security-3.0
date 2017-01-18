@@ -227,11 +227,11 @@ class LoginForm(Form, NextFormMixin):
         if not super(LoginForm, self).validate():
             return False
 
-        if self.email.data.strip() == '':
+        if not self.email.data or self.email.data.strip() == '':
             self.email.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
             return False
 
-        if self.password.data.strip() == '':
+        if not self.password.data or self.password.data.strip() == '':
             self.password.errors.append(
                 get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
