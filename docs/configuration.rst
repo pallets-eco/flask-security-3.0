@@ -214,6 +214,12 @@ Email
                                                   confirmation message. Defaults
                                                   to ``Please confirm your
                                                   email``
+``SECURITY_EMAIL_PLAINTEXT``                      Sends email as plaintext using
+                                                  ``*.txt`` template. Defaults
+                                                  to ``True``.
+``SECURITY_EMAIL_HTML``                           Sends email as HTML using
+                                                  ``*.html`` template. Defaults
+                                                  to ``True``.
 ================================================= ==============================
 
 Miscellaneous

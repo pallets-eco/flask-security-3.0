@@ -95,6 +95,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': 'Your password has been changed',
     'EMAIL_SUBJECT_PASSWORD_RESET': 'Password reset instructions',
+    'EMAIL_PLAINTEXT': True,
+    'EMAIL_HTML': True,
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -319,6 +321,7 @@ def _context_processor():
 
 
 class RoleMixin(object):
+
     """Mixin for `Role` model definitions"""
 
     def __eq__(self, other):
@@ -333,6 +336,7 @@ class RoleMixin(object):
 
 
 class UserMixin(BaseUserMixin):
+
     """Mixin for `User` model definitions"""
 
     @property
@@ -356,6 +360,7 @@ class UserMixin(BaseUserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     """AnonymousUser definition"""
 
     def __init__(self):
@@ -418,6 +423,7 @@ class _SecurityState(object):
 
 
 class Security(object):
+
     """The :class:`Security` class initializes the Flask-Security extension.
 
     :param app: The application.

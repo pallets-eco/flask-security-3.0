@@ -350,8 +350,10 @@ def send_mail(subject, recipient, template, **context):
                   recipients=[recipient])
 
     ctx = ('security/email', template)
-    msg.body = render_template('%s/%s.txt' % ctx, **context)
-    msg.html = render_template('%s/%s.html' % ctx, **context)
+    if config_value('EMAIL_PLAINTEXT'):
+        msg.body = render_template('%s/%s.txt' % ctx, **context)
+    if config_value('EMAIL_HTML'):
+        msg.html = render_template('%s/%s.html' % ctx, **context)
 
     if _security._send_mail_task:
         _security._send_mail_task(msg)
