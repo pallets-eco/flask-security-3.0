@@ -9,11 +9,13 @@
 import pytest
 
 from utils import authenticate, logout
+from werkzeug.contrib.fixers import ProxyFix
 
 pytestmark = pytest.mark.trackable()
 
 
 def test_trackable_flag(app, client):
+    app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
     e = 'matt@lp.com'
     authenticate(client, email=e)
     logout(client)
@@ -29,11 +31,13 @@ def test_trackable_flag(app, client):
 
 
 def test_trackable_with_multiple_ips_in_headers(app, client):
+    app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=2)
+
     e = 'matt@lp.com'
     authenticate(client, email=e)
     logout(client)
     authenticate(client, email=e, headers={
-        'X-Forwarded-For': '99.99.99.99, 88.88.88.88'})
+        'X-Forwarded-For': '99.99.99.99, 88.88.88.88, 77.77.77.77'})
 
     with app.app_context():
         user = app.security.datastore.find_user(email=e)
