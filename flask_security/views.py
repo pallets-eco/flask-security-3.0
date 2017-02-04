@@ -70,7 +70,7 @@ def login():
     if request.json:
         form = form_class(MultiDict(request.json))
     else:
-        form = form_class()
+        form = form_class(request.form)
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
