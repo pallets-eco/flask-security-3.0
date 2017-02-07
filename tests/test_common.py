@@ -63,6 +63,11 @@ def test_authenticate_with_invalid_input(client, get_message):
     assert get_message('EMAIL_NOT_PROVIDED') in response.data
 
 
+def test_login_form(client):
+    response = client.post('/login', data={'email': 'matt@lp.com'})
+    assert b'matt@lp.com' in response.data
+
+
 def test_unprovided_username(client, get_message):
     response = authenticate(client, "")
     assert get_message('EMAIL_NOT_PROVIDED') in response.data
