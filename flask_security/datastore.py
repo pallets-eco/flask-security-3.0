@@ -10,6 +10,8 @@
 """
 
 from .utils import get_identity_attributes, string_types
+from pony import orm
+from pony.orm import db_session
 
 
 class Datastore(object):
@@ -54,6 +56,17 @@ class PeeweeDatastore(Datastore):
 
     def delete(self, model):
         model.delete_instance(recursive=True)
+
+
+class PonyDatastore(Datastore):
+    def commit(self):
+        self.db.commit()
+
+    def put(self, model):
+        return model
+
+    def delete(self, model):
+        model.delete()
 
 
 class UserDatastore(object):
@@ -331,3 +344,37 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
             return True
         else:
             return False
+
+
+class PonyUserDatastore(PonyDatastore, UserDatastore):
+    """
+    A Pony ORM datastore implementation for Flask-Security.
+
+    Code primarily from https://github.com/ET-CS but taken over after abandoned
+    """
+    def __init__(self, db, user_model, role_model):
+        PonyDatastore.__init__(self, db)
+        UserDatastore.__init__(self, user_model, role_model)
+
+    @db_session
+    def get_user(self, identifier):
+        if self._is_numeric(identifier):
+            return self.user_model[identifier]
+        for attr in get_identity_attributes():
+            # this is a nightmare, tl;dr we need to get the thing that corresponds to email (usually)
+            user = self.user_model.get(lambda c: getattr(c, attr) == identifier)
+            if user is not None:
+                return user
+
+    def _is_numeric(self, value):
+        try:
+            int(value)
+        except ValueError:
+            return False
+        return True
+
+    def find_user(self, **kwargs):
+        return self.user_model.get(**kwargs)
+
+    def find_role(self, role):
+        return self.role_model.get(name=role)
