@@ -378,3 +378,7 @@ class PonyUserDatastore(PonyDatastore, UserDatastore):
 
     def find_role(self, role):
         return self.role_model.get(name=role)
+
+    def create_role(self, **kwargs):
+        role = self.role_model(**kwargs)
+        return self.put(role)

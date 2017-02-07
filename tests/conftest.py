@@ -8,7 +8,6 @@
 
 import os
 import tempfile
-from datetime import datetime
 import time
 
 import pytest
@@ -242,7 +241,11 @@ def peewee_datastore(request, app, tmpdir):
 @pytest.fixture()
 def pony_datastore(request, app, tmpdir):
     from pony import orm
-    from pony.orm import Required, Optional, Set
+    from pony.orm import Required, Optional
+    from pony.orm.core import SetInstance
+    SetInstance.append = SetInstance.add
+    from pony.orm import Set
+    from datetime import datetime
 
     db = orm.Database()
 
@@ -253,8 +256,8 @@ def pony_datastore(request, app, tmpdir):
 
     class User(db.Entity):
         email = Required(str)
-        username = Required(str)
-        password = Required(str)
+        username = Optional(str)
+        password = Optional(str, nullable=True)
         last_login_at = Optional(datetime)
         current_login_at = Optional(datetime)
         last_login_ip = Optional(str)
@@ -264,6 +267,8 @@ def pony_datastore(request, app, tmpdir):
         confirmed_at = Optional(datetime)
         roles = Set(lambda: Role)
 
+        def has_role(self, name):
+            return name in {r.name for r in self.roles.copy()}
 
     app.config['DATABASE'] = {
         'name': ':memory:',
@@ -324,7 +329,7 @@ def get_message(app):
 
 
 @pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee', 'pony'])
-def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
+def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore, pony_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
     elif request.param == 'mongoengine':
