@@ -12,17 +12,17 @@
 import os
 import tempfile
 import time
+from datetime import datetime
 
 import pytest
 from flask import Flask, render_template
 from flask_mail import Mail
-
-from flask_security import (MongoEngineUserDatastore, PeeweeUserDatastore,
-                            RoleMixin, Security, SQLAlchemyUserDatastore,
-                            UserMixin, auth_required, auth_token_required,
-                            http_auth_required, login_required, roles_accepted,
-                            roles_required)
 from utils import Response, populate_data
+
+from flask_security import MongoEngineUserDatastore, PeeweeUserDatastore, \
+    PonyUserDatastore, RoleMixin, Security, SQLAlchemyUserDatastore, \
+    UserMixin, auth_required, auth_token_required, http_auth_required, \
+    login_required, roles_accepted, roles_required
 
 
 @pytest.fixture()
@@ -247,6 +247,46 @@ def peewee_datastore(request, app, tmpdir):
 
 
 @pytest.fixture()
+def pony_datastore(request, app, tmpdir):
+    from pony.orm import Database, Optional, Required, Set
+    from pony.orm.core import SetInstance
+
+    SetInstance.append = SetInstance.add
+    db = Database()
+
+    class Role(db.Entity):
+        name = Required(str, unique=True)
+        description = Optional(str)
+        users = Set(lambda: User)
+
+    class User(db.Entity):
+        email = Required(str)
+        username = Optional(str)
+        password = Optional(str, nullable=True)
+        last_login_at = Optional(datetime)
+        current_login_at = Optional(datetime)
+        last_login_ip = Optional(str)
+        current_login_ip = Optional(str)
+        login_count = Optional(int)
+        active = Required(bool, default=True)
+        confirmed_at = Optional(datetime)
+        roles = Set(lambda: Role)
+
+        def has_role(self, name):
+            return name in {r.name for r in self.roles.copy()}
+
+    app.config['DATABASE'] = {
+        'name': ':memory:',
+        'engine': 'pony.SqliteDatabase'
+    }
+
+    db.bind('sqlite', ':memory:', create_db=True)
+    db.generate_mapping(create_tables=True)
+
+    return PonyUserDatastore(db, User, Role)
+
+
+@pytest.fixture()
 def sqlalchemy_app(app, sqlalchemy_datastore):
     def create():
         app.security = Security(app, datastore=sqlalchemy_datastore)
@@ -271,6 +311,14 @@ def mongoengine_app(app, mongoengine_datastore):
 
 
 @pytest.fixture()
+def pony_app(app, pony_datastore):
+    def create():
+        app.security = Security(app, datastore=pony_datastore)
+        return app
+    return create
+
+
+@pytest.fixture()
 def client(request, sqlalchemy_app):
     app = sqlalchemy_app()
     populate_data(app)
@@ -285,18 +333,21 @@ def get_message(app):
     return fn
 
 
-@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
+@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee', 'pony'])
 def datastore(
         request,
         sqlalchemy_datastore,
         mongoengine_datastore,
-        peewee_datastore):
+        peewee_datastore,
+        pony_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
     elif request.param == 'mongoengine':
         rv = mongoengine_datastore
     elif request.param == 'peewee':
         rv = peewee_datastore
+    elif request.param == 'pony':
+        rv = pony_datastore
     return rv
 
 

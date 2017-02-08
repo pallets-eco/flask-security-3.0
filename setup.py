@@ -17,6 +17,7 @@ tests_require = [
     'isort>=4.2.2',
     'mock>=1.3.0',
     'mongoengine>=0.10.0',
+    'pony>=0.7.1',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=2.4.0',

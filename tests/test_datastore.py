@@ -9,8 +9,7 @@
 from pytest import raises
 from utils import init_app_with_options
 
-from flask_security import Security
-from flask_security import RoleMixin, UserMixin
+from flask_security import RoleMixin, Security, UserMixin
 from flask_security.datastore import Datastore, UserDatastore
 
 
