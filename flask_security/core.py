@@ -425,10 +425,11 @@ class Security(object):
         """
         datastore = datastore or self.datastore
 
-        email_sender = app.config.get('MAIL_DEFAULT_SENDER')
-        _default_config['EMAIL_SENDER'] = email_sender or 'no-reply@localhost'
-
         for key, value in _default_config.items():
+            if key == 'EMAIL_SENDER' and app.config.get('MAIL_DEFAULT_SENDER'):
+                app.config.setdefault(
+                    'SECURITY_' + key, app.config.get('MAIL_DEFAULT_SENDER')
+                )
             app.config.setdefault('SECURITY_' + key, value)
 
         for key, value in _default_messages.items():
