@@ -183,6 +183,7 @@ def token_login(token):
     return redirect(get_post_login_redirect())
 
 
+@anonymous_user_required
 def send_confirmation():
     """View function which sends confirmation instructions."""
 
