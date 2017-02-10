@@ -127,7 +127,8 @@ class NewPasswordFormMixin():
 class PasswordConfirmFormMixin():
     password_confirm = PasswordField(
         get_form_field_label('retype_password'),
-        validators=[EqualTo('password', message='RETYPE_PASSWORD_MISMATCH')])
+        validators=[password_required,
+                    EqualTo('password', message='RETYPE_PASSWORD_MISMATCH')])
 
 
 class NextFormMixin():
@@ -285,8 +286,8 @@ class ChangePasswordForm(Form, PasswordFormMixin):
 
     new_password_confirm = PasswordField(
         get_form_field_label('retype_password'),
-        validators=[EqualTo('new_password',
-                            message='RETYPE_PASSWORD_MISMATCH')])
+        validators=[password_required,
+                    EqualTo('new_password', message='RETYPE_PASSWORD_MISMATCH')])
 
     submit = SubmitField(get_form_field_label('change_password'))
 
