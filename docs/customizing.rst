@@ -160,4 +160,41 @@ decorator like so::
     def delay_security_email(msg):
         send_security_email.delay(msg)
 
+If factory method is going to be used for initialization, use ``_SecurityState``
+object returned by ``init_app`` method to initialize Celery tasks intead of using
+``security.send_mail_task`` directly like so::
+
+    from flask import Flask
+    from flask_mail import Mail
+    from flask_security import Security, SQLAlchemyUserDatastore
+    from celery import Celery
+
+    mail = Mail()
+    security = Security()
+    celery = Celery()
+
+    def create_app(config):
+        """Initialize Flask instance."""
+
+        app = Flask(__name__)
+        app.config.from_object(config)
+
+        @celery.task
+        def send_flask_mail(msg):
+            mail.send(msg)
+
+        mail.init_app(app)
+        datastore = SQLAlchemyUserDatastore(db, User, Role)
+        security_ctx = security.init_app(app, datastore)
+
+        # Flexible way for defining custom mail sending task.
+        @security_ctx.send_mail_task
+        def delay_flask_security_mail(msg):
+            send_flask_mail.delay(msg)
+
+        # A shortcurt
+        security_ctx.send_mail_task(send_flask_mail.delay)
+
+        return app
+
 .. _Celery: http://www.celeryproject.org/
