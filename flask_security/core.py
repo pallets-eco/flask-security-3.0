@@ -51,6 +51,7 @@ _default_config = {
     'PASSWORD_SALT': None,
     'PASSWORD_SINGLE_HASH': False,
     'LOGIN_URL': '/login',
+    'CUSTOM_USER_PAYLOAD': False,
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',

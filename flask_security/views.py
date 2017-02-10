@@ -46,6 +46,8 @@ def _render_json(form, include_user=True, include_auth_token=False):
         response = dict()
         if include_user:
             response['user'] = dict(id=str(form.user.id))
+            if _security.custom_user_payload:
+                response['user'] = form.user.payload_handler()
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
