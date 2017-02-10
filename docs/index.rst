@@ -32,6 +32,7 @@ extensions out of the box for data persistence:
 1. `Flask-SQLAlchemy <http://pypi.python.org/pypi/flask-sqlalchemy/>`_
 2. `Flask-MongoEngine <http://pypi.python.org/pypi/flask-mongoengine/>`_
 3. `Flask-Peewee <http://pypi.python.org/pypi/flask-peewee/>`_
+4. `PonyORM <http://pypi.python.org/pypi/pony/>`_
 
 
 .. include:: contents.rst.inc

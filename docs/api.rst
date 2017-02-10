@@ -53,6 +53,9 @@ Datastores
     :members:
     :inherited-members:
 
+.. autoclass:: flask_security.datastore.PonyUserDatastore
+    :members:
+    :inherited-members:
 
 Utils
 -----
