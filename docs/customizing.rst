@@ -197,7 +197,7 @@ object returned by ``init_app`` method to initialize Celery tasks intead of usin
 
         return app
 
-Note that ```flask_mail.Message``` may not be serialized as an argument passed to
+Note that ``flask_mail.Message`` may not be serialized as an argument passed to
 Celery. The practical way with custom serialization may look like so::
 
     @celery.task
