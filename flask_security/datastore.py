@@ -56,13 +56,51 @@ class PeeweeDatastore(Datastore):
         model.delete_instance(recursive=True)
 
 
+def with_pony_session(f):
+    from functools import wraps
+
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        from pony.orm import db_session
+        from pony.orm.core import local
+        from flask import after_this_request, current_app, has_app_context, \
+            has_request_context
+        from flask.signals import appcontext_popped
+
+        register = local.db_context_counter == 0
+        if register and (has_app_context() or has_request_context()):
+            db_session.__enter__()
+
+        result = f(*args, **kwargs)
+
+        if register:
+            if has_request_context():
+                @after_this_request
+                def pop(request):
+                    db_session.__exit__()
+                    return request
+            elif has_app_context():
+                @appcontext_popped.connect_via(
+                    current_app._get_current_object()
+                )
+                def pop(sender, *args, **kwargs):
+                    while local.db_context_counter:
+                        db_session.__exit__()
+            else:
+                raise RuntimeError('Needs app or request context')
+        return result
+    return decorator
+
+
 class PonyDatastore(Datastore):
     def commit(self):
         self.db.commit()
 
+    @with_pony_session
     def put(self, model):
         return model
 
+    @with_pony_session
     def delete(self, model):
         model.delete()
 
@@ -360,19 +398,17 @@ class PonyUserDatastore(PonyDatastore, UserDatastore):
         PonyDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
+    @with_pony_session
     def get_user(self, identifier):
-        from pony.orm import db_session
-        with db_session:
-            if self._is_numeric(identifier):
-                return self.user_model[identifier]
-            for attr in get_identity_attributes():
-                # this is a nightmare, tl;dr we need to get the thing that
-                # corresponds to email (usually)
-                user = self.user_model.get(
-                    lambda c: getattr(c, attr) == identifier
-                )
-                if user is not None:
-                    return user
+        if self._is_numeric(identifier):
+            return self.user_model[identifier]
+
+        for attr in get_identity_attributes():
+            # this is a nightmare, tl;dr we need to get the thing that
+            # corresponds to email (usually)
+            user = self.user_model.get(**{attr: identifier})
+            if user is not None:
+                return user
 
     def _is_numeric(self, value):
         try:
@@ -381,12 +417,22 @@ class PonyUserDatastore(PonyDatastore, UserDatastore):
             return False
         return True
 
+    @with_pony_session
     def find_user(self, **kwargs):
         return self.user_model.get(**kwargs)
 
+    @with_pony_session
     def find_role(self, role):
         return self.role_model.get(name=role)
 
+    @with_pony_session
+    def add_role_to_user(self, *args, **kwargs):
+        return super(PonyUserDatastore, self).add_role_to_user(*args, **kwargs)
+
+    @with_pony_session
+    def create_user(self, **kwargs):
+        return super(PonyUserDatastore, self).create_user(**kwargs)
+
+    @with_pony_session
     def create_role(self, **kwargs):
-        role = self.role_model(**kwargs)
-        return self.put(role)
+        return super(PonyUserDatastore, self).create_role(**kwargs)

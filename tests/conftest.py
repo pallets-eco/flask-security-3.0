@@ -256,7 +256,7 @@ def pony_datastore(request, app, tmpdir):
 
     class Role(db.Entity):
         name = Required(str, unique=True)
-        description = Optional(str)
+        description = Optional(str, nullable=True)
         users = Set(lambda: User)
 
     class User(db.Entity):
