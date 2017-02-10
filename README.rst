@@ -23,7 +23,7 @@ Flask-Security quickly adds security features to your Flask application.
 Resources
 ---------
 
-- `Documentation <http://packages.python.org/Flask-Security/>`_
+- `Documentation <http://flask-security.readthedocs.io/en/latest/>`_
 - `Issue Tracker <http://github.com/mattupstate/flask-security/issues>`_
 - `Code <http://github.com/mattupstate/flask-security/>`_
 - `Development Version
