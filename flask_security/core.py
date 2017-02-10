@@ -51,7 +51,6 @@ _default_config = {
     'PASSWORD_SALT': None,
     'PASSWORD_SINGLE_HASH': False,
     'LOGIN_URL': '/login',
-    'CUSTOM_USER_PAYLOAD': False,
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
     'RESET_URL': '/reset',
@@ -385,6 +384,10 @@ class UserMixin(BaseUserMixin):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles
+
+    def get_security_payload(self):
+        """Serialize user object as response payload."""
+        return {'id': str(self.id)}
 
 
 class AnonymousUser(AnonymousUserMixin):
