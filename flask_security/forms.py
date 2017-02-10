@@ -205,8 +205,9 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = StringField(get_form_field_label('email'))
-    password = PasswordField(get_form_field_label('password'))
+    email = StringField(get_form_field_label('email'), validators=[Required()])
+    password = PasswordField(get_form_field_label('password'),
+                             validators=[password_required])
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
 
