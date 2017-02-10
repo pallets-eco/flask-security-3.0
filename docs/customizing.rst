@@ -192,9 +192,22 @@ object returned by ``init_app`` method to initialize Celery tasks intead of usin
         def delay_flask_security_mail(msg):
             send_flask_mail.delay(msg)
 
-        # A shortcurt
+        # A shortcurt.
         security_ctx.send_mail_task(send_flask_mail.delay)
 
         return app
+
+Note that ```flask_mail.Message``` may not be jsonified as argument passed to
+Celery. The practical mail sending task may looks like so::
+
+    @celery.task
+    def send_flask_mail(**kwargs):
+            mail.send(Message(**kwargs))
+
+    @security_ctx.send_mail_task
+    def delay_flask_security_mail(msg):
+        send_flask_mail.delay(subject=msg.subject, sender=msg.sender,
+                              recipients=msg.recipients, body=msg.body,
+                              html=msg.html)
 
 .. _Celery: http://www.celeryproject.org/
