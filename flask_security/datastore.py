@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .utils import get_identity_attributes, string_types
+from .utils import get_identity_attributes, string_types, encrypt_password
 
 
 class Datastore(object):
@@ -77,6 +77,8 @@ class UserDatastore(object):
     def _prepare_create_user_args(self, **kwargs):
         kwargs.setdefault('active', True)
         roles = kwargs.get('roles', [])
+        if 'password' in kwargs:
+            kwargs['password'] = encrypt_password(kwargs['password'])
         for i, role in enumerate(roles):
             rn = role.name if isinstance(role, self.role_model) else role
             # see if the role exists

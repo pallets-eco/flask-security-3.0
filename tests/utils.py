@@ -15,12 +15,12 @@ _missing = object
 
 
 def authenticate(client, email="matt@lp.com", password="password", endpoint=None, **kwargs):
-    data = dict(email=email, password=password, remember='y')
+    data = dict(email=email, password=encrypt_password(password), remember='y')
     return client.post(endpoint or '/login', data=data, **kwargs)
 
 
 def json_authenticate(client, email="matt@lp.com", password="password", endpoint=None):
-        data = '{"email": "%s", "password": "%s"}' % (email, password)
+        data = '{"email": "%s", "password": "%s"}' % (email, encrypt_password(password))
         return client.post(endpoint or '/login', content_type="application/json", data=data)
 
 
@@ -45,8 +45,6 @@ def create_users(ds, count=None):
 
     for u in users[:count]:
         pw = u[2]
-        if pw is not None:
-            pw = encrypt_password(pw)
         roles = [ds.find_or_create_role(rn) for rn in u[3]]
         ds.commit()
         user = ds.create_user(email=u[0], username=u[1], password=pw, active=u[4])
