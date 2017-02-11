@@ -167,7 +167,7 @@ possible using Peewee:
 ::
 
     from flask import Flask, render_template
-    from flask_peewee.db import Database
+    from flask.ext.peewee.db import Database
     from peewee import *
     from flask_security import Security, PeeweeUserDatastore, \
         UserMixin, RoleMixin, login_required
@@ -237,7 +237,7 @@ The following code illustrates a basic setup, which could be added to
 the basic application code in the previous section::
 
     # At top of file
-    from flask_mail import Mail
+    from flask.ext.mail import Mail
 
     # After 'Create app'
     app.config['MAIL_SERVER'] = 'smtp.example.com'
