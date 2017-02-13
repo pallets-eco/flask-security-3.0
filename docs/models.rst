@@ -49,3 +49,25 @@ additional fields:
 * ``last_login_ip``
 * ``current_login_ip``
 * ``login_count``
+
+Custom User Payload
+^^^^^^^^^^^^^^^^^^^
+
+If you want a custom payload after Register or Login an user, define
+the method get_security_payload in your User model. The method must return a
+serializable object:
+
+::
+    UserModel(Base, UserMixin):
+        id = db.Column(db.Integer, primary_key=True)
+        email = db.Column(db.String(120), unique=True, nullable=False)
+        password = db.Column(db.String(255))
+        name = db.Column(db.String(80))
+        ....
+        
+        def get_security_payload(self):
+            return {
+                id: self.id,
+                name: self.name,
+                email: self.email  
+            }
