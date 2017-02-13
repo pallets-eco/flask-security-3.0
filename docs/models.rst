@@ -58,16 +58,19 @@ the method get_security_payload in your User model. The method must return a
 serializable object:
 
 ::
-    UserModel(Base, UserMixin):
+
+    class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
-        email = db.Column(db.String(120), unique=True, nullable=False)
-        password = db.Column(db.String(255))
+        email = TextField()
+        password = TextField()
+        active = BooleanField(default=True)
+        confirmed_at = DateTimeField(null=True)
         name = db.Column(db.String(80))
-        ....
-        
+
+        # Custom User Payload
         def get_security_payload(self):
             return {
-                id: self.id,
-                name: self.name,
-                email: self.email  
+                'id': self.id,
+                'name': self.name,
+                'email': self.email
             }
