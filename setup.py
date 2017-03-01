@@ -24,6 +24,7 @@ tests_require = [
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
     'pytest>=3.0.5',
+    'sqlalchemy>=1.1.6',
 ]
 
 extras_require = {

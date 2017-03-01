@@ -21,8 +21,9 @@ from utils import Response, populate_data
 
 from flask_security import MongoEngineUserDatastore, PeeweeUserDatastore, \
     PonyUserDatastore, RoleMixin, Security, SQLAlchemyUserDatastore, \
-    UserMixin, auth_required, auth_token_required, http_auth_required, \
-    login_required, roles_accepted, roles_required
+    SQLAlchemySessionUserDatastore, UserMixin, auth_required, \
+    auth_token_required, http_auth_required, login_required, \
+    roles_accepted, roles_required
 
 
 @pytest.fixture()
@@ -198,6 +199,64 @@ def sqlalchemy_datastore(request, app, tmpdir):
 
 
 @pytest.fixture()
+def sqlalchemy_session_datastore(request, app, tmpdir):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session, sessionmaker, relationship, \
+        backref
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy import Boolean, DateTime, Column, Integer, String, \
+        ForeignKey
+
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
+
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+                           convert_unicode=True)
+    db_session = scoped_session(sessionmaker(autocommit=False,
+                                             autoflush=False,
+                                             bind=engine))
+    Base = declarative_base()
+    Base.query = db_session.query_property()
+
+    class RolesUsers(Base):
+        __tablename__ = 'roles_users'
+        id = Column(Integer(), primary_key=True)
+        user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+        role_id = Column('role_id', Integer(), ForeignKey('role.id'))
+
+    class Role(Base, RoleMixin):
+        __tablename__ = 'role'
+        id = Column(Integer(), primary_key=True)
+        name = Column(String(80), unique=True)
+        description = Column(String(255))
+
+    class User(Base, UserMixin):
+        __tablename__ = 'user'
+        id = Column(Integer, primary_key=True)
+        email = Column(String(255), unique=True)
+        username = Column(String(255))
+        password = Column(String(255))
+        last_login_at = Column(DateTime())
+        current_login_at = Column(DateTime())
+        last_login_ip = Column(String(100))
+        current_login_ip = Column(String(100))
+        login_count = Column(Integer)
+        active = Column(Boolean())
+        confirmed_at = Column(DateTime())
+        roles = relationship('Role', secondary='roles_users',
+                             backref=backref('users', lazy='dynamic'))
+
+    with app.app_context():
+        Base.metadata.create_all(bind=engine)
+
+    request.addfinalizer(lambda: os.remove(path))
+
+    return SQLAlchemySessionUserDatastore(db_session, User, Role)
+
+
+@pytest.fixture()
 def peewee_datastore(request, app, tmpdir):
     from peewee import TextField, DateTimeField, IntegerField, BooleanField, \
         ForeignKeyField
@@ -295,6 +354,14 @@ def sqlalchemy_app(app, sqlalchemy_datastore):
 
 
 @pytest.fixture()
+def sqlalchemy_session_app(app, sqlalchemy_session_datastore):
+    def create():
+        app.security = Security(app, datastore=sqlalchemy_session_datastore)
+        return app
+    return create
+
+
+@pytest.fixture()
 def peewee_app(app, peewee_datastore):
     def create():
         app.security = Security(app, datastore=peewee_datastore)
@@ -333,15 +400,19 @@ def get_message(app):
     return fn
 
 
-@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee', 'pony'])
+@pytest.fixture(params=['sqlalchemy', 'sqlalchemy-session', 'mongoengine',
+                        'peewee', 'pony'])
 def datastore(
         request,
         sqlalchemy_datastore,
+        sqlalchemy_session_datastore,
         mongoengine_datastore,
         peewee_datastore,
         pony_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
+    elif request.param == 'sqlalchemy-session':
+        rv = sqlalchemy_session_datastore
     elif request.param == 'mongoengine':
         rv = mongoengine_datastore
     elif request.param == 'peewee':
