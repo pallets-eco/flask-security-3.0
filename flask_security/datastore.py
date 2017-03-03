@@ -273,6 +273,16 @@ class SQLAlchemySessionUserDatastore(SQLAlchemyUserDatastore,
                                          user_model,
                                          role_model)
 
+    def commit(self):
+        # Old flask-sqlalchemy adds this weird attribute for tracking
+        # to Session. flask-sqlalchemy 2.0 does things more nicely.
+        try:
+            self.db.session.commit()
+        except AttributeError:
+            import sqlalchemy
+            sqlalchemy.orm.Session._model_changes = {}
+            self.db.session.commit()
+
 
 class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
     """A MongoEngine datastore implementation for Flask-Security that assumes
