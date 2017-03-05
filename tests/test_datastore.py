@@ -103,51 +103,55 @@ def test_get_user(app, datastore):
 def test_find_role(app, datastore):
     init_app_with_options(app, datastore)
 
-    role = datastore.find_role('admin')
-    assert role is not None
+    with app.app_context():
+        role = datastore.find_role('admin')
+        assert role is not None
 
-    role = datastore.find_role('bogus')
-    assert role is None
+        role = datastore.find_role('bogus')
+        assert role is None
 
 
 def test_add_role_to_user(app, datastore):
     init_app_with_options(app, datastore)
 
     # Test with user object
-    user = datastore.find_user(email='matt@lp.com')
-    assert user.has_role('editor') is False
-    assert datastore.add_role_to_user(user, 'editor') is True
-    assert datastore.add_role_to_user(user, 'editor') is False
-    assert user.has_role('editor') is True
+    with app.app_context():
+        user = datastore.find_user(email='matt@lp.com')
+        assert user.has_role('editor') is False
+        assert datastore.add_role_to_user(user, 'editor') is True
+        assert datastore.add_role_to_user(user, 'editor') is False
+        assert user.has_role('editor') is True
 
-    # Test with email
-    assert datastore.add_role_to_user('jill@lp.com', 'editor') is True
-    user = datastore.find_user(email='jill@lp.com')
-    assert user.has_role('editor') is True
+        # Test with email
+        assert datastore.add_role_to_user('jill@lp.com', 'editor') is True
+        user = datastore.find_user(email='jill@lp.com')
+        assert user.has_role('editor') is True
 
-    # Test remove role
-    assert datastore.remove_role_from_user(user, 'editor') is True
-    assert datastore.remove_role_from_user(user, 'editor') is False
+        # Test remove role
+        assert datastore.remove_role_from_user(user, 'editor') is True
+        assert datastore.remove_role_from_user(user, 'editor') is False
 
 
 def test_create_user_with_roles(app, datastore):
     init_app_with_options(app, datastore)
 
-    role = datastore.find_role('admin')
-    datastore.commit()
+    with app.app_context():
+        role = datastore.find_role('admin')
+        datastore.commit()
 
-    user = datastore.create_user(email='dude@lp.com', username='dude',
-                                 password='password', roles=[role])
-    datastore.commit()
-    user = datastore.find_user(email='dude@lp.com')
-    assert user.has_role('admin') is True
+        user = datastore.create_user(email='dude@lp.com', username='dude',
+                                     password='password', roles=[role])
+        datastore.commit()
+        user = datastore.find_user(email='dude@lp.com')
+        assert user.has_role('admin') is True
 
 
 def test_delete_user(app, datastore):
     init_app_with_options(app, datastore)
 
-    user = datastore.find_user(email='matt@lp.com')
-    datastore.delete_user(user)
-    datastore.commit()
-    user = datastore.find_user(email='matt@lp.com')
-    assert user is None
+    with app.app_context():
+        user = datastore.find_user(email='matt@lp.com')
+        datastore.delete_user(user)
+        datastore.commit()
+        user = datastore.find_user(email='matt@lp.com')
+        assert user is None

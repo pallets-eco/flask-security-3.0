@@ -12,8 +12,7 @@
 
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, PeeweeUserDatastore
-from .decorators import auth_token_required, http_auth_required, \
-    login_required, roles_accepted, roles_required, auth_required
+from .decorators import login_required, roles_accepted, roles_required
 from .forms import ForgotPasswordForm, LoginForm, RegisterForm, \
     ResetPasswordForm, PasswordlessLoginForm, ConfirmRegisterForm
 from .signals import confirm_instructions_sent, password_reset, \

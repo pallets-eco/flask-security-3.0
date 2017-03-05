@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, render_template
+from flask import Response, abort, current_app, render_template
 from flask_login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
 from flask_principal import Principal, RoleNeed, UserNeed, Identity, \
@@ -20,7 +20,8 @@ from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
-from .utils import config_value as cv, get_config, md5, url_for_security, string_types
+from .utils import config_value as cv, get_config, md5, url_for_security, \
+    string_types, verify_and_update_password, get_token_status
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -75,7 +76,7 @@ _default_config = {
     'EMAIL_SENDER': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
-    'TOKEN_MAX_AGE': None,
+    'TOKEN_MAX_AGE': '30 days',
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
@@ -188,6 +189,19 @@ _default_forms = {
     'passwordless_login_form': PasswordlessLoginForm,
 }
 
+_default_unauthorized_html = """
+    <h1>Unauthorized</h1>
+    <p>The server could not verify that you are authorized to access the URL
+    requested. You either supplied the wrong credentials (e.g. a bad password),
+    or your browser doesn't understand how to supply the credentials required.</p>
+    """
+
+
+def _get_unauthorized_response(text=None, headers=None):
+    text = text or _default_unauthorized_html
+    headers = headers or {}
+    return Response(text, 401, headers)
+
 
 def _user_loader(user_id):
     return _security.datastore.find_user(id=user_id)
@@ -202,7 +216,47 @@ def _token_loader(token):
             return user
     except:
         pass
-    return _security.login_manager.anonymous_user()
+
+
+def _header_loader(request):
+    token = request.headers.get(_security.token_authentication_header)
+    if token:
+        user = _token_loader(token)
+        if not user:
+            abort(_get_unauthorized_response())
+        else:
+            return user
+
+
+def _query_string_loader(request):
+    token = request.args.get(_security.token_authentication_key)
+    if token:
+        user = _token_loader(token)
+        if not user:
+            abort(_get_unauthorized_response())
+        else:
+            return user
+
+
+def _basic_auth_loader(request):
+    auth = request.authorization
+    if auth:
+        user = _security.datastore.get_user(auth.username)
+        if user and verify_and_update_password(auth.password, user):
+            return user
+        else:
+            r = _security.default_http_auth_realm
+            h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
+            abort(_get_unauthorized_response(headers=h))
+
+
+def _request_loader(request):
+    return (
+        _basic_auth_loader(request) or
+        _header_loader(request) or
+        _query_string_loader(request) or
+        _security.login_manager.anonymous_user()
+    )
 
 
 def _identity_loader():
@@ -226,7 +280,7 @@ def _get_login_manager(app, anonymous_user):
     lm.anonymous_user = anonymous_user or AnonymousUser
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
-    lm.token_loader(_token_loader)
+    lm.request_loader(_request_loader)
 
     if cv('FLASH_MESSAGES', app=app):
         lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)

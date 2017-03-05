@@ -16,8 +16,8 @@ from flask import Flask, render_template
 from flask_mail import Mail
 
 from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
-    PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
-    auth_token_required, auth_required, roles_required, roles_accepted
+    PeeweeUserDatastore, UserMixin, RoleMixin, login_required, \
+    roles_required, roles_accepted
 
 from utils import populate_data, Response
 
@@ -58,24 +58,14 @@ def app(request):
         return render_template('index.html', content='Post Login')
 
     @app.route('/http')
-    @http_auth_required
+    @login_required
     def http():
         return 'HTTP Authentication'
 
-    @app.route('/http_custom_realm')
-    @http_auth_required('My Realm')
-    def http_custom_realm():
-        return render_template('index.html', content='HTTP Authentication')
-
     @app.route('/token', methods=['GET', 'POST'])
-    @auth_token_required
+    @login_required
     def token():
         return render_template('index.html', content='Token Authentication')
-
-    @app.route('/multi_auth')
-    @auth_required('session', 'token', 'basic')
-    def multi_auth():
-        return render_template('index.html', content='Session, Token, Basic auth')
 
     @app.route('/post_logout')
     def post_logout():
@@ -110,7 +100,7 @@ def app(request):
     return app
 
 
-@pytest.fixture()
+@pytest.yield_fixture()
 def mongoengine_datastore(request, app):
     from flask_mongoengine import MongoEngine
 
@@ -143,9 +133,10 @@ def mongoengine_datastore(request, app):
         roles = db.ListField(db.ReferenceField(Role), default=[])
         meta = {"db_alias": db_name}
 
-    request.addfinalizer(lambda: db.connection.drop_database(db_name))
+    yield MongoEngineUserDatastore(db, User, Role)
 
-    return MongoEngineUserDatastore(db, User, Role)
+    with app.app_context():
+        db.connection.drop_database(db_name)
 
 
 @pytest.fixture()

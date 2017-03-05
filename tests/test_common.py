@@ -182,13 +182,6 @@ def test_http_auth(client):
     assert b'HTTP Authentication' in response.data
 
 
-def test_http_auth_no_authorization(client):
-    response = client.get('/http', headers={})
-    assert b'<h1>Unauthorized</h1>' in response.data
-    assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
-
-
 def test_invalid_http_auth_invalid_username(client):
     response = client.get('/http', headers={
         'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
@@ -205,51 +198,6 @@ def test_invalid_http_auth_bad_password(client):
     assert b'<h1>Unauthorized</h1>' in response.data
     assert 'WWW-Authenticate' in response.headers
     assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
-
-
-def test_custom_http_auth_realm(client):
-    response = client.get('/http_custom_realm', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:bogus").decode('utf-8')
-    })
-    assert b'<h1>Unauthorized</h1>' in response.data
-    assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="My Realm"' == response.headers['WWW-Authenticate']
-
-
-def test_multi_auth_basic(client):
-    response = client.get('/multi_auth', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"joe@lp.com:password").decode('utf-8')
-    })
-    assert b'Basic' in response.data
-
-    response = client.get('/multi_auth')
-    assert response.status_code == 401
-
-
-def test_multi_auth_basic_invalid(client):
-    response = client.get('/multi_auth', headers={
-        'Authorization': 'Basic %s' % base64.b64encode(b"bogus:bogus").decode('utf-8')
-    })
-    assert b'<h1>Unauthorized</h1>' in response.data
-    assert 'WWW-Authenticate' in response.headers
-    assert 'Basic realm="Login Required"' == response.headers['WWW-Authenticate']
-
-    response = client.get('/multi_auth')
-    print(response.headers)
-    assert response.status_code == 401
-
-
-def test_multi_auth_token(client):
-    response = json_authenticate(client)
-    token = response.jdata['response']['user']['authentication_token']
-    response = client.get('/multi_auth?auth_token=' + token)
-    assert b'Token' in response.data
-
-
-def test_multi_auth_session(client):
-    authenticate(client, )
-    response = client.get('/multi_auth')
-    assert b'Session' in response.data
 
 
 def test_user_deleted_during_session_reverts_to_anonymous_user(app, client):
