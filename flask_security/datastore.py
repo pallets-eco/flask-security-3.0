@@ -277,11 +277,11 @@ class SQLAlchemySessionUserDatastore(SQLAlchemyUserDatastore,
         # Old flask-sqlalchemy adds this weird attribute for tracking
         # to Session. flask-sqlalchemy 2.0 does things more nicely.
         try:
-            self.db.session.commit()
+            super(SQLAlchemySessionUserDatastore, self).commit()
         except AttributeError:
             import sqlalchemy
             sqlalchemy.orm.Session._model_changes = {}
-            self.db.session.commit()
+            super(SQLAlchemySessionUserDatastore, self).commit()
 
 
 class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
