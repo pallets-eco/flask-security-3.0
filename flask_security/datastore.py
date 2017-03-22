@@ -184,8 +184,8 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
 
     def get_user(self, identifier):
-        if self._is_numeric(identifier):
-            return self.user_model.query.get(identifier)
+        # if self._is_numeric(identifier):
+        #     return self.user_model.query.get(identifier)
         for attr in get_identity_attributes():
             query = getattr(self.user_model, attr).ilike(identifier)
             rv = self.user_model.query.filter(query).first()
