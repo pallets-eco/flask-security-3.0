@@ -19,10 +19,25 @@ from flask import Flask, render_template
 from flask_mail import Mail
 from utils import Response, populate_data
 
+from flask_babelex import Babel
+
 from flask_security import MongoEngineUserDatastore, PeeweeUserDatastore, \
     PonyUserDatastore, RoleMixin, Security, SQLAlchemySessionUserDatastore, \
     SQLAlchemyUserDatastore, UserMixin, auth_required, auth_token_required, \
     http_auth_required, login_required, roles_accepted, roles_required
+
+# We need to use custom JSONEncoder because of lazy strings
+from flask.json import JSONEncoder as BaseEncoder
+from speaklater import is_lazy_string
+
+
+class JSONEncoder(BaseEncoder):
+
+    def default(self, o):
+        if is_lazy_string(o):
+            return str(o)
+
+        return BaseEncoder.default(self, o)
 
 
 @pytest.fixture()
@@ -34,6 +49,7 @@ def app(request):
     app.config['TESTING'] = True
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.config['SECURITY_PASSWORD_SALT'] = 'salty'
 
@@ -46,7 +62,10 @@ def app(request):
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
+    babel = Babel(app)
+    app.json_encoder = JSONEncoder
     app.mail = mail
+    app.babel = babel
 
     @app.route('/')
     def index():

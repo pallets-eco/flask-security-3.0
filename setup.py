@@ -49,6 +49,7 @@ install_requires = [
     'Flask-Mail>=0.7.3',
     'Flask-Principal>=0.3.3',
     'Flask-WTF>=0.13.1',
+    'Flask-BabelEx>=0.9.3',
     'itsdangerous>=0.21',
     'passlib>=1.7',
 ]

@@ -23,22 +23,24 @@ from .confirmable import requires_confirmation
 from .utils import config_value, get_message, url_for_security, \
     validate_redirect_url, verify_and_update_password
 
+from .babel import lazy_gettext as _
+
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 _default_field_labels = {
-    'email': 'Email Address',
-    'password': 'Password',
-    'remember_me': 'Remember Me',
-    'login': 'Login',
-    'register': 'Register',
-    'send_confirmation': 'Resend Confirmation Instructions',
-    'recover_password': 'Recover Password',
-    'reset_password': 'Reset Password',
-    'retype_password': 'Retype Password',
-    'new_password': 'New Password',
-    'change_password': 'Change Password',
-    'send_login_link': 'Send Login Link'
+    'email': _('Email Address'),
+    'password': _('Password'),
+    'remember_me': _('Remember Me'),
+    'login': _('Login'),
+    'register': _('Register'),
+    'send_confirmation': _('Resend Confirmation Instructions'),
+    'recover_password': _('Recover Password'),
+    'reset_password': _('Reset Password'),
+    'retype_password': _('Retype Password'),
+    'new_password': _('New Password'),
+    'change_password': _('Change Password'),
+    'send_login_link': _('Send Login Link')
 }
 
 

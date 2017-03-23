@@ -15,5 +15,6 @@ recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
 recursive-include flask_security/templates *.*
+recursive-include flask_security/translations *
 recursive-include tests *
 prune scripts
