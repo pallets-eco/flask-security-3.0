@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
 
 from .signals import password_reset, reset_password_instructions_sent
-from .utils import send_mail, md5, encrypt_password, url_for_security, \
+from .utils import send_mail, sha512, encrypt_password, url_for_security, \
     get_token_status, config_value
 
 
@@ -54,7 +54,7 @@ def generate_reset_password_token(user):
 
     :param user: The user to work with
     """
-    password_hash = md5(user.password) if user.password else None
+    password_hash = sha512(user.password) if user.password else None
     data = [str(user.id), password_hash]
     return _security.reset_serializer.dumps(data)
 
@@ -71,7 +71,7 @@ def reset_password_token_status(token):
                                                     return_data=True)
     if not invalid:
         if user.password:
-            password_hash = md5(user.password)
+            password_hash = sha512(user.password)
             if not safe_str_cmp(password_hash, data[1]):
                 invalid = True
 

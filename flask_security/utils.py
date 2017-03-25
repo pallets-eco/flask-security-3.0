@@ -163,8 +163,8 @@ def encode_string(string):
     return string
 
 
-def md5(data):
-    return hashlib.md5(encode_string(data)).hexdigest()
+def sha512(data):
+    return hashlib.sha512(encode_string(data)).hexdigest()
 
 
 def do_flash(message, category=None):

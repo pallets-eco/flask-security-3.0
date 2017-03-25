@@ -14,7 +14,7 @@ from datetime import datetime
 from flask import current_app as app
 from werkzeug.local import LocalProxy
 
-from .utils import send_mail, md5, url_for_security, get_token_status,\
+from .utils import send_mail, sha512, url_for_security, get_token_status,\
     config_value
 from .signals import user_confirmed, confirm_instructions_sent
 
@@ -52,7 +52,7 @@ def generate_confirmation_token(user):
 
     :param user: The user to work with
     """
-    data = [str(user.id), md5(user.email)]
+    data = [str(user.id), sha512(user.email)]
     return _security.confirm_serializer.dumps(data)
 
 
