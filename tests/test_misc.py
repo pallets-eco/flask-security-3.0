@@ -13,7 +13,7 @@ from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
     ChangePasswordForm, StringField, PasswordField, email_required, email_validator, \
     valid_user_email
-from flask_security.utils import capture_reset_password_requests, sha512, string_types
+from flask_security.utils import capture_reset_password_requests, hash_data, string_types
 
 from utils import authenticate, init_app_with_options, populate_data
 
@@ -178,10 +178,10 @@ def test_change_hash_type(app, sqlalchemy_datastore):
     assert response.status_code == 302
 
 
-def test_md5():
-    data = sha512(b'hello')
+def test_hash_data():
+    data = hash_data(b'hello')
     assert isinstance(data, string_types)
-    data = sha512(u'hellö')
+    data = hash_data(u'hellö')
     assert isinstance(data, string_types)
 
 

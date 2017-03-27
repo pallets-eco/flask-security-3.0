@@ -13,6 +13,7 @@ import base64
 import hashlib
 import hmac
 import sys
+from passlib.context import CryptContext
 
 try:
     from urlparse import urlsplit
@@ -163,8 +164,17 @@ def encode_string(string):
     return string
 
 
-def sha512(data):
-    return hashlib.sha512(encode_string(data)).hexdigest()
+def hash_data(data):
+    ctx = CryptContext(schemes=['sha512_crypt', 'hex_md5'],
+                       deprecated=['hex_md5'])
+    return ctx.hash(encode_string(data))
+    # return hashlib.sha512(encode_string(data)).hexdigest()
+
+
+def verify_hash(hashed_data, compare_data):
+    ctx = CryptContext(schemes=['sha512_crypt', 'hex_md5'],
+                       deprecated=['hex_md5'])
+    return ctx.verify(compare_data, hashed_data)
 
 
 def do_flash(message, category=None):

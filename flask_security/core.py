@@ -18,9 +18,7 @@ from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
-from werkzeug.security import safe_str_cmp
-
-from .utils import config_value as cv, get_config, sha512, url_for_security, string_types
+from .utils import config_value as cv, get_config, hash_data, verify_hash, url_for_security, string_types
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
@@ -198,7 +196,7 @@ def _token_loader(token):
         data = _security.remember_token_serializer.loads(
             token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
-        if user and safe_str_cmp(sha512(user.password), data[1]):
+        if user and (verify_hash(data[1], user.password)):
             return user
     except:
         pass
@@ -319,7 +317,7 @@ class UserMixin(BaseUserMixin):
 
     def get_auth_token(self):
         """Returns the user's authentication token."""
-        data = [str(self.id), sha512(self.password)]
+        data = [str(self.id), hash_data(self.password)]
         return _security.remember_token_serializer.dumps(data)
 
     def has_role(self, role):
