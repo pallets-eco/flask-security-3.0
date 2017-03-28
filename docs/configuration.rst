@@ -167,7 +167,7 @@ Feature Flags
 ``SECURITY_TRACKABLE``    Specifies if Flask-Security should track basic user
                           login statistics. If set to ``True``, ensure your
                           models have the required fields/attributes. Be sure to
-                          use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>` if you are using a proxy. Defaults to
+                          use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>`_ if you are using a proxy. Defaults to
                           ``False``
 ``SECURITY_PASSWORDLESS`` Specifies if Flask-Security should enable the
                           passwordless login feature. If set to ``True``, users
