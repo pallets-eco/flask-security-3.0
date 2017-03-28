@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../index.rst:2
+msgid "Flask-Security"
+msgstr ""
+
+#: ../../index.rst:4
+msgid ""
+"Flask-Security allows you to quickly add common security mechanisms to "
+"your Flask application. They include:"
+msgstr ""
+
+#: ../../index.rst:7
+msgid "Session based authentication"
+msgstr ""
+
+#: ../../index.rst:8
+msgid "Role management"
+msgstr ""
+
+#: ../../index.rst:9
+msgid "Password encryption"
+msgstr ""
+
+#: ../../index.rst:10
+msgid "Basic HTTP authentication"
+msgstr ""
+
+#: ../../index.rst:11
+msgid "Token based authentication"
+msgstr ""
+
+#: ../../index.rst:12
+msgid "Token based account activation (optional)"
+msgstr ""
+
+#: ../../index.rst:13
+msgid "Token based password recovery / resetting (optional)"
+msgstr ""
+
+#: ../../index.rst:14
+msgid "User registration (optional)"
+msgstr ""
+
+#: ../../index.rst:15
+msgid "Login tracking (optional)"
+msgstr ""
+
+#: ../../index.rst:16
+msgid "JSON/Ajax Support"
+msgstr ""
+
+#: ../../index.rst:18
+msgid ""
+"Many of these features are made possible by integrating various Flask "
+"extensions and libraries. They include:"
+msgstr ""
+
+#: ../../index.rst:21
+msgid "`Flask-Login <http://packages.python.org/Flask-Login/>`_"
+msgstr ""
+
+#: ../../index.rst:22
+msgid "`Flask-Mail <http://packages.python.org/Flask-Mail/>`_"
+msgstr ""
+
+#: ../../index.rst:23
+msgid "`Flask-Principal <http://packages.python.org/Flask-Principal/>`_"
+msgstr ""
+
+#: ../../index.rst:24
+msgid "`Flask-Script <http://packages.python.org/Flask-Script/>`_"
+msgstr ""
+
+#: ../../index.rst:25
+msgid "`Flask-WTF <http://packages.python.org/Flask-WTF/>`_"
+msgstr ""
+
+#: ../../index.rst:26
+msgid "`itsdangerous <http://packages.python.org/itsdangerous/>`_"
+msgstr ""
+
+#: ../../index.rst:27
+msgid "`passlib <http://packages.python.org/passlib/>`_"
+msgstr ""
+
+#: ../../index.rst:29
+msgid ""
+"Additionally, it assumes you'll be using a common library for your "
+"database connections and model definitions. Flask-Security supports the "
+"following Flask extensions out of the box for data persistence:"
+msgstr ""
+
+#: ../../index.rst:33
+msgid "`Flask-SQLAlchemy <http://pypi.python.org/pypi/flask-sqlalchemy/>`_"
+msgstr ""
+
+#: ../../index.rst:34
+msgid "`Flask-MongoEngine <http://pypi.python.org/pypi/flask-mongoengine/>`_"
+msgstr ""
+
+#: ../../index.rst:35
+msgid "`Flask-Peewee <http://pypi.python.org/pypi/flask-peewee/>`_"
+msgstr ""
+
+#: ../../contents.rst.inc:2
+msgid "Contents"
+msgstr ""
+

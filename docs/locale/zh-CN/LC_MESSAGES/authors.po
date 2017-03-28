@@ -1,0 +1,48 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../../AUTHORS:1
+msgid ""
+"Flask-Security is written and maintained by Matt Wright and various "
+"contributors:"
+msgstr ""
+
+#: ../../../AUTHORS:5
+msgid "Development Lead"
+msgstr ""
+
+#: ../../../AUTHORS:7
+msgid "Matt Wright <matt+github@nobien.net>"
+msgstr ""
+
+#: ../../../AUTHORS:10
+msgid "Patches and Suggestions"
+msgstr ""
+
+#: ../../../AUTHORS:12
+msgid ""
+"Alexander Sukharev Alexey Poryadin Andrew J. Camenga Anthony Plunkett "
+"Artem Andreev Catherine Wise Chris Haines Christophe Simonis David "
+"Ignacio Eric Butler Eskil Heyn Olsen Iuri de Silvio Jay Goel Joe Esposito"
+" Joe Hand Josh Purvis Kostyantyn Leschenko Luca Invernizzi Manuel Ebert "
+"Martin Maillard Paweł Krześniak Robert Clark Rodrigue Cloutier Rotem "
+"Yaari Srijan Choudhary Tristan Escalada Vadim Kotov Walt Askew"
+msgstr ""
+

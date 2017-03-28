@@ -1,0 +1,796 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../configuration.rst:2
+msgid "Configuration"
+msgstr ""
+
+#: ../../configuration.rst:4
+msgid "The following configuration values are used by Flask-Security:"
+msgstr ""
+
+#: ../../configuration.rst:7
+msgid "Core"
+msgstr ""
+
+#: ../../configuration.rst:12
+msgid "``SECURITY_BLUEPRINT_NAME``"
+msgstr ""
+
+#: ../../configuration.rst:12
+msgid ""
+"Specifies the name for the Flask-Security blueprint. Defaults to "
+"``security``."
+msgstr ""
+
+#: ../../configuration.rst:15
+msgid "``SECURITY_URL_PREFIX``"
+msgstr ""
+
+#: ../../configuration.rst:15
+msgid ""
+"Specifies the URL prefix for the Flask-Security blueprint. Defaults to "
+"``None``."
+msgstr ""
+
+#: ../../configuration.rst:18
+msgid "``SECURITY_SUBDOMAIN``"
+msgstr ""
+
+#: ../../configuration.rst:18
+msgid ""
+"Specifies the subdomain for the Flask-Security blueprint. Defaults to "
+"``None``."
+msgstr ""
+
+#: ../../configuration.rst:21
+msgid "``SECURITY_FLASH_MESSAGES``"
+msgstr ""
+
+#: ../../configuration.rst:21
+msgid ""
+"Specifies whether or not to flash messages during security procedures. "
+"Defaults to ``True``."
+msgstr ""
+
+#: ../../configuration.rst:24
+msgid "``SECURITY_PASSWORD_HASH``"
+msgstr ""
+
+#: ../../configuration.rst:24
+msgid ""
+"Specifies the password hash algorithm to use when encrypting and "
+"decrypting passwords. Recommended values for production systems are "
+"``bcrypt``, ``sha512_crypt``, or ``pbkdf2_sha512``. Defaults to "
+"``plaintext``."
+msgstr ""
+
+#: ../../configuration.rst:30
+msgid "``SECURITY_PASSWORD_SALT``"
+msgstr ""
+
+#: ../../configuration.rst:30
+msgid ""
+"Specifies the HMAC salt. This is only used if the password hash type is "
+"set to something other than plain text. Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:34
+msgid "``SECURITY_EMAIL_SENDER``"
+msgstr ""
+
+#: ../../configuration.rst:34
+msgid ""
+"Specifies the email address to send emails as. Defaults to ``no-"
+"reply@localhost``."
+msgstr ""
+
+#: ../../configuration.rst:37
+msgid "``SECURITY_TOKEN_AUTHENTICATION_KEY``"
+msgstr ""
+
+#: ../../configuration.rst:37
+msgid ""
+"Specifies the query string parameter to read when using token "
+"authentication. Defaults to ``auth_token``."
+msgstr ""
+
+#: ../../configuration.rst:40
+msgid "``SECURITY_TOKEN_AUTHENTICATION_HEADER``"
+msgstr ""
+
+#: ../../configuration.rst:40
+msgid ""
+"Specifies the HTTP header to read when using token authentication. "
+"Defaults to ``Authentication-Token``."
+msgstr ""
+
+#: ../../configuration.rst:43
+msgid "``SECURITY_TOKEN_MAX_AGE``"
+msgstr ""
+
+#: ../../configuration.rst:43
+msgid ""
+"Specifies the number of seconds before an authentication token expires. "
+"Defaults to None, meaning the token never expires."
+msgstr ""
+
+#: ../../configuration.rst:47
+msgid "``SECURITY_DEFAULT_HTTP_AUTH_REALM``"
+msgstr ""
+
+#: ../../configuration.rst:47
+msgid ""
+"Specifies the default authentication realm when using basic HTTP auth. "
+"Defaults to ``Login Required``"
+msgstr ""
+
+#: ../../configuration.rst:54
+msgid "URLs and Views"
+msgstr ""
+
+#: ../../configuration.rst:59
+msgid "``SECURITY_LOGIN_URL``"
+msgstr ""
+
+#: ../../configuration.rst:59
+msgid "Specifies the login URL. Defaults to ``/login``."
+msgstr ""
+
+#: ../../configuration.rst:60
+msgid "``SECURITY_LOGOUT_URL``"
+msgstr ""
+
+#: ../../configuration.rst:60
+msgid "Specifies the logout URL. Defaults to ``/logout``."
+msgstr ""
+
+#: ../../configuration.rst:62
+msgid "``SECURITY_REGISTER_URL``"
+msgstr ""
+
+#: ../../configuration.rst:62
+msgid "Specifies the register URL. Defaults to ``/register``."
+msgstr ""
+
+#: ../../configuration.rst:64
+msgid "``SECURITY_RESET_URL``"
+msgstr ""
+
+#: ../../configuration.rst:64
+msgid "Specifies the password reset URL. Defaults to ``/reset``."
+msgstr ""
+
+#: ../../configuration.rst:66
+msgid "``SECURITY_CHANGE_URL``"
+msgstr ""
+
+#: ../../configuration.rst:66
+msgid "Specifies the password change URL. Defaults to ``/change``."
+msgstr ""
+
+#: ../../configuration.rst:68
+msgid "``SECURITY_CONFIRM_URL``"
+msgstr ""
+
+#: ../../configuration.rst:68
+msgid "Specifies the email confirmation URL. Defaults to ``/confirm``."
+msgstr ""
+
+#: ../../configuration.rst:70
+msgid "``SECURITY_POST_LOGIN_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:70
+msgid ""
+"Specifies the default view to redirect to after a user logs in. This "
+"value can be set to a URL or an endpoint name. Defaults to ``/``."
+msgstr ""
+
+#: ../../configuration.rst:73
+msgid "``SECURITY_POST_LOGOUT_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:73
+msgid ""
+"Specifies the default view to redirect to after a user logs out. This "
+"value can be set to a URL or an endpoint name. Defaults to ``/``."
+msgstr ""
+
+#: ../../configuration.rst:76
+msgid "``SECURITY_CONFIRM_ERROR_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:76
+msgid ""
+"Specifies the view to redirect to if a confirmation error occurs. This "
+"value can be set to a URL or an endpoint name. If this value is ``None``,"
+" the user is presented the default view to resend a confirmation link. "
+"Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:82
+msgid "``SECURITY_POST_REGISTER_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:82
+msgid ""
+"Specifies the view to redirect to after a user successfully registers. "
+"This value can be set to a URL or an endpoint name. If this value is "
+"``None``, the user is redirected to the value of "
+"``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:88
+msgid "``SECURITY_POST_CONFIRM_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:88
+msgid ""
+"Specifies the view to redirect to after a user successfully confirms "
+"their email. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
+"``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:94
+msgid "``SECURITY_POST_RESET_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:94
+msgid ""
+"Specifies the view to redirect to after a user successfully resets their "
+"password. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
+"``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:100
+msgid "``SECURITY_POST_CHANGE_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:100
+msgid ""
+"Specifies the view to redirect to after a user successfully changes their"
+" password. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
+"``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:106
+msgid "``SECURITY_UNAUTHORIZED_VIEW``"
+msgstr ""
+
+#: ../../configuration.rst:106
+msgid ""
+"Specifies the view to redirect to if a user attempts to access a "
+"URL/endpoint that they do not have permission to access. If this value is"
+" ``None``, the user is presented with a default HTTP 403 response. "
+"Defaults to ``None``."
+msgstr ""
+
+#: ../../configuration.rst:115
+msgid "Template Paths"
+msgstr ""
+
+#: ../../configuration.rst:120
+msgid "``SECURITY_FORGOT_PASSWORD_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:120
+msgid ""
+"Specifies the path to the template for the forgot password page. Defaults"
+" to ``security/forgot_password.html``."
+msgstr ""
+
+#: ../../configuration.rst:123
+msgid "``SECURITY_LOGIN_USER_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:123
+msgid ""
+"Specifies the path to the template for the user login page. Defaults to "
+"``security/login_user.html``."
+msgstr ""
+
+#: ../../configuration.rst:126
+msgid "``SECURITY_REGISTER_USER_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:126
+msgid ""
+"Specifies the path to the template for the user registration page. "
+"Defaults to ``security/register_user.html``."
+msgstr ""
+
+#: ../../configuration.rst:129
+msgid "``SECURITY_RESET_PASSWORD_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:129
+msgid ""
+"Specifies the path to the template for the reset password page. Defaults "
+"to ``security/reset_password.html``."
+msgstr ""
+
+#: ../../configuration.rst:132
+msgid "``SECURITY_CHANGE_PASSWORD_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:132
+msgid ""
+"Specifies the path to the template for the change password page. Defaults"
+" to ``security/change_password.html``."
+msgstr ""
+
+#: ../../configuration.rst:135
+msgid "``SECURITY_SEND_CONFIRMATION_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:135
+msgid ""
+"Specifies the path to the template for the resend confirmation "
+"instructions page. Defaults to ``security/send_confirmation.html``."
+msgstr ""
+
+#: ../../configuration.rst:139
+msgid "``SECURITY_SEND_LOGIN_TEMPLATE``"
+msgstr ""
+
+#: ../../configuration.rst:139
+msgid ""
+"Specifies the path to the template for the send login instructions page "
+"for passwordless logins. Defaults to ``security/send_login.html``."
+msgstr ""
+
+#: ../../configuration.rst:147
+msgid "Feature Flags"
+msgstr ""
+
+#: ../../configuration.rst:152
+msgid "``SECURITY_CONFIRMABLE``"
+msgstr ""
+
+#: ../../configuration.rst:152
+msgid ""
+"Specifies if users are required to confirm their email address when "
+"registering a new account. If this value is `True`, Flask-Security "
+"creates an endpoint to handle confirmations and requests to resend "
+"confirmation instructions. The URL for this endpoint is specified by the "
+"``SECURITY_CONFIRM_URL`` configuration option. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:159
+msgid "``SECURITY_REGISTERABLE``"
+msgstr ""
+
+#: ../../configuration.rst:159
+msgid ""
+"Specifies if Flask-Security should create a user registration endpoint. "
+"The URL for this endpoint is specified by the ``SECURITY_REGISTER_URL`` "
+"configuration option. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:163
+msgid "``SECURITY_RECOVERABLE``"
+msgstr ""
+
+#: ../../configuration.rst:163
+msgid ""
+"Specifies if Flask-Security should create a password reset/recover "
+"endpoint. The URL for this endpoint is specified by the "
+"``SECURITY_RESET_URL`` configuration option. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:167
+msgid "``SECURITY_TRACKABLE``"
+msgstr ""
+
+#: ../../configuration.rst:167
+msgid ""
+"Specifies if Flask-Security should track basic user login statistics. If "
+"set to ``True``, ensure your models have the required fields/attributes. "
+"Be sure to use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying"
+"/wsgi-standalone/#proxy-setups>` if you are using a proxy. Defaults to "
+"``False``"
+msgstr ""
+
+#: ../../configuration.rst:172
+msgid "``SECURITY_PASSWORDLESS``"
+msgstr ""
+
+#: ../../configuration.rst:172
+msgid ""
+"Specifies if Flask-Security should enable the passwordless login feature."
+" If set to ``True``, users are not required to enter a password to login "
+"but are sent an email with a login link. This feature is experimental and"
+" should be used with caution. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:178
+msgid "``SECURITY_CHANGEABLE``"
+msgstr ""
+
+#: ../../configuration.rst:178
+msgid ""
+"Specifies if Flask-Security should enable the change password endpoint. "
+"The URL for this endpoint is specified by the ``SECURITY_CHANGE_URL`` "
+"configuration option. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:185
+msgid "Email"
+msgstr ""
+
+#: ../../configuration.rst:190
+msgid "``SECURITY_EMAIL_SUBJECT_REGISTER``"
+msgstr ""
+
+#: ../../configuration.rst:190
+msgid "Sets the subject for the confirmation email. Defaults to ``Welcome``"
+msgstr ""
+
+#: ../../configuration.rst:193
+msgid "``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``"
+msgstr ""
+
+#: ../../configuration.rst:193
+msgid ""
+"Sets the subject for the passwordless feature. Defaults to ``Login "
+"instructions``"
+msgstr ""
+
+#: ../../configuration.rst:196
+msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``"
+msgstr ""
+
+#: ../../configuration.rst:196
+msgid ""
+"Sets subject for the password notice. Defaults to ``Your password has "
+"been reset``"
+msgstr ""
+
+#: ../../configuration.rst:199
+msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``"
+msgstr ""
+
+#: ../../configuration.rst:199
+msgid ""
+"Sets the subject for the password reset email. Defaults to ``Password "
+"reset instructions``"
+msgstr ""
+
+#: ../../configuration.rst:203
+msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE``"
+msgstr ""
+
+#: ../../configuration.rst:203
+msgid ""
+"Sets the subject for the password change notice. Defaults to ``Your "
+"password has been changed``"
+msgstr ""
+
+#: ../../configuration.rst:207
+msgid "``SECURITY_EMAIL_SUBJECT_CONFIRM``"
+msgstr ""
+
+#: ../../configuration.rst:207
+msgid ""
+"Sets the subject for the email confirmation message. Defaults to ``Please"
+" confirm your email``"
+msgstr ""
+
+#: ../../configuration.rst:211
+msgid "``SECURITY_EMAIL_PLAINTEXT``"
+msgstr ""
+
+#: ../../configuration.rst:211
+msgid ""
+"Enable email to be sent as plaintext (Using *.txt template). Defaults "
+"``True``"
+msgstr ""
+
+#: ../../configuration.rst:214
+msgid "``SECURITY_EMAIL_HTML``"
+msgstr ""
+
+#: ../../configuration.rst:214
+msgid ""
+"Enable email to be sent as plaintext (Using *.html template). Defaults "
+"``True``"
+msgstr ""
+
+#: ../../configuration.rst:220
+msgid "Miscellaneous"
+msgstr ""
+
+#: ../../configuration.rst:225
+msgid "``SECURITY_USER_IDENTITY_ATTRIBUTES``"
+msgstr ""
+
+#: ../../configuration.rst:225
+msgid ""
+"Specifies which attributes of the user object can be used for login. "
+"Defaults to ``['email']``."
+msgstr ""
+
+#: ../../configuration.rst:228
+msgid "``SECURITY_SEND_REGISTER_EMAIL``"
+msgstr ""
+
+#: ../../configuration.rst:228
+msgid "Specifies whether registration email is sent. Defaults to ``True``."
+msgstr ""
+
+#: ../../configuration.rst:231
+msgid "``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``"
+msgstr ""
+
+#: ../../configuration.rst:231
+msgid "Specifies whether password change email is sent. Defaults to ``True``."
+msgstr ""
+
+#: ../../configuration.rst:234
+msgid "``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL``"
+msgstr ""
+
+#: ../../configuration.rst:234
+msgid ""
+"Specifies whether password reset notice email is sent. Defaults to "
+"``True``."
+msgstr ""
+
+#: ../../configuration.rst:238
+msgid "``SECURITY_CONFIRM_EMAIL_WITHIN``"
+msgstr ""
+
+#: ../../configuration.rst:238
+msgid ""
+"Specifies the amount of time a user has before their confirmation link "
+"expires. Always pluralized the time unit for this value. Defaults to ``5 "
+"days``."
+msgstr ""
+
+#: ../../configuration.rst:243
+msgid "``SECURITY_RESET_PASSWORD_WITHIN``"
+msgstr ""
+
+#: ../../configuration.rst:243
+msgid ""
+"Specifies the amount of time a user has before their password reset link "
+"expires. Always pluralized the time unit for this value. Defaults to ``5 "
+"days``."
+msgstr ""
+
+#: ../../configuration.rst:248
+msgid "``SECURITY_LOGIN_WITHIN``"
+msgstr ""
+
+#: ../../configuration.rst:248
+msgid ""
+"Specifies the amount of time a user has before a login link expires. This"
+" is only used when the passwordless login feature is enabled. Always "
+"pluralized the time unit for this value. Defaults to ``1 days``."
+msgstr ""
+
+#: ../../configuration.rst:255
+msgid "``SECURITY_LOGIN_WITHOUT_CONFIRMATION``"
+msgstr ""
+
+#: ../../configuration.rst:255
+msgid ""
+"Specifies if a user may login before confirming their email when the "
+"value of ``SECURITY_CONFIRMABLE`` is set to ``True``. Defaults to "
+"``False``."
+msgstr ""
+
+#: ../../configuration.rst:260
+msgid "``SECURITY_CONFIRM_SALT``"
+msgstr ""
+
+#: ../../configuration.rst:260
+msgid ""
+"Specifies the salt value when generating confirmation links/tokens. "
+"Defaults to ``confirm-salt``."
+msgstr ""
+
+#: ../../configuration.rst:264
+msgid "``SECURITY_RESET_SALT``"
+msgstr ""
+
+#: ../../configuration.rst:264
+msgid ""
+"Specifies the salt value when generating password reset links/tokens. "
+"Defaults to ``reset-salt``."
+msgstr ""
+
+#: ../../configuration.rst:268
+msgid "``SECURITY_LOGIN_SALT``"
+msgstr ""
+
+#: ../../configuration.rst:268
+msgid ""
+"Specifies the salt value when generating login links/tokens. Defaults to "
+"``login-salt``."
+msgstr ""
+
+#: ../../configuration.rst:271
+msgid "``SECURITY_REMEMBER_SALT``"
+msgstr ""
+
+#: ../../configuration.rst:271
+msgid ""
+"Specifies the salt value when generating remember tokens. Remember tokens"
+" are used instead of user ID's as it is more secure. Defaults to "
+"``remember-salt``."
+msgstr ""
+
+#: ../../configuration.rst:277
+msgid "``SECURITY_DEFAULT_REMEMBER_ME``"
+msgstr ""
+
+#: ../../configuration.rst:277
+msgid ""
+"Specifies the default \"remember me\" value used when logging in a user. "
+"Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:283
+msgid "Messages"
+msgstr ""
+
+#: ../../configuration.rst:285
+msgid ""
+"The following are the messages Flask-Security uses.  They are tuples; the"
+" first element is the message and the second element is the error level."
+msgstr ""
+
+#: ../../configuration.rst:288
+msgid "The default messages and error levels can be found in ``core.py``."
+msgstr ""
+
+#: ../../configuration.rst:290
+msgid "``SECURITY_MSG_ALREADY_CONFIRMED``"
+msgstr ""
+
+#: ../../configuration.rst:291
+msgid "``SECURITY_MSG_CONFIRMATION_EXPIRED``"
+msgstr ""
+
+#: ../../configuration.rst:292
+msgid "``SECURITY_MSG_CONFIRMATION_REQUEST``"
+msgstr ""
+
+#: ../../configuration.rst:293
+msgid "``SECURITY_MSG_CONFIRMATION_REQUIRED``"
+msgstr ""
+
+#: ../../configuration.rst:294
+msgid "``SECURITY_MSG_CONFIRM_REGISTRATION``"
+msgstr ""
+
+#: ../../configuration.rst:295
+msgid "``SECURITY_MSG_DISABLED_ACCOUNT``"
+msgstr ""
+
+#: ../../configuration.rst:296
+msgid "``SECURITY_MSG_EMAIL_ALREADY_ASSOCIATED``"
+msgstr ""
+
+#: ../../configuration.rst:297
+msgid "``SECURITY_MSG_EMAIL_CONFIRMED``"
+msgstr ""
+
+#: ../../configuration.rst:298
+msgid "``SECURITY_MSG_EMAIL_NOT_PROVIDED``"
+msgstr ""
+
+#: ../../configuration.rst:299
+msgid "``SECURITY_MSG_INVALID_CONFIRMATION_TOKEN``"
+msgstr ""
+
+#: ../../configuration.rst:300
+msgid "``SECURITY_MSG_INVALID_EMAIL_ADDRESS``"
+msgstr ""
+
+#: ../../configuration.rst:301
+msgid "``SECURITY_MSG_INVALID_LOGIN_TOKEN``"
+msgstr ""
+
+#: ../../configuration.rst:302
+msgid "``SECURITY_MSG_INVALID_PASSWORD``"
+msgstr ""
+
+#: ../../configuration.rst:303
+msgid "``SECURITY_MSG_INVALID_REDIRECT``"
+msgstr ""
+
+#: ../../configuration.rst:304
+msgid "``SECURITY_MSG_INVALID_RESET_PASSWORD_TOKEN``"
+msgstr ""
+
+#: ../../configuration.rst:305
+msgid "``SECURITY_MSG_LOGIN``"
+msgstr ""
+
+#: ../../configuration.rst:306
+msgid "``SECURITY_MSG_LOGIN_EMAIL_SENT``"
+msgstr ""
+
+#: ../../configuration.rst:307
+msgid "``SECURITY_MSG_LOGIN_EXPIRED``"
+msgstr ""
+
+#: ../../configuration.rst:308
+msgid "``SECURITY_MSG_PASSWORDLESS_LOGIN_SUCCESSFUL``"
+msgstr ""
+
+#: ../../configuration.rst:309
+msgid "``SECURITY_MSG_PASSWORD_CHANGE``"
+msgstr ""
+
+#: ../../configuration.rst:310
+msgid "``SECURITY_MSG_PASSWORD_INVALID_LENGTH``"
+msgstr ""
+
+#: ../../configuration.rst:311
+msgid "``SECURITY_MSG_PASSWORD_IS_THE_SAME``"
+msgstr ""
+
+#: ../../configuration.rst:312
+msgid "``SECURITY_MSG_PASSWORD_MISMATCH``"
+msgstr ""
+
+#: ../../configuration.rst:313
+msgid "``SECURITY_MSG_PASSWORD_NOT_PROVIDED``"
+msgstr ""
+
+#: ../../configuration.rst:314
+msgid "``SECURITY_MSG_PASSWORD_NOT_SET``"
+msgstr ""
+
+#: ../../configuration.rst:315
+msgid "``SECURITY_MSG_PASSWORD_RESET``"
+msgstr ""
+
+#: ../../configuration.rst:316
+msgid "``SECURITY_MSG_PASSWORD_RESET_EXPIRED``"
+msgstr ""
+
+#: ../../configuration.rst:317
+msgid "``SECURITY_MSG_PASSWORD_RESET_REQUEST``"
+msgstr ""
+
+#: ../../configuration.rst:318
+msgid "``SECURITY_MSG_REFRESH``"
+msgstr ""
+
+#: ../../configuration.rst:319
+msgid "``SECURITY_MSG_RETYPE_PASSWORD_MISMATCH``"
+msgstr ""
+
+#: ../../configuration.rst:320
+msgid "``SECURITY_MSG_UNAUTHORIZED``"
+msgstr ""
+
+#: ../../configuration.rst:321
+msgid "``SECURITY_MSG_USER_DOES_NOT_EXIST``"
+msgstr ""
+

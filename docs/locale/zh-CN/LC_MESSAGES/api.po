@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../api.rst:2
+msgid "API"
+msgstr ""
+
+#: ../../api.rst:5
+msgid "Core"
+msgstr ""
+
+#: ../../api.rst:11
+msgid "A proxy for the current user."
+msgstr ""
+
+#: ../../api.rst:15
+msgid "Protecting Views"
+msgstr ""
+
+#: ../../api.rst:28
+msgid "User Object Helpers"
+msgstr ""
+
+#: ../../api.rst:40
+msgid "Datastores"
+msgstr ""
+
+#: ../../api.rst:58
+msgid "Utils"
+msgstr ""
+
+#: ../../api.rst:80
+msgid "Signals"
+msgstr ""
+
+#: ../../api.rst:81
+msgid ""
+"See the `Flask documentation on signals`_ for information on how to use "
+"these signals in your code."
+msgstr ""
+
+#: ../../api.rst:84
+msgid ""
+"See the documentation for the signals provided by the Flask-Login and "
+"Flask-Principal extensions. In addition to those signals, Flask-Security "
+"sends the following signals."
+msgstr ""
+
+#: ../../api.rst:90
+msgid ""
+"Sent when a user registers on the site. In addition to the app (which is "
+"the sender), it is passed `user` and `confirm_token` arguments."
+msgstr ""
+
+#: ../../api.rst:95
+msgid ""
+"Sent when a user is confirmed. In addition to the app (which is the "
+"sender), it is passed a `user` argument."
+msgstr ""
+
+#: ../../api.rst:100
+msgid ""
+"Sent when a user requests confirmation instructions. In addition to the "
+"app (which is the sender), it is passed a `user` argument."
+msgstr ""
+
+#: ../../api.rst:105
+msgid ""
+"Sent when passwordless login is used and user logs in. In addition to the"
+" app (which is the sender), it is passed `user` and `login_token` "
+"arguments."
+msgstr ""
+
+#: ../../api.rst:110
+msgid ""
+"Sent when a user completes a password reset. In addition to the app "
+"(which is the sender), it is passed a `user` argument."
+msgstr ""
+
+#: ../../api.rst:115
+msgid ""
+"Sent when a user completes a password change. In addition to the app "
+"(which is the sender), it is passed a `user` argument."
+msgstr ""
+
+#: ../../api.rst:120
+msgid ""
+"Sent when a user requests a password reset. In addition to the app (which"
+" is the sender), it is passed `user` and `token` arguments."
+msgstr ""
+

@@ -1,0 +1,285 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../customizing.rst:2
+msgid "Customizing Views"
+msgstr ""
+
+#: ../../customizing.rst:4
+msgid ""
+"Flask-Security bootstraps your application with various views for "
+"handling its configured features to get you up and running as quickly as "
+"possible. However, you'll probably want to change the way these views "
+"look to be more in line with your application's visual design."
+msgstr ""
+
+#: ../../customizing.rst:11
+msgid "Views"
+msgstr ""
+
+#: ../../customizing.rst:13
+msgid ""
+"Flask-Security is packaged with a default template for each view it "
+"presents to a user. Templates are located within a subfolder named "
+"``security``. The following is a list of view templates:"
+msgstr ""
+
+#: ../../customizing.rst:17
+msgid "`security/forgot_password.html`"
+msgstr ""
+
+#: ../../customizing.rst:18
+msgid "`security/login_user.html`"
+msgstr ""
+
+#: ../../customizing.rst:19
+msgid "`security/register_user.html`"
+msgstr ""
+
+#: ../../customizing.rst:20
+msgid "`security/reset_password.html`"
+msgstr ""
+
+#: ../../customizing.rst:21
+msgid "`security/change_password.html`"
+msgstr ""
+
+#: ../../customizing.rst:22
+msgid "`security/send_confirmation.html`"
+msgstr ""
+
+#: ../../customizing.rst:23
+msgid "`security/send_login.html`"
+msgstr ""
+
+#: ../../customizing.rst:25 ../../customizing.rst:126
+msgid "Overriding these templates is simple:"
+msgstr ""
+
+#: ../../customizing.rst:27 ../../customizing.rst:128
+msgid ""
+"Create a folder named ``security`` within your application's templates "
+"folder"
+msgstr ""
+
+#: ../../customizing.rst:28 ../../customizing.rst:130
+msgid "Create a template with the same name for the template you wish to override"
+msgstr ""
+
+#: ../../customizing.rst:30
+msgid ""
+"You can also specify custom template file paths in the "
+":doc:`configuration <configuration>`."
+msgstr ""
+
+#: ../../customizing.rst:32
+msgid ""
+"Each template is passed a template context object that includes the "
+"following, including the objects/values that are passed to the template "
+"by the main Flask application context processor:"
+msgstr ""
+
+#: ../../customizing.rst:36
+msgid "``<template_name>_form``: A form object for the view"
+msgstr ""
+
+#: ../../customizing.rst:37
+msgid "``security``: The Flask-Security extension object"
+msgstr ""
+
+#: ../../customizing.rst:39
+msgid ""
+"To add more values to the template context, you can specify a context "
+"processor for all views or a specific view. For example::"
+msgstr ""
+
+#: ../../customizing.rst:54
+msgid "The following is a list of all the available context processor decorators:"
+msgstr ""
+
+#: ../../customizing.rst:56
+msgid "``context_processor``: All views"
+msgstr ""
+
+#: ../../customizing.rst:57
+msgid "``forgot_password_context_processor``: Forgot password view"
+msgstr ""
+
+#: ../../customizing.rst:58
+msgid "``login_context_processor``: Login view"
+msgstr ""
+
+#: ../../customizing.rst:59
+msgid "``register_context_processor``: Register view"
+msgstr ""
+
+#: ../../customizing.rst:60
+msgid "``reset_password_context_processor``: Reset password view"
+msgstr ""
+
+#: ../../customizing.rst:61
+msgid "``change_password_context_processor``: Reset password view"
+msgstr ""
+
+#: ../../customizing.rst:62
+msgid "``send_confirmation_context_processor``: Send confirmation view"
+msgstr ""
+
+#: ../../customizing.rst:63
+msgid "``send_login_context_processor``: Send login view"
+msgstr ""
+
+#: ../../customizing.rst:67
+msgid "Forms"
+msgstr ""
+
+#: ../../customizing.rst:69
+msgid ""
+"All forms can be overridden. For each form used, you can specify a "
+"replacement class. This allows you to add extra fields to the register "
+"form or override validators::"
+msgstr ""
+
+#: ../../customizing.rst:82
+msgid ""
+"For the ``register_form`` and ``confirm_register_form``, each field is "
+"passed to the user model (as kwargs) when a user is created. In the above"
+" case, the ``first_name`` and ``last_name`` fields are passed directly to"
+" the model, so the model should look like::"
+msgstr ""
+
+#: ../../customizing.rst:94
+msgid "The following is a list of all the available form overrides:"
+msgstr ""
+
+#: ../../customizing.rst:96
+msgid "``login_form``: Login form"
+msgstr ""
+
+#: ../../customizing.rst:97
+msgid "``confirm_register_form``: Confirmable register form"
+msgstr ""
+
+#: ../../customizing.rst:98
+msgid "``register_form``: Register form"
+msgstr ""
+
+#: ../../customizing.rst:99
+msgid "``forgot_password_form``: Forgot password form"
+msgstr ""
+
+#: ../../customizing.rst:100
+msgid "``reset_password_form``: Reset password form"
+msgstr ""
+
+#: ../../customizing.rst:101
+msgid "``change_password_form``: Reset password form"
+msgstr ""
+
+#: ../../customizing.rst:102
+msgid "``send_confirmation_form``: Send confirmation form"
+msgstr ""
+
+#: ../../customizing.rst:103
+msgid "``passwordless_login_form``: Passwordless login form"
+msgstr ""
+
+#: ../../customizing.rst:107
+msgid "Emails"
+msgstr ""
+
+#: ../../customizing.rst:109
+msgid ""
+"Flask-Security is also packaged with a default template for each email "
+"that it may send. Templates are located within the subfolder named "
+"``security/email``. The following is a list of email templates:"
+msgstr ""
+
+#: ../../customizing.rst:113
+msgid "`security/email/confirmation_instructions.html`"
+msgstr ""
+
+#: ../../customizing.rst:114
+msgid "`security/email/confirmation_instructions.txt`"
+msgstr ""
+
+#: ../../customizing.rst:115
+msgid "`security/email/login_instructions.html`"
+msgstr ""
+
+#: ../../customizing.rst:116
+msgid "`security/email/login_instructions.txt`"
+msgstr ""
+
+#: ../../customizing.rst:117
+msgid "`security/email/reset_instructions.html`"
+msgstr ""
+
+#: ../../customizing.rst:118
+msgid "`security/email/reset_instructions.txt`"
+msgstr ""
+
+#: ../../customizing.rst:119
+msgid "`security/email/reset_notice.html`"
+msgstr ""
+
+#: ../../customizing.rst:120
+msgid "`security/email/change_notice.txt`"
+msgstr ""
+
+#: ../../customizing.rst:121
+msgid "`security/email/change_notice.html`"
+msgstr ""
+
+#: ../../customizing.rst:122
+msgid "`security/email/reset_notice.txt`"
+msgstr ""
+
+#: ../../customizing.rst:123
+msgid "`security/email/welcome.html`"
+msgstr ""
+
+#: ../../customizing.rst:124
+msgid "`security/email/welcome.txt`"
+msgstr ""
+
+#: ../../customizing.rst:129
+msgid "Create a folder named ``email`` within the ``security`` folder"
+msgstr ""
+
+#: ../../customizing.rst:132
+msgid ""
+"Each template is passed a template context object that includes values "
+"for any links that are required in the email. If you require more values "
+"in the templates, you can specify an email context processor with the "
+"``mail_context_processor`` decorator. For example::"
+msgstr ""
+
+#: ../../customizing.rst:146
+msgid "Emails with Celery"
+msgstr ""
+
+#: ../../customizing.rst:148
+msgid ""
+"Sometimes it makes sense to send emails via a task queue, such as "
+"`Celery`_. To delay the sending of emails, you can use the "
+"``@security.send_mail_task`` decorator like so::"
+msgstr ""
+
