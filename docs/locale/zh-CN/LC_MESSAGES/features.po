@@ -1,0 +1,212 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../features.rst:2
+msgid "Features"
+msgstr ""
+
+#: ../../features.rst:4
+msgid ""
+"Flask-Security allows you to quickly add common security mechanisms to "
+"your Flask application. They include:"
+msgstr ""
+
+#: ../../features.rst:9
+msgid "Session Based Authentication"
+msgstr ""
+
+#: ../../features.rst:11
+msgid ""
+"Session based authentication is fulfilled entirely by the `Flask-Login`_ "
+"extension. Flask-Security handles the configuration of Flask-Login "
+"automatically based on a few of its own configuration values and uses "
+"Flask-Login's `alternative token`_ feature for remembering users when "
+"their session has expired."
+msgstr ""
+
+#: ../../features.rst:19
+msgid "Role/Identity Based Access"
+msgstr ""
+
+#: ../../features.rst:21
+msgid ""
+"Flask-Security implements very basic role management out of the box. This"
+" means that you can associate a high level role or multiple roles to any "
+"user. For instance, you may assign roles such as `Admin`, `Editor`, "
+"`SuperUser`, or a combination of said roles to a user. Access control is "
+"based on the role name and all roles should be uniquely named. This "
+"feature is implemented using the `Flask-Principal`_ extension. If you'd "
+"like to implement more granular access control, you can refer to the "
+"Flask-Principal `documentation on this topic`_."
+msgstr ""
+
+#: ../../features.rst:31
+msgid "Password Encryption"
+msgstr ""
+
+#: ../../features.rst:33
+msgid ""
+"Password encryption is enabled with `passlib`_. Passwords are stored in "
+"plain text by default but you can easily configure the encryption "
+"algorithm. You should **always use an encryption algorithm** in your "
+"production environment. You may also specify to use HMAC with a "
+"configured salt value in addition to the algorithm chosen. Bear in mind "
+"passlib does not assume which algorithm you will choose and may require "
+"additional libraries to be installed."
+msgstr ""
+
+#: ../../features.rst:42
+msgid "Basic HTTP Authentication"
+msgstr ""
+
+#: ../../features.rst:44
+msgid ""
+"Basic HTTP authentication is achievable using a simple view method "
+"decorator. This feature expects the incoming authentication information "
+"to identify a user in the system. This means that the username must be "
+"equal to their email address."
+msgstr ""
+
+#: ../../features.rst:50
+msgid "Token Authentication"
+msgstr ""
+
+#: ../../features.rst:52
+msgid ""
+"Token based authentication is enabled by retrieving the user auth token "
+"by performing an HTTP POST with the authentication details as JSON data "
+"against the authentication endpoint. A successful call to this endpoint "
+"will return the user's ID and their authentication token. This token can "
+"be used in subsequent requests to protected resources. The auth token is "
+"supplied in the request through an HTTP header or query string parameter."
+" By default the HTTP header name is `Authentication-Token` and the "
+"default query string parameter name is `auth_token`. Authentication "
+"tokens are generated using the user's password. Thus if the user changes "
+"his or her password their existing authentication token will become "
+"invalid. A new token will need to be retrieved using the user's new "
+"password."
+msgstr ""
+
+#: ../../features.rst:66
+msgid "Email Confirmation"
+msgstr ""
+
+#: ../../features.rst:68
+msgid ""
+"If desired you can require that new users confirm their email address. "
+"Flask-Security will send an email message to any new users with a "
+"confirmation link. Upon navigating to the confirmation link, the user "
+"will be automatically logged in. There is also view for resending a "
+"confirmation link to a given email if the user happens to try to use an "
+"expired token or has lost the previous email. Confirmation links can be "
+"configured to expire after a specified amount of time."
+msgstr ""
+
+#: ../../features.rst:78
+msgid "Password Reset/Recovery"
+msgstr ""
+
+#: ../../features.rst:80
+msgid ""
+"Password reset and recovery is available for when a user forgets his or "
+"her password. Flask-Security sends an email to the user with a link to a "
+"view which they can reset their password. Once the password is reset they"
+" are automatically logged in and can use the new password from then on. "
+"Password reset links  can be configured to expire after a specified "
+"amount of time."
+msgstr ""
+
+#: ../../features.rst:88
+msgid "User Registration"
+msgstr ""
+
+#: ../../features.rst:90
+msgid ""
+"Flask-Security comes packaged with a basic user registration view. This "
+"view is very simple and new users need only supply an email address and "
+"their password. This view can be overridden if your registration process "
+"requires more fields."
+msgstr ""
+
+#: ../../features.rst:96
+msgid "Login Tracking"
+msgstr ""
+
+#: ../../features.rst:98
+msgid ""
+"Flask-Security can, if configured, keep track of basic login events and "
+"statistics. They include:"
+msgstr ""
+
+#: ../../features.rst:101
+msgid "Last login date"
+msgstr ""
+
+#: ../../features.rst:102
+msgid "Current login date"
+msgstr ""
+
+#: ../../features.rst:103
+msgid "Last login IP address"
+msgstr ""
+
+#: ../../features.rst:104
+msgid "Current login IP address"
+msgstr ""
+
+#: ../../features.rst:105
+msgid "Total login count"
+msgstr ""
+
+#: ../../features.rst:109
+msgid "JSON/Ajax Support"
+msgstr ""
+
+#: ../../features.rst:111
+msgid ""
+"Flask-Security supports JSON/Ajax requests where appropriate. Just "
+"remember that all endpoints require a CSRF token just like HTML views. "
+"More specifically JSON is supported for the following operations:"
+msgstr ""
+
+#: ../../features.rst:115
+msgid "Login requests"
+msgstr ""
+
+#: ../../features.rst:116
+msgid "Registration requests"
+msgstr ""
+
+#: ../../features.rst:117
+msgid "Change password requests"
+msgstr ""
+
+#: ../../features.rst:118
+msgid "Confirmation requests"
+msgstr ""
+
+#: ../../features.rst:119
+msgid "Forgot password requests"
+msgstr ""
+
+#: ../../features.rst:120
+msgid "Passwordless login requests"
+msgstr ""
+

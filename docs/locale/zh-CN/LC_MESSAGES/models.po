@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-28 10:58+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: ../../models.rst:2
+msgid "Models"
+msgstr ""
+
+#: ../../models.rst:4
+msgid ""
+"Flask-Security assumes you'll be using libraries such as SQLAlchemy, "
+"MongoEngine or Peewee to define a data model that includes a `User` and "
+"`Role` model. The fields on your models must follow a particular "
+"convention depending on the functionality your app requires. Aside from "
+"this, you're free to add any additional fields to your model(s) if you "
+"want. At the bare minimum your `User` and `Role` model should include the"
+" following fields:"
+msgstr ""
+
+#: ../../models.rst:11
+msgid "**User**"
+msgstr ""
+
+#: ../../models.rst:13 ../../models.rst:20
+msgid "``id``"
+msgstr ""
+
+#: ../../models.rst:14
+msgid "``email``"
+msgstr ""
+
+#: ../../models.rst:15
+msgid "``password``"
+msgstr ""
+
+#: ../../models.rst:16
+msgid "``active``"
+msgstr ""
+
+#: ../../models.rst:18
+msgid "**Role**"
+msgstr ""
+
+#: ../../models.rst:21
+msgid "``name``"
+msgstr ""
+
+#: ../../models.rst:22
+msgid "``description``"
+msgstr ""
+
+#: ../../models.rst:26
+msgid "Additional Functionality"
+msgstr ""
+
+#: ../../models.rst:28
+msgid ""
+"Depending on the application's configuration, additional fields may need "
+"to be added to your `User` model."
+msgstr ""
+
+#: ../../models.rst:32
+msgid "Confirmable"
+msgstr ""
+
+#: ../../models.rst:34
+msgid ""
+"If you enable account confirmation by setting your application's "
+"`SECURITY_CONFIRMABLE` configuration value to `True`, your `User` model "
+"will require the following additional field:"
+msgstr ""
+
+#: ../../models.rst:38
+msgid "``confirmed_at``"
+msgstr ""
+
+#: ../../models.rst:41
+msgid "Trackable"
+msgstr ""
+
+#: ../../models.rst:43
+msgid ""
+"If you enable user tracking by setting your application's "
+"`SECURITY_TRACKABLE` configuration value to `True`, your `User` model "
+"will require the following additional fields:"
+msgstr ""
+
+#: ../../models.rst:47
+msgid "``last_login_at``"
+msgstr ""
+
+#: ../../models.rst:48
+msgid "``current_login_at``"
+msgstr ""
+
+#: ../../models.rst:49
+msgid "``last_login_ip``"
+msgstr ""
+
+#: ../../models.rst:50
+msgid "``current_login_ip``"
+msgstr ""
+
+#: ../../models.rst:51
+msgid "``login_count``"
+msgstr ""
+
