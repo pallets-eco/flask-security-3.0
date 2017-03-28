@@ -58,7 +58,7 @@ The following is a list of all the available context processor decorators:
 * ``login_context_processor``: Login view
 * ``register_context_processor``: Register view
 * ``reset_password_context_processor``: Reset password view
-* ``change_password_context_processor``: Reset password view
+* ``change_password_context_processor``: Change password view
 * ``send_confirmation_context_processor``: Send confirmation view
 * ``send_login_context_processor``: Send login view
 
@@ -98,7 +98,7 @@ The following is a list of all the available form overrides:
 * ``register_form``: Register form
 * ``forgot_password_form``: Forgot password form
 * ``reset_password_form``: Reset password form
-* ``change_password_form``: Reset password form
+* ``change_password_form``: Change password form
 * ``send_confirmation_form``: Send confirmation form
 * ``passwordless_login_form``: Passwordless login form
 
