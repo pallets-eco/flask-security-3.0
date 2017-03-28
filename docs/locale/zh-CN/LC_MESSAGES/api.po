@@ -1,0 +1,121 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"PO-Revision-Date: 2017-03-28 15:07+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#: ../../api.rst:2
+msgid "API"
+msgstr "API"
+
+#: ../../api.rst:5
+msgid "Core"
+msgstr "核心"
+
+#: ../../api.rst:11
+msgid "A proxy for the current user."
+msgstr "current user 的代理( proxy )"
+
+#: ../../api.rst:15
+msgid "Protecting Views"
+msgstr "保护的视图"
+
+#: ../../api.rst:28
+msgid "User Object Helpers"
+msgstr "用户对象助手"
+
+#: ../../api.rst:40
+msgid "Datastores"
+msgstr "数据储存"
+
+#: ../../api.rst:58
+msgid "Utils"
+msgstr "实用工具"
+
+#: ../../api.rst:80
+msgid "Signals"
+msgstr "信号"
+
+#: ../../api.rst:81
+msgid ""
+"See the `Flask documentation on signals`_ for information on how to use "
+"these signals in your code."
+msgstr ""
+"查看 `Flask documentation on signals`_  从中获取更多关于如何在你的代码中"
+"使用信号的信息."
+
+#: ../../api.rst:84
+msgid ""
+"See the documentation for the signals provided by the Flask-Login and "
+"Flask-Principal extensions. In addition to those signals, Flask-Security "
+"sends the following signals."
+msgstr ""
+"查看 Flask-Login and Flask-Principal 扩展所提供的信号的文档. 除了这些信"
+"号, Flask-Security 发送如下信号:"
+
+#: ../../api.rst:90
+msgid ""
+"Sent when a user registers on the site. In addition to the app (which is "
+"the sender), it is passed `user` and `confirm_token` arguments."
+msgstr ""
+"当一个用户在网站注册时发送. 除了应用 ( 发送者 ),  它被传递  `user` 和 "
+"`confirm_token` 参数."
+
+#: ../../api.rst:95
+msgid ""
+"Sent when a user is confirmed. In addition to the app (which is the "
+"sender), it is passed a `user` argument."
+msgstr "当一个用户被验证. 除了应用 ( 发送者 ),  它被传递  `user` 参数."
+
+#: ../../api.rst:100
+msgid ""
+"Sent when a user requests confirmation instructions. In addition to the "
+"app (which is the sender), it is passed a `user` argument."
+msgstr ""
+"当一个用户请求验证指令. 除了应用 ( 发送者 ),  它被传递  `user` 参数."
+
+#: ../../api.rst:105
+msgid ""
+"Sent when passwordless login is used and user logs in. In addition to "
+"the app (which is the sender), it is passed `user` and `login_token` "
+"arguments."
+msgstr ""
+"当一个无密码登录被使用和用户登录时. 除了应用 ( 发送者 ),  它被传递  "
+"`user` 和 `login_token` 参数."
+
+#: ../../api.rst:110
+msgid ""
+"Sent when a user completes a password reset. In addition to the app "
+"(which is the sender), it is passed a `user` argument."
+msgstr ""
+"当一个用户完成密码重置时. 除了应用 ( 发送者 ),  它被传递  `user` 参数."
+
+#: ../../api.rst:115
+msgid ""
+"Sent when a user completes a password change. In addition to the app "
+"(which is the sender), it is passed a `user` argument."
+msgstr ""
+"当一个用户完成密码修改时. 除了应用 ( 发送者 ),  它被传递  `user` 参数."
+
+#: ../../api.rst:120
+msgid ""
+"Sent when a user requests a password reset. In addition to the app "
+"(which is the sender), it is passed `user` and `token` arguments."
+msgstr ""
+"当一个用户请求重置密码时. 除了应用 ( 发送者 ),  它被传递  `user` 和 "
+"`token` 参数."
