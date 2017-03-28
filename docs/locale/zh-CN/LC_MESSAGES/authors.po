@@ -4,45 +4,53 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 10:58+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"PO-Revision-Date: 2017-03-27 15:36+0800\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../../AUTHORS:1
 msgid ""
 "Flask-Security is written and maintained by Matt Wright and various "
 "contributors:"
-msgstr ""
+msgstr "Flask-Security 由 Matt Wright 和众多参与者编写并维护:"
 
 #: ../../../AUTHORS:5
 msgid "Development Lead"
-msgstr ""
+msgstr "开发领头人"
 
 #: ../../../AUTHORS:7
 msgid "Matt Wright <matt+github@nobien.net>"
-msgstr ""
+msgstr "Matt Wright <matt+github@nobien.net>"
 
 #: ../../../AUTHORS:10
 msgid "Patches and Suggestions"
-msgstr ""
+msgstr "补丁和建议"
 
 #: ../../../AUTHORS:12
 msgid ""
 "Alexander Sukharev Alexey Poryadin Andrew J. Camenga Anthony Plunkett "
 "Artem Andreev Catherine Wise Chris Haines Christophe Simonis David "
-"Ignacio Eric Butler Eskil Heyn Olsen Iuri de Silvio Jay Goel Joe Esposito"
-" Joe Hand Josh Purvis Kostyantyn Leschenko Luca Invernizzi Manuel Ebert "
-"Martin Maillard Paweł Krześniak Robert Clark Rodrigue Cloutier Rotem "
-"Yaari Srijan Choudhary Tristan Escalada Vadim Kotov Walt Askew"
+"Ignacio Eric Butler Eskil Heyn Olsen Iuri de Silvio Jay Goel Joe "
+"Esposito Joe Hand Josh Purvis Kostyantyn Leschenko Luca Invernizzi "
+"Manuel Ebert Martin Maillard Paweł Krześniak Robert Clark Rodrigue "
+"Cloutier Rotem Yaari Srijan Choudhary Tristan Escalada Vadim Kotov Walt "
+"Askew"
 msgstr ""
-
+"Alexander Sukharev Alexey Poryadin Andrew J. Camenga Anthony Plunkett "
+"Artem Andreev Catherine Wise Chris Haines Christophe Simonis David "
+"Ignacio Eric Butler Eskil Heyn Olsen Iuri de Silvio Jay Goel Joe "
+"Esposito Joe Hand Josh Purvis Kostyantyn Leschenko Luca Invernizzi "
+"Manuel Ebert Martin Maillard Paweł Krześniak Robert Clark Rodrigue "
+"Cloutier Rotem Yaari Srijan Choudhary Tristan Escalada Vadim Kotov Walt "
+"Askew"
