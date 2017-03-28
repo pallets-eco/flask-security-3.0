@@ -4,23 +4,24 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 10:58+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"PO-Revision-Date: 2017-03-27 16:00+0800\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../models.rst:2
 msgid "Models"
-msgstr ""
+msgstr "模型"
 
 #: ../../models.rst:4
 msgid ""
@@ -29,55 +30,59 @@ msgid ""
 "`Role` model. The fields on your models must follow a particular "
 "convention depending on the functionality your app requires. Aside from "
 "this, you're free to add any additional fields to your model(s) if you "
-"want. At the bare minimum your `User` and `Role` model should include the"
-" following fields:"
+"want. At the bare minimum your `User` and `Role` model should include "
+"the following fields:"
 msgstr ""
+"Flask-Security 假定你会使用诸如 SQLAlchemy, MongoEngine or Peewee 这样的"
+"库去定义包含 `User` 和 `Role` 的数据模型. 模型中的字段必须遵循一个特别的"
+"约定取决于你应用的功能需求. 除此之外,你可以随意的在你的模型中增加额外的字"
+"段,最小的 `User` 和 `Role` 模型应该包含以下字段:"
 
 #: ../../models.rst:11
 msgid "**User**"
-msgstr ""
+msgstr "**User**"
 
 #: ../../models.rst:13 ../../models.rst:20
 msgid "``id``"
-msgstr ""
+msgstr "``id``"
 
 #: ../../models.rst:14
 msgid "``email``"
-msgstr ""
+msgstr "``email``"
 
 #: ../../models.rst:15
 msgid "``password``"
-msgstr ""
+msgstr "``password``"
 
 #: ../../models.rst:16
 msgid "``active``"
-msgstr ""
+msgstr "``active``"
 
 #: ../../models.rst:18
 msgid "**Role**"
-msgstr ""
+msgstr "**Role**"
 
 #: ../../models.rst:21
 msgid "``name``"
-msgstr ""
+msgstr "``name``"
 
 #: ../../models.rst:22
 msgid "``description``"
-msgstr ""
+msgstr "``description``"
 
 #: ../../models.rst:26
 msgid "Additional Functionality"
-msgstr ""
+msgstr "附加功能"
 
 #: ../../models.rst:28
 msgid ""
 "Depending on the application's configuration, additional fields may need "
 "to be added to your `User` model."
-msgstr ""
+msgstr "根据应用配置,一些额外的字段可以根据需求加入到你的 `User` 模型."
 
 #: ../../models.rst:32
 msgid "Confirmable"
-msgstr ""
+msgstr "可验证"
 
 #: ../../models.rst:34
 msgid ""
@@ -85,14 +90,16 @@ msgid ""
 "`SECURITY_CONFIRMABLE` configuration value to `True`, your `User` model "
 "will require the following additional field:"
 msgstr ""
+"如果你通过设置应用的  `SECURITY_CONFIRMABLE` 参数为 `True` 开启了账户验"
+"证, 你的 `User` 模型将需要以下额外字段:"
 
 #: ../../models.rst:38
 msgid "``confirmed_at``"
-msgstr ""
+msgstr "``confirmed_at``"
 
 #: ../../models.rst:41
 msgid "Trackable"
-msgstr ""
+msgstr "可追踪"
 
 #: ../../models.rst:43
 msgid ""
@@ -100,24 +107,25 @@ msgid ""
 "`SECURITY_TRACKABLE` configuration value to `True`, your `User` model "
 "will require the following additional fields:"
 msgstr ""
+"如果你通过设置应用的 `SECURITY_TRACKABLE` 参数为 `True`,你的 `User` 模型"
+"将需要以下额外字段:"
 
 #: ../../models.rst:47
 msgid "``last_login_at``"
-msgstr ""
+msgstr "``last_login_at``"
 
 #: ../../models.rst:48
 msgid "``current_login_at``"
-msgstr ""
+msgstr "``current_login_at``"
 
 #: ../../models.rst:49
 msgid "``last_login_ip``"
-msgstr ""
+msgstr "``last_login_ip``"
 
 #: ../../models.rst:50
 msgid "``current_login_ip``"
-msgstr ""
+msgstr "``current_login_ip``"
 
 #: ../../models.rst:51
 msgid "``login_count``"
-msgstr ""
-
+msgstr "``login_count``"

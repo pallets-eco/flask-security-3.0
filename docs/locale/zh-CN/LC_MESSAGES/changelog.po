@@ -4,19 +4,20 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 10:58+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"PO-Revision-Date: 2017-03-27 13:26+0800\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../../CHANGES:2
 msgid "Flask-Security Changelog"
@@ -24,8 +25,7 @@ msgstr ""
 
 #: ../../../CHANGES:4
 msgid ""
-"Here you can see the full list of changes between each Flask-Security "
-"release."
+"Here you can see the full list of changes between each Flask-Security release."
 msgstr ""
 
 #: ../../../CHANGES:7
@@ -42,8 +42,8 @@ msgstr ""
 
 #: ../../../CHANGES:12
 msgid ""
-"Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns"
-" `False` instead of raising a `TypeError`"
+"Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns "
+"`False` instead of raising a `TypeError`"
 msgstr ""
 
 #: ../../../CHANGES:13
@@ -52,8 +52,8 @@ msgstr ""
 
 #: ../../../CHANGES:14
 msgid ""
-"Fixed handling of trackable IP addresses when the `X-Forwarded-For` "
-"header contains multiple values"
+"Fixed handling of trackable IP addresses when the `X-Forwarded-For` header "
+"contains multiple values"
 msgstr ""
 
 #: ../../../CHANGES:15
@@ -86,8 +86,8 @@ msgstr ""
 
 #: ../../../CHANGES:22
 msgid ""
-"Updated `is_authenticated` and `is_active` functions to support Flask-"
-"Login changes"
+"Updated `is_authenticated` and `is_active` functions to support Flask-Login "
+"changes"
 msgstr ""
 
 #: ../../../CHANGES:23
@@ -104,8 +104,7 @@ msgstr ""
 
 #: ../../../CHANGES:31
 msgid ""
-"Fixed a bug related to changing existing passwords from plaintext to "
-"hashed"
+"Fixed a bug related to changing existing passwords from plaintext to hashed"
 msgstr ""
 
 #: ../../../CHANGES:32
@@ -126,8 +125,7 @@ msgstr ""
 
 #: ../../../CHANGES:41
 msgid ""
-"Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not "
-"respected"
+"Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not respected"
 msgstr ""
 
 #: ../../../CHANGES:42
@@ -176,8 +174,8 @@ msgstr ""
 
 #: ../../../CHANGES:63
 msgid ""
-"Fixed a bug where passwords would fail to verify when specifying a "
-"password hash algorithm"
+"Fixed a bug where passwords would fail to verify when specifying a password "
+"hash algorithm"
 msgstr ""
 
 #: ../../../CHANGES:67
@@ -198,14 +196,14 @@ msgstr ""
 
 #: ../../../CHANGES:73
 msgid ""
-"Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not "
-"allow users to log in"
+"Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not allow "
+"users to log in"
 msgstr ""
 
 #: ../../../CHANGES:74
 msgid ""
-"Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to"
-" optionally send password reset notice emails"
+"Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to "
+"optionally send password reset notice emails"
 msgstr ""
 
 #: ../../../CHANGES:75
@@ -222,8 +220,7 @@ msgstr ""
 
 #: ../../../CHANGES:78
 msgid ""
-"Added documentation for select functions in the `flask_security.utils` "
-"module"
+"Added documentation for select functions in the `flask_security.utils` module"
 msgstr ""
 
 #: ../../../CHANGES:79
@@ -232,34 +229,33 @@ msgstr ""
 
 #: ../../../CHANGES:80
 msgid ""
-"Added `CHANGE_PASSWORD_TEMPLATE` configuration option to optionally "
-"specify a different change password template"
+"Added `CHANGE_PASSWORD_TEMPLATE` configuration option to optionally specify a "
+"different change password template"
 msgstr ""
 
 #: ../../../CHANGES:81
 msgid ""
-"Added the ability to specify addtional fields on the user model to be "
-"used for identifying the user via the `USER_IDENTITY_ATTRIBUTES` "
-"configuration option"
+"Added the ability to specify addtional fields on the user model to be used for "
+"identifying the user via the `USER_IDENTITY_ATTRIBUTES` configuration option"
 msgstr ""
 
 #: ../../../CHANGES:82
 msgid ""
-"An error is now shown if a user tries to change their password and the "
-"password is the same as before. The message can be customed with the "
+"An error is now shown if a user tries to change their password and the password "
+"is the same as before. The message can be customed with the "
 "`SECURITY_MSG_PASSWORD_IS_SAME` configuration option"
 msgstr ""
 
 #: ../../../CHANGES:83
 msgid ""
-"Fixed a bug in `MongoEngineUserDatastore` where user model would not be "
-"updated when using the `add_role_to_user` method"
+"Fixed a bug in `MongoEngineUserDatastore` where user model would not be updated "
+"when using the `add_role_to_user` method"
 msgstr ""
 
 #: ../../../CHANGES:84
 msgid ""
-"Added `SECURITY_SEND_PASSWORD_CHANGE_EMAIL` configuration option to "
-"optionally disable password change email from being sent"
+"Added `SECURITY_SEND_PASSWORD_CHANGE_EMAIL` configuration option to optionally "
+"disable password change email from being sent"
 msgstr ""
 
 #: ../../../CHANGES:85
@@ -326,8 +322,7 @@ msgstr ""
 
 #: ../../../CHANGES:110
 msgid ""
-"Ignore validation errors in find_user function for "
-"MongoEngineUserDatastore"
+"Ignore validation errors in find_user function for MongoEngineUserDatastore"
 msgstr ""
 
 #: ../../../CHANGES:114
@@ -344,8 +339,8 @@ msgstr ""
 
 #: ../../../CHANGES:119
 msgid ""
-"Fixed email confirmation bug that prevented logged in users from "
-"confirming their email"
+"Fixed email confirmation bug that prevented logged in users from confirming "
+"their email"
 msgstr ""
 
 #: ../../../CHANGES:123
@@ -382,8 +377,8 @@ msgstr ""
 
 #: ../../../CHANGES:143
 msgid ""
-"Added `SECURITY_DEFAULT_REMEMBER_ME` configuration value to unify "
-"behavior between endpoints"
+"Added `SECURITY_DEFAULT_REMEMBER_ME` configuration value to unify behavior "
+"between endpoints"
 msgstr ""
 
 #: ../../../CHANGES:144
@@ -392,8 +387,8 @@ msgstr ""
 
 #: ../../../CHANGES:145
 msgid ""
-"Added optional `next` parameter to registration endpoint, similar to that"
-" of login"
+"Added optional `next` parameter to registration endpoint, similar to that of "
+"login"
 msgstr ""
 
 #: ../../../CHANGES:149
@@ -446,8 +441,8 @@ msgstr ""
 
 #: ../../../CHANGES:178
 msgid ""
-"Password hashing is now more flexible and can be changed to a different "
-"type at will"
+"Password hashing is now more flexible and can be changed to a different type at "
+"will"
 msgstr ""
 
 #: ../../../CHANGES:179
@@ -472,8 +467,8 @@ msgstr ""
 
 #: ../../../CHANGES:184
 msgid ""
-"Added the user to the request context when successfully authenticated via"
-" http basic and token auth"
+"Added the user to the request context when successfully authenticated via http "
+"basic and token auth"
 msgstr ""
 
 #: ../../../CHANGES:185
@@ -482,8 +477,7 @@ msgstr ""
 
 #: ../../../CHANGES:186
 msgid ""
-"Redirects to other domains are now not allowed during requests that may "
-"redirect"
+"Redirects to other domains are now not allowed during requests that may redirect"
 msgstr ""
 
 #: ../../../CHANGES:187
@@ -512,8 +506,8 @@ msgstr ""
 
 #: ../../../CHANGES:198
 msgid ""
-"Fix bug in forms with `csrf_enabled` parameter not accounting attempts to"
-" login using JSON data"
+"Fix bug in forms with `csrf_enabled` parameter not accounting attempts to login "
+"using JSON data"
 msgstr ""
 
 #: ../../../CHANGES:202
@@ -570,9 +564,9 @@ msgstr ""
 
 #: ../../../CHANGES:229
 msgid ""
-"Major release. Upgrading from previous versions will require a bit of "
-"work to accomodate API changes. See documentation for a list of new "
-"features and for help on how to upgrade."
+"Major release. Upgrading from previous versions will require a bit of work to "
+"accomodate API changes. See documentation for a list of new features and for "
+"help on how to upgrade."
 msgstr ""
 
 #: ../../../CHANGES:234
@@ -597,8 +591,8 @@ msgstr ""
 
 #: ../../../CHANGES:245
 msgid ""
-"Fixed bug where `roles_required` and `roles_accepted` did not pass the "
-"next argument to the login view"
+"Fixed bug where `roles_required` and `roles_accepted` did not pass the next "
+"argument to the login view"
 msgstr ""
 
 #: ../../../CHANGES:249
@@ -627,9 +621,8 @@ msgstr ""
 
 #: ../../../CHANGES:261
 msgid ""
-"Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to "
-"a boolean value to specify if Flask-Security should flash messages or "
-"not."
+"Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to a "
+"boolean value to specify if Flask-Security should flash messages or not."
 msgstr ""
 
 #: ../../../CHANGES:265
@@ -639,4 +632,3 @@ msgstr ""
 #: ../../../CHANGES:267
 msgid "Initial release"
 msgstr ""
-

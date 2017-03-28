@@ -4,282 +4,303 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 10:58+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-03-28 11:58+0800\n"
+"PO-Revision-Date: 2017-03-28 15:16+0800\n"
+"Last-Translator: \n"
+"Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../customizing.rst:2
 msgid "Customizing Views"
-msgstr ""
+msgstr "自定义视图"
 
 #: ../../customizing.rst:4
 msgid ""
-"Flask-Security bootstraps your application with various views for "
-"handling its configured features to get you up and running as quickly as "
-"possible. However, you'll probably want to change the way these views "
-"look to be more in line with your application's visual design."
+"Flask-Security bootstraps your application with various views for handling its "
+"configured features to get you up and running as quickly as possible. However, "
+"you'll probably want to change the way these views look to be more in line with "
+"your application's visual design."
 msgstr ""
+"Flask-Security 为你的应用引入了多种多样的视图去处理已配置的特性, 让其能最快的启"
+"动并运行.\n"
+"但是, 你可能需要修改视图的样子, 使其更符合你应用的视觉设计."
 
 #: ../../customizing.rst:11
 msgid "Views"
-msgstr ""
+msgstr "视图"
 
 #: ../../customizing.rst:13
 msgid ""
-"Flask-Security is packaged with a default template for each view it "
-"presents to a user. Templates are located within a subfolder named "
-"``security``. The following is a list of view templates:"
+"Flask-Security is packaged with a default template for each view it presents to "
+"a user. Templates are located within a subfolder named ``security``. The "
+"following is a list of view templates:"
 msgstr ""
+"Flask-Security 为每个呈现给用户的视图打包了默认的模板. 这些模板位于叫做 "
+"``security`` 的子文件夹下. 下面是视图的模板列表:"
 
 #: ../../customizing.rst:17
 msgid "`security/forgot_password.html`"
-msgstr ""
+msgstr "`security/forgot_password.html`"
 
 #: ../../customizing.rst:18
 msgid "`security/login_user.html`"
-msgstr ""
+msgstr "`security/login_user.html`"
 
 #: ../../customizing.rst:19
 msgid "`security/register_user.html`"
-msgstr ""
+msgstr "`security/register_user.html`"
 
 #: ../../customizing.rst:20
 msgid "`security/reset_password.html`"
-msgstr ""
+msgstr "`security/reset_password.html`"
 
 #: ../../customizing.rst:21
 msgid "`security/change_password.html`"
-msgstr ""
+msgstr "`security/change_password.html`"
 
 #: ../../customizing.rst:22
 msgid "`security/send_confirmation.html`"
-msgstr ""
+msgstr "`security/send_confirmation.html`"
 
 #: ../../customizing.rst:23
 msgid "`security/send_login.html`"
-msgstr ""
+msgstr "`security/send_login.html`"
 
 #: ../../customizing.rst:25 ../../customizing.rst:126
 msgid "Overriding these templates is simple:"
-msgstr ""
+msgstr "重写这些模板很简单:"
 
 #: ../../customizing.rst:27 ../../customizing.rst:128
 msgid ""
-"Create a folder named ``security`` within your application's templates "
-"folder"
-msgstr ""
+"Create a folder named ``security`` within your application's templates folder"
+msgstr "在你应用的模板文件夹下, 创建一个叫做 ``security`` 的文件夹"
 
 #: ../../customizing.rst:28 ../../customizing.rst:130
 msgid "Create a template with the same name for the template you wish to override"
-msgstr ""
+msgstr "创建一个模板文件, 名字和你想重写的模板相同"
 
 #: ../../customizing.rst:30
 msgid ""
-"You can also specify custom template file paths in the "
-":doc:`configuration <configuration>`."
-msgstr ""
+"You can also specify custom template file paths in the :doc:`configuration "
+"<configuration>`."
+msgstr "你也可以在 :doc:`配置 <configuration>` 中自定义模板文件路径."
 
 #: ../../customizing.rst:32
 msgid ""
-"Each template is passed a template context object that includes the "
-"following, including the objects/values that are passed to the template "
-"by the main Flask application context processor:"
+"Each template is passed a template context object that includes the following, "
+"including the objects/values that are passed to the template by the main Flask "
+"application context processor:"
 msgstr ""
+"每个模板都被传递一个包含以下内容的模板上下文对象, 包括通过Flask主应用上下文处理"
+"器传递的 对象 或 值 :"
 
 #: ../../customizing.rst:36
 msgid "``<template_name>_form``: A form object for the view"
-msgstr ""
+msgstr "``<template_name>_form``: 视图的一个表单对象"
 
 #: ../../customizing.rst:37
 msgid "``security``: The Flask-Security extension object"
-msgstr ""
+msgstr "``security``: Flask-Security 的扩展对象"
 
 #: ../../customizing.rst:39
 msgid ""
-"To add more values to the template context, you can specify a context "
-"processor for all views or a specific view. For example::"
+"To add more values to the template context, you can specify a context processor "
+"for all views or a specific view. For example::"
 msgstr ""
+"为了增加更多的值给模板上下文, 你可以指定一个上下文处理器给所有视图或某个指定的视"
+"图, 例如:"
 
 #: ../../customizing.rst:54
 msgid "The following is a list of all the available context processor decorators:"
-msgstr ""
+msgstr "下列是所有可用的上下文处理器装饰器:"
 
 #: ../../customizing.rst:56
 msgid "``context_processor``: All views"
-msgstr ""
+msgstr "``context_processor``: 所有视图"
 
 #: ../../customizing.rst:57
 msgid "``forgot_password_context_processor``: Forgot password view"
-msgstr ""
+msgstr "``forgot_password_context_processor``: 忘记密码视图"
 
 #: ../../customizing.rst:58
 msgid "``login_context_processor``: Login view"
-msgstr ""
+msgstr "``login_context_processor``: 登录视图"
 
 #: ../../customizing.rst:59
 msgid "``register_context_processor``: Register view"
-msgstr ""
+msgstr "``register_context_processor``: 注册视图"
 
 #: ../../customizing.rst:60
 msgid "``reset_password_context_processor``: Reset password view"
-msgstr ""
+msgstr "``reset_password_context_processor``: 重置密码视图"
 
 #: ../../customizing.rst:61
-msgid "``change_password_context_processor``: Reset password view"
-msgstr ""
+msgid "``change_password_context_processor``: Change password view"
+msgstr "``change_password_context_processor``: 修改密码视图"
 
 #: ../../customizing.rst:62
 msgid "``send_confirmation_context_processor``: Send confirmation view"
-msgstr ""
+msgstr "``send_confirmation_context_processor``: 发送验证视图"
 
 #: ../../customizing.rst:63
 msgid "``send_login_context_processor``: Send login view"
-msgstr ""
+msgstr "``send_login_context_processor``: 发送登录视图"
 
 #: ../../customizing.rst:67
 msgid "Forms"
-msgstr ""
+msgstr "表单"
 
 #: ../../customizing.rst:69
 msgid ""
-"All forms can be overridden. For each form used, you can specify a "
-"replacement class. This allows you to add extra fields to the register "
-"form or override validators::"
+"All forms can be overridden. For each form used, you can specify a replacement "
+"class. This allows you to add extra fields to the register form or override "
+"validators::"
 msgstr ""
+"所有的表单可以被重写. 你可以给每个被使用的表单指定一个代替的类. 这将允许你给注册"
+"表单增加额外的字段或者重写验证器:"
 
 #: ../../customizing.rst:82
 msgid ""
-"For the ``register_form`` and ``confirm_register_form``, each field is "
-"passed to the user model (as kwargs) when a user is created. In the above"
-" case, the ``first_name`` and ``last_name`` fields are passed directly to"
-" the model, so the model should look like::"
+"For the ``register_form`` and ``confirm_register_form``, each field is passed "
+"to the user model (as kwargs) when a user is created. In the above case, the "
+"``first_name`` and ``last_name`` fields are passed directly to the model, so "
+"the model should look like::"
 msgstr ""
+"对于 ``register_form`` 和 ``confirm_register_form``, 当一个用户被创建时, 每个字"
+"段都会被传输到用户模型 ( 作为 kwargs ). 上面的例子中的 ``first_name`` 和 "
+"``last_name`` 被直接传递到模型, 所以模型看起来应该像这样:"
 
 #: ../../customizing.rst:94
 msgid "The following is a list of all the available form overrides:"
-msgstr ""
+msgstr "下面下列是所有可重写的表单:"
 
 #: ../../customizing.rst:96
 msgid "``login_form``: Login form"
-msgstr ""
+msgstr "``login_form``: 登录表单"
 
 #: ../../customizing.rst:97
 msgid "``confirm_register_form``: Confirmable register form"
-msgstr ""
+msgstr "``confirm_register_form``: 验证注册表单"
 
 #: ../../customizing.rst:98
 msgid "``register_form``: Register form"
-msgstr ""
+msgstr "``register_form``: 注册表单"
 
 #: ../../customizing.rst:99
 msgid "``forgot_password_form``: Forgot password form"
-msgstr ""
+msgstr "``forgot_password_form``: 忘记密码表单"
 
 #: ../../customizing.rst:100
 msgid "``reset_password_form``: Reset password form"
-msgstr ""
+msgstr "``reset_password_form``: 重置密码表单"
 
 #: ../../customizing.rst:101
-msgid "``change_password_form``: Reset password form"
-msgstr ""
+msgid "``change_password_form``: Change password form"
+msgstr "``change_password_form``: 修改密码表单"
 
 #: ../../customizing.rst:102
 msgid "``send_confirmation_form``: Send confirmation form"
-msgstr ""
+msgstr "``send_confirmation_form``: 发送验证表单"
 
 #: ../../customizing.rst:103
 msgid "``passwordless_login_form``: Passwordless login form"
-msgstr ""
+msgstr "``passwordless_login_form``: 无密码登录表单"
 
 #: ../../customizing.rst:107
 msgid "Emails"
-msgstr ""
+msgstr "邮件"
 
 #: ../../customizing.rst:109
 msgid ""
-"Flask-Security is also packaged with a default template for each email "
-"that it may send. Templates are located within the subfolder named "
-"``security/email``. The following is a list of email templates:"
+"Flask-Security is also packaged with a default template for each email that it "
+"may send. Templates are located within the subfolder named ``security/email``. "
+"The following is a list of email templates:"
 msgstr ""
+"Flask-Security 也同样打包了默认模板给可能被发送的邮件使用. 这些模板被放置在叫做 "
+"``security/email`` 的子文件夹中. 下面时邮件模板列表:"
 
 #: ../../customizing.rst:113
 msgid "`security/email/confirmation_instructions.html`"
-msgstr ""
+msgstr "`security/email/confirmation_instructions.html`"
 
 #: ../../customizing.rst:114
 msgid "`security/email/confirmation_instructions.txt`"
-msgstr ""
+msgstr "`security/email/confirmation_instructions.txt`"
 
 #: ../../customizing.rst:115
 msgid "`security/email/login_instructions.html`"
-msgstr ""
+msgstr "`security/email/login_instructions.html`"
 
 #: ../../customizing.rst:116
 msgid "`security/email/login_instructions.txt`"
-msgstr ""
+msgstr "`security/email/login_instructions.txt`"
 
 #: ../../customizing.rst:117
 msgid "`security/email/reset_instructions.html`"
-msgstr ""
+msgstr "`security/email/reset_instructions.html`"
 
 #: ../../customizing.rst:118
 msgid "`security/email/reset_instructions.txt`"
-msgstr ""
+msgstr "`security/email/reset_instructions.txt`"
 
 #: ../../customizing.rst:119
 msgid "`security/email/reset_notice.html`"
-msgstr ""
+msgstr "`security/email/reset_notice.html`"
 
 #: ../../customizing.rst:120
 msgid "`security/email/change_notice.txt`"
-msgstr ""
+msgstr "`security/email/change_notice.txt`"
 
 #: ../../customizing.rst:121
 msgid "`security/email/change_notice.html`"
-msgstr ""
+msgstr "`security/email/change_notice.html`"
 
 #: ../../customizing.rst:122
 msgid "`security/email/reset_notice.txt`"
-msgstr ""
+msgstr "`security/email/reset_notice.txt`"
 
 #: ../../customizing.rst:123
 msgid "`security/email/welcome.html`"
-msgstr ""
+msgstr "`security/email/welcome.html`"
 
 #: ../../customizing.rst:124
 msgid "`security/email/welcome.txt`"
-msgstr ""
+msgstr "`security/email/welcome.txt`"
 
 #: ../../customizing.rst:129
 msgid "Create a folder named ``email`` within the ``security`` folder"
-msgstr ""
+msgstr "创建一个叫做 ``email`` 的文件夹在 ``security`` 文件夹中"
 
 #: ../../customizing.rst:132
 msgid ""
-"Each template is passed a template context object that includes values "
-"for any links that are required in the email. If you require more values "
-"in the templates, you can specify an email context processor with the "
+"Each template is passed a template context object that includes values for any "
+"links that are required in the email. If you require more values in the "
+"templates, you can specify an email context processor with the "
 "``mail_context_processor`` decorator. For example::"
 msgstr ""
+"每个模板都被传递一个模板上下文对象, 这个模板上下文对象包含任何邮件需要的链接的"
+"值. 如果你想要在模板中有更多的值, 你可以使用 ``mail_context_processor`` 装饰器来"
+"指定一个邮箱上下文处理器. 举个例子:"
 
 #: ../../customizing.rst:146
 msgid "Emails with Celery"
-msgstr ""
+msgstr "使用 Celery 发送邮件"
 
 #: ../../customizing.rst:148
 msgid ""
-"Sometimes it makes sense to send emails via a task queue, such as "
-"`Celery`_. To delay the sending of emails, you can use the "
-"``@security.send_mail_task`` decorator like so::"
+"Sometimes it makes sense to send emails via a task queue, such as `Celery`_. To "
+"delay the sending of emails, you can use the ``@security.send_mail_task`` "
+"decorator like so::"
 msgstr ""
-
+"有时候使用任务队列发送邮件很有意义, 例如  `Celery`_.  为了延期邮件的发送, 你可以"
+"像这样使用 ``@security.send_mail_task`` 装饰器:"

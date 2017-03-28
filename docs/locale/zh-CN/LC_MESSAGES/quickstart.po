@@ -4,111 +4,116 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 10:58+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"PO-Revision-Date: 2017-03-28 15:15+0800\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../quickstart.rst:2
 msgid "Quick Start"
-msgstr ""
+msgstr "快速开始"
 
 #: ../../quickstart.rst:4
 msgid "`Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_"
-msgstr ""
+msgstr "`基于 SQLAlchemy 的基础应用 <#id1>`_"
 
 #: ../../quickstart.rst:5
 msgid "`Basic MongoEngine Application <#basic-mongoengine-application>`_"
-msgstr ""
+msgstr "`基于 MongoEngine 的基础应用 <#id2>`_"
 
 #: ../../quickstart.rst:6
 msgid "`Basic Peewee Application <#basic-peewee-application>`_"
-msgstr ""
+msgstr "`基于 Peewee 的基础应用 <#id3>`_"
 
 #: ../../quickstart.rst:7
 msgid "`Mail Configuration <#mail-configuration>`_"
-msgstr ""
+msgstr "`邮件配置 <#id4>`_"
 
 #: ../../quickstart.rst:10
 msgid "Basic SQLAlchemy Application"
-msgstr ""
+msgstr "基于 SQLAlchemy 的基础应用"
 
 #: ../../quickstart.rst:13
 msgid "SQLAlchemy Install requirements"
-msgstr ""
+msgstr "SQLAlchemy 依赖安装"
 
 #: ../../quickstart.rst:22
 msgid "SQLAlchemy Application"
-msgstr ""
+msgstr "SQLAlchemy 应用"
 
 #: ../../quickstart.rst:24
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
 "possible using SQLAlchemy:"
-msgstr ""
+msgstr "下面的代码简单的演示了如何快速开始基于 SQLAlchemy 的应用:"
 
 #: ../../quickstart.rst:84
 msgid "Basic MongoEngine Application"
-msgstr ""
+msgstr "基于 MongoEngine 的基础应用"
 
 #: ../../quickstart.rst:87
 msgid "MongoEngine Install requirements"
-msgstr ""
+msgstr "MongoEngine 依赖安装"
 
 #: ../../quickstart.rst:95
 msgid "MongoEngine Application"
-msgstr ""
+msgstr "MongoEngine 应用"
 
 #: ../../quickstart.rst:97
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
 "possible using MongoEngine:"
-msgstr ""
+msgstr "下面的代码简单的演示了如何快速开始基于 MongoEngine 的应用:"
 
 #: ../../quickstart.rst:151
 msgid "Basic Peewee Application"
-msgstr ""
+msgstr "基于 Peewee 的基础应用"
 
 #: ../../quickstart.rst:154
 msgid "Peewee Install requirements"
-msgstr ""
+msgstr "Peewee 依赖安装"
 
 #: ../../quickstart.rst:162
 msgid "Peewee Application"
-msgstr ""
+msgstr "Peewee 应用"
 
 #: ../../quickstart.rst:164
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
 "possible using Peewee:"
-msgstr ""
+msgstr "下面的代码简单的演示了如何快速开始基于 Peewee 的应用:"
 
 #: ../../quickstart.rst:229
 msgid "Mail Configuration"
-msgstr ""
+msgstr "邮件配置"
 
 #: ../../quickstart.rst:231
 msgid ""
 "Flask-Security integrates with Flask-Mail to handle all email "
 "communications between user and site, so it's important to configure "
-"Flask-Mail with your email server details so Flask-Security can talk with"
-" Flask-Mail correctly."
+"Flask-Mail with your email server details so Flask-Security can talk "
+"with Flask-Mail correctly."
 msgstr ""
+"Flask-Security 集成了 Flask-Mail 去处理所有用户和网站间的通讯,\n"
+"所以将你的邮件服务器信息配置到 Flask-Mail 是很重要的.\n"
+"这样 Flask-Security 才可以和 Flask-Mail 正确的通信."
 
 #: ../../quickstart.rst:236
 msgid ""
-"The following code illustrates a basic setup, which could be added to the"
-" basic application code in the previous section::"
+"The following code illustrates a basic setup, which could be added to "
+"the basic application code in the previous section::"
 msgstr ""
+"下面的代码演示了基础的设置, 可以加入到之前的所演示的基础应用代码中使用:"
 
 #: ../../quickstart.rst:250
 msgid ""
@@ -116,4 +121,6 @@ msgid ""
 "work with your particular email server configuration, please see the "
 "`Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_."
 msgstr ""
-
+"想要了解更多原生配置选项,配置 Flask-Mail 并使其工作于你的特殊的邮件服务"
+"器,请看\n"
+"`Flask-Mail 文档 <http://packages.python.org/Flask-Mail/>`_."
