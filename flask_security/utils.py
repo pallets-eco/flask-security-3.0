@@ -168,7 +168,6 @@ def hash_data(data):
     ctx = CryptContext(schemes=['sha512_crypt', 'hex_md5'],
                        deprecated=['hex_md5'])
     return ctx.hash(encode_string(data))
-    # return hashlib.sha512(encode_string(data)).hexdigest()
 
 
 def verify_hash(hashed_data, compare_data):

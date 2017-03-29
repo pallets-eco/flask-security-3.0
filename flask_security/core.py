@@ -196,7 +196,7 @@ def _token_loader(token):
         data = _security.remember_token_serializer.loads(
             token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
-        if user and (verify_hash(data[1], user.password)):
+        if user and verify_hash(data[1], user.password):
             return user
     except:
         pass
