@@ -13,7 +13,8 @@ from flask_security.forms import LoginForm, RegisterForm, ConfirmRegisterForm, \
     SendConfirmationForm, PasswordlessLoginForm, ForgotPasswordForm, ResetPasswordForm, \
     ChangePasswordForm, StringField, PasswordField, email_required, email_validator, \
     valid_user_email
-from flask_security.utils import capture_reset_password_requests, hash_data, string_types
+from flask_security.utils import capture_reset_password_requests, hash_data, \
+    string_types, verify_hash
 
 from utils import authenticate, init_app_with_options, populate_data
 
@@ -183,6 +184,12 @@ def test_hash_data():
     assert isinstance(data, string_types)
     data = hash_data(u'hellö')
     assert isinstance(data, string_types)
+
+
+def test_verify_hash():
+    data = hash_data(u'hellö')
+    assert verify_hash(data, u'hellö') is True
+    assert verify_hash(data, u'hello') is False
 
 
 @pytest.mark.settings(password_salt=u'öööööööööööööööööööööööööööööööööö',
