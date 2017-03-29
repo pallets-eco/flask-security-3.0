@@ -37,6 +37,12 @@ Core
                                          used if the password hash type is set
                                          to something other than plain text.
                                          Defaults to ``None``.
+``SECURITY_HASHING_SCHEMES``             List of algorithms used for
+                                         creating and validating tokens.
+                                         Defaults to ``sha256_crypt``.
+``SECURITY_DEPRECATED_HASHING_SCHEMES``  List of deprecated algorithms used for
+                                         creating and validating tokens.
+                                         Defaults to ``hex_md5``.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
                                          emails as. Defaults to
                                          ``no-reply@localhost``.

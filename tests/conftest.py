@@ -391,6 +391,13 @@ def client(request, sqlalchemy_app):
     return app.test_client()
 
 
+@pytest.yield_fixture()
+def in_app_context(request, sqlalchemy_app):
+    app = sqlalchemy_app()
+    with app.app_context():
+        yield app
+
+
 @pytest.fixture()
 def get_message(app):
     def fn(key, **kwargs):

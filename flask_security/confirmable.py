@@ -15,7 +15,7 @@ from werkzeug.local import LocalProxy
 
 from .signals import confirm_instructions_sent, user_confirmed
 from .utils import config_value, get_token_status, hash_data, send_mail, \
-    url_for_security
+    url_for_security, verify_hash
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -75,8 +75,8 @@ def confirm_email_token_status(token):
     expired, invalid, user, token_data = \
         get_token_status(token, 'confirm', 'CONFIRM_EMAIL', return_data=True)
     if not invalid and user:
-        user_id, token_email_md5 = token_data
-        invalid = md5(user.email) != token_email_md5
+        user_id, token_email_hash = token_data
+        invalid = not verify_hash(token_email_hash, user.email)
     return expired, invalid, user
 
 

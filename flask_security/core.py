@@ -109,6 +109,11 @@ _default_config = {
         'plaintext'
     ],
     'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'HASHING_SCHEMES': [
+        'sha256_crypt',
+        'hex_md5',
+    ],
+    'DEPRECATED_HASHING_SCHEMES': ['hex_md5'],
     'DATETIME_FACTORY': datetime.utcnow,
 }
 
@@ -276,11 +281,19 @@ def _get_pwd_context(app):
     if pw_hash not in schemes:
         allowed = (', '.join(schemes[:-1]) + ' and ' + schemes[-1])
         raise ValueError(
-            "Invalid hash scheme %r. Allowed values are %s" %
+            "Invalid password hashing scheme %r. Allowed values are %s" %
             (pw_hash, allowed))
     return CryptContext(
         schemes=schemes,
         default=pw_hash,
+        deprecated=deprecated)
+
+
+def _get_hashing_context(app):
+    schemes = cv('HASHING_SCHEMES', app=app)
+    deprecated = cv('DEPRECATED_HASHING_SCHEMES', app=app)
+    return CryptContext(
+        schemes=schemes,
         deprecated=deprecated)
 
 
@@ -300,6 +313,7 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         login_manager=_get_login_manager(app, anonymous_user),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
+        hashing_context=_get_hashing_context(app),
         remember_token_serializer=_get_serializer(app, 'remember'),
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),

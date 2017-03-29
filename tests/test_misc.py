@@ -6,6 +6,7 @@
     Email functionality tests
 """
 
+import hashlib
 import pytest
 from utils import authenticate, init_app_with_options, populate_data
 
@@ -14,8 +15,8 @@ from flask_security.forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordField, PasswordlessLoginForm, \
     RegisterForm, ResetPasswordForm, SendConfirmationForm, StringField, \
     email_required, email_validator, valid_user_email
-from flask_security.utils import capture_reset_password_requests, hash_data, \
-    string_types, verify_hash
+from flask_security.utils import capture_reset_password_requests, \
+    encode_string, hash_data, string_types, verify_hash
 
 
 @pytest.mark.recoverable()
@@ -193,17 +194,35 @@ def test_change_hash_type(app, sqlalchemy_datastore):
     assert response.status_code == 302
 
 
-def test_hash_data():
+@pytest.mark.settings(
+    hashing_schemes=['hex_md5'],
+    deprecated_hashing_schemes=[],
+)
+@pytest.mark.parametrize('data', [
+    u'hellö',
+    b'hello',
+])
+def test_legacy_hash(in_app_context, data):
+    legacy_hash = hashlib.md5(encode_string(data)).hexdigest()
+    new_hash = hash_data(data)
+    assert legacy_hash == new_hash
+
+
+def test_hash_data(in_app_context):
     data = hash_data(b'hello')
     assert isinstance(data, string_types)
     data = hash_data(u'hellö')
     assert isinstance(data, string_types)
 
 
-def test_verify_hash():
+def test_verify_hash(in_app_context):
     data = hash_data(u'hellö')
     assert verify_hash(data, u'hellö') is True
     assert verify_hash(data, u'hello') is False
+
+    legacy_data = hashlib.md5(encode_string(u'hellö')).hexdigest()
+    assert verify_hash(legacy_data, u'hellö') is True
+    assert verify_hash(legacy_data, u'hello') is False
 
 
 @pytest.mark.settings(password_salt=u'öööööööööööööööööööööööööööööööööö',
