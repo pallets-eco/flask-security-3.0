@@ -71,6 +71,8 @@ Utils
 
 .. autofunction:: flask_security.utils.encrypt_password
 
+.. autofunction:: flask_security.utils.hash_password
+
 .. autofunction:: flask_security.utils.url_for_security
 
 .. autofunction:: flask_security.utils.get_within_delta

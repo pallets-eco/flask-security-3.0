@@ -27,12 +27,12 @@ and all roles should be uniquely named. This feature is implemented using the
 control, you can refer to the Flask-Principal `documentation on this topic`_.
 
 
-Password Encryption
--------------------
+Password Hashing
+----------------
 
-Password encryption is enabled with `passlib`_. Passwords are stored in plain
-text by default but you can easily configure the encryption algorithm. You
-should **always use an encryption algorithm** in your production environment.
+Password hashing is enabled with `passlib`_. Passwords are stored in plain
+text by default but you can easily configure the hashing algorithm. You
+should **always use an hashing algorithm** in your production environment.
 You may also specify to use HMAC with a configured salt value in addition to the
 algorithm chosen. Bear in mind passlib does not assume which algorithm you will
 choose and may require additional libraries to be installed.

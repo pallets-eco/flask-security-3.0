@@ -17,7 +17,7 @@ from flask import current_app
 from flask_script import Command, Option
 from werkzeug.local import LocalProxy
 
-from .utils import encrypt_password
+from .utils import hash_password
 
 try:
     import simplejson as json
@@ -65,7 +65,7 @@ class CreateUserCommand(Command):
         form = ConfirmRegisterForm(MultiDict(kwargs), csrf_enabled=False)
 
         if form.validate():
-            kwargs['password'] = encrypt_password(kwargs['password'])
+            kwargs['password'] = hash_password(kwargs['password'])
             _datastore.create_user(**kwargs)
             print('User created successfully.')
             kwargs['password'] = '****'

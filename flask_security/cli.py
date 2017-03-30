@@ -18,7 +18,7 @@ from flask import current_app
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-from .utils import encrypt_password
+from .utils import hash_password
 
 try:
     from flask.cli import with_appcontext
@@ -64,7 +64,7 @@ def users_create(identity, password, active):
     )
 
     if form.validate():
-        kwargs['password'] = encrypt_password(kwargs['password'])
+        kwargs['password'] = hash_password(kwargs['password'])
         kwargs['active'] = active
         _datastore.create_user(**kwargs)
         click.secho('User created successfully.', fg='green')

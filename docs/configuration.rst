@@ -28,11 +28,11 @@ Core
                                          messages during security procedures.
                                          Defaults to ``True``.
 ``SECURITY_PASSWORD_HASH``               Specifies the password hash algorithm to
-                                         use when encrypting and decrypting
-                                         passwords. Recommended values for
-                                         production systems are ``bcrypt``,
-                                         ``sha512_crypt``, or ``pbkdf2_sha512``.
-                                         Defaults to ``plaintext``.
+                                         use when hashing passwords. Recommended
+                                         values for production systems are
+                                         ``bcrypt``, ``sha512_crypt``, or
+                                         ``pbkdf2_sha512``. Defaults to
+                                         ``plaintext``.
 ``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
                                          used if the password hash type is set
                                          to something other than plain text.

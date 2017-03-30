@@ -13,6 +13,7 @@ import base64
 import hashlib
 import hmac
 import sys
+import warnings
 from contextlib import contextmanager
 from datetime import timedelta
 
@@ -148,7 +149,7 @@ def verify_and_update_password(password, user):
     verified, new_password = _pwd_context.verify_and_update(
         password, user.password)
     if verified and new_password:
-        user.password = encrypt_password(password)
+        user.password = hash_password(password)
         _datastore.put(user)
     return verified
 
@@ -158,12 +159,31 @@ def encrypt_password(password):
 
     It uses the configured encryption options.
 
+    .. deprecated:: 2.0.2
+       Use :func:`hash_password` instead.
+
     :param password: The plaintext password to encrypt
+    """
+    warnings.warn(
+        'Please use hash_password instead of encrypt_password.',
+        DeprecationWarning
+    )
+    return hash_password(password)
+
+
+def hash_password(password):
+    """Hash the specified plaintext password.
+
+    It uses the configured hashing options.
+
+    .. versionadded:: 2.0.2
+
+    :param password: The plaintext password to hash
     """
     if _security.password_hash == 'plaintext':
         return password
     signed = get_hmac(password).decode('ascii')
-    return _pwd_context.encrypt(signed)
+    return _pwd_context.hash(signed)
 
 
 def encode_string(string):

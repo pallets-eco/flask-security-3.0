@@ -50,7 +50,7 @@ install_requires = [
     'Flask-Principal>=0.3.3',
     'Flask-WTF>=0.13.1',
     'itsdangerous>=0.21',
-    'passlib>=1.6.4',
+    'passlib>=1.7',
 ]
 
 packages = find_packages()

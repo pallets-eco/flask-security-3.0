@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import generate_confirmation_link
 from .signals import user_registered
-from .utils import config_value, do_flash, encrypt_password, get_message, \
+from .utils import config_value, do_flash, hash_password, get_message, \
     send_mail
 
 # Convenient references
@@ -25,7 +25,7 @@ _datastore = LocalProxy(lambda: _security.datastore)
 
 def register_user(**kwargs):
     confirmation_link, token = None, None
-    kwargs['password'] = encrypt_password(kwargs['password'])
+    kwargs['password'] = hash_password(kwargs['password'])
     user = _datastore.create_user(**kwargs)
     _datastore.commit()
 
