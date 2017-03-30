@@ -14,8 +14,8 @@ from flask_security.forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordField, PasswordlessLoginForm, \
     RegisterForm, ResetPasswordForm, SendConfirmationForm, StringField, \
     email_required, email_validator, valid_user_email
-from flask_security.utils import capture_reset_password_requests, md5, \
-    string_types
+from flask_security.utils import capture_reset_password_requests, hash_data, \
+    string_types, verify_hash
 
 
 @pytest.mark.recoverable()
@@ -193,11 +193,17 @@ def test_change_hash_type(app, sqlalchemy_datastore):
     assert response.status_code == 302
 
 
-def test_md5():
-    data = md5(b'hello')
+def test_hash_data():
+    data = hash_data(b'hello')
     assert isinstance(data, string_types)
-    data = md5(u'hellö')
+    data = hash_data(u'hellö')
     assert isinstance(data, string_types)
+
+
+def test_verify_hash():
+    data = hash_data(u'hellö')
+    assert verify_hash(data, u'hellö') is True
+    assert verify_hash(data, u'hello') is False
 
 
 @pytest.mark.settings(password_salt=u'öööööööööööööööööööööööööööööööööö',

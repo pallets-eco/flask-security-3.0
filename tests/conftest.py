@@ -20,10 +20,9 @@ from flask_mail import Mail
 from utils import Response, populate_data
 
 from flask_security import MongoEngineUserDatastore, PeeweeUserDatastore, \
-    PonyUserDatastore, RoleMixin, Security, SQLAlchemyUserDatastore, \
-    SQLAlchemySessionUserDatastore, UserMixin, auth_required, \
-    auth_token_required, http_auth_required, login_required, \
-    roles_accepted, roles_required
+    PonyUserDatastore, RoleMixin, Security, SQLAlchemySessionUserDatastore, \
+    SQLAlchemyUserDatastore, UserMixin, auth_required, auth_token_required, \
+    http_auth_required, login_required, roles_accepted, roles_required
 
 
 @pytest.fixture()

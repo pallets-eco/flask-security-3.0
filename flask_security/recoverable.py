@@ -11,11 +11,10 @@
 
 from flask import current_app as app
 from werkzeug.local import LocalProxy
-from werkzeug.security import safe_str_cmp
 
 from .signals import password_reset, reset_password_instructions_sent
-from .utils import config_value, hash_password, get_token_status, md5, \
-    send_mail, url_for_security
+from .utils import config_value, get_token_status, hash_data, hash_password, \
+    send_mail, url_for_security, verify_hash
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -57,7 +56,7 @@ def generate_reset_password_token(user):
 
     :param user: The user to work with
     """
-    password_hash = md5(user.password) if user.password else None
+    password_hash = hash_data(user.password) if user.password else None
     data = [str(user.id), password_hash]
     return _security.reset_serializer.dumps(data)
 
@@ -75,8 +74,7 @@ def reset_password_token_status(token):
     )
     if not invalid:
         if user.password:
-            password_hash = md5(user.password)
-            if not safe_str_cmp(password_hash, data[1]):
+            if not verify_hash(data[1], user.password):
                 invalid = True
 
     return expired, invalid, user

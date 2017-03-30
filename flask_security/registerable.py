@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import generate_confirmation_link
 from .signals import user_registered
-from .utils import config_value, do_flash, hash_password, get_message, \
+from .utils import config_value, do_flash, get_message, hash_password, \
     send_mail
 
 # Convenient references

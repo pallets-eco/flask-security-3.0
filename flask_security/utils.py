@@ -24,6 +24,7 @@ from flask_login import logout_user as _logout_user
 from flask_mail import Message
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
+from passlib.context import CryptContext
 from werkzeug.local import LocalProxy
 
 from .signals import login_instructions_sent, \
@@ -196,8 +197,16 @@ def encode_string(string):
     return string
 
 
-def md5(data):
-    return hashlib.md5(encode_string(data)).hexdigest()
+def hash_data(data):
+    ctx = CryptContext(schemes=['sha512_crypt', 'hex_md5'],
+                       deprecated=['hex_md5'])
+    return ctx.hash(encode_string(data))
+
+
+def verify_hash(hashed_data, compare_data):
+    ctx = CryptContext(schemes=['sha512_crypt', 'hex_md5'],
+                       deprecated=['hex_md5'])
+    return ctx.verify(compare_data, hashed_data)
 
 
 def do_flash(message, category=None):
