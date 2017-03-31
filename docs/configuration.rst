@@ -37,6 +37,13 @@ Core
                                          used if the password hash type is set
                                          to something other than plain text.
                                          Defaults to ``None``.
+``SECURITY_PASSWORD_SINGLE_HASH``        Specifies that passwords should only be
+                                         hashed once. By default, passwords are
+                                         hashed twice, first with
+                                         ``SECURITY_PASSWORD_SALT``, and then
+                                         with a random salt. May be useful for
+                                         integrating with other applications.
+                                         Defaults to ``False``.
 ``SECURITY_HASHING_SCHEMES``             List of algorithms used for
                                          creating and validating tokens.
                                          Defaults to ``sha256_crypt``.

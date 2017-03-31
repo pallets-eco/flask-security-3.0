@@ -130,7 +130,7 @@ def verify_password(password, password_hash):
     :param password_hash: The expected hash value of the password
                           (usually from your database)
     """
-    if _security.password_hash != 'plaintext':
+    if use_double_hash():
         password = get_hmac(password)
 
     return _pwd_context.verify(password, password_hash)
@@ -145,12 +145,16 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
+    if use_double_hash():
+        verified = (
+            _pwd_context.verify(get_hmac(password), user.password) or
+            _pwd_context.verify(password, user.password)
+        )
+    else:
+        # Try with original password.
+        verified = _pwd_context.verify(password, user.password)
 
-    if _pwd_context.identify(user.password) != 'plaintext':
-        password = get_hmac(password)
-    verified, new_password = _pwd_context.verify_and_update(
-        password, user.password)
-    if verified and new_password:
+    if verified and _pwd_context.needs_update(user.password):
         user.password = hash_password(password)
         _datastore.put(user)
     return verified
@@ -182,10 +186,9 @@ def hash_password(password):
 
     :param password: The plaintext password to hash
     """
-    if _security.password_hash == 'plaintext':
-        return password
-    signed = get_hmac(password).decode('ascii')
-    return _pwd_context.hash(signed)
+    if use_double_hash():
+        password = get_hmac(password).decode('ascii')
+    return _pwd_context.hash(password)
 
 
 def encode_string(string):
@@ -431,6 +434,15 @@ def get_identity_attributes(app=None):
     except AttributeError:
         pass
     return attrs
+
+
+def use_double_hash():
+    """Return a bool indicating whether a password should be hashed twice."""
+    single_hash = config_value('PASSWORD_SINGLE_HASH')
+    if single_hash and _security.password_salt:
+        raise RuntimeError('You may not specify a salt with '
+                           'SECURITY_PASSWORD_SINGLE_HASH')
+    return not (_security.password_hash == 'plaintext' or single_hash)
 
 
 @contextmanager

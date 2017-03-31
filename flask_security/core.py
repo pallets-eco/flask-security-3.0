@@ -44,6 +44,7 @@ _default_config = {
     'FLASH_MESSAGES': True,
     'PASSWORD_HASH': 'plaintext',
     'PASSWORD_SALT': None,
+    'PASSWORD_SINGLE_HASH': False,
     'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
