@@ -42,7 +42,7 @@ _default_config = {
     'URL_PREFIX': None,
     'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
-    'PASSWORD_HASH': 'plaintext',
+    'PASSWORD_HASH': 'bcrypt',
     'PASSWORD_SALT': None,
     'PASSWORD_SINGLE_HASH': False,
     'LOGIN_URL': '/login',

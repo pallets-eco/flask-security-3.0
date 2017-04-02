@@ -164,6 +164,8 @@ def test_invalid_hash_scheme(app, sqlalchemy_datastore, get_message):
 
 def test_change_hash_type(app, sqlalchemy_datastore):
     init_app_with_options(app, sqlalchemy_datastore, **{
+        'SECURITY_PASSWORD_HASH': 'plaintext',
+        'SECURITY_PASSWORD_SALT': None,
         'SECURITY_PASSWORD_SCHEMES': ['bcrypt', 'plaintext']
     })
 

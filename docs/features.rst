@@ -30,12 +30,12 @@ control, you can refer to the Flask-Principal `documentation on this topic`_.
 Password Hashing
 ----------------
 
-Password hashing is enabled with `passlib`_. Passwords are stored in plain
-text by default but you can easily configure the hashing algorithm. You
-should **always use an hashing algorithm** in your production environment.
-You may also specify to use HMAC with a configured salt value in addition to the
-algorithm chosen. Bear in mind passlib does not assume which algorithm you will
-choose and may require additional libraries to be installed.
+Password hashing is enabled with `passlib`_. Passwords are hashed with the
+`bcrypt`_ function by default but you can easily configure the hashing
+algorithm. You should **always use an hashing algorithm** in your production
+environment. You may also specify to use HMAC with a configured salt value in
+addition to the algorithm chosen. Bear in mind passlib does not assume which
+algorithm you will choose and may require additional libraries to be installed.
 
 
 Basic HTTP Authentication
@@ -134,3 +134,4 @@ Run ``flask --help`` and look for users and roles.
 .. _Flask-Principal: http://packages.python.org/Flask-Principal/
 .. _documentation on this topic: http://packages.python.org/Flask-Principal/#granular-resource-protection
 .. _passlib: http://packages.python.org/passlib/
+.. _bcrypt: https://en.wikipedia.org/wiki/Bcrypt

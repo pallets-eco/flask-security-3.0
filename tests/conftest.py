@@ -35,6 +35,8 @@ def app(request):
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
 
+    app.config['SECURITY_PASSWORD_SALT'] = 'salty'
+
     for opt in ['changeable', 'recoverable', 'registerable',
                 'trackable', 'passwordless', 'confirmable']:
         app.config['SECURITY_' + opt.upper()] = opt in request.keywords
