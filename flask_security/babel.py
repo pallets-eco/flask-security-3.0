@@ -1,12 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+    flask_security.babel
+    ~~~~~~~~~~~~~~~~~~~~
+
+    I18N support for Flask-Security.
+"""
+
+import pkg_resources
+
 from flask_babelex import Domain
-from flask_security import translations
 from wtforms.i18n import messages_path
 
 
 class CustomDomain(Domain):
     def __init__(self):
         super(CustomDomain, self).__init__(
-            translations.__path__[0], domain='security')
+            pkg_resources.resource_filename('flask_security', 'translations'),
+            domain='flask_security'
+        )
 
 domain = CustomDomain()
 
@@ -19,7 +30,7 @@ wtforms_domain = Domain(messages_path(), domain='wtforms')
 
 
 class Translations(object):
-    ''' Fixes WTForms translation support and uses wtforms translations '''
+    """Fixes WTForms translation support and uses wtforms translations."""
 
     def gettext(self, string):
         return wtforms_domain.gettext(string)

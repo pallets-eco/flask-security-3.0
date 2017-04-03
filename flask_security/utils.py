@@ -26,6 +26,7 @@ from flask_principal import AnonymousIdentity, Identity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
+from .babel import lazy_gettext
 from .signals import login_instructions_sent, \
     reset_password_instructions_sent, user_registered
 
@@ -322,7 +323,7 @@ def get_config(app):
 
 def get_message(key, **kwargs):
     rv = config_value('MSG_' + key)
-    return rv[0] % kwargs, rv[1]
+    return lazy_gettext(rv[0], **kwargs), rv[1]
 
 
 def config_value(key, app=None, default=None):

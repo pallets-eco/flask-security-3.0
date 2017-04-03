@@ -3,6 +3,7 @@ include AUTHORS
 include CHANGES
 include LICENSE
 include README.rst
+include babel.ini
 include pytest.ini
 include tox.ini
 recursive-exclude tests/__pycache__ *
@@ -15,6 +16,6 @@ recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
 recursive-include flask_security/templates *.*
-recursive-include flask_security/translations *
+recursive-include flask_security/translations *.po *.pot *.mo
 recursive-include tests *
 prune scripts

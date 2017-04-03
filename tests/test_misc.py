@@ -7,6 +7,7 @@
 """
 
 import hashlib
+
 import pytest
 from utils import authenticate, init_app_with_options, populate_data
 

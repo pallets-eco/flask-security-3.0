@@ -40,6 +40,7 @@ for reqs in extras_require.values():
     extras_require['all'].extend(reqs)
 
 setup_requires = [
+    'Babel>=1.3',
     'pytest-runner>=2.6.2',
 ]
 

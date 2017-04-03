@@ -7,6 +7,7 @@
 
     :copyright: (c) 2012 by Matt Wright.
     :copyright: (c) 2017 by CERN.
+    :copyright: (c) 2017 by ETH Zurich, Swiss Data Science Center.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -29,7 +30,11 @@ from .utils import config_value as cv
 from .utils import get_config, hash_data, string_types, url_for_security, \
     verify_hash
 from .views import create_blueprint
-from .babel import lazy_gettext as _
+
+
+def _(translate):
+    """Identity function to mark strings for translation."""
+    return translate
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -126,7 +131,7 @@ _default_messages = {
         _('You do not have permission to view this resource.'), 'error'),
     'CONFIRM_REGISTRATION': (
         _('Thank you. Confirmation instructions '
-          'have been sent to %%(email)s.'),
+          'have been sent to %(email)s.'),
         'success'),
     'EMAIL_CONFIRMED': (
         _('Thank you. Your email has been confirmed.'), 'success'),
@@ -135,7 +140,7 @@ _default_messages = {
     'INVALID_CONFIRMATION_TOKEN': (
         _('Invalid confirmation token.'), 'error'),
     'EMAIL_ALREADY_ASSOCIATED': (
-        _('%%(email)s is already associated with an account.'), 'error'),
+        _('%(email)s is already associated with an account.'), 'error'),
     'PASSWORD_MISMATCH': (
         _('Password does not match'), 'error'),
     'RETYPE_PASSWORD_MISMATCH': (
@@ -143,26 +148,26 @@ _default_messages = {
     'INVALID_REDIRECT': (
         _('Redirections outside the domain are forbidden'), 'error'),
     'PASSWORD_RESET_REQUEST': (
-        _('Instructions to reset your password have been sent to %%(email)s.'),
+        _('Instructions to reset your password have been sent to %(email)s.'),
         'info'),
     'PASSWORD_RESET_EXPIRED': (
-        _('You did not reset your password within %%(within)s. '
-          'New instructions have been sent to %%(email)s.'), 'error'),
+        _('You did not reset your password within %(within)s. '
+          'New instructions have been sent to %(email)s.'), 'error'),
     'INVALID_RESET_PASSWORD_TOKEN': (
         _('Invalid reset password token.'), 'error'),
     'CONFIRMATION_REQUIRED': (
         _('Email requires confirmation.'), 'error'),
     'CONFIRMATION_REQUEST': (
-        _('Confirmation instructions have been sent to %%(email)s.'), 'info'),
+        _('Confirmation instructions have been sent to %(email)s.'), 'info'),
     'CONFIRMATION_EXPIRED': (
-        _('You did not confirm your email within %%(within)s. '
+        _('You did not confirm your email within %(within)s. '
           'New instructions to confirm your email have been sent '
-          'to %%(email)s.'), 'error'),
+          'to %(email)s.'), 'error'),
     'LOGIN_EXPIRED': (
-        _('You did not login within %%(within)s. New instructions to login '
-          'have been sent to %%(email)s.'), 'error'),
+        _('You did not login within %(within)s. New instructions to login '
+          'have been sent to %(email)s.'), 'error'),
     'LOGIN_EMAIL_SENT': (
-        _('Instructions to login have been sent to %%(email)s.'), 'success'),
+        _('Instructions to login have been sent to %(email)s.'), 'success'),
     'INVALID_LOGIN_TOKEN': (
         _('Invalid login token.'), 'error'),
     'DISABLED_ACCOUNT': (
