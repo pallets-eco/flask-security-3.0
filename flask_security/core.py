@@ -13,7 +13,10 @@
 
 from datetime import datetime
 
+import pkg_resources
+
 from flask import current_app, render_template
+from flask_babelex import Domain
 from flask_login import UserMixin as BaseUserMixin
 from flask_login import AnonymousUserMixin, LoginManager, current_user
 from flask_principal import Identity, Principal, RoleNeed, UserNeed, \
@@ -27,14 +30,9 @@ from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
-from .utils import get_config, hash_data, string_types, url_for_security, \
+from .utils import _, get_config, hash_data, string_types, url_for_security, \
     verify_hash
 from .views import create_blueprint
-
-
-def _(translate):
-    """Identity function to mark strings for translation."""
-    return translate
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -48,6 +46,7 @@ _default_config = {
     'URL_PREFIX': None,
     'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
+    'I18N_DOMAIN': 'flask_security',
     'PASSWORD_HASH': 'bcrypt',
     'PASSWORD_SALT': None,
     'PASSWORD_SINGLE_HASH': False,
@@ -296,6 +295,13 @@ def _get_pwd_context(app):
         deprecated=deprecated)
 
 
+def _get_i18n_domain(app):
+    return Domain(
+        pkg_resources.resource_filename('flask_security', 'translations'),
+        domain=cv('I18N_DOMAIN', app=app)
+    )
+
+
 def _get_hashing_context(app):
     schemes = cv('HASHING_SCHEMES', app=app)
     deprecated = cv('DEPRECATED_HASHING_SCHEMES', app=app)
@@ -321,6 +327,7 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
         hashing_context=_get_hashing_context(app),
+        i18n_domain=_get_i18n_domain(app),
         remember_token_serializer=_get_serializer(app, 'remember'),
         login_serializer=_get_serializer(app, 'login'),
         reset_serializer=_get_serializer(app, 'reset'),

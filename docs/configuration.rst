@@ -27,6 +27,9 @@ Core
 ``SECURITY_FLASH_MESSAGES``              Specifies whether or not to flash
                                          messages during security procedures.
                                          Defaults to ``True``.
+``SECURITY_I18N_DOMAIN``                 Specifies the name for domain
+                                         used for translations.
+                                         Defaults to ``flask_security``.
 ``SECURITY_PASSWORD_HASH``               Specifies the password hash algorithm to
                                          use when hashing passwords. Recommended
                                          values for production systems are

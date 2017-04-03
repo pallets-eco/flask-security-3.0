@@ -6,25 +6,8 @@
     I18N support for Flask-Security.
 """
 
-import pkg_resources
-
 from flask_babelex import Domain
 from wtforms.i18n import messages_path
-
-
-class CustomDomain(Domain):
-    def __init__(self):
-        super(CustomDomain, self).__init__(
-            pkg_resources.resource_filename('flask_security', 'translations'),
-            domain='flask_security'
-        )
-
-domain = CustomDomain()
-
-gettext = domain.gettext
-ngettext = domain.ngettext
-lazy_gettext = domain.lazy_gettext
-
 
 wtforms_domain = Domain(messages_path(), domain='wtforms')
 

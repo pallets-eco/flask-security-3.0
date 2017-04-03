@@ -19,9 +19,8 @@ from werkzeug.local import LocalProxy
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
 
-from .babel import lazy_gettext as _
 from .confirmable import requires_confirmation
-from .utils import config_value, get_message, url_for_security, \
+from .utils import _, config_value, get_message, url_for_security, \
     validate_redirect_url, verify_and_update_password
 
 # Convenient reference

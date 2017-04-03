@@ -26,7 +26,6 @@ from flask_principal import AnonymousIdentity, Identity, identity_changed
 from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.local import LocalProxy
 
-from .babel import lazy_gettext
 from .signals import login_instructions_sent, \
     reset_password_instructions_sent, user_registered
 
@@ -53,6 +52,11 @@ if PY3:  # pragma: no cover
 else:  # pragma: no cover
     string_types = basestring,  # pragma: no flakes
     text_type = unicode  # pragma: no flakes
+
+
+def _(translate):
+    """Identity function to mark strings for translation."""
+    return translate
 
 
 def login_user(user, remember=None):
@@ -323,7 +327,7 @@ def get_config(app):
 
 def get_message(key, **kwargs):
     rv = config_value('MSG_' + key)
-    return lazy_gettext(rv[0], **kwargs), rv[1]
+    return _security.i18n_domain.lazy_gettext(rv[0], **kwargs), rv[1]
 
 
 def config_value(key, app=None, default=None):
