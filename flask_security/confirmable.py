@@ -34,7 +34,6 @@ def send_confirmation_instructions(user):
     """Sends the confirmation instructions email for the specified user.
 
     :param user: The user to send the instructions to
-    :param token: The confirmation token
     """
 
     confirmation_link, token = generate_confirmation_link(user)
@@ -43,8 +42,8 @@ def send_confirmation_instructions(user):
               'confirmation_instructions', user=user,
               confirmation_link=confirmation_link)
 
-    confirm_instructions_sent.send(app._get_current_object(), user=user)
-    return token
+    confirm_instructions_sent.send(app._get_current_object(), user=user,
+                                   token=token)
 
 
 def generate_confirmation_token(user):
