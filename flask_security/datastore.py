@@ -215,7 +215,7 @@ class MongoEngineUserDatastore(MongoEngineDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
 
     def get_user(self, identifier):
-        from mongoengine import ValidationError
+        from mongoengine.errors import ValidationError
         try:
             return self.user_model.objects(id=identifier).first()
         except ValidationError:
