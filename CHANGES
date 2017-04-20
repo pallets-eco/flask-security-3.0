@@ -1,24 +1,18 @@
-Flask-Security-Fork Changelog
-=============================
+Flask-Security Changelog
+========================
 
-Here you can see the full list of changes between each Flask-Security-Fork release.
+Here you can see the full list of changes between each Flask-Security release.
 
-Version 2.0.1
+Version 3.0.0
 -------------
 
-Released January 18th 2017
+Released TBD
 
 - Added options `SECURITY_EMAIL_PLAINTEXT` and `SECURITY_EMAIL_HTML`
   for sending respecively plaintext and HTML version of email.
 - Fixed validation when missing login information.
 - Fixed condition for token extraction from JSON body.
 - Better support for universal bdist wheel.
-
-Version 2.0.0
--------------
-
-Released January 11th 2017
-
 - Added port of CLI using Click configurable using options
   `SECURITY_CLI_USERS_NAME` and `SECURITY_CLI_ROLES_NAME`.
 - Added new configuration option `SECURITY_DATETIME_FACTORY` which can
@@ -27,30 +21,12 @@ Released January 11th 2017
 - Better IP tracking if using Flask 0.12.
 - Renamed deprecated Flask-WFT base form class.
 - Added tests for custom forms configured using app config.
-
-Version 1.8.2
--------------
-
-Released December 20th 2016
-
 - Added validation and tests for next argument in logout endpoint. (see #499)
 - Bumped minimal required versions of several packages.
 - Extended test matric on Travis CI for minimal and released package versions.
 - Added of .editorconfig and forced tests for code style.
-
-Version 1.8.1
--------------
-
-Released November 15th 2016
-
 - Fixed a security bug when validating a confirmation token, also checks
   if the email that the token was created with matches the user's current email.
-
-Version 1.8.0
--------------
-
-Released October 28th 2016
-
 - Replaced token loader with request loader.
 - Changed trackable behavior of `login_user` when IP can not be detected from a request from 'untrackable' to `None` value.
 - Use ProxyFix instead of inspecting X-Forwarded-For header.
@@ -69,11 +45,6 @@ Released October 28th 2016
 - Upgraded passlib, and removed bcrypt version restriction.
 - Removed a duplicate line ('retype_password': 'Retype Password') in forms.py.
 - Various documentation improvement.
-
-Flask-Security Changelog
-========================
-
-Here you can see the full list of changes between each Flask-Security release.
 
 Version 1.7.5
 -------------

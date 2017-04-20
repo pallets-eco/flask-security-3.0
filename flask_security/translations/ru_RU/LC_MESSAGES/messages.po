@@ -1,12 +1,12 @@
-# Russian Translations for Flask-Security-Fork.
+# Russian Translations for Flask-Security.
 # Copyright (C) 2017 CERN, leovp
-# This file is distributed under the same license as the Flask-Security-Fork
+# This file is distributed under the same license as the Flask-Security
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Flask-Security-Fork 2.0.1\n"
+"Project-Id-Version: Flask-Security 2.0.1\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2017-04-15 12:38+0300\n"
 "PO-Revision-Date: 2017-04-15 15:15+0300\n"

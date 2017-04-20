@@ -58,7 +58,7 @@ install_requires = [
 packages = find_packages()
 
 setup(
-    name='Flask-Security-Fork',
+    name='Flask-Security',
     version='2.0.1',
     description=__doc__,
     long_description=readme,
@@ -66,7 +66,7 @@ setup(
     license='MIT',
     author='Matt Wright',
     author_email='matt@nobien.net',
-    url='https://github.com/inveniosoftware/flask-security-fork',
+    url='https://github.com/mattupstate/flask-security',
     packages=packages,
     zip_safe=False,
     include_package_data=True,

@@ -17,7 +17,7 @@ SQLAlchemy Install requirements
 ::
 
      $ mkvirtualenv <your-app-name>
-     $ pip install flask-security-fork flask-sqlalchemy
+     $ pip install flask-security flask-sqlalchemy
 
 
 SQLAlchemy Application
@@ -90,7 +90,7 @@ SQLAlchemy Install requirements
 ::
 
      $ mkvirtualenv <your-app-name>
-     $ pip install flask-security-fork sqlalchemy
+     $ pip install flask-security sqlalchemy
 
 Also, you can use the extension `Flask-SQLAlchemy-Session documentation
 <http://flask-sqlalchemy-session.readthedocs.io/en/v1.1/>`_.
@@ -206,7 +206,7 @@ MongoEngine Install requirements
 ::
 
     $ mkvirtualenv <your-app-name>
-    $ pip install flask-security-fork flask-mongoengine
+    $ pip install flask-security flask-mongoengine
 
 MongoEngine Application
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -273,7 +273,7 @@ Peewee Install requirements
 ::
 
     $ mkvirtualenv <your-app-name>
-    $ pip install flask-security-fork flask-peewee
+    $ pip install flask-security flask-peewee
 
 Peewee Application
 ~~~~~~~~~~~~~~~~~~
