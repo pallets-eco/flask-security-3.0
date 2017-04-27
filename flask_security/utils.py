@@ -135,7 +135,7 @@ def verify_password(password, password_hash):
     :param password_hash: The expected hash value of the password
                           (usually from your database)
     """
-    if use_double_hash():
+    if use_double_hash(password_hash):
         password = get_hmac(password)
 
     return _pwd_context.verify(password, password_hash)
@@ -150,11 +150,8 @@ def verify_and_update_password(password, user):
     :param password: A plaintext password to verify
     :param user: The user to verify against
     """
-    if use_double_hash():
-        verified = (
-            _pwd_context.verify(get_hmac(password), user.password) or
-            _pwd_context.verify(password, user.password)
-        )
+    if use_double_hash(user.password):
+        verified = _pwd_context.verify(get_hmac(password), user.password)
     else:
         # Try with original password.
         verified = _pwd_context.verify(password, user.password)
@@ -441,13 +438,19 @@ def get_identity_attributes(app=None):
     return attrs
 
 
-def use_double_hash():
+def use_double_hash(password_hash=None):
     """Return a bool indicating whether a password should be hashed twice."""
     single_hash = config_value('PASSWORD_SINGLE_HASH')
     if single_hash and _security.password_salt:
         raise RuntimeError('You may not specify a salt with '
                            'SECURITY_PASSWORD_SINGLE_HASH')
-    return not (_security.password_hash == 'plaintext' or single_hash)
+
+    if password_hash is None:
+        is_plaintext = _security.password_hash == 'plaintext'
+    else:
+        is_plaintext = _pwd_context.identify(password_hash) == 'plaintext'
+
+    return not (is_plaintext or single_hash)
 
 
 @contextmanager
