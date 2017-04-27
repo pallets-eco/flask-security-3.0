@@ -250,7 +250,7 @@ def _on_identity_loaded(sender, identity):
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
 
-    for role in current_user.roles:
+    for role in getattr(current_user, 'roles', []):
         identity.provides.add(RoleNeed(role.name))
 
     identity.user = current_user
