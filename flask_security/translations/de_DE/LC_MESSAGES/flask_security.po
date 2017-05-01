@@ -96,8 +96,8 @@ msgid ""
 "You did not reset your password within %(within)s. New instructions have"
 " been sent to %(email)s."
 msgstr ""
-"Das Passwort wurde nicht innerhab von %(within)s zurückgesetzt. Neue Instruktionen" 
-" wurden an %(email)s gesendet.""
+"Das Passwort wurde nicht innerhab von %(within)s zurückgesetzt. Neue Instruktionen"
+" wurden an %(email)s gesendet."
 
 #: flask_security/core.py:157
 msgid "Invalid reset password token."
@@ -225,7 +225,7 @@ msgstr "Anmelden"
 #: flask_security/forms.py:35 flask_security/templates/security/_menu.html:6
 #: flask_security/templates/security/register_user.html:3
 msgid "Register"
-msgstr "Registrieren
+msgstr "Registrieren"
 
 #: flask_security/forms.py:36
 msgid "Resend Confirmation Instructions"
