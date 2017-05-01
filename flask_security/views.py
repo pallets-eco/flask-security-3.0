@@ -225,15 +225,15 @@ def confirm_email(token):
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
 
-    if user != current_user:
-        logout_user()
-        login_user(user)
-
     if confirm_user(user):
-        after_this_request(_commit)
+        _commit()
         msg = 'EMAIL_CONFIRMED'
     else:
         msg = 'ALREADY_CONFIRMED'
+
+    if user != current_user:
+        logout_user()
+        login_user(user)
 
     do_flash(*get_message(msg))
 
