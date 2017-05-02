@@ -4,13 +4,12 @@
 # project.
 # Ingo Kleiber <ingo@kleiber.me>, 2017.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 2.0.1\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2017-04-03 08:59+0200\n"
-"PO-Revision-Date: 2017-04-30 17:00+MEZ\n"
+"PO-Revision-Date: 2017-04-30 17:00+0200\n"
 "Last-Translator: Ingo Kleiber <ingo@kleiber.me>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
