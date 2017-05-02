@@ -18,7 +18,7 @@ Flask application. They include:
 Many of these features are made possible by integrating various Flask extensions
 and libraries. They include:
 
-1. `Flask-Login <http://packages.python.org/Flask-Login/>`_
+1. `Flask-Login <https://flask-login.readthedocs.org/en/latest/>`_
 2. `Flask-Mail <http://packages.python.org/Flask-Mail/>`_
 3. `Flask-Principal <http://packages.python.org/Flask-Principal/>`_
 4. `Flask-WTF <http://packages.python.org/Flask-WTF/>`_
