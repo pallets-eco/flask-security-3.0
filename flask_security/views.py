@@ -10,7 +10,7 @@
 """
 
 from flask import current_app, redirect, request, jsonify, \
-    after_this_request, Blueprint
+    after_this_request, Blueprint, make_response
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
@@ -93,8 +93,14 @@ def logout():
     if current_user.is_authenticated:
         logout_user()
 
-    return redirect(request.args.get('next', None) or
-                    get_url(_security.post_logout_view))
+    redirect_to_post_logout_view = redirect(request.args.get('next', None) or \
+                                            get_url(_security.post_logout_view))
+
+    res = make_response(redirect_to_post_logout_view)
+    # token = get_config_value('JWT_AUTH_HEADER_PREFIX') + ' ' + access_token.decode('utf-8')
+    res.set_cookie('authorization', '', expires=0, httponly=True)
+
+    return res
 
 
 @anonymous_user_required
