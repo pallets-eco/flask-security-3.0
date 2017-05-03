@@ -97,7 +97,6 @@ def logout():
                                             get_url(_security.post_logout_view))
 
     res = make_response(redirect_to_post_logout_view)
-    # token = get_config_value('JWT_AUTH_HEADER_PREFIX') + ' ' + access_token.decode('utf-8')
     res.set_cookie('authorization', '', expires=0, httponly=True)
 
     return res
