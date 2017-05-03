@@ -129,8 +129,8 @@ Run ``flask --help`` and look for users and roles.
 
 
 .. _Click: http://packages.python.org/Click/
-.. _Flask-Login: http://packages.python.org/Flask-Login/
-.. _alternative token: http://packages.python.org/Flask-Login/#alternative-tokens
+.. _Flask-Login: https://flask-login.readthedocs.org/en/latest/
+.. _alternative token: https://flask-login.readthedocs.io/en/latest/#alternative-tokens
 .. _Flask-Principal: http://packages.python.org/Flask-Principal/
 .. _documentation on this topic: http://packages.python.org/Flask-Principal/#granular-resource-protection
 .. _passlib: http://packages.python.org/passlib/
