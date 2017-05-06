@@ -324,7 +324,7 @@ def get_config(app):
 
 def get_message(key, **kwargs):
     rv = config_value('MSG_' + key)
-    return _security.i18n_domain.lazy_gettext(rv[0], **kwargs), rv[1]
+    return _security.i18n_domain.gettext(rv[0], **kwargs), rv[1]
 
 
 def config_value(key, app=None, default=None):
