@@ -57,7 +57,7 @@ If you want a custom payload after Register or Login an user, define
 the method get_security_payload in your User model. The method must return a
 serializable object:
 
-::
+.. code-block:: python
 
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
