@@ -312,7 +312,8 @@ def change_password():
 
     if form.validate_on_submit():
         after_this_request(_commit)
-        change_user_password(current_user, form.new_password.data)
+        change_user_password(current_user._get_current_object(),
+                             form.new_password.data)
         if request.json is None:
             do_flash(*get_message('PASSWORD_CHANGE'))
             return redirect(get_url(_security.post_change_view) or
