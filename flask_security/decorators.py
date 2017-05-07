@@ -19,7 +19,7 @@ from flask_principal import Identity, Permission, RoleNeed, identity_changed
 from werkzeug.local import LocalProxy
 from werkzeug.routing import BuildError
 
-from . import utils
+from flask_security import utils
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
