@@ -89,6 +89,7 @@ _default_config = {
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
     'TOKEN_MAX_AGE': None,
+    'JSON_INCLUDE_CSRF': False,
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
     'LOGIN_SALT': 'login-salt',
