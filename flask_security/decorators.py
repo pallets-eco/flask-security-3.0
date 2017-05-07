@@ -12,15 +12,14 @@
 from collections import namedtuple
 from functools import wraps
 
-from flask import (abort, current_app, Response, request,
-                   url_for, redirect, _request_ctx_stack)
+from flask import Response, _request_ctx_stack, abort, current_app, redirect, \
+    request, url_for
 from flask_login import current_user, login_required  # pragma: no flakes
-from flask_principal import RoleNeed, Permission, Identity, identity_changed
+from flask_principal import Identity, Permission, RoleNeed, identity_changed
 from werkzeug.local import LocalProxy
 from werkzeug.routing import BuildError
 
 from . import utils
-
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -30,7 +29,8 @@ _default_unauthorized_html = """
     <h1>Unauthorized</h1>
     <p>The server could not verify that you are authorized to access the URL
     requested. You either supplied the wrong credentials (e.g. a bad password),
-    or your browser doesn't understand how to supply the credentials required.</p>
+    or your browser doesn't understand how to supply the credentials required.
+    </p>
     """
 
 BasicAuth = namedtuple('BasicAuth', 'username, password')
@@ -58,15 +58,7 @@ def _get_unauthorized_view():
 
 
 def _check_token():
-    header_key = _security.token_authentication_header
-    args_key = _security.token_authentication_key
-    header_token = request.headers.get(header_key, None)
-    token = request.args.get(args_key, header_token)
-    if request.get_json(silent=True):
-        if not isinstance(request.json, list):
-            token = request.json.get(args_key, token)
-
-    user = _security.login_manager.token_callback(token)
+    user = _security.login_manager.request_callback(request)
 
     if user and user.is_authenticated:
         app = current_app._get_current_object()
@@ -105,7 +97,8 @@ def http_auth_required(realm):
             if _security._unauthorized_callback:
                 return _security._unauthorized_callback()
             else:
-                r = _security.default_http_auth_realm if callable(realm) else realm
+                r = _security.default_http_auth_realm \
+                    if callable(realm) else realm
                 h = {'WWW-Authenticate': 'Basic realm="%s"' % r}
                 return _get_unauthorized_response(headers=h)
         return wrapper
@@ -156,7 +149,8 @@ def auth_required(*auth_methods):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
             h = {}
-            mechanisms = [(method, login_mechanisms.get(method)) for method in auth_methods]
+            mechanisms = [(method, login_mechanisms.get(method))
+                          for method in auth_methods]
             for method, mechanism in mechanisms:
                 if mechanism and mechanism():
                     return fn(*args, **kwargs)

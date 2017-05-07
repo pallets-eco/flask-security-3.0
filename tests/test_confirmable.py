@@ -9,13 +9,12 @@
 import time
 
 import pytest
-
 from flask import Flask
-from flask_security.core import UserMixin
-from flask_security.signals import user_confirmed, confirm_instructions_sent
-from flask_security.utils import capture_registrations
-
 from utils import authenticate, logout
+
+from flask_security.core import UserMixin
+from flask_security.signals import confirm_instructions_sent, user_confirmed
+from flask_security.utils import capture_registrations, string_types
 
 pytestmark = pytest.mark.confirmable()
 
@@ -32,9 +31,10 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
         recorded_confirms.append(user)
 
     @confirm_instructions_sent.connect_via(app)
-    def on_instructions_sent(app, user):
+    def on_instructions_sent(app, user, token):
         assert isinstance(app, Flask)
         assert isinstance(user, UserMixin)
+        assert isinstance(token, string_types)
         recorded_instructions_sent.append(user)
 
     # Test login before confirmation
@@ -54,9 +54,11 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     assert get_message('INVALID_CONFIRMATION_TOKEN') in response.data
 
     # Test JSON
-    response = client.post('/confirm', data='{"email": "matt@lp.com"}', headers={
-        'Content-Type': 'application/json'
-    })
+    response = client.post(
+        '/confirm',
+        data='{"email": "matt@lp.com"}',
+        headers={
+            'Content-Type': 'application/json'})
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
     assert 'user' in response.jdata['response']
@@ -119,7 +121,31 @@ def test_expired_confirmation_token(client, get_message):
     time.sleep(1)
 
     response = client.get('/confirm/' + token, follow_redirects=True)
-    msg = get_message('CONFIRMATION_EXPIRED', within='1 milliseconds', email=user.email)
+    msg = get_message(
+        'CONFIRMATION_EXPIRED',
+        within='1 milliseconds',
+        email=user.email)
+    assert msg in response.data
+
+
+@pytest.mark.registerable()
+def test_email_conflict_for_confirmation_token(app, client, get_message,
+                                               sqlalchemy_datastore):
+    with capture_registrations() as registrations:
+        data = dict(email='mary@lp.com', password='password', next='')
+        client.post('/register', data=data, follow_redirects=True)
+
+    user = registrations[0]['user']
+    token = registrations[0]['confirm_token']
+
+    # Change the user's email
+    user.email = 'tom@lp.com'
+    with app.app_context():
+        sqlalchemy_datastore.put(user)
+        sqlalchemy_datastore.commit()
+
+    response = client.get('/confirm/' + token, follow_redirects=True)
+    msg = get_message('INVALID_CONFIRMATION_TOKEN')
     assert msg in response.data
 
 
@@ -157,11 +183,17 @@ def test_confirmation_different_user_when_logged_in(client, get_message):
 
 @pytest.mark.registerable()
 @pytest.mark.settings(recoverable=True)
-def test_cannot_reset_password_when_email_is_not_confirmed(client, get_message):
+def test_cannot_reset_password_when_email_is_not_confirmed(
+        client,
+        get_message):
     email = 'dude@lp.com'
 
     data = dict(email=email, password='password', next='')
     response = client.post('/register', data=data, follow_redirects=True)
 
-    response = client.post('/reset', data=dict(email=email), follow_redirects=True)
+    response = client.post(
+        '/reset',
+        data=dict(
+            email=email),
+        follow_redirects=True)
     assert get_message('CONFIRMATION_REQUIRED') in response.data

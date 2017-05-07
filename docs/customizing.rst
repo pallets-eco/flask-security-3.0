@@ -58,7 +58,7 @@ The following is a list of all the available context processor decorators:
 * ``login_context_processor``: Login view
 * ``register_context_processor``: Register view
 * ``reset_password_context_processor``: Reset password view
-* ``change_password_context_processor``: Reset password view
+* ``change_password_context_processor``: Change password view
 * ``send_confirmation_context_processor``: Send confirmation view
 * ``send_login_context_processor``: Send login view
 
@@ -98,7 +98,7 @@ The following is a list of all the available form overrides:
 * ``register_form``: Register form
 * ``forgot_password_form``: Forgot password form
 * ``reset_password_form``: Reset password form
-* ``change_password_form``: Reset password form
+* ``change_password_form``: Change password form
 * ``send_confirmation_form``: Send confirmation form
 * ``passwordless_login_form``: Passwordless login form
 
@@ -159,5 +159,55 @@ decorator like so::
     @security.send_mail_task
     def delay_security_email(msg):
         send_security_email.delay(msg)
+
+If factory method is going to be used for initialization, use ``_SecurityState``
+object returned by ``init_app`` method to initialize Celery tasks intead of using
+``security.send_mail_task`` directly like so::
+
+    from flask import Flask
+    from flask_mail import Mail
+    from flask_security import Security, SQLAlchemyUserDatastore
+    from celery import Celery
+
+    mail = Mail()
+    security = Security()
+    celery = Celery()
+
+    def create_app(config):
+        """Initialize Flask instance."""
+
+        app = Flask(__name__)
+        app.config.from_object(config)
+
+        @celery.task
+        def send_flask_mail(msg):
+            mail.send(msg)
+
+        mail.init_app(app)
+        datastore = SQLAlchemyUserDatastore(db, User, Role)
+        security_ctx = security.init_app(app, datastore)
+
+        # Flexible way for defining custom mail sending task.
+        @security_ctx.send_mail_task
+        def delay_flask_security_mail(msg):
+            send_flask_mail.delay(msg)
+
+        # A shortcurt.
+        security_ctx.send_mail_task(send_flask_mail.delay)
+
+        return app
+
+Note that ``flask_mail.Message`` may not be serialized as an argument passed to
+Celery. The practical way with custom serialization may look like so::
+
+    @celery.task
+    def send_flask_mail(**kwargs):
+            mail.send(Message(**kwargs))
+
+    @security_ctx.send_mail_task
+    def delay_flask_security_mail(msg):
+        send_flask_mail.delay(subject=msg.subject, sender=msg.sender,
+                              recipients=msg.recipients, body=msg.body,
+                              html=msg.html)
 
 .. _Celery: http://www.celeryproject.org/

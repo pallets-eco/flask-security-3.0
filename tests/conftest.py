@@ -4,22 +4,37 @@
     ~~~~~~~~
 
     Test fixtures and what not
+
+    :copyright: (c) 2017 by CERN.
+    :license: MIT, see LICENSE for more details.
 """
 
 import os
 import tempfile
 import time
+from datetime import datetime
 
 import pytest
-
 from flask import Flask, render_template
+from flask.json import JSONEncoder as BaseEncoder
+from flask_babelex import Babel
 from flask_mail import Mail
+from speaklater import is_lazy_string
+from utils import Response, populate_data
 
-from flask_security import Security, MongoEngineUserDatastore, SQLAlchemyUserDatastore, \
-    PeeweeUserDatastore, UserMixin, RoleMixin, http_auth_required, login_required, \
-    auth_token_required, auth_required, roles_required, roles_accepted
+from flask_security import MongoEngineUserDatastore, PeeweeUserDatastore, \
+    PonyUserDatastore, RoleMixin, Security, SQLAlchemySessionUserDatastore, \
+    SQLAlchemyUserDatastore, UserMixin, auth_required, auth_token_required, \
+    http_auth_required, login_required, roles_accepted, roles_required
 
-from utils import populate_data, Response
+
+class JSONEncoder(BaseEncoder):
+
+    def default(self, o):
+        if is_lazy_string(o):
+            return str(o)
+
+        return BaseEncoder.default(self, o)
 
 
 @pytest.fixture()
@@ -31,6 +46,9 @@ def app(request):
     app.config['TESTING'] = True
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    app.config['SECURITY_PASSWORD_SALT'] = 'salty'
 
     for opt in ['changeable', 'recoverable', 'registerable',
                 'trackable', 'passwordless', 'confirmable']:
@@ -41,7 +59,10 @@ def app(request):
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
+    babel = Babel(app)
+    app.json_encoder = JSONEncoder
     app.mail = mail
+    app.babel = babel
 
     @app.route('/')
     def index():
@@ -75,7 +96,9 @@ def app(request):
     @app.route('/multi_auth')
     @auth_required('session', 'token', 'basic')
     def multi_auth():
-        return render_template('index.html', content='Session, Token, Basic auth')
+        return render_template(
+            'index.html',
+            content='Session, Token, Basic auth')
 
     @app.route('/post_logout')
     def post_logout():
@@ -110,8 +133,8 @@ def app(request):
     return app
 
 
-@pytest.fixture()
-def mongoengine_datastore(request, app):
+@pytest.yield_fixture()
+def mongoengine_datastore(app):
     from flask_mongoengine import MongoEngine
 
     db_name = 'flask_security_test_%s' % str(time.time()).replace('.', '_')
@@ -143,16 +166,18 @@ def mongoengine_datastore(request, app):
         roles = db.ListField(db.ReferenceField(Role), default=[])
         meta = {"db_alias": db_name}
 
-    request.addfinalizer(lambda: db.connection.drop_database(db_name))
+    yield MongoEngineUserDatastore(db, User, Role)
 
-    return MongoEngineUserDatastore(db, User, Role)
+    with app.app_context():
+        db.connection.drop_database(db_name)
 
 
 @pytest.fixture()
 def sqlalchemy_datastore(request, app, tmpdir):
     from flask_sqlalchemy import SQLAlchemy
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
     db = SQLAlchemy(app)
@@ -191,11 +216,71 @@ def sqlalchemy_datastore(request, app, tmpdir):
 
 
 @pytest.fixture()
+def sqlalchemy_session_datastore(request, app, tmpdir):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session, sessionmaker, relationship, \
+        backref
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy import Boolean, DateTime, Column, Integer, String, \
+        ForeignKey
+
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + path
+
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+                           convert_unicode=True)
+    db_session = scoped_session(sessionmaker(autocommit=False,
+                                             autoflush=False,
+                                             bind=engine))
+    Base = declarative_base()
+    Base.query = db_session.query_property()
+
+    class RolesUsers(Base):
+        __tablename__ = 'roles_users'
+        id = Column(Integer(), primary_key=True)
+        user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+        role_id = Column('role_id', Integer(), ForeignKey('role.id'))
+
+    class Role(Base, RoleMixin):
+        __tablename__ = 'role'
+        id = Column(Integer(), primary_key=True)
+        name = Column(String(80), unique=True)
+        description = Column(String(255))
+
+    class User(Base, UserMixin):
+        __tablename__ = 'user'
+        id = Column(Integer, primary_key=True)
+        email = Column(String(255), unique=True)
+        username = Column(String(255))
+        password = Column(String(255))
+        last_login_at = Column(DateTime())
+        current_login_at = Column(DateTime())
+        last_login_ip = Column(String(100))
+        current_login_ip = Column(String(100))
+        login_count = Column(Integer)
+        active = Column(Boolean())
+        confirmed_at = Column(DateTime())
+        roles = relationship('Role', secondary='roles_users',
+                             backref=backref('users', lazy='dynamic'))
+
+    with app.app_context():
+        Base.metadata.create_all(bind=engine)
+
+    request.addfinalizer(lambda: os.remove(path))
+
+    return SQLAlchemySessionUserDatastore(db_session, User, Role)
+
+
+@pytest.fixture()
 def peewee_datastore(request, app, tmpdir):
-    from peewee import TextField, DateTimeField, IntegerField, BooleanField, ForeignKeyField
+    from peewee import TextField, DateTimeField, IntegerField, BooleanField, \
+        ForeignKeyField
     from flask_peewee.db import Database
 
-    f, path = tempfile.mkstemp(prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
+    f, path = tempfile.mkstemp(
+        prefix='flask-security-test-db', suffix='.db', dir=str(tmpdir))
 
     app.config['DATABASE'] = {
         'name': path,
@@ -238,9 +323,57 @@ def peewee_datastore(request, app, tmpdir):
 
 
 @pytest.fixture()
+def pony_datastore(request, app, tmpdir):
+    from pony.orm import Database, Optional, Required, Set
+    from pony.orm.core import SetInstance
+
+    SetInstance.append = SetInstance.add
+    db = Database()
+
+    class Role(db.Entity):
+        name = Required(str, unique=True)
+        description = Optional(str, nullable=True)
+        users = Set(lambda: User)
+
+    class User(db.Entity):
+        email = Required(str)
+        username = Optional(str)
+        password = Optional(str, nullable=True)
+        last_login_at = Optional(datetime)
+        current_login_at = Optional(datetime)
+        last_login_ip = Optional(str)
+        current_login_ip = Optional(str)
+        login_count = Optional(int)
+        active = Required(bool, default=True)
+        confirmed_at = Optional(datetime)
+        roles = Set(lambda: Role)
+
+        def has_role(self, name):
+            return name in {r.name for r in self.roles.copy()}
+
+    app.config['DATABASE'] = {
+        'name': ':memory:',
+        'engine': 'pony.SqliteDatabase'
+    }
+
+    db.bind('sqlite', ':memory:', create_db=True)
+    db.generate_mapping(create_tables=True)
+
+    return PonyUserDatastore(db, User, Role)
+
+
+@pytest.fixture()
 def sqlalchemy_app(app, sqlalchemy_datastore):
     def create():
         app.security = Security(app, datastore=sqlalchemy_datastore)
+        return app
+    return create
+
+
+@pytest.fixture()
+def sqlalchemy_session_app(app, sqlalchemy_session_datastore):
+    def create():
+        app.security = Security(app, datastore=sqlalchemy_session_datastore)
         return app
     return create
 
@@ -262,10 +395,25 @@ def mongoengine_app(app, mongoengine_datastore):
 
 
 @pytest.fixture()
+def pony_app(app, pony_datastore):
+    def create():
+        app.security = Security(app, datastore=pony_datastore)
+        return app
+    return create
+
+
+@pytest.fixture()
 def client(request, sqlalchemy_app):
     app = sqlalchemy_app()
     populate_data(app)
     return app.test_client()
+
+
+@pytest.yield_fixture()
+def in_app_context(request, sqlalchemy_app):
+    app = sqlalchemy_app()
+    with app.app_context():
+        yield app
 
 
 @pytest.fixture()
@@ -276,12 +424,39 @@ def get_message(app):
     return fn
 
 
-@pytest.fixture(params=['sqlalchemy', 'mongoengine', 'peewee'])
-def datastore(request, sqlalchemy_datastore, mongoengine_datastore, peewee_datastore):
+@pytest.fixture(params=['sqlalchemy', 'sqlalchemy-session', 'mongoengine',
+                        'peewee', 'pony'])
+def datastore(
+        request,
+        sqlalchemy_datastore,
+        sqlalchemy_session_datastore,
+        mongoengine_datastore,
+        peewee_datastore,
+        pony_datastore):
     if request.param == 'sqlalchemy':
         rv = sqlalchemy_datastore
+    elif request.param == 'sqlalchemy-session':
+        rv = sqlalchemy_session_datastore
     elif request.param == 'mongoengine':
         rv = mongoengine_datastore
     elif request.param == 'peewee':
         rv = peewee_datastore
+    elif request.param == 'pony':
+        rv = pony_datastore
     return rv
+
+
+@pytest.fixture()
+def script_info(app, datastore):
+    try:
+        from flask.cli import ScriptInfo
+    except ImportError:
+        from flask_cli import ScriptInfo
+
+    def create_app(info):
+        app.config.update(**{
+            'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
+        })
+        app.security = Security(app, datastore=datastore)
+        return app
+    return ScriptInfo(create_app=create_app)

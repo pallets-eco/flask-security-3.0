@@ -6,7 +6,8 @@
     Test utils
 """
 
-from flask import Response as BaseResponse, json
+from flask import Response as BaseResponse
+from flask import json
 
 from flask_security import Security
 from flask_security.utils import encrypt_password
@@ -14,14 +15,26 @@ from flask_security.utils import encrypt_password
 _missing = object
 
 
-def authenticate(client, email="matt@lp.com", password="password", endpoint=None, **kwargs):
+def authenticate(
+        client,
+        email="matt@lp.com",
+        password="password",
+        endpoint=None,
+        **kwargs):
     data = dict(email=email, password=password, remember='y')
     return client.post(endpoint or '/login', data=data, **kwargs)
 
 
-def json_authenticate(client, email="matt@lp.com", password="password", endpoint=None):
-        data = '{"email": "%s", "password": "%s"}' % (email, password)
-        return client.post(endpoint or '/login', content_type="application/json", data=data)
+def json_authenticate(
+        client,
+        email="matt@lp.com",
+        password="password",
+        endpoint=None):
+    data = '{"email": "%s", "password": "%s"}' % (email, password)
+    return client.post(
+        endpoint or '/login',
+        content_type="application/json",
+        data=data)
 
 
 def logout(client, endpoint=None, **kwargs):
@@ -49,7 +62,11 @@ def create_users(ds, count=None):
             pw = encrypt_password(pw)
         roles = [ds.find_or_create_role(rn) for rn in u[3]]
         ds.commit()
-        user = ds.create_user(email=u[0], username=u[1], password=pw, active=u[4])
+        user = ds.create_user(
+            email=u[0],
+            username=u[1],
+            password=pw,
+            active=u[4])
         ds.commit()
         for role in roles:
             ds.add_role_to_user(user, role)
