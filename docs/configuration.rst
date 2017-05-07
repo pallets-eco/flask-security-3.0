@@ -54,7 +54,9 @@ Core
                                          creating and validating tokens.
                                          Defaults to ``hex_md5``.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
-                                         emails as. Defaults to
+                                         emails as. Defaults to value set
+                                         to ``MAIL_DEFAULT_SENDER`` if
+                                         Flask-Mail is used otherwise
                                          ``no-reply@localhost``.
 ``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query string parameter to
                                          read when using token authentication.
