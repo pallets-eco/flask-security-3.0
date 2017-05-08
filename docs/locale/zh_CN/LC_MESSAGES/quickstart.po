@@ -8,16 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-08 11:12+0800\n"
-"PO-Revision-Date: 2017-03-28 15:15+0800\n"
+"POT-Creation-Date: 2017-05-08 15:32+0800\n"
+"PO-Revision-Date: 2017-05-08 15:48+0800\n"
 "Last-Translator: \n"
-"Language: zh_Hans_CN\n"
+"Language: zh_CN\n"
 "Language-Team: \n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../../quickstart.rst:2
 msgid "Quick Start"
@@ -25,30 +26,29 @@ msgstr "快速开始"
 
 #: ../../quickstart.rst:4
 msgid "`Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_"
-msgstr "`基于 SQLAlchemy 的基础应用 <#id1>`_"
+msgstr "`使用 SQLAlchemy 的基础应用 <#id1>`_"
 
 #: ../../quickstart.rst:5
-#, fuzzy
 msgid ""
-"`Basic SQLAlchemy Application with session <#basic-sqlalchemy-"
-"application-with-session>`_"
-msgstr "`基于 SQLAlchemy 的基础应用 <#id1>`_"
+"`Basic SQLAlchemy Application with session <#basic-sqlalchemy-application-with-"
+"session>`_"
+msgstr "`基于 session 的使用 SQLAlchemy 的基础应用 <#id2>`_"
 
 #: ../../quickstart.rst:7
 msgid "`Basic MongoEngine Application <#basic-mongoengine-application>`_"
-msgstr "`基于 MongoEngine 的基础应用 <#id2>`_"
+msgstr "`使用 MongoEngine 的基础应用 <#id5>`_"
 
 #: ../../quickstart.rst:8
 msgid "`Basic Peewee Application <#basic-peewee-application>`_"
-msgstr "`基于 Peewee 的基础应用 <#id3>`_"
+msgstr "`使用 Peewee 的基础应用 <#id6>`_"
 
 #: ../../quickstart.rst:9
 msgid "`Mail Configuration <#mail-configuration>`_"
-msgstr "`邮件配置 <#id4>`_"
+msgstr "`邮件配置 <#id7>`_"
 
 #: ../../quickstart.rst:12
 msgid "Basic SQLAlchemy Application"
-msgstr "基于 SQLAlchemy 的基础应用"
+msgstr "使用 SQLAlchemy 的基础应用"
 
 #: ../../quickstart.rst:15 ../../quickstart.rst:88
 msgid "SQLAlchemy Install requirements"
@@ -65,261 +65,109 @@ msgid ""
 msgstr "下面的代码简单的演示了如何快速开始基于 SQLAlchemy 的应用:"
 
 #: ../../quickstart.rst:85
-#, fuzzy
 msgid "Basic SQLAlchemy Application with session"
-msgstr "基于 SQLAlchemy 的基础应用"
+msgstr "基于 session 的 SQLAlchemy 基础应用"
 
 #: ../../quickstart.rst:95
 msgid ""
 "Also, you can use the extension `Flask-SQLAlchemy-Session documentation "
 "<http://flask-sqlalchemy-session.readthedocs.io/en/v1.1/>`_."
 msgstr ""
+"你也可以使用扩展  `Flask-SQLAlchemy-Session documentation <http://flask-"
+"sqlalchemy-session.readthedocs.io/en/v1.1/>`_."
 
 #: ../../quickstart.rst:101
-#, fuzzy
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
-"possible using `SQLAlchemy in a declarative way "
-"<http://flask.pocoo.org/docs/0.12/patterns/sqlalchemy/#declarative>`_:"
-msgstr "下面的代码简单的演示了如何快速开始基于 Peewee 的应用:"
+"possible using `SQLAlchemy in a declarative way <http://flask.pocoo.org/"
+"docs/0.12/patterns/sqlalchemy/#declarative>`_:"
+msgstr ""
+"下面的代码简单的演示了如何快速开始 `使用SQLAlchemy 以声明方式 <http://flask."
+"pocoo.org/docs/0.12/patterns/sqlalchemy/#declarative>`_:"
 
 #: ../../quickstart.rst:105
 msgid ""
-"We are gonna split the application at least in three files: app.py, "
-"database.py and models.py. You can also do the models a folder and spread"
-" your tables there."
+"We are gonna split the application at least in three files: app.py, database."
+"py and models.py. You can also do the models a folder and spread your tables "
+"there."
 msgstr ""
+"我们来分离应用至少为三个文件: app.py, database.py and models.py. 你也可以将 "
+"models 作为文件夹, 经历的表分开放置在这里."
 
 #: ../../quickstart.rst:108
 msgid "app.py"
-msgstr ""
+msgstr "app.py"
 
-#: ../../quickstart.rst:140 ../../quickstart.rst:161 ../../quickstart.rst:198
-msgid "::"
-msgstr ""
-
-#: ../../quickstart.rst:110
-msgid ""
-"from flask import Flask from flask_security import Security, "
-"login_required, \\"
-msgstr ""
-
-#: ../../quickstart.rst:112
-msgid "SQLAlchemySessionUserDatastore"
-msgstr ""
-
-#: ../../quickstart.rst:113
-msgid "from database import db_session, init_db from models import User, Role"
-msgstr ""
-
-#: ../../quickstart.rst:116
-msgid ""
-"# Create app app = Flask(__name__) app.config['DEBUG'] = True "
-"app.config['SECRET_KEY'] = 'super-secret'"
-msgstr ""
-
-#: ../../quickstart.rst:121
-msgid ""
-"# Setup Flask-Security user_datastore = "
-"SQLAlchemySessionUserDatastore(db_session,"
-msgstr ""
-
-#: ../../quickstart.rst:123
-msgid "User, Role)"
-msgstr ""
-
-#: ../../quickstart.rst:124
-msgid "security = Security(app, user_datastore)"
-msgstr ""
-
-#: ../../quickstart.rst:126
-msgid "# Create a user to test with @app.before_first_request def create_user():"
-msgstr ""
-
-#: ../../quickstart.rst:129
-msgid ""
-"init_db() user_datastore.create_user(email='matt@nobien.net', "
-"password='password') db_session.commit()"
-msgstr ""
-
-#: ../../quickstart.rst:133
-msgid "# Views @app.route('/') @login_required def home():"
-msgstr ""
-
-#: ../../quickstart.rst:137
-msgid "return render('Here you go!')"
-msgstr ""
-
-#: ../../quickstart.rst:140
-msgid "if __name__ == '__main__':"
-msgstr ""
-
-#: ../../quickstart.rst:140
-msgid "app.run()"
-msgstr ""
-
-#: ../../quickstart.rst:142
+#: ../../quickstart.rst:143
 msgid "database.py"
-msgstr ""
+msgstr "database.py"
 
-#: ../../quickstart.rst:144
-msgid ""
-"from sqlalchemy import create_engine from sqlalchemy.orm import "
-"scoped_session, sessionmaker from sqlalchemy.ext.declarative import "
-"declarative_base"
-msgstr ""
-
-#: ../../quickstart.rst:148
-msgid "engine = create_engine('sqlite:////tmp/test.db',"
-msgstr ""
-
-#: ../../quickstart.rst:149
-msgid "convert_unicode=True)"
-msgstr ""
-
-#: ../../quickstart.rst:151
-msgid "db_session = scoped_session(sessionmaker(autocommit=False,"
-msgstr ""
-
-#: ../../quickstart.rst:151
-msgid "autoflush=False, bind=engine))"
-msgstr ""
-
-#: ../../quickstart.rst:153
-msgid "Base = declarative_base() Base.query = db_session.query_property()"
-msgstr ""
-
-#: ../../quickstart.rst:161
-msgid "def init_db():"
-msgstr ""
-
-#: ../../quickstart.rst:157
-msgid ""
-"# import all modules here that might define models so that # they will be"
-" registered properly on the metadata.  Otherwise # you will have to "
-"import them first before calling init_db() import models "
-"Base.metadata.create_all(bind=engine)"
-msgstr ""
-
-#: ../../quickstart.rst:163
+#: ../../quickstart.rst:166
 msgid "models.py"
-msgstr ""
+msgstr "models.py"
 
-#: ../../quickstart.rst:165
-msgid ""
-"from database import Base from flask_security import UserMixin, RoleMixin"
-" from sqlalchemy import create_engine from sqlalchemy.orm import "
-"relationship, backref from sqlalchemy import Boolean, DateTime, Column, "
-"Integer, \\"
-msgstr ""
-
-#: ../../quickstart.rst:170
-msgid "String, ForeignKey"
-msgstr ""
-
-#: ../../quickstart.rst:176
-msgid "class RolesUsers(Base):"
-msgstr ""
-
-#: ../../quickstart.rst:173
-msgid ""
-"__tablename__ = 'roles_users' id = Column(Integer(), primary_key=True) "
-"user_id = Column('user_id', Integer(), ForeignKey('user.id')) role_id = "
-"Column('role_id', Integer(), ForeignKey('role.id'))"
-msgstr ""
-
-#: ../../quickstart.rst:182
-msgid "class Role(Base, RoleMixin):"
-msgstr ""
-
-#: ../../quickstart.rst:179
-msgid ""
-"__tablename__ = 'role' id = Column(Integer(), primary_key=True) name = "
-"Column(String(80), unique=True) description = Column(String(255))"
-msgstr ""
-
-#: ../../quickstart.rst:198
-msgid "class User(Base, UserMixin):"
-msgstr ""
-
-#: ../../quickstart.rst:185
-msgid ""
-"__tablename__ = 'user' id = Column(Integer, primary_key=True) email = "
-"Column(String(255), unique=True) username = Column(String(255)) password "
-"= Column(String(255)) last_login_at = Column(DateTime()) current_login_at"
-" = Column(DateTime()) last_login_ip = Column(String(100)) "
-"current_login_ip = Column(String(100)) login_count = Column(Integer) "
-"active = Column(Boolean()) confirmed_at = Column(DateTime()) roles = "
-"relationship('Role', secondary='roles_users',"
-msgstr ""
-
-#: ../../quickstart.rst:198
-msgid "backref=backref('users', lazy='dynamic'))"
-msgstr ""
-
-#: ../../quickstart.rst:201
+#: ../../quickstart.rst:206
 msgid "Basic MongoEngine Application"
 msgstr "基于 MongoEngine 的基础应用"
 
-#: ../../quickstart.rst:204
+#: ../../quickstart.rst:209
 msgid "MongoEngine Install requirements"
 msgstr "MongoEngine 依赖安装"
 
-#: ../../quickstart.rst:212
+#: ../../quickstart.rst:217
 msgid "MongoEngine Application"
 msgstr "MongoEngine 应用"
 
-#: ../../quickstart.rst:214
+#: ../../quickstart.rst:219
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
 "possible using MongoEngine:"
 msgstr "下面的代码简单的演示了如何快速开始基于 MongoEngine 的应用:"
 
-#: ../../quickstart.rst:268
+#: ../../quickstart.rst:273
 msgid "Basic Peewee Application"
 msgstr "基于 Peewee 的基础应用"
 
-#: ../../quickstart.rst:271
+#: ../../quickstart.rst:276
 msgid "Peewee Install requirements"
 msgstr "Peewee 依赖安装"
 
-#: ../../quickstart.rst:279
+#: ../../quickstart.rst:284
 msgid "Peewee Application"
 msgstr "Peewee 应用"
 
-#: ../../quickstart.rst:281
+#: ../../quickstart.rst:286
 msgid ""
 "The following code sample illustrates how to get started as quickly as "
 "possible using Peewee:"
 msgstr "下面的代码简单的演示了如何快速开始基于 Peewee 的应用:"
 
-#: ../../quickstart.rst:346
+#: ../../quickstart.rst:351
 msgid "Mail Configuration"
 msgstr "邮件配置"
 
-#: ../../quickstart.rst:348
+#: ../../quickstart.rst:353
 msgid ""
-"Flask-Security integrates with Flask-Mail to handle all email "
-"communications between user and site, so it's important to configure "
-"Flask-Mail with your email server details so Flask-Security can talk with"
-" Flask-Mail correctly."
+"Flask-Security integrates with Flask-Mail to handle all email communications "
+"between user and site, so it's important to configure Flask-Mail with your "
+"email server details so Flask-Security can talk with Flask-Mail correctly."
 msgstr ""
 "Flask-Security 集成了 Flask-Mail 去处理所有用户和网站间的通讯,\n"
 "所以将你的邮件服务器信息配置到 Flask-Mail 是很重要的.\n"
 "这样 Flask-Security 才可以和 Flask-Mail 正确的通信."
 
-#: ../../quickstart.rst:353
+#: ../../quickstart.rst:358
 msgid ""
-"The following code illustrates a basic setup, which could be added to the"
-" basic application code in the previous section::"
+"The following code illustrates a basic setup, which could be added to the "
+"basic application code in the previous section::"
 msgstr "下面的代码演示了基础的设置, 可以加入到之前的所演示的基础应用代码中使用:"
 
-#: ../../quickstart.rst:367
+#: ../../quickstart.rst:372
 msgid ""
-"To learn more about the various Flask-Mail settings to configure it to "
-"work with your particular email server configuration, please see the "
-"`Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_."
+"To learn more about the various Flask-Mail settings to configure it to work "
+"with your particular email server configuration, please see the `Flask-Mail "
+"documentation <http://packages.python.org/Flask-Mail/>`_."
 msgstr ""
-"想要了解更多原生配置选项,配置 Flask-Mail 并使其工作于你的特殊的邮件服务器,请看\n"
+"想要了解更多原生配置选项,配置 Flask-Mail 并使其工作于你的特殊的邮件服务器,请"
+"看\n"
 "`Flask-Mail 文档 <http://packages.python.org/Flask-Mail/>`_."
-
