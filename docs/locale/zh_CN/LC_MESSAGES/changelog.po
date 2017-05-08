@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-27 11:45+0800\n"
+"POT-Creation-Date: 2017-05-08 11:12+0800\n"
 "PO-Revision-Date: 2017-03-27 13:26+0800\n"
+"Last-Translator: \n"
+"Language: zh_Hans_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: zh_CN\n"
-"X-Generator: Poedit 1.8.6\n"
 
 #: ../../../CHANGES:2
 msgid "Flask-Security Changelog"
@@ -25,610 +25,775 @@ msgstr ""
 
 #: ../../../CHANGES:4
 msgid ""
-"Here you can see the full list of changes between each Flask-Security release."
+"Here you can see the full list of changes between each Flask-Security "
+"release."
 msgstr ""
 
 #: ../../../CHANGES:7
-msgid "Version 1.7.5"
+msgid "Version 3.0.0"
 msgstr ""
 
 #: ../../../CHANGES:9
-msgid "Released December 2nd 2015"
+msgid "Released TBD"
 msgstr ""
 
 #: ../../../CHANGES:11
-msgid "Added `SECURITY_TOKEN_MAX_AGE` configuration setting"
-msgstr ""
-
-#: ../../../CHANGES:12
 msgid ""
-"Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns "
-"`False` instead of raising a `TypeError`"
+"Added options `SECURITY_EMAIL_PLAINTEXT` and `SECURITY_EMAIL_HTML` for "
+"sending respecively plaintext and HTML version of email."
 msgstr ""
 
 #: ../../../CHANGES:13
-msgid "Fixed URL generation adding extra slashes in some cases (see GitHub #343)"
+msgid "Fixed validation when missing login information."
 msgstr ""
 
 #: ../../../CHANGES:14
-msgid ""
-"Fixed handling of trackable IP addresses when the `X-Forwarded-For` header "
-"contains multiple values"
+msgid "Fixed condition for token extraction from JSON body."
 msgstr ""
 
 #: ../../../CHANGES:15
-msgid "Include WWW-Authenticate headers in `@auth_required` authentication checks"
+msgid "Better support for universal bdist wheel."
 msgstr ""
 
 #: ../../../CHANGES:16
-msgid "Fixed error when `check_token` function is used with a json list"
-msgstr ""
-
-#: ../../../CHANGES:17
-msgid "Added support for custom `AnonymousUser` classes"
+msgid ""
+"Added port of CLI using Click configurable using options "
+"`SECURITY_CLI_USERS_NAME` and `SECURITY_CLI_ROLES_NAME`."
 msgstr ""
 
 #: ../../../CHANGES:18
-msgid "Restricted `forgot_password` endpoint to anonymous users"
-msgstr ""
-
-#: ../../../CHANGES:19
-msgid "Allowed unauthorized callback to be overridden"
-msgstr ""
-
-#: ../../../CHANGES:20
-msgid "Fixed issue where passwords cannot be reset if currently set to `None`"
+msgid ""
+"Added new configuration option `SECURITY_DATETIME_FACTORY` which can be "
+"used to force default timezone for newly created datetimes. (see "
+"mattupstate/flask-security#466)"
 msgstr ""
 
 #: ../../../CHANGES:21
-msgid "Ensured that password reset tokens are invalidated after use"
+msgid "Better IP tracking if using Flask 0.12."
 msgstr ""
 
 #: ../../../CHANGES:22
-msgid ""
-"Updated `is_authenticated` and `is_active` functions to support Flask-Login "
-"changes"
+msgid "Renamed deprecated Flask-WFT base form class."
 msgstr ""
 
 #: ../../../CHANGES:23
-msgid "Various documentation improvements"
+msgid "Added tests for custom forms configured using app config."
+msgstr ""
+
+#: ../../../CHANGES:24
+msgid ""
+"Added validation and tests for next argument in logout endpoint. (see "
+"#499)"
+msgstr ""
+
+#: ../../../CHANGES:25
+msgid "Bumped minimal required versions of several packages."
+msgstr ""
+
+#: ../../../CHANGES:26
+msgid ""
+"Extended test matric on Travis CI for minimal and released package "
+"versions."
 msgstr ""
 
 #: ../../../CHANGES:27
-msgid "Version 1.7.4"
+msgid "Added of .editorconfig and forced tests for code style."
 msgstr ""
 
-#: ../../../CHANGES:29
-msgid "Released October 13th 2014"
+#: ../../../CHANGES:28
+msgid ""
+"Fixed a security bug when validating a confirmation token, also checks if"
+" the email that the token was created with matches the user's current "
+"email."
+msgstr ""
+
+#: ../../../CHANGES:30
+msgid "Replaced token loader with request loader."
 msgstr ""
 
 #: ../../../CHANGES:31
 msgid ""
-"Fixed a bug related to changing existing passwords from plaintext to hashed"
+"Changed trackable behavior of `login_user` when IP can not be detected "
+"from a request from 'untrackable' to `None` value."
 msgstr ""
 
 #: ../../../CHANGES:32
-msgid "Fixed a bug in form validation that did not enforce case insensivitiy"
+msgid "Use ProxyFix instead of inspecting X-Forwarded-For header."
 msgstr ""
 
 #: ../../../CHANGES:33
-msgid "Fixed a bug with validating redirects"
+msgid "Fix identical problem with app as with datastore."
+msgstr ""
+
+#: ../../../CHANGES:34
+msgid "Removed always-failing assertion."
+msgstr ""
+
+#: ../../../CHANGES:35
+msgid "Fixed failure of init_app to set self.datastore."
+msgstr ""
+
+#: ../../../CHANGES:36
+msgid "Changed to new style flask imports."
 msgstr ""
 
 #: ../../../CHANGES:37
-msgid "Version 1.7.3"
+msgid "Added proper error code when returning JSON response."
+msgstr ""
+
+#: ../../../CHANGES:38
+msgid ""
+"Changed obsolette Required validator from WTForms to DataRequired. Bumped"
+" Flask-WTF to 0.13."
 msgstr ""
 
 #: ../../../CHANGES:39
-msgid "Released June 10th 2014"
+msgid "Fixed missing `SECURITY_SUBDOMAIN` in config docs."
+msgstr ""
+
+#: ../../../CHANGES:40
+msgid "Added cascade delete in PeeweeDatastore."
 msgstr ""
 
 #: ../../../CHANGES:41
-msgid ""
-"Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not respected"
+msgid "Added notes to docs about `SECURITY_USER_IDENTITY_ATTRIBUTES`."
 msgstr ""
 
 #: ../../../CHANGES:42
-msgid "Fixed string encoding in various places to be friendly to unicode"
+msgid "Inspect value of `SECURITY_UNAUTHORIZED_VIEW`."
 msgstr ""
 
 #: ../../../CHANGES:43
-msgid "Now using `werkzeug.security.safe_str_cmp` to check tokens"
+msgid "Send password reset instructions if an attempt has expired."
 msgstr ""
 
 #: ../../../CHANGES:44
-msgid "Removed user information from JSON output on `/reset` responses"
+msgid "Added \"Forgot password?\" link to LoginForm description."
 msgstr ""
 
 #: ../../../CHANGES:45
-msgid "Added Python 3.4 support"
+msgid "Upgraded passlib, and removed bcrypt version restriction."
 msgstr ""
 
-#: ../../../CHANGES:49
-msgid "Version 1.7.2"
+#: ../../../CHANGES:46
+msgid ""
+"Removed a duplicate line ('retype_password': 'Retype Password') in "
+"forms.py."
 msgstr ""
 
-#: ../../../CHANGES:51
-msgid "Released May 6th 2014"
+#: ../../../CHANGES:47
+msgid "Various documentation improvement."
 msgstr ""
 
-#: ../../../CHANGES:53
-msgid "Updated IP tracking to check for `X-Forwarded-For` header"
+#: ../../../CHANGES:50
+msgid "Version 1.7.5"
+msgstr ""
+
+#: ../../../CHANGES:52
+msgid "Released December 2nd 2015"
 msgstr ""
 
 #: ../../../CHANGES:54
-msgid "Fixed a bug regarding the re-hashing of passwords with a new algorithm"
+msgid "Added `SECURITY_TOKEN_MAX_AGE` configuration setting"
 msgstr ""
 
 #: ../../../CHANGES:55
-msgid "Fixed a bug regarding the `password_changed` signal."
+msgid ""
+"Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns"
+" `False` instead of raising a `TypeError`"
+msgstr ""
+
+#: ../../../CHANGES:56
+msgid "Fixed URL generation adding extra slashes in some cases (see GitHub #343)"
+msgstr ""
+
+#: ../../../CHANGES:57
+msgid ""
+"Fixed handling of trackable IP addresses when the `X-Forwarded-For` "
+"header contains multiple values"
+msgstr ""
+
+#: ../../../CHANGES:58
+msgid "Include WWW-Authenticate headers in `@auth_required` authentication checks"
 msgstr ""
 
 #: ../../../CHANGES:59
-msgid "Version 1.7.1"
+msgid "Fixed error when `check_token` function is used with a json list"
+msgstr ""
+
+#: ../../../CHANGES:60
+msgid "Added support for custom `AnonymousUser` classes"
 msgstr ""
 
 #: ../../../CHANGES:61
-msgid "Released January 14th 2014"
+msgid "Restricted `forgot_password` endpoint to anonymous users"
+msgstr ""
+
+#: ../../../CHANGES:62
+msgid "Allowed unauthorized callback to be overridden"
 msgstr ""
 
 #: ../../../CHANGES:63
+msgid "Fixed issue where passwords cannot be reset if currently set to `None`"
+msgstr ""
+
+#: ../../../CHANGES:64
+msgid "Ensured that password reset tokens are invalidated after use"
+msgstr ""
+
+#: ../../../CHANGES:65
 msgid ""
-"Fixed a bug where passwords would fail to verify when specifying a password "
-"hash algorithm"
+"Updated `is_authenticated` and `is_active` functions to support Flask-"
+"Login changes"
 msgstr ""
 
-#: ../../../CHANGES:67
-msgid "Version 1.7.0"
+#: ../../../CHANGES:66
+msgid "Various documentation improvements"
 msgstr ""
 
-#: ../../../CHANGES:69
-msgid "Released January 10th 2014"
-msgstr ""
-
-#: ../../../CHANGES:71
-msgid "Python 3.3 support!"
+#: ../../../CHANGES:70
+msgid "Version 1.7.4"
 msgstr ""
 
 #: ../../../CHANGES:72
-msgid "Dependency updates"
-msgstr ""
-
-#: ../../../CHANGES:73
-msgid ""
-"Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not allow "
-"users to log in"
+msgid "Released October 13th 2014"
 msgstr ""
 
 #: ../../../CHANGES:74
 msgid ""
-"Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to "
-"optionally send password reset notice emails"
+"Fixed a bug related to changing existing passwords from plaintext to "
+"hashed"
 msgstr ""
 
 #: ../../../CHANGES:75
-msgid "Add documentation for `@security.send_mail_task`"
+msgid "Fixed a bug in form validation that did not enforce case insensivitiy"
 msgstr ""
 
 #: ../../../CHANGES:76
-msgid "Move to `request.get_json` as `request.json` is now deprecated in Flask"
-msgstr ""
-
-#: ../../../CHANGES:77
-msgid "Fixed a bug when using AJAX to change a user's password"
-msgstr ""
-
-#: ../../../CHANGES:78
-msgid ""
-"Added documentation for select functions in the `flask_security.utils` module"
-msgstr ""
-
-#: ../../../CHANGES:79
-msgid "Fixed a bug in `flask_security.forms.NextFormMixin`"
+msgid "Fixed a bug with validating redirects"
 msgstr ""
 
 #: ../../../CHANGES:80
-msgid ""
-"Added `CHANGE_PASSWORD_TEMPLATE` configuration option to optionally specify a "
-"different change password template"
-msgstr ""
-
-#: ../../../CHANGES:81
-msgid ""
-"Added the ability to specify addtional fields on the user model to be used for "
-"identifying the user via the `USER_IDENTITY_ATTRIBUTES` configuration option"
+msgid "Version 1.7.3"
 msgstr ""
 
 #: ../../../CHANGES:82
-msgid ""
-"An error is now shown if a user tries to change their password and the password "
-"is the same as before. The message can be customed with the "
-"`SECURITY_MSG_PASSWORD_IS_SAME` configuration option"
-msgstr ""
-
-#: ../../../CHANGES:83
-msgid ""
-"Fixed a bug in `MongoEngineUserDatastore` where user model would not be updated "
-"when using the `add_role_to_user` method"
+msgid "Released June 10th 2014"
 msgstr ""
 
 #: ../../../CHANGES:84
 msgid ""
-"Added `SECURITY_SEND_PASSWORD_CHANGE_EMAIL` configuration option to optionally "
-"disable password change email from being sent"
+"Fixed a bug where redirection to `SECURITY_POST_LOGIN_VIEW` was not "
+"respected"
 msgstr ""
 
 #: ../../../CHANGES:85
-msgid "Fixed a bug in the `find_or_create_role` method of the PeeWee datastore"
+msgid "Fixed string encoding in various places to be friendly to unicode"
 msgstr ""
 
 #: ../../../CHANGES:86
-msgid "Removed pypy tests"
+msgid "Now using `werkzeug.security.safe_str_cmp` to check tokens"
 msgstr ""
 
 #: ../../../CHANGES:87
-msgid "Fixed some tests"
+msgid "Removed user information from JSON output on `/reset` responses"
 msgstr ""
 
 #: ../../../CHANGES:88
+msgid "Added Python 3.4 support"
+msgstr ""
+
+#: ../../../CHANGES:92
+msgid "Version 1.7.2"
+msgstr ""
+
+#: ../../../CHANGES:94
+msgid "Released May 6th 2014"
+msgstr ""
+
+#: ../../../CHANGES:96
+msgid "Updated IP tracking to check for `X-Forwarded-For` header"
+msgstr ""
+
+#: ../../../CHANGES:97
+msgid "Fixed a bug regarding the re-hashing of passwords with a new algorithm"
+msgstr ""
+
+#: ../../../CHANGES:98
+msgid "Fixed a bug regarding the `password_changed` signal."
+msgstr ""
+
+#: ../../../CHANGES:102
+msgid "Version 1.7.1"
+msgstr ""
+
+#: ../../../CHANGES:104
+msgid "Released January 14th 2014"
+msgstr ""
+
+#: ../../../CHANGES:106
+msgid ""
+"Fixed a bug where passwords would fail to verify when specifying a "
+"password hash algorithm"
+msgstr ""
+
+#: ../../../CHANGES:110
+msgid "Version 1.7.0"
+msgstr ""
+
+#: ../../../CHANGES:112
+msgid "Released January 10th 2014"
+msgstr ""
+
+#: ../../../CHANGES:114
+msgid "Python 3.3 support!"
+msgstr ""
+
+#: ../../../CHANGES:115
+msgid "Dependency updates"
+msgstr ""
+
+#: ../../../CHANGES:116
+msgid ""
+"Fixed a bug when `SECURITY_LOGIN_WITHOUT_CONFIRMATION = True` did not "
+"allow users to log in"
+msgstr ""
+
+#: ../../../CHANGES:117
+msgid ""
+"Added `SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL` configuraiton option to"
+" optionally send password reset notice emails"
+msgstr ""
+
+#: ../../../CHANGES:118
+msgid "Add documentation for `@security.send_mail_task`"
+msgstr ""
+
+#: ../../../CHANGES:119
+msgid "Move to `request.get_json` as `request.json` is now deprecated in Flask"
+msgstr ""
+
+#: ../../../CHANGES:120
+msgid "Fixed a bug when using AJAX to change a user's password"
+msgstr ""
+
+#: ../../../CHANGES:121
+msgid ""
+"Added documentation for select functions in the `flask_security.utils` "
+"module"
+msgstr ""
+
+#: ../../../CHANGES:122
+msgid "Fixed a bug in `flask_security.forms.NextFormMixin`"
+msgstr ""
+
+#: ../../../CHANGES:123
+msgid ""
+"Added `CHANGE_PASSWORD_TEMPLATE` configuration option to optionally "
+"specify a different change password template"
+msgstr ""
+
+#: ../../../CHANGES:124
+msgid ""
+"Added the ability to specify addtional fields on the user model to be "
+"used for identifying the user via the `USER_IDENTITY_ATTRIBUTES` "
+"configuration option"
+msgstr ""
+
+#: ../../../CHANGES:125
+msgid ""
+"An error is now shown if a user tries to change their password and the "
+"password is the same as before. The message can be customed with the "
+"`SECURITY_MSG_PASSWORD_IS_SAME` configuration option"
+msgstr ""
+
+#: ../../../CHANGES:126
+msgid ""
+"Fixed a bug in `MongoEngineUserDatastore` where user model would not be "
+"updated when using the `add_role_to_user` method"
+msgstr ""
+
+#: ../../../CHANGES:127
+msgid ""
+"Added `SECURITY_SEND_PASSWORD_CHANGE_EMAIL` configuration option to "
+"optionally disable password change email from being sent"
+msgstr ""
+
+#: ../../../CHANGES:128
+msgid "Fixed a bug in the `find_or_create_role` method of the PeeWee datastore"
+msgstr ""
+
+#: ../../../CHANGES:129
+msgid "Removed pypy tests"
+msgstr ""
+
+#: ../../../CHANGES:130
+msgid "Fixed some tests"
+msgstr ""
+
+#: ../../../CHANGES:131
 msgid "Include CHANGES and LICENSE in MANIFEST.in"
 msgstr ""
 
-#: ../../../CHANGES:89
+#: ../../../CHANGES:132
 msgid "A bit of documentation cleanup"
 msgstr ""
 
-#: ../../../CHANGES:90
+#: ../../../CHANGES:133
 msgid ""
 "A bit of code cleanup including removal of unnecessary utcnow call and "
 "simplification of get_max_age method"
 msgstr ""
 
-#: ../../../CHANGES:94
+#: ../../../CHANGES:137
 msgid "Version 1.6.9"
 msgstr ""
 
-#: ../../../CHANGES:96
+#: ../../../CHANGES:139
 msgid "Released August 20th 2013"
 msgstr ""
 
-#: ../../../CHANGES:98
+#: ../../../CHANGES:141
 msgid "Fix bug in SQLAlchemy datastore's `get_user` function"
 msgstr ""
 
-#: ../../../CHANGES:99
+#: ../../../CHANGES:142
 msgid "Fix bug in PeeWee datastore's `remove_role_from_user` function"
 msgstr ""
 
-#: ../../../CHANGES:100
+#: ../../../CHANGES:143
 msgid "Fixed import error caused by new Flask-WTF release"
 msgstr ""
 
-#: ../../../CHANGES:104
+#: ../../../CHANGES:147
 msgid "Version 1.6.8"
 msgstr ""
 
-#: ../../../CHANGES:106
+#: ../../../CHANGES:149
 msgid "Released August 1st 2013"
 msgstr ""
 
-#: ../../../CHANGES:108
+#: ../../../CHANGES:151
 msgid "Fixed bug with case sensitivity of email address during login"
 msgstr ""
 
-#: ../../../CHANGES:109
+#: ../../../CHANGES:152
 msgid "Code cleanup regarding token_callback"
 msgstr ""
 
-#: ../../../CHANGES:110
-msgid ""
-"Ignore validation errors in find_user function for MongoEngineUserDatastore"
-msgstr ""
-
-#: ../../../CHANGES:114
-msgid "Version 1.6.7"
-msgstr ""
-
-#: ../../../CHANGES:116
-msgid "Released July 11th 2013"
-msgstr ""
-
-#: ../../../CHANGES:118
-msgid "Made password length form error message configurable"
-msgstr ""
-
-#: ../../../CHANGES:119
-msgid ""
-"Fixed email confirmation bug that prevented logged in users from confirming "
-"their email"
-msgstr ""
-
-#: ../../../CHANGES:123
-msgid "Version 1.6.6"
-msgstr ""
-
-#: ../../../CHANGES:125
-msgid "Released June 28th 2013"
-msgstr ""
-
-#: ../../../CHANGES:127
-msgid "Fixed dependency versions"
-msgstr ""
-
-#: ../../../CHANGES:131
-msgid "Version 1.6.5"
-msgstr ""
-
-#: ../../../CHANGES:133
-msgid "Released June 20th 2013"
-msgstr ""
-
-#: ../../../CHANGES:135
-msgid "Fixed bug in `flask.ext.security.confirmable.generate_confirmation_link`"
-msgstr ""
-
-#: ../../../CHANGES:139
-msgid "Version 1.6.4"
-msgstr ""
-
-#: ../../../CHANGES:141
-msgid "Released June 18th 2013"
-msgstr ""
-
-#: ../../../CHANGES:143
-msgid ""
-"Added `SECURITY_DEFAULT_REMEMBER_ME` configuration value to unify behavior "
-"between endpoints"
-msgstr ""
-
-#: ../../../CHANGES:144
-msgid "Fixed Flask-Login dependency problem"
-msgstr ""
-
-#: ../../../CHANGES:145
-msgid ""
-"Added optional `next` parameter to registration endpoint, similar to that of "
-"login"
-msgstr ""
-
-#: ../../../CHANGES:149
-msgid "Version 1.6.3"
-msgstr ""
-
-#: ../../../CHANGES:151
-msgid "Released May 8th 2013"
-msgstr ""
-
 #: ../../../CHANGES:153
-msgid "Fixed bug in regards to imports with latest version of MongoEngine"
+msgid ""
+"Ignore validation errors in find_user function for "
+"MongoEngineUserDatastore"
 msgstr ""
 
 #: ../../../CHANGES:157
-msgid "Version 1.6.2"
+msgid "Version 1.6.7"
 msgstr ""
 
 #: ../../../CHANGES:159
-msgid "Released April 4th 2013"
+msgid "Released July 11th 2013"
 msgstr ""
 
 #: ../../../CHANGES:161
-msgid "Fixed bug with http basic auth"
+msgid "Made password length form error message configurable"
 msgstr ""
 
-#: ../../../CHANGES:165
-msgid "Version 1.6.1"
+#: ../../../CHANGES:162
+msgid ""
+"Fixed email confirmation bug that prevented logged in users from "
+"confirming their email"
 msgstr ""
 
-#: ../../../CHANGES:167
-msgid "Released April 3rd 2013"
+#: ../../../CHANGES:166
+msgid "Version 1.6.6"
 msgstr ""
 
-#: ../../../CHANGES:169
-msgid "Fixed bug with signals"
+#: ../../../CHANGES:168
+msgid "Released June 28th 2013"
 msgstr ""
 
-#: ../../../CHANGES:173
-msgid "Version 1.6.0"
+#: ../../../CHANGES:170
+msgid "Fixed dependency versions"
 msgstr ""
 
-#: ../../../CHANGES:175
-msgid "Released March 13th 2013"
+#: ../../../CHANGES:174
+msgid "Version 1.6.5"
 msgstr ""
 
-#: ../../../CHANGES:177
-msgid "Added Flask-Pewee support"
+#: ../../../CHANGES:176
+msgid "Released June 20th 2013"
 msgstr ""
 
 #: ../../../CHANGES:178
-msgid ""
-"Password hashing is now more flexible and can be changed to a different type at "
-"will"
-msgstr ""
-
-#: ../../../CHANGES:179
-msgid "Flask-Login messages are configurable"
-msgstr ""
-
-#: ../../../CHANGES:180
-msgid "AJAX requests must now send a CSRF token for security reasons"
-msgstr ""
-
-#: ../../../CHANGES:181
-msgid "Form messages are now configurable"
+msgid "Fixed bug in `flask.ext.security.confirmable.generate_confirmation_link`"
 msgstr ""
 
 #: ../../../CHANGES:182
-msgid "Forms can now be extended with more fields"
-msgstr ""
-
-#: ../../../CHANGES:183
-msgid "Added change password endpoint"
+msgid "Version 1.6.4"
 msgstr ""
 
 #: ../../../CHANGES:184
-msgid ""
-"Added the user to the request context when successfully authenticated via http "
-"basic and token auth"
-msgstr ""
-
-#: ../../../CHANGES:185
-msgid "The Flask-Security blueprint subdomain is now configurable"
+msgid "Released June 18th 2013"
 msgstr ""
 
 #: ../../../CHANGES:186
 msgid ""
-"Redirects to other domains are now not allowed during requests that may redirect"
+"Added `SECURITY_DEFAULT_REMEMBER_ME` configuration value to unify "
+"behavior between endpoints"
 msgstr ""
 
 #: ../../../CHANGES:187
-msgid "Template paths can be configured"
+msgid "Fixed Flask-Login dependency problem"
 msgstr ""
 
 #: ../../../CHANGES:188
-msgid "The welcome/register email can now optionally be sent to the user"
+msgid ""
+"Added optional `next` parameter to registration endpoint, similar to that"
+" of login"
 msgstr ""
 
-#: ../../../CHANGES:189
-msgid "Passwords can now contain non-latin characters"
-msgstr ""
-
-#: ../../../CHANGES:190
-msgid "Fixed a bug when confirming an account but the account has been deleted"
+#: ../../../CHANGES:192
+msgid "Version 1.6.3"
 msgstr ""
 
 #: ../../../CHANGES:194
-msgid "Version 1.5.4"
+msgid "Released May 8th 2013"
 msgstr ""
 
 #: ../../../CHANGES:196
-msgid "Released January 6th 2013"
+msgid "Fixed bug in regards to imports with latest version of MongoEngine"
 msgstr ""
 
-#: ../../../CHANGES:198
-msgid ""
-"Fix bug in forms with `csrf_enabled` parameter not accounting attempts to login "
-"using JSON data"
+#: ../../../CHANGES:200
+msgid "Version 1.6.2"
 msgstr ""
 
 #: ../../../CHANGES:202
-msgid "Version 1.5.3"
+msgid "Released April 4th 2013"
 msgstr ""
 
 #: ../../../CHANGES:204
-msgid "Released December 23rd 2012"
+msgid "Fixed bug with http basic auth"
 msgstr ""
 
-#: ../../../CHANGES:206
-msgid "Change dependency requirement"
+#: ../../../CHANGES:208
+msgid "Version 1.6.1"
 msgstr ""
 
-#: ../../../CHANGES:209
-msgid "Version 1.5.2"
+#: ../../../CHANGES:210
+msgid "Released April 3rd 2013"
 msgstr ""
 
-#: ../../../CHANGES:211
-msgid "Released December 11th 2012"
-msgstr ""
-
-#: ../../../CHANGES:213
-msgid "Fix a small bug in `flask_security.utils.login_user` method"
+#: ../../../CHANGES:212
+msgid "Fixed bug with signals"
 msgstr ""
 
 #: ../../../CHANGES:216
-msgid "Version 1.5.1"
+msgid "Version 1.6.0"
 msgstr ""
 
 #: ../../../CHANGES:218
-msgid "Released November 26th 2012"
+msgid "Released March 13th 2013"
 msgstr ""
 
 #: ../../../CHANGES:220
-msgid "Fixed bug with `next` form variable"
+msgid "Added Flask-Pewee support"
 msgstr ""
 
 #: ../../../CHANGES:221
-msgid "Added better documentation regarding Flask-Mail configuration"
+msgid ""
+"Password hashing is now more flexible and can be changed to a different "
+"type at will"
 msgstr ""
 
 #: ../../../CHANGES:222
-msgid "Added ability to configure email subjects"
+msgid "Flask-Login messages are configurable"
+msgstr ""
+
+#: ../../../CHANGES:223
+msgid "AJAX requests must now send a CSRF token for security reasons"
+msgstr ""
+
+#: ../../../CHANGES:224
+msgid "Form messages are now configurable"
 msgstr ""
 
 #: ../../../CHANGES:225
-msgid "Version 1.5.0"
+msgid "Forms can now be extended with more fields"
+msgstr ""
+
+#: ../../../CHANGES:226
+msgid "Added change password endpoint"
 msgstr ""
 
 #: ../../../CHANGES:227
-msgid "Released October 11th 2012"
+msgid ""
+"Added the user to the request context when successfully authenticated via"
+" http basic and token auth"
+msgstr ""
+
+#: ../../../CHANGES:228
+msgid "The Flask-Security blueprint subdomain is now configurable"
 msgstr ""
 
 #: ../../../CHANGES:229
 msgid ""
-"Major release. Upgrading from previous versions will require a bit of work to "
-"accomodate API changes. See documentation for a list of new features and for "
-"help on how to upgrade."
+"Redirects to other domains are now not allowed during requests that may "
+"redirect"
 msgstr ""
 
-#: ../../../CHANGES:234
-msgid "Version 1.2.3"
+#: ../../../CHANGES:230
+msgid "Template paths can be configured"
 msgstr ""
 
-#: ../../../CHANGES:236
-msgid "Released June 12th 2012"
+#: ../../../CHANGES:231
+msgid "The welcome/register email can now optionally be sent to the user"
 msgstr ""
 
-#: ../../../CHANGES:238
-msgid "Fixed a bug in the RoleMixin eq/ne functions"
+#: ../../../CHANGES:232
+msgid "Passwords can now contain non-latin characters"
+msgstr ""
+
+#: ../../../CHANGES:233
+msgid "Fixed a bug when confirming an account but the account has been deleted"
+msgstr ""
+
+#: ../../../CHANGES:237
+msgid "Version 1.5.4"
+msgstr ""
+
+#: ../../../CHANGES:239
+msgid "Released January 6th 2013"
 msgstr ""
 
 #: ../../../CHANGES:241
-msgid "Version 1.2.2"
-msgstr ""
-
-#: ../../../CHANGES:243
-msgid "Released April 27th 2012"
+msgid ""
+"Fix bug in forms with `csrf_enabled` parameter not accounting attempts to"
+" login using JSON data"
 msgstr ""
 
 #: ../../../CHANGES:245
-msgid ""
-"Fixed bug where `roles_required` and `roles_accepted` did not pass the next "
-"argument to the login view"
+msgid "Version 1.5.3"
+msgstr ""
+
+#: ../../../CHANGES:247
+msgid "Released December 23rd 2012"
 msgstr ""
 
 #: ../../../CHANGES:249
-msgid "Version 1.2.1"
+msgid "Change dependency requirement"
 msgstr ""
 
-#: ../../../CHANGES:251
-msgid "Released March 28th 2012"
-msgstr ""
-
-#: ../../../CHANGES:253
-msgid "Added optional user model mixin parameter for datastores"
+#: ../../../CHANGES:252
+msgid "Version 1.5.2"
 msgstr ""
 
 #: ../../../CHANGES:254
-msgid "Added CreateRoleCommand to available Flask-Script commands"
+msgid "Released December 11th 2012"
 msgstr ""
 
-#: ../../../CHANGES:257
-msgid "Version 1.2.0"
+#: ../../../CHANGES:256
+msgid "Fix a small bug in `flask_security.utils.login_user` method"
 msgstr ""
 
 #: ../../../CHANGES:259
-msgid "Released March 12th 2012"
+msgid "Version 1.5.1"
 msgstr ""
 
 #: ../../../CHANGES:261
-msgid ""
-"Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to a "
-"boolean value to specify if Flask-Security should flash messages or not."
+msgid "Released November 26th 2012"
+msgstr ""
+
+#: ../../../CHANGES:263
+msgid "Fixed bug with `next` form variable"
+msgstr ""
+
+#: ../../../CHANGES:264
+msgid "Added better documentation regarding Flask-Mail configuration"
 msgstr ""
 
 #: ../../../CHANGES:265
+msgid "Added ability to configure email subjects"
+msgstr ""
+
+#: ../../../CHANGES:268
+msgid "Version 1.5.0"
+msgstr ""
+
+#: ../../../CHANGES:270
+msgid "Released October 11th 2012"
+msgstr ""
+
+#: ../../../CHANGES:272
+msgid ""
+"Major release. Upgrading from previous versions will require a bit of "
+"work to accomodate API changes. See documentation for a list of new "
+"features and for help on how to upgrade."
+msgstr ""
+
+#: ../../../CHANGES:277
+msgid "Version 1.2.3"
+msgstr ""
+
+#: ../../../CHANGES:279
+msgid "Released June 12th 2012"
+msgstr ""
+
+#: ../../../CHANGES:281
+msgid "Fixed a bug in the RoleMixin eq/ne functions"
+msgstr ""
+
+#: ../../../CHANGES:284
+msgid "Version 1.2.2"
+msgstr ""
+
+#: ../../../CHANGES:286
+msgid "Released April 27th 2012"
+msgstr ""
+
+#: ../../../CHANGES:288
+msgid ""
+"Fixed bug where `roles_required` and `roles_accepted` did not pass the "
+"next argument to the login view"
+msgstr ""
+
+#: ../../../CHANGES:292
+msgid "Version 1.2.1"
+msgstr ""
+
+#: ../../../CHANGES:294
+msgid "Released March 28th 2012"
+msgstr ""
+
+#: ../../../CHANGES:296
+msgid "Added optional user model mixin parameter for datastores"
+msgstr ""
+
+#: ../../../CHANGES:297
+msgid "Added CreateRoleCommand to available Flask-Script commands"
+msgstr ""
+
+#: ../../../CHANGES:300
+msgid "Version 1.2.0"
+msgstr ""
+
+#: ../../../CHANGES:302
+msgid "Released March 12th 2012"
+msgstr ""
+
+#: ../../../CHANGES:304
+msgid ""
+"Added configuration option `SECURITY_FLASH_MESSAGES` which can be set to "
+"a boolean value to specify if Flask-Security should flash messages or "
+"not."
+msgstr ""
+
+#: ../../../CHANGES:308
 msgid "Version 1.1.0"
 msgstr ""
 
-#: ../../../CHANGES:267
+#: ../../../CHANGES:310
 msgid "Initial release"
 msgstr ""
+

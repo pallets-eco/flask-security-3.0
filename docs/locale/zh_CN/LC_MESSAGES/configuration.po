@@ -8,17 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 1.7.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-28 15:06+0800\n"
+"POT-Creation-Date: 2017-05-08 11:12+0800\n"
 "PO-Revision-Date: 2017-05-03 14:59+0800\n"
 "Last-Translator: \n"
-"Language: zh_CN\n"
+"Language: zh_Hans_CN\n"
 "Language-Team: \n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
-"X-Generator: Poedit 1.8.6\n"
 
 #: ../../configuration.rst:2
 msgid "Configuration"
@@ -38,806 +37,873 @@ msgstr "``SECURITY_BLUEPRINT_NAME``"
 
 #: ../../configuration.rst:12
 msgid ""
-"Specifies the name for the Flask-Security blueprint. Defaults to ``security``."
+"Specifies the name for the Flask-Security blueprint. Defaults to "
+"``security``."
 msgstr "为 Flask-Security 指定蓝图名称. 默认为 ``security``."
 
 #: ../../configuration.rst:15
+msgid "``SECURITY_CLI_USERS_NAME``"
+msgstr ""
+
+#: ../../configuration.rst:15
+msgid ""
+"Specifies the name for the command managing users. Disable by setting "
+"``False``. Defaults to ``users``."
+msgstr ""
+
+#: ../../configuration.rst:18
+msgid "``SECURITY_CLI_ROLES_NAME``"
+msgstr ""
+
+#: ../../configuration.rst:18
+msgid ""
+"Specifies the name for the command managing roles. Disable by setting "
+"``False``. Defaults to ``roles``."
+msgstr ""
+
+#: ../../configuration.rst:21
 msgid "``SECURITY_URL_PREFIX``"
 msgstr "``SECURITY_URL_PREFIX``"
 
-#: ../../configuration.rst:15
+#: ../../configuration.rst:21
 msgid ""
 "Specifies the URL prefix for the Flask-Security blueprint. Defaults to "
 "``None``."
 msgstr "为 Flask-Security 指定蓝图 URL 前缀. 默认为 ``None``."
 
-#: ../../configuration.rst:18
+#: ../../configuration.rst:24
 msgid "``SECURITY_SUBDOMAIN``"
 msgstr "``SECURITY_SUBDOMAIN``"
 
-#: ../../configuration.rst:18
+#: ../../configuration.rst:24
 msgid ""
-"Specifies the subdomain for the Flask-Security blueprint. Defaults to ``None``."
+"Specifies the subdomain for the Flask-Security blueprint. Defaults to "
+"``None``."
 msgstr "为 Flask-Security 指定蓝图子域名. 默认为 ``None``."
 
-#: ../../configuration.rst:21
+#: ../../configuration.rst:27
 msgid "``SECURITY_FLASH_MESSAGES``"
 msgstr "``SECURITY_FLASH_MESSAGES``"
 
-#: ../../configuration.rst:21
+#: ../../configuration.rst:27
 msgid ""
 "Specifies whether or not to flash messages during security procedures. "
 "Defaults to ``True``."
 msgstr "指定安全验证过程中是否闪现(flash)消息. 默认为 ``True``."
 
-#: ../../configuration.rst:24
+#: ../../configuration.rst:30
+msgid "``SECURITY_I18N_DOMAIN``"
+msgstr ""
+
+#: ../../configuration.rst:30
+#, fuzzy
+msgid ""
+"Specifies the name for domain used for translations. Defaults to "
+"``flask_security``."
+msgstr "为 Flask-Security 指定蓝图名称. 默认为 ``security``."
+
+#: ../../configuration.rst:33
 msgid "``SECURITY_PASSWORD_HASH``"
 msgstr "``SECURITY_PASSWORD_HASH``"
 
-#: ../../configuration.rst:24
+#: ../../configuration.rst:33
+#, fuzzy
 msgid ""
-"Specifies the password hash algorithm to use when encrypting and decrypting "
-"passwords. Recommended values for production systems are ``bcrypt``, "
-"``sha512_crypt``, or ``pbkdf2_sha512``. Defaults to ``plaintext``."
+"Specifies the password hash algorithm to use when hashing passwords. "
+"Recommended values for production systems are ``bcrypt``, "
+"``sha512_crypt``, or ``pbkdf2_sha512``. Defaults to ``bcrypt``."
 msgstr ""
-"指定密码加解密所用的hash算法. 推荐在生产环境中使用 ``bcrypt``, "
-"``sha512_crypt``,  ``pbkdf2_sha512``. 默认为 ``plaintext``."
+"指定密码加解密所用的hash算法. 推荐在生产环境中使用 ``bcrypt``, ``sha512_crypt``,  "
+"``pbkdf2_sha512``. 默认为 ``plaintext``."
 
-#: ../../configuration.rst:30
+#: ../../configuration.rst:39
 msgid "``SECURITY_PASSWORD_SALT``"
 msgstr "``SECURITY_PASSWORD_SALT``"
 
-#: ../../configuration.rst:30
+#: ../../configuration.rst:39
 msgid ""
-"Specifies the HMAC salt. This is only used if the password hash type is set to "
-"something other than plain text. Defaults to ``None``."
-msgstr ""
-"指定 HMAC 盐. 仅在密码hash类型设置为纯文本以外的类型时生效. 默认为 ``None``."
+"Specifies the HMAC salt. This is only used if the password hash type is "
+"set to something other than plain text. Defaults to ``None``."
+msgstr "指定 HMAC 盐. 仅在密码hash类型设置为纯文本以外的类型时生效. 默认为 ``None``."
 
-#: ../../configuration.rst:34
+#: ../../configuration.rst:43
+msgid "``SECURITY_PASSWORD_SINGLE_HASH``"
+msgstr ""
+
+#: ../../configuration.rst:43
+msgid ""
+"Specifies that passwords should only be hashed once. By default, "
+"passwords are hashed twice, first with ``SECURITY_PASSWORD_SALT``, and "
+"then with a random salt. May be useful for integrating with other "
+"applications. Defaults to ``False``."
+msgstr ""
+
+#: ../../configuration.rst:50
+msgid "``SECURITY_HASHING_SCHEMES``"
+msgstr ""
+
+#: ../../configuration.rst:50
+msgid ""
+"List of algorithms used for creating and validating tokens. Defaults to "
+"``sha256_crypt``."
+msgstr ""
+
+#: ../../configuration.rst:53
+msgid "``SECURITY_DEPRECATED_HASHING_SCHEMES``"
+msgstr ""
+
+#: ../../configuration.rst:53
+msgid ""
+"List of deprecated algorithms used for creating and validating tokens. "
+"Defaults to ``hex_md5``."
+msgstr ""
+
+#: ../../configuration.rst:56
 msgid "``SECURITY_EMAIL_SENDER``"
 msgstr "``SECURITY_EMAIL_SENDER``"
 
-#: ../../configuration.rst:34
+#: ../../configuration.rst:56
 msgid ""
 "Specifies the email address to send emails as. Defaults to ``no-"
 "reply@localhost``."
 msgstr "指定发送邮件的邮箱地址. 默认为 ``no-reply@localhost``."
 
-#: ../../configuration.rst:37
+#: ../../configuration.rst:59
 msgid "``SECURITY_TOKEN_AUTHENTICATION_KEY``"
 msgstr "``SECURITY_TOKEN_AUTHENTICATION_KEY``"
 
-#: ../../configuration.rst:37
+#: ../../configuration.rst:59
 msgid ""
-"Specifies the query string parameter to read when using token authentication. "
-"Defaults to ``auth_token``."
-msgstr ""
-"指定当使用令牌验证时需要读取的查询字符串参数 ( query string parameter ). 默认"
-"为 ``auth_token``."
+"Specifies the query string parameter to read when using token "
+"authentication. Defaults to ``auth_token``."
+msgstr "指定当使用令牌验证时需要读取的查询字符串参数 ( query string parameter ). 默认为 ``auth_token``."
 
-#: ../../configuration.rst:40
+#: ../../configuration.rst:62
 msgid "``SECURITY_TOKEN_AUTHENTICATION_HEADER``"
 msgstr "``SECURITY_TOKEN_AUTHENTICATION_HEADER``"
 
-#: ../../configuration.rst:40
+#: ../../configuration.rst:62
 msgid ""
-"Specifies the HTTP header to read when using token authentication. Defaults to "
-"``Authentication-Token``."
+"Specifies the HTTP header to read when using token authentication. "
+"Defaults to ``Authentication-Token``."
 msgstr "指定当使用令牌验证时需要读取的HTTP头. 默认为 ``Authentication-Token``."
 
-#: ../../configuration.rst:43
+#: ../../configuration.rst:65
 msgid "``SECURITY_TOKEN_MAX_AGE``"
 msgstr "``SECURITY_TOKEN_MAX_AGE``"
 
-#: ../../configuration.rst:43
+#: ../../configuration.rst:65
 msgid ""
 "Specifies the number of seconds before an authentication token expires. "
 "Defaults to None, meaning the token never expires."
 msgstr "指定验证令牌过期时间(秒). 默认为 ``None``,表示永不过期."
 
-#: ../../configuration.rst:47
+#: ../../configuration.rst:69
 msgid "``SECURITY_DEFAULT_HTTP_AUTH_REALM``"
 msgstr "``SECURITY_DEFAULT_HTTP_AUTH_REALM``"
 
-#: ../../configuration.rst:47
+#: ../../configuration.rst:69
 msgid ""
 "Specifies the default authentication realm when using basic HTTP auth. "
 "Defaults to ``Login Required``"
-msgstr ""
-"指定当使用 HTTP 验证时的默认身份验证域 ( authentication realm ). 默认为 "
-"``Login Required``."
+msgstr "指定当使用 HTTP 验证时的默认身份验证域 ( authentication realm ). 默认为 ``Login Required``."
 
-#: ../../configuration.rst:54
+#: ../../configuration.rst:76
 msgid "URLs and Views"
 msgstr "URLs 和视图"
 
-#: ../../configuration.rst:59
+#: ../../configuration.rst:81
 msgid "``SECURITY_LOGIN_URL``"
 msgstr "``SECURITY_LOGIN_URL``"
 
-#: ../../configuration.rst:59
+#: ../../configuration.rst:81
 msgid "Specifies the login URL. Defaults to ``/login``."
 msgstr "指定登录 URL. 默认为 ``/login``."
 
-#: ../../configuration.rst:60
+#: ../../configuration.rst:82
 msgid "``SECURITY_LOGOUT_URL``"
 msgstr "``SECURITY_LOGOUT_URL``"
 
-#: ../../configuration.rst:60
+#: ../../configuration.rst:82
 msgid "Specifies the logout URL. Defaults to ``/logout``."
 msgstr "指定登出 URL. 默认为 ``/logout``."
 
-#: ../../configuration.rst:62
+#: ../../configuration.rst:84
 msgid "``SECURITY_REGISTER_URL``"
 msgstr "``SECURITY_REGISTER_URL``"
 
-#: ../../configuration.rst:62
+#: ../../configuration.rst:84
 msgid "Specifies the register URL. Defaults to ``/register``."
 msgstr "指定注册 URL. 默认为 ``/register``."
 
-#: ../../configuration.rst:64
+#: ../../configuration.rst:86
 msgid "``SECURITY_RESET_URL``"
 msgstr "``SECURITY_RESET_URL``"
 
-#: ../../configuration.rst:64
+#: ../../configuration.rst:86
 msgid "Specifies the password reset URL. Defaults to ``/reset``."
 msgstr "指定密码重置 URL. 默认为 ``/reset``."
 
-#: ../../configuration.rst:66
+#: ../../configuration.rst:88
 msgid "``SECURITY_CHANGE_URL``"
 msgstr "``SECURITY_CHANGE_URL``"
 
-#: ../../configuration.rst:66
+#: ../../configuration.rst:88
 msgid "Specifies the password change URL. Defaults to ``/change``."
 msgstr "指定修改密码 URL. 默认为 ``/change``."
 
-#: ../../configuration.rst:68
+#: ../../configuration.rst:90
 msgid "``SECURITY_CONFIRM_URL``"
 msgstr "``SECURITY_CONFIRM_URL``"
 
-#: ../../configuration.rst:68
+#: ../../configuration.rst:90
 msgid "Specifies the email confirmation URL. Defaults to ``/confirm``."
 msgstr "指定邮箱验证 URL. 默认为 ``/confirm``."
 
-#: ../../configuration.rst:70
+#: ../../configuration.rst:92
 msgid "``SECURITY_POST_LOGIN_VIEW``"
 msgstr "``SECURITY_POST_LOGIN_VIEW``"
 
-#: ../../configuration.rst:70
+#: ../../configuration.rst:92
 msgid ""
-"Specifies the default view to redirect to after a user logs in. This value can "
-"be set to a URL or an endpoint name. Defaults to ``/``."
-msgstr ""
-"指定用户登录后默认跳转页面. 这个值可以被设置为一个URL或端点 ( endpoint ) 名. 默"
-"认为 ``/``."
+"Specifies the default view to redirect to after a user logs in. This "
+"value can be set to a URL or an endpoint name. Defaults to ``/``."
+msgstr "指定用户登录后默认跳转页面. 这个值可以被设置为一个URL或端点 ( endpoint ) 名. 默认为 ``/``."
 
-#: ../../configuration.rst:73
+#: ../../configuration.rst:95
 msgid "``SECURITY_POST_LOGOUT_VIEW``"
 msgstr "``SECURITY_POST_LOGOUT_VIEW``"
 
-#: ../../configuration.rst:73
+#: ../../configuration.rst:95
 msgid ""
-"Specifies the default view to redirect to after a user logs out. This value "
-"can be set to a URL or an endpoint name. Defaults to ``/``."
-msgstr ""
-"指定用户登出后默认跳转页面. 这个值可以被设置为一个URL或端点 ( endpoint ) 名. 默"
-"认为 ``/``."
+"Specifies the default view to redirect to after a user logs out. This "
+"value can be set to a URL or an endpoint name. Defaults to ``/``."
+msgstr "指定用户登出后默认跳转页面. 这个值可以被设置为一个URL或端点 ( endpoint ) 名. 默认为 ``/``."
 
-#: ../../configuration.rst:76
+#: ../../configuration.rst:98
 msgid "``SECURITY_CONFIRM_ERROR_VIEW``"
 msgstr "``SECURITY_CONFIRM_ERROR_VIEW``"
 
-#: ../../configuration.rst:76
+#: ../../configuration.rst:98
 msgid ""
-"Specifies the view to redirect to if a confirmation error occurs. This value "
-"can be set to a URL or an endpoint name. If this value is ``None``, the user "
-"is presented the default view to resend a confirmation link. Defaults to "
-"``None``."
+"Specifies the view to redirect to if a confirmation error occurs. This "
+"value can be set to a URL or an endpoint name. If this value is ``None``,"
+" the user is presented the default view to resend a confirmation link. "
+"Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个验证错误出现. 这个值可以被设置为一个URL或端点 ( endpoint ) "
-"名.如果值为 ``None``, 一个用于重新发送验证链接的默认界面将呈献给用户,  默认为 "
-"``None``."
+"指定跳转页面当一个验证错误出现. 这个值可以被设置为一个URL或端点 ( endpoint ) 名.如果值为 ``None``, "
+"一个用于重新发送验证链接的默认界面将呈献给用户,  默认为 ``None``."
 
-#: ../../configuration.rst:82
+#: ../../configuration.rst:104
 msgid "``SECURITY_POST_REGISTER_VIEW``"
 msgstr "``SECURITY_POST_REGISTER_VIEW``"
 
-#: ../../configuration.rst:82
+#: ../../configuration.rst:104
 msgid ""
-"Specifies the view to redirect to after a user successfully registers. This "
-"value can be set to a URL or an endpoint name. If this value is ``None``, the "
-"user is redirected to the value of ``SECURITY_POST_LOGIN_VIEW``. Defaults to "
-"``None``."
+"Specifies the view to redirect to after a user successfully registers. "
+"This value can be set to a URL or an endpoint name. If this value is "
+"``None``, the user is redirected to the value of "
+"``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个用户成功注册. 这个值可以被设置为一个URL或端点 ( endpoint ) "
-"名.如果值为 ``None``, 用户将跳转到 ``SECURITY_POST_LOGIN_VIEW`` 所设置的值,  默"
-"认为 ``None``."
+"指定跳转页面当一个用户成功注册. 这个值可以被设置为一个URL或端点 ( endpoint ) 名.如果值为 ``None``, 用户将跳转到 "
+"``SECURITY_POST_LOGIN_VIEW`` 所设置的值,  默认为 ``None``."
 
-#: ../../configuration.rst:88
+#: ../../configuration.rst:110
 msgid "``SECURITY_POST_CONFIRM_VIEW``"
 msgstr "``SECURITY_POST_CONFIRM_VIEW``"
 
-#: ../../configuration.rst:88
+#: ../../configuration.rst:110
 msgid ""
-"Specifies the view to redirect to after a user successfully confirms their "
-"email. This value can be set to a URL or an endpoint name. If this value is "
-"``None``, the user is redirected  to the value of "
+"Specifies the view to redirect to after a user successfully confirms "
+"their email. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
 "``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个用户成功验证邮箱. 这个值可以被设置为一个URL或端点 "
-"( endpoint ) 名.如果值为 ``None``, 用户将跳转到 ``SECURITY_POST_LOGIN_VIEW`` 所"
-"设置的值,  默认为 ``None``."
+"指定跳转页面当一个用户成功验证邮箱. 这个值可以被设置为一个URL或端点 ( endpoint ) 名.如果值为 ``None``, 用户将跳转到"
+" ``SECURITY_POST_LOGIN_VIEW`` 所设置的值,  默认为 ``None``."
 
-#: ../../configuration.rst:94
+#: ../../configuration.rst:116
 msgid "``SECURITY_POST_RESET_VIEW``"
 msgstr "``SECURITY_POST_RESET_VIEW``"
 
-#: ../../configuration.rst:94
+#: ../../configuration.rst:116
 msgid ""
 "Specifies the view to redirect to after a user successfully resets their "
-"password. This value can be set to a URL or an endpoint name. If this value is "
-"``None``, the user is redirected  to the value of "
+"password. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
 "``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个用户成功重置密码. 这个值可以被设置为一个URL或端点 "
-"( endpoint ) 名.如果值为 ``None``, 用户将跳转到 ``SECURITY_POST_LOGIN_VIEW`` 所"
-"设置的值,  默认为 ``None``."
+"指定跳转页面当一个用户成功重置密码. 这个值可以被设置为一个URL或端点 ( endpoint ) 名.如果值为 ``None``, 用户将跳转到"
+" ``SECURITY_POST_LOGIN_VIEW`` 所设置的值,  默认为 ``None``."
 
-#: ../../configuration.rst:100
+#: ../../configuration.rst:122
 msgid "``SECURITY_POST_CHANGE_VIEW``"
 msgstr "``SECURITY_POST_CHANGE_VIEW``"
 
-#: ../../configuration.rst:100
+#: ../../configuration.rst:122
 msgid ""
-"Specifies the view to redirect to after a user successfully changes their "
-"password. This value can be set to a URL or an endpoint name. If this value is "
-"``None``, the user is redirected  to the value of "
+"Specifies the view to redirect to after a user successfully changes their"
+" password. This value can be set to a URL or an endpoint name. If this "
+"value is ``None``, the user is redirected  to the value of "
 "``SECURITY_POST_LOGIN_VIEW``. Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个用户成功修改密码. 这个值可以被设置为一个URL或端点 "
-"( endpoint ) 名.如果值为 ``None``, 用户将跳转到 ``SECURITY_POST_LOGIN_VIEW`` 所"
-"设置的值,  默认为 ``None``."
+"指定跳转页面当一个用户成功修改密码. 这个值可以被设置为一个URL或端点 ( endpoint ) 名.如果值为 ``None``, 用户将跳转到"
+" ``SECURITY_POST_LOGIN_VIEW`` 所设置的值,  默认为 ``None``."
 
-#: ../../configuration.rst:106
+#: ../../configuration.rst:128
 msgid "``SECURITY_UNAUTHORIZED_VIEW``"
 msgstr "``SECURITY_UNAUTHORIZED_VIEW``"
 
-#: ../../configuration.rst:106
+#: ../../configuration.rst:128
 msgid ""
-"Specifies the view to redirect to if a user attempts to access a URL/endpoint "
-"that they do not have permission to access. If this value is ``None``, the "
-"user is presented with a default HTTP 403 response. Defaults to ``None``."
+"Specifies the view to redirect to if a user attempts to access a "
+"URL/endpoint that they do not have permission to access. If this value is"
+" ``None``, the user is presented with a default HTTP 403 response. "
+"Defaults to ``None``."
 msgstr ""
-"指定跳转页面当一个用户试图访问其没有权限的URL或端点 ( endpoint ) .如果值为 "
-"``None``, 将提供一个默认的HTTP 403 响应给用户,  默认为 ``None``."
+"指定跳转页面当一个用户试图访问其没有权限的URL或端点 ( endpoint ) .如果值为 ``None``, 将提供一个默认的HTTP 403"
+" 响应给用户,  默认为 ``None``."
 
-#: ../../configuration.rst:115
+#: ../../configuration.rst:137
 msgid "Template Paths"
 msgstr "模板路径"
 
-#: ../../configuration.rst:120
+#: ../../configuration.rst:142
 msgid "``SECURITY_FORGOT_PASSWORD_TEMPLATE``"
 msgstr "``SECURITY_FORGOT_PASSWORD_TEMPLATE``"
 
-#: ../../configuration.rst:120
+#: ../../configuration.rst:142
 msgid ""
-"Specifies the path to the template for the forgot password page. Defaults to "
-"``security/forgot_password.html``."
+"Specifies the path to the template for the forgot password page. Defaults"
+" to ``security/forgot_password.html``."
 msgstr "指定忘记密码页面模板的路径 . 默认为 ``security/forgot_password.html``."
 
-#: ../../configuration.rst:123
+#: ../../configuration.rst:145
 msgid "``SECURITY_LOGIN_USER_TEMPLATE``"
 msgstr "``SECURITY_LOGIN_USER_TEMPLATE``"
 
-#: ../../configuration.rst:123
+#: ../../configuration.rst:145
 msgid ""
 "Specifies the path to the template for the user login page. Defaults to "
 "``security/login_user.html``."
 msgstr "指定用户登录页面模板的路径 . 默认为 ``security/login_user.html``."
 
-#: ../../configuration.rst:126
+#: ../../configuration.rst:148
 msgid "``SECURITY_REGISTER_USER_TEMPLATE``"
 msgstr "``SECURITY_REGISTER_USER_TEMPLATE``"
 
-#: ../../configuration.rst:126
+#: ../../configuration.rst:148
 msgid ""
-"Specifies the path to the template for the user registration page. Defaults to "
-"``security/register_user.html``."
+"Specifies the path to the template for the user registration page. "
+"Defaults to ``security/register_user.html``."
 msgstr "指定用户注册页面模板的路径 . 默认为 ``security/register_user.html``."
 
-#: ../../configuration.rst:129
+#: ../../configuration.rst:151
 msgid "``SECURITY_RESET_PASSWORD_TEMPLATE``"
 msgstr "``SECURITY_RESET_PASSWORD_TEMPLATE``"
 
-#: ../../configuration.rst:129
+#: ../../configuration.rst:151
 msgid ""
-"Specifies the path to the template for the reset password page. Defaults to "
-"``security/reset_password.html``."
+"Specifies the path to the template for the reset password page. Defaults "
+"to ``security/reset_password.html``."
 msgstr "指定重置密码页面模板的路径 . 默认为 ``security/reset_password.html``."
 
-#: ../../configuration.rst:132
+#: ../../configuration.rst:154
 msgid "``SECURITY_CHANGE_PASSWORD_TEMPLATE``"
 msgstr "``SECURITY_CHANGE_PASSWORD_TEMPLATE``"
 
-#: ../../configuration.rst:132
+#: ../../configuration.rst:154
 msgid ""
-"Specifies the path to the template for the change password page. Defaults to "
-"``security/change_password.html``."
+"Specifies the path to the template for the change password page. Defaults"
+" to ``security/change_password.html``."
 msgstr "指定修改密码页面模板的路径 . 默认为 ``security/change_password.html``."
 
-#: ../../configuration.rst:135
+#: ../../configuration.rst:157
 msgid "``SECURITY_SEND_CONFIRMATION_TEMPLATE``"
 msgstr "``SECURITY_SEND_CONFIRMATION_TEMPLATE``"
 
-#: ../../configuration.rst:135
+#: ../../configuration.rst:157
 msgid ""
-"Specifies the path to the template for the resend confirmation instructions "
-"page. Defaults to ``security/send_confirmation.html``."
-msgstr ""
-"指定重新发送验证指令页面模板的路径 . 默认为 ``security/send_confirmation."
-"html``."
+"Specifies the path to the template for the resend confirmation "
+"instructions page. Defaults to ``security/send_confirmation.html``."
+msgstr "指定重新发送验证指令页面模板的路径 . 默认为 ``security/send_confirmation.html``."
 
-#: ../../configuration.rst:139
+#: ../../configuration.rst:161
 msgid "``SECURITY_SEND_LOGIN_TEMPLATE``"
 msgstr "``SECURITY_SEND_LOGIN_TEMPLATE``"
 
-#: ../../configuration.rst:139
+#: ../../configuration.rst:161
 msgid ""
-"Specifies the path to the template for the send login instructions page for "
-"passwordless logins. Defaults to ``security/send_login.html``."
-msgstr ""
-"指定发送无密码登录的登录指令页面模板的路径 . 默认为 ``security/"
-"send_confirmation.html``."
+"Specifies the path to the template for the send login instructions page "
+"for passwordless logins. Defaults to ``security/send_login.html``."
+msgstr "指定发送无密码登录的登录指令页面模板的路径 . 默认为 ``security/send_confirmation.html``."
 
-#: ../../configuration.rst:147
+#: ../../configuration.rst:169
 msgid "Feature Flags"
 msgstr "特性标记"
 
-#: ../../configuration.rst:152
+#: ../../configuration.rst:174
 msgid "``SECURITY_CONFIRMABLE``"
 msgstr "``SECURITY_CONFIRMABLE``"
 
-#: ../../configuration.rst:152
+#: ../../configuration.rst:174
 msgid ""
 "Specifies if users are required to confirm their email address when "
-"registering a new account. If this value is `True`, Flask-Security creates an "
-"endpoint to handle confirmations and requests to resend confirmation "
-"instructions. The URL for this endpoint is specified by the "
+"registering a new account. If this value is `True`, Flask-Security "
+"creates an endpoint to handle confirmations and requests to resend "
+"confirmation instructions. The URL for this endpoint is specified by the "
 "``SECURITY_CONFIRM_URL`` configuration option. Defaults to ``False``."
 msgstr ""
-"指定当用户注册一个新账户时是否需要验证他们的邮箱地址. 如果这个值为 `True`, "
-"Flask-Security 将创建一个端 ( endpoint )点去处理验证和请求重新发送验证指令. 这"
-"个端点的 URL 在  ``SECURITY_CONFIRM_URL`` 参数中指定. 默认为 ``False``."
+"指定当用户注册一个新账户时是否需要验证他们的邮箱地址. 如果这个值为 `True`, Flask-Security 将创建一个端 ( "
+"endpoint )点去处理验证和请求重新发送验证指令. 这个端点的 URL 在  ``SECURITY_CONFIRM_URL`` 参数中指定."
+" 默认为 ``False``."
 
-#: ../../configuration.rst:159
+#: ../../configuration.rst:181
 msgid "``SECURITY_REGISTERABLE``"
 msgstr "``SECURITY_REGISTERABLE``"
 
-#: ../../configuration.rst:159
+#: ../../configuration.rst:181
 msgid ""
-"Specifies if Flask-Security should create a user registration endpoint. The "
-"URL for this endpoint is specified by the ``SECURITY_REGISTER_URL`` "
+"Specifies if Flask-Security should create a user registration endpoint. "
+"The URL for this endpoint is specified by the ``SECURITY_REGISTER_URL`` "
 "configuration option. Defaults to ``False``."
 msgstr ""
 "指定 Flask-Security 是否创建用户注册端点 ( endpoint ). 这个端点的 URL 在  "
 "``SECURITY_REGISTER_URL`` 参数中指定. 默认为 ``False``."
 
-#: ../../configuration.rst:163
+#: ../../configuration.rst:185
 msgid "``SECURITY_RECOVERABLE``"
 msgstr "``SECURITY_RECOVERABLE``"
 
-#: ../../configuration.rst:163
+#: ../../configuration.rst:185
 msgid ""
-"Specifies if Flask-Security should create a password reset/recover endpoint. "
-"The URL for this endpoint is specified by the ``SECURITY_RESET_URL`` "
-"configuration option. Defaults to ``False``."
+"Specifies if Flask-Security should create a password reset/recover "
+"endpoint. The URL for this endpoint is specified by the "
+"``SECURITY_RESET_URL`` configuration option. Defaults to ``False``."
 msgstr ""
-"指定 Flask-Security 是否创建用户重置/恢复密码端点 ( endpoint ). 这个端点的 URL "
-"在  ``SECURITY_RESET_URL`` 参数中指定. 默认为 ``False``."
+"指定 Flask-Security 是否创建用户重置/恢复密码端点 ( endpoint ). 这个端点的 URL 在  "
+"``SECURITY_RESET_URL`` 参数中指定. 默认为 ``False``."
 
-#: ../../configuration.rst:167
+#: ../../configuration.rst:189
 msgid "``SECURITY_TRACKABLE``"
 msgstr "``SECURITY_TRACKABLE``"
 
-#: ../../configuration.rst:167
+#: ../../configuration.rst:189
 msgid ""
-"Specifies if Flask-Security should track basic user login statistics. If set "
-"to ``True``, ensure your models have the required fields/attributes. Be sure "
-"to use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/"
-"#proxy-setups>`_ if you are using a proxy. Defaults to ``False``"
+"Specifies if Flask-Security should track basic user login statistics. If "
+"set to ``True``, ensure your models have the required fields/attributes. "
+"Be sure to use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying"
+"/wsgi-standalone/#proxy-setups>`_ if you are using a proxy. Defaults to "
+"``False``"
 msgstr ""
-"指定 Flask-Security 是否统计用户基本登录.  如果设置为 ``True``, 确认你的模型已"
-"经有需求的字段/熟悉. 请确认使用了 `ProxyFix <http://flask.pocoo.org/docs/0.10/"
-"deploying/wsgi-standalone/#proxy-setups>`_, 如果你使用一个代理. 默认为 "
-"``False``."
+"指定 Flask-Security 是否统计用户基本登录.  如果设置为 ``True``, 确认你的模型已经有需求的字段/熟悉. 请确认使用了 "
+"`ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone"
+"/#proxy-setups>`_, 如果你使用一个代理. 默认为 ``False``."
 
-#: ../../configuration.rst:172
+#: ../../configuration.rst:194
 msgid "``SECURITY_PASSWORDLESS``"
 msgstr "``SECURITY_PASSWORDLESS``"
 
-#: ../../configuration.rst:172
+#: ../../configuration.rst:194
 msgid ""
-"Specifies if Flask-Security should enable the passwordless login feature. If "
-"set to ``True``, users are not required to enter a password to login but are "
-"sent an email with a login link. This feature is experimental and should be "
-"used with caution. Defaults to ``False``."
+"Specifies if Flask-Security should enable the passwordless login feature."
+" If set to ``True``, users are not required to enter a password to login "
+"but are sent an email with a login link. This feature is experimental and"
+" should be used with caution. Defaults to ``False``."
 msgstr ""
-"指定 Flask-Security 是否开启无密码登录特性. 如果设置为 ``True``, 用户不被要求输"
-"入一个密码去登录, 而是发送一个含有登录链接的邮件. 这个特性时实验性的, 请小心使"
-"用. 默认设置为 ``False``."
+"指定 Flask-Security 是否开启无密码登录特性. 如果设置为 ``True``, 用户不被要求输入一个密码去登录, "
+"而是发送一个含有登录链接的邮件. 这个特性时实验性的, 请小心使用. 默认设置为 ``False``."
 
-#: ../../configuration.rst:178
+#: ../../configuration.rst:200
 msgid "``SECURITY_CHANGEABLE``"
 msgstr "``SECURITY_CHANGEABLE``"
 
-#: ../../configuration.rst:178
+#: ../../configuration.rst:200
 msgid ""
-"Specifies if Flask-Security should enable the change password endpoint. The "
-"URL for this endpoint is specified by the ``SECURITY_CHANGE_URL`` "
+"Specifies if Flask-Security should enable the change password endpoint. "
+"The URL for this endpoint is specified by the ``SECURITY_CHANGE_URL`` "
 "configuration option. Defaults to ``False``."
 msgstr ""
 "指定 Flask-Security 是否启用用户修改密码端点 ( endpoint ). 这个端点的 URL 在  "
 "``SECURITY_CHANGE_URL`` 参数中指定. 默认为 ``False``."
 
-#: ../../configuration.rst:185
+#: ../../configuration.rst:207
 msgid "Email"
 msgstr "邮件"
 
-#: ../../configuration.rst:190
+#: ../../configuration.rst:212
 msgid "``SECURITY_EMAIL_SUBJECT_REGISTER``"
 msgstr "``SECURITY_EMAIL_SUBJECT_REGISTER``"
 
-#: ../../configuration.rst:190
+#: ../../configuration.rst:212
 msgid "Sets the subject for the confirmation email. Defaults to ``Welcome``"
 msgstr "设置验证邮件主题. 默认为 ``Welcome``."
 
-#: ../../configuration.rst:193
+#: ../../configuration.rst:215
 msgid "``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``"
 msgstr "``SECURITY_EMAIL_SUBJECT_PASSWORDLESS``"
 
-#: ../../configuration.rst:193
+#: ../../configuration.rst:215
 msgid ""
 "Sets the subject for the passwordless feature. Defaults to ``Login "
 "instructions``"
 msgstr "设置无密码登录特性主题. 默认为 ``Login instructions``."
 
-#: ../../configuration.rst:196
+#: ../../configuration.rst:218
 msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``"
 msgstr "``SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE``"
 
-#: ../../configuration.rst:196
+#: ../../configuration.rst:218
 msgid ""
-"Sets subject for the password notice. Defaults to ``Your password has been "
-"reset``"
+"Sets subject for the password notice. Defaults to ``Your password has "
+"been reset``"
 msgstr "设置密码提醒主题. 默认为 ``Your password has been reset``."
 
-#: ../../configuration.rst:199
+#: ../../configuration.rst:221
 msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``"
 msgstr "``SECURITY_EMAIL_SUBJECT_PASSWORD_RESET``"
 
-#: ../../configuration.rst:199
+#: ../../configuration.rst:221
 msgid ""
-"Sets the subject for the password reset email. Defaults to ``Password reset "
-"instructions``"
+"Sets the subject for the password reset email. Defaults to ``Password "
+"reset instructions``"
 msgstr "设置密码重置邮件主题. 默认为 ``Password reset instructions``."
 
-#: ../../configuration.rst:203
+#: ../../configuration.rst:225
 msgid "``SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE``"
 msgstr "``SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE``"
 
-#: ../../configuration.rst:203
+#: ../../configuration.rst:225
 msgid ""
-"Sets the subject for the password change notice. Defaults to ``Your password "
-"has been changed``"
+"Sets the subject for the password change notice. Defaults to ``Your "
+"password has been changed``"
 msgstr "设置密码改变提醒主题. 默认为  ``Your password has been changed``."
 
-#: ../../configuration.rst:207
+#: ../../configuration.rst:229
 msgid "``SECURITY_EMAIL_SUBJECT_CONFIRM``"
 msgstr "``SECURITY_EMAIL_SUBJECT_CONFIRM``"
 
-#: ../../configuration.rst:207
+#: ../../configuration.rst:229
 msgid ""
-"Sets the subject for the email confirmation message. Defaults to ``Please "
-"confirm your email``"
+"Sets the subject for the email confirmation message. Defaults to ``Please"
+" confirm your email``"
 msgstr "设置邮件验证信息主题. 默认为 ``Please confirm your email``."
 
-#: ../../configuration.rst:211
+#: ../../configuration.rst:233
 msgid "``SECURITY_EMAIL_PLAINTEXT``"
 msgstr "``SECURITY_EMAIL_PLAINTEXT``"
 
-#: ../../configuration.rst:211
-msgid ""
-"Enable email to be sent as plaintext (Using *.txt template). Defaults ``True``"
+#: ../../configuration.rst:233
+#, fuzzy
+msgid "Sends email as plaintext using ``*.txt`` template. Defaults to ``True``."
 msgstr "启用邮件以明文形式发送 ( 使用 *.txt 模板 ). 默认为 ``True``."
 
-#: ../../configuration.rst:214
+#: ../../configuration.rst:236
 msgid "``SECURITY_EMAIL_HTML``"
 msgstr "``SECURITY_EMAIL_HTML``"
 
-#: ../../configuration.rst:214
-msgid ""
-"Enable email to be sent as plaintext (Using *.html template). Defaults ``True``"
+#: ../../configuration.rst:236
+#, fuzzy
+msgid "Sends email as HTML using ``*.html`` template. Defaults to ``True``."
 msgstr "启用邮件以明文形式发送 ( 使用 *.html 模板 ). 默认为 ``True``."
 
-#: ../../configuration.rst:220
+#: ../../configuration.rst:242
 msgid "Miscellaneous"
 msgstr "杂项"
 
-#: ../../configuration.rst:225
+#: ../../configuration.rst:247
 msgid "``SECURITY_USER_IDENTITY_ATTRIBUTES``"
 msgstr "``SECURITY_USER_IDENTITY_ATTRIBUTES``"
 
-#: ../../configuration.rst:225
+#: ../../configuration.rst:247
 msgid ""
-"Specifies which attributes of the user object can be used for login. Defaults "
-"to ``['email']``."
+"Specifies which attributes of the user object can be used for login. "
+"Defaults to ``['email']``."
 msgstr "指定用户对象中,哪一个属性可以被用于登录. 默认为 ``['email']``."
 
-#: ../../configuration.rst:228
+#: ../../configuration.rst:250
 msgid "``SECURITY_SEND_REGISTER_EMAIL``"
 msgstr "``SECURITY_SEND_REGISTER_EMAIL``"
 
-#: ../../configuration.rst:228
+#: ../../configuration.rst:250
 msgid "Specifies whether registration email is sent. Defaults to ``True``."
 msgstr "指定注册邮件是否发送. 默认为 ``True``."
 
-#: ../../configuration.rst:231
+#: ../../configuration.rst:253
 msgid "``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``"
 msgstr "``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``"
 
-#: ../../configuration.rst:231
+#: ../../configuration.rst:253
 msgid "Specifies whether password change email is sent. Defaults to ``True``."
 msgstr "指定密码改变邮件是否发送. 默认为 ``True``."
 
-#: ../../configuration.rst:234
+#: ../../configuration.rst:256
+msgid "``SECURITY_SEND_PASSWORD_RESET_EMAIL``"
+msgstr ""
+
+#: ../../configuration.rst:256
+#, fuzzy
+msgid "Specifies whether password reset email is sent. Defaults to ``True``."
+msgstr "指定密码重置提醒邮件是否发送. 默认为 ``True``."
+
+#: ../../configuration.rst:259
 msgid "``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL``"
 msgstr "``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL``"
 
-#: ../../configuration.rst:234
+#: ../../configuration.rst:259
 msgid ""
-"Specifies whether password reset notice email is sent. Defaults to ``True``."
+"Specifies whether password reset notice email is sent. Defaults to "
+"``True``."
 msgstr "指定密码重置提醒邮件是否发送. 默认为 ``True``."
 
-#: ../../configuration.rst:238
+#: ../../configuration.rst:263
 msgid "``SECURITY_CONFIRM_EMAIL_WITHIN``"
 msgstr "``SECURITY_CONFIRM_EMAIL_WITHIN``"
 
-#: ../../configuration.rst:238
+#: ../../configuration.rst:263
 msgid ""
 "Specifies the amount of time a user has before their confirmation link "
 "expires. Always pluralized the time unit for this value. Defaults to ``5 "
 "days``."
 msgstr "指定验证链接过期时间. 这个值的时间单位总是复数. 默认为 ``5 days``."
 
-#: ../../configuration.rst:243
+#: ../../configuration.rst:268
 msgid "``SECURITY_RESET_PASSWORD_WITHIN``"
 msgstr "``SECURITY_RESET_PASSWORD_WITHIN``"
 
-#: ../../configuration.rst:243
+#: ../../configuration.rst:268
 msgid ""
 "Specifies the amount of time a user has before their password reset link "
 "expires. Always pluralized the time unit for this value. Defaults to ``5 "
 "days``."
 msgstr "指定重置密码链接过期时间. 这个值的时间单位总是复数. 默认为 ``5 days``."
 
-#: ../../configuration.rst:248
+#: ../../configuration.rst:273
 msgid "``SECURITY_LOGIN_WITHIN``"
 msgstr "``SECURITY_LOGIN_WITHIN``"
 
-#: ../../configuration.rst:248
+#: ../../configuration.rst:273
 msgid ""
-"Specifies the amount of time a user has before a login link expires. This is "
-"only used when the passwordless login feature is enabled. Always pluralized "
-"the time unit for this value. Defaults to ``1 days``."
-msgstr ""
-"指定登录链接过期时间. 这个只在无密码登录特性开启时使用. 这个值的时间单位总是复"
-"数. 默认为 ``1 days``."
+"Specifies the amount of time a user has before a login link expires. This"
+" is only used when the passwordless login feature is enabled. Always "
+"pluralized the time unit for this value. Defaults to ``1 days``."
+msgstr "指定登录链接过期时间. 这个只在无密码登录特性开启时使用. 这个值的时间单位总是复数. 默认为 ``1 days``."
 
-#: ../../configuration.rst:255
+#: ../../configuration.rst:280
 msgid "``SECURITY_LOGIN_WITHOUT_CONFIRMATION``"
 msgstr "``SECURITY_LOGIN_WITHOUT_CONFIRMATION``"
 
-#: ../../configuration.rst:255
+#: ../../configuration.rst:280
 msgid ""
-"Specifies if a user may login before confirming their email when the value of "
-"``SECURITY_CONFIRMABLE`` is set to ``True``. Defaults to ``False``."
-msgstr ""
-"指定当 ``SECURITY_CONFIRMABLE`` 为 ``True`` 时, 用户在验证其邮箱前是否能登录. "
-"默认为 ``False``."
+"Specifies if a user may login before confirming their email when the "
+"value of ``SECURITY_CONFIRMABLE`` is set to ``True``. Defaults to "
+"``False``."
+msgstr "指定当 ``SECURITY_CONFIRMABLE`` 为 ``True`` 时, 用户在验证其邮箱前是否能登录. 默认为 ``False``."
 
-#: ../../configuration.rst:260
+#: ../../configuration.rst:285
 msgid "``SECURITY_CONFIRM_SALT``"
 msgstr "``SECURITY_CONFIRM_SALT``"
 
-#: ../../configuration.rst:260
+#: ../../configuration.rst:285
 msgid ""
-"Specifies the salt value when generating confirmation links/tokens. Defaults "
-"to ``confirm-salt``."
+"Specifies the salt value when generating confirmation links/tokens. "
+"Defaults to ``confirm-salt``."
 msgstr "指定生成验证链接/令牌的盐值. 默认为 ``confirm-salt``."
 
-#: ../../configuration.rst:264
+#: ../../configuration.rst:289
 msgid "``SECURITY_RESET_SALT``"
 msgstr "``SECURITY_RESET_SALT``"
 
-#: ../../configuration.rst:264
+#: ../../configuration.rst:289
 msgid ""
-"Specifies the salt value when generating password reset links/tokens. Defaults "
-"to ``reset-salt``."
+"Specifies the salt value when generating password reset links/tokens. "
+"Defaults to ``reset-salt``."
 msgstr "指定生成密码重置链接/令牌的盐值. 默认为 ``reset-salt``."
 
-#: ../../configuration.rst:268
+#: ../../configuration.rst:293
 msgid "``SECURITY_LOGIN_SALT``"
 msgstr "``SECURITY_LOGIN_SALT``"
 
-#: ../../configuration.rst:268
+#: ../../configuration.rst:293
 msgid ""
 "Specifies the salt value when generating login links/tokens. Defaults to "
 "``login-salt``."
 msgstr "指定生成登录链接/令牌的盐值. 默认为 ``login-salt``."
 
-#: ../../configuration.rst:271
+#: ../../configuration.rst:296
 msgid "``SECURITY_REMEMBER_SALT``"
 msgstr "``SECURITY_REMEMBER_SALT``"
 
-#: ../../configuration.rst:271
+#: ../../configuration.rst:296
 msgid ""
-"Specifies the salt value when generating remember tokens. Remember tokens are "
-"used instead of user ID's as it is more secure. Defaults to ``remember-salt``."
-msgstr ""
-"指定生成\"记住我\"令牌的盐值. \"记住我\"令牌被用于代替用户 ID 因为他更安全. 默"
-"认为 ``remember-salt``."
+"Specifies the salt value when generating remember tokens. Remember tokens"
+" are used instead of user ID's as it is more secure. Defaults to "
+"``remember-salt``."
+msgstr "指定生成\"记住我\"令牌的盐值. \"记住我\"令牌被用于代替用户 ID 因为他更安全. 默认为 ``remember-salt``."
 
-#: ../../configuration.rst:277
+#: ../../configuration.rst:302
 msgid "``SECURITY_DEFAULT_REMEMBER_ME``"
 msgstr "``SECURITY_DEFAULT_REMEMBER_ME``"
 
-#: ../../configuration.rst:277
+#: ../../configuration.rst:302
 msgid ""
 "Specifies the default \"remember me\" value used when logging in a user. "
 "Defaults to ``False``."
 msgstr "指定默认的 \"记住我\" 当用户登录时使用的值. 默认为 ``False``."
 
-#: ../../configuration.rst:283
+#: ../../configuration.rst:305
+msgid "``SECURITY_DATETIME_FACTORY``"
+msgstr ""
+
+#: ../../configuration.rst:305
+msgid ""
+"Specifies the default datetime factory. Defaults to "
+"``datetime.datetime.utcnow``."
+msgstr ""
+
+#: ../../configuration.rst:311
 msgid "Messages"
 msgstr "消息文本"
 
-#: ../../configuration.rst:285
+#: ../../configuration.rst:313
 msgid ""
-"The following are the messages Flask-Security uses.  They are tuples; the "
-"first element is the message and the second element is the error level."
-msgstr ""
-"下列是 Flask-Security  所用的消息文本. 他们是一个元组. 第一个元素是 消息 ,第二"
-"个元素是 错误等级."
+"The following are the messages Flask-Security uses.  They are tuples; the"
+" first element is the message and the second element is the error level."
+msgstr "下列是 Flask-Security  所用的消息文本. 他们是一个元组. 第一个元素是 消息 ,第二个元素是 错误等级."
 
-#: ../../configuration.rst:288
+#: ../../configuration.rst:316
 msgid "The default messages and error levels can be found in ``core.py``."
 msgstr "默认的消息文本和错误等级可在 ``core.py`` 中找到."
 
-#: ../../configuration.rst:290
+#: ../../configuration.rst:318
 msgid "``SECURITY_MSG_ALREADY_CONFIRMED``"
 msgstr "``SECURITY_MSG_ALREADY_CONFIRMED``"
 
-#: ../../configuration.rst:291
+#: ../../configuration.rst:319
 msgid "``SECURITY_MSG_CONFIRMATION_EXPIRED``"
 msgstr "``SECURITY_MSG_CONFIRMATION_EXPIRED``"
 
-#: ../../configuration.rst:292
+#: ../../configuration.rst:320
 msgid "``SECURITY_MSG_CONFIRMATION_REQUEST``"
 msgstr "``SECURITY_MSG_CONFIRMATION_REQUEST``"
 
-#: ../../configuration.rst:293
+#: ../../configuration.rst:321
 msgid "``SECURITY_MSG_CONFIRMATION_REQUIRED``"
 msgstr "``SECURITY_MSG_CONFIRMATION_REQUIRED``"
 
-#: ../../configuration.rst:294
+#: ../../configuration.rst:322
 msgid "``SECURITY_MSG_CONFIRM_REGISTRATION``"
 msgstr "``SECURITY_MSG_CONFIRM_REGISTRATION``"
 
-#: ../../configuration.rst:295
+#: ../../configuration.rst:323
 msgid "``SECURITY_MSG_DISABLED_ACCOUNT``"
 msgstr "``SECURITY_MSG_DISABLED_ACCOUNT``"
 
-#: ../../configuration.rst:296
+#: ../../configuration.rst:324
 msgid "``SECURITY_MSG_EMAIL_ALREADY_ASSOCIATED``"
 msgstr "``SECURITY_MSG_EMAIL_ALREADY_ASSOCIATED``"
 
-#: ../../configuration.rst:297
+#: ../../configuration.rst:325
 msgid "``SECURITY_MSG_EMAIL_CONFIRMED``"
 msgstr "``SECURITY_MSG_EMAIL_CONFIRMED``"
 
-#: ../../configuration.rst:298
+#: ../../configuration.rst:326
 msgid "``SECURITY_MSG_EMAIL_NOT_PROVIDED``"
 msgstr "``SECURITY_MSG_EMAIL_NOT_PROVIDED``"
 
-#: ../../configuration.rst:299
+#: ../../configuration.rst:327
+msgid "``SECURITY_MSG_FORGOT_PASSWORD``"
+msgstr ""
+
+#: ../../configuration.rst:328
 msgid "``SECURITY_MSG_INVALID_CONFIRMATION_TOKEN``"
 msgstr "``SECURITY_MSG_INVALID_CONFIRMATION_TOKEN``"
 
-#: ../../configuration.rst:300
+#: ../../configuration.rst:329
 msgid "``SECURITY_MSG_INVALID_EMAIL_ADDRESS``"
 msgstr "``SECURITY_MSG_INVALID_EMAIL_ADDRESS``"
 
-#: ../../configuration.rst:301
+#: ../../configuration.rst:330
 msgid "``SECURITY_MSG_INVALID_LOGIN_TOKEN``"
 msgstr "``SECURITY_MSG_INVALID_LOGIN_TOKEN``"
 
-#: ../../configuration.rst:302
+#: ../../configuration.rst:331
 msgid "``SECURITY_MSG_INVALID_PASSWORD``"
 msgstr "``SECURITY_MSG_INVALID_PASSWORD``"
 
-#: ../../configuration.rst:303
+#: ../../configuration.rst:332
 msgid "``SECURITY_MSG_INVALID_REDIRECT``"
 msgstr "``SECURITY_MSG_INVALID_REDIRECT``"
 
-#: ../../configuration.rst:304
+#: ../../configuration.rst:333
 msgid "``SECURITY_MSG_INVALID_RESET_PASSWORD_TOKEN``"
 msgstr "``SECURITY_MSG_INVALID_RESET_PASSWORD_TOKEN``"
 
-#: ../../configuration.rst:305
+#: ../../configuration.rst:334
 msgid "``SECURITY_MSG_LOGIN``"
 msgstr "``SECURITY_MSG_LOGIN``"
 
-#: ../../configuration.rst:306
+#: ../../configuration.rst:335
 msgid "``SECURITY_MSG_LOGIN_EMAIL_SENT``"
 msgstr "``SECURITY_MSG_LOGIN_EMAIL_SENT``"
 
-#: ../../configuration.rst:307
+#: ../../configuration.rst:336
 msgid "``SECURITY_MSG_LOGIN_EXPIRED``"
 msgstr "``SECURITY_MSG_LOGIN_EXPIRED``"
 
-#: ../../configuration.rst:308
+#: ../../configuration.rst:337
 msgid "``SECURITY_MSG_PASSWORDLESS_LOGIN_SUCCESSFUL``"
 msgstr "``SECURITY_MSG_PASSWORDLESS_LOGIN_SUCCESSFUL``"
 
-#: ../../configuration.rst:309
+#: ../../configuration.rst:338
 msgid "``SECURITY_MSG_PASSWORD_CHANGE``"
 msgstr "``SECURITY_MSG_PASSWORD_CHANGE``"
 
-#: ../../configuration.rst:310
+#: ../../configuration.rst:339
 msgid "``SECURITY_MSG_PASSWORD_INVALID_LENGTH``"
 msgstr "``SECURITY_MSG_PASSWORD_INVALID_LENGTH``"
 
-#: ../../configuration.rst:311
+#: ../../configuration.rst:340
 msgid "``SECURITY_MSG_PASSWORD_IS_THE_SAME``"
 msgstr "``SECURITY_MSG_PASSWORD_IS_THE_SAME``"
 
-#: ../../configuration.rst:312
+#: ../../configuration.rst:341
 msgid "``SECURITY_MSG_PASSWORD_MISMATCH``"
 msgstr "``SECURITY_MSG_PASSWORD_MISMATCH``"
 
-#: ../../configuration.rst:313
+#: ../../configuration.rst:342
 msgid "``SECURITY_MSG_PASSWORD_NOT_PROVIDED``"
 msgstr "``SECURITY_MSG_PASSWORD_NOT_PROVIDED``"
 
-#: ../../configuration.rst:314
+#: ../../configuration.rst:343
 msgid "``SECURITY_MSG_PASSWORD_NOT_SET``"
 msgstr "``SECURITY_MSG_PASSWORD_NOT_SET``"
 
-#: ../../configuration.rst:315
+#: ../../configuration.rst:344
 msgid "``SECURITY_MSG_PASSWORD_RESET``"
 msgstr "``SECURITY_MSG_PASSWORD_RESET``"
 
-#: ../../configuration.rst:316
+#: ../../configuration.rst:345
 msgid "``SECURITY_MSG_PASSWORD_RESET_EXPIRED``"
 msgstr "``SECURITY_MSG_PASSWORD_RESET_EXPIRED``"
 
-#: ../../configuration.rst:317
+#: ../../configuration.rst:346
 msgid "``SECURITY_MSG_PASSWORD_RESET_REQUEST``"
 msgstr "``SECURITY_MSG_PASSWORD_RESET_REQUEST``"
 
-#: ../../configuration.rst:318
+#: ../../configuration.rst:347
 msgid "``SECURITY_MSG_REFRESH``"
 msgstr "``SECURITY_MSG_REFRESH``"
 
-#: ../../configuration.rst:319
+#: ../../configuration.rst:348
 msgid "``SECURITY_MSG_RETYPE_PASSWORD_MISMATCH``"
 msgstr "``SECURITY_MSG_RETYPE_PASSWORD_MISMATCH``"
 
-#: ../../configuration.rst:320
+#: ../../configuration.rst:349
 msgid "``SECURITY_MSG_UNAUTHORIZED``"
 msgstr "``SECURITY_MSG_UNAUTHORIZED``"
 
-#: ../../configuration.rst:321
+#: ../../configuration.rst:350
 msgid "``SECURITY_MSG_USER_DOES_NOT_EXIST``"
 msgstr "``SECURITY_MSG_USER_DOES_NOT_EXIST``"
+
