@@ -156,6 +156,7 @@ def mongoengine_datastore(app):
         email = db.StringField(unique=True, max_length=255)
         username = db.StringField(max_length=255)
         password = db.StringField(required=False, max_length=255)
+        security_number = db.IntField(unique=True)
         last_login_at = db.DateTimeField()
         current_login_at = db.DateTimeField()
         last_login_ip = db.StringField(max_length=100)
@@ -195,6 +196,7 @@ def sqlalchemy_datastore(request, app, tmpdir):
     class User(db.Model, UserMixin):
         id = db.Column(db.Integer, primary_key=True)
         email = db.Column(db.String(255), unique=True)
+        security_number = db.Column(db.Integer, unique=True)
         username = db.Column(db.String(255))
         password = db.Column(db.String(255))
         last_login_at = db.Column(db.DateTime())
@@ -255,6 +257,7 @@ def sqlalchemy_session_datastore(request, app, tmpdir):
         email = Column(String(255), unique=True)
         username = Column(String(255))
         password = Column(String(255))
+        security_number = Column(Integer, unique=True)
         last_login_at = Column(DateTime())
         current_login_at = Column(DateTime())
         last_login_ip = Column(String(100))
@@ -296,6 +299,7 @@ def peewee_datastore(request, app, tmpdir):
     class User(db.Model, UserMixin):
         email = TextField()
         username = TextField()
+        security_number = IntegerField(null=True)
         password = TextField(null=True)
         last_login_at = DateTimeField(null=True)
         current_login_at = DateTimeField(null=True)
@@ -338,6 +342,7 @@ def pony_datastore(request, app, tmpdir):
     class User(db.Entity):
         email = Required(str)
         username = Optional(str)
+        security_number = Optional(int)
         password = Optional(str, nullable=True)
         last_login_at = Optional(datetime)
         current_login_at = Optional(datetime)

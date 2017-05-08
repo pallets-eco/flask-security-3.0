@@ -83,7 +83,8 @@ def test_activate_returns_false_if_already_true():
 
 def test_get_user(app, datastore):
     init_app_with_options(app, datastore, **{
-        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
+        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username',
+                                              'security_number')
     })
 
     with app.app_context():
@@ -96,6 +97,9 @@ def test_get_user(app, datastore):
         assert user is not None
 
         user = datastore.get_user('matt')
+        assert user is not None
+
+        user = datastore.get_user(123456)
         assert user is not None
 
 
