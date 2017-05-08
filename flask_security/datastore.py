@@ -236,7 +236,8 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         if self._is_numeric(identifier):
             return self.user_model.query.get(identifier)
         for attr in get_identity_attributes():
-            query = getattr(self.user_model, attr).ilike(identifier)
+            identifier = identifier.replace('_', '\_').replace('%', '\%')
+            query = getattr(self.user_model, attr).ilike(identifier, '\\')
             rv = self.user_model.query.filter(query).first()
             if rv is not None:
                 return rv
