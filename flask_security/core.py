@@ -29,8 +29,8 @@ from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
-from .utils import _, get_config, hash_data, string_types, url_for_security, \
-    verify_hash
+from .utils import _, get_config, hash_data, localize_callback, string_types, \
+    url_for_security, verify_hash
 from .views import create_blueprint
 
 # Convenient references
@@ -260,6 +260,7 @@ def _on_identity_loaded(sender, identity):
 def _get_login_manager(app, anonymous_user):
     lm = LoginManager()
     lm.anonymous_user = anonymous_user or AnonymousUser
+    lm.localize_callback = localize_callback
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.request_loader(_request_loader)

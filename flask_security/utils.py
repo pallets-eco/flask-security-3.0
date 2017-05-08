@@ -44,6 +44,8 @@ _pwd_context = LocalProxy(lambda: _security.pwd_context)
 
 _hashing_context = LocalProxy(lambda: _security.hashing_context)
 
+localize_callback = LocalProxy(lambda: _security.i18n_domain.gettext)
+
 PY3 = sys.version_info[0] == 3
 
 if PY3:  # pragma: no cover
@@ -324,7 +326,7 @@ def get_config(app):
 
 def get_message(key, **kwargs):
     rv = config_value('MSG_' + key)
-    return _security.i18n_domain.gettext(rv[0], **kwargs), rv[1]
+    return localize_callback(rv[0], **kwargs), rv[1]
 
 
 def config_value(key, app=None, default=None):
