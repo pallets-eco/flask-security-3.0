@@ -180,6 +180,8 @@ Feature Flags
                           instructions. The URL for this endpoint is specified
                           by the ``SECURITY_CONFIRM_URL`` configuration option.
                           Defaults to ``False``.
+``SECURITY_RETYPABLE``    Specifies if users have to retype/confirm their 
+                          password when registering. Defaults to ``False``.
 ``SECURITY_REGISTERABLE`` Specifies if Flask-Security should create a user
                           registration endpoint. The URL for this endpoint is
                           specified by the ``SECURITY_REGISTER_URL``
