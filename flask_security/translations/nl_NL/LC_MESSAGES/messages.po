@@ -1,4 +1,4 @@
-# Dutch (Netherlands) translations for Flask-Security-Fork.
+# Dutch (Netherlands) translations for Flask-Security.
 # Copyright (C) 2017 CERN
 # This file is distributed under the same license as the Flask-Security-Fork
 # project.
