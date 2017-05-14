@@ -15,16 +15,16 @@ import inspect
 from flask import Markup, current_app, flash, request
 from flask_login import current_user
 from flask_wtf import FlaskForm as BaseForm
-from werkzeug.local import LocalProxy
+from speaklater import make_lazy_gettext
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
 
 from .confirmable import requires_confirmation
-from .utils import _, config_value, get_message, url_for_security, \
-    validate_redirect_url, verify_and_update_password
+from .utils import _, _datastore, config_value, get_message, \
+    localize_callback, url_for_security, validate_redirect_url, \
+    verify_and_update_password
 
-# Convenient reference
-_datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
+lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
 _default_field_labels = {
     'email': _('Email Address'),
@@ -72,7 +72,7 @@ password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
 
 def get_form_field_label(key):
-    return _default_field_labels.get(key, '')
+    return lazy_gettext(_default_field_labels.get(key, ''))
 
 
 def unique_user_email(form, field):
