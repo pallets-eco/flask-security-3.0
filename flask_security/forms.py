@@ -291,7 +291,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if not verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
-        if self.password.data.strip() == self.new_password.data.strip():
+        if self.password.data == self.new_password.data:
             self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
             return False
         return True
