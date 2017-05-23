@@ -485,6 +485,10 @@ class Security(object):
         self.datastore = datastore
 
         for key, value in _default_config.items():
+            if key == 'EMAIL_SENDER' and app.config.get('MAIL_DEFAULT_SENDER'):
+                app.config.setdefault(
+                    'SECURITY_' + key, app.config.get('MAIL_DEFAULT_SENDER')
+                )
             app.config.setdefault('SECURITY_' + key, value)
 
         for key, value in _default_messages.items():
