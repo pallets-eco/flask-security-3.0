@@ -71,14 +71,6 @@ def test_recoverable_flag(app, client, get_message):
     }, follow_redirects=True)
     assert get_message('PASSWORD_IS_THE_SAME') in response.data
 
-    # Test leading & trailing whitespace not stripped
-    response = client.post('/change', data={
-        'password': 'password',
-        'new_password': '      password      ',
-        'new_password_confirm': '      password      '
-    }, follow_redirects=True)
-    assert get_message('PASSWORD_CHANGE') in response.data
-
     # Test successful submit sends email notification
     with app.mail.record_messages() as outbox:
         response = client.post('/change', data={
@@ -93,8 +85,17 @@ def test_recoverable_flag(app, client, get_message):
     assert len(outbox) == 1
     assert "Your password has been changed" in outbox[0].html
 
+    # Test leading & trailing whitespace not stripped
+    response = client.post('/change', data={
+        'password': 'newpassword',
+        'new_password': '      newpassword      ',
+        'new_password_confirm': '      newpassword      '
+    }, follow_redirects=True)
+    assert get_message('PASSWORD_CHANGE') in response.data
+
     # Test JSON
-    data = ('{"password": "newpassword", "new_password": "newpassword2", '
+    data = ('{"password": "      newpassword      ", '
+            '"new_password": "newpassword2", '
             '"new_password_confirm": "newpassword2"}')
     response = client.post(
         '/change',
