@@ -9,9 +9,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from peewee import fn as peeweeFn
-from sqlalchemy import func as alchemyFn
-
 from .utils import get_identity_attributes, string_types
 
 
@@ -236,6 +233,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         UserDatastore.__init__(self, user_model, role_model)
 
     def get_user(self, identifier):
+        from sqlalchemy import func as alchemyFn
         if self._is_numeric(identifier):
             return self.user_model.query.get(identifier)
         for attr in get_identity_attributes():
@@ -349,6 +347,7 @@ class PeeweeUserDatastore(PeeweeDatastore, UserDatastore):
         self.UserRole = role_link
 
     def get_user(self, identifier):
+        from peewee import fn as peeweeFn
         try:
             return self.user_model.get(self.user_model.id == identifier)
         except ValueError:
