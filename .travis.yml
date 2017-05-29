@@ -5,7 +5,6 @@ language: python
 
 python:
   - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
   - "pypy"
@@ -64,7 +63,7 @@ deploy:
   provider: pypi
   user: jirikuncar
   password:
-    secure: xzhkM+54+dmI7aFxWdMxTkHcMfOzuAxcGOpBanY367MyETtmNZUQx1VAQh5381UHiQ0+mg433srWrR4V1h0tsSB31KZAPazeh44zxpJRCv9b5Fx+46PmYW6ZpY8+vqUpFrKCcaLX5ZmEf62xXY3cvMbp0ubAURiV6N+hHyuH90w+3xucrSnFOuVHVuI3Eqp5Bz6zxEKscrIaZiT9CPh0F2jBpGZT8qXCYT1N8xeyH0SCszvKsIIoaPitpQDnoSkBfy6VHiNU6Tznseer6uLzrW80ynKu5mZwjT4mGT0j/rBUcbIpAYHajnsHXL27Gu32mli7beOkgd2vEpb14x5JygkPoYoUnSJlwhRUgAkNZVR5teNOcP87wU6ZAdv1jhfuQA/NUUpZucVpzASojAxf2996krT4hjYz7KJ2z5lSOww016EZ5mxyktGF23KXH9zrCWUv24r1K9JOUH+6OuQHFF40q1YiL2ro63raUdLm/Y3DLgeO6oDXZPMI2DFdRFCSpY2sGI6ZBrU89MuCJhju5Y838hOWQS330UcA71MpcsnmSZDsJ9o+Rrty6wowOdMqx4bmrm0G8ILNK4MosO7KwXZUMj/iV4SLUQjhBLhOTS+vLO8sa7PCZssK7z8C+378Y4Q+hrfsctCCGVBgRhuIr5KSLtKeD3bObQ/4VfIdK9E=
+    secure: T3MDbWnfl5wauHxd8hyKcBLCTPKLiBX8aK0iq99ExswN3WrwQrpxYWmC9oiDh7uF+d5u7n3e6t0566R6eV2kXd3juwc89ZwPJEY6T+B7nAEl9Qn+N/f5g47dq66dwwmAm44po8zUN+Q2lt0neCwF9Mv1SDV5vg+jpFGpvARapdY=
   distributions: "compile_catalog sdist bdist_wheel"
   on:
     repo: mattupstate/flask-security

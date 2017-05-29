@@ -8,6 +8,9 @@ Version 3.0.0
 
 Released TBD
 
+- Fixed a bug when user clicking confirmation link after confirmation
+  and expiration causes confirmation email to resend. (see #556)
+- Added support for I18N.
 - Added options `SECURITY_EMAIL_PLAINTEXT` and `SECURITY_EMAIL_HTML`
   for sending respecively plaintext and HTML version of email.
 - Fixed validation when missing login information.

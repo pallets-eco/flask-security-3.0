@@ -60,7 +60,7 @@ packages = find_packages()
 
 setup(
     name='Flask-Security',
-    version='2.0.1',
+    version='3.0.0',
     description=__doc__,
     long_description=readme,
     keywords='flask security',
@@ -87,8 +87,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Development Status :: 4 - Beta',
