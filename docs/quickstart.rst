@@ -7,6 +7,7 @@ Quick Start
 -  `Basic MongoEngine Application <#basic-mongoengine-application>`_
 -  `Basic Peewee Application <#basic-peewee-application>`_
 -  `Mail Configuration <#mail-configuration>`_
+-  `Localization Configuration <#localization-configuration>`_
 
 Basic SQLAlchemy Application
 =============================
@@ -367,3 +368,39 @@ the basic application code in the previous section::
 To learn more about the various Flask-Mail settings to configure it to
 work with your particular email server configuration, please see the
 `Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_.
+
+
+Localization Configuration
+==========================
+
+Flask-Security comes with translations for several languages. Localization is implemented via
+`Flask-BabelEx <https://pythonhosted.org/Flask-BabelEx/>`_, a fork of the
+`Flask-Babel <https://pythonhosted.org/Flask-Babel/>`_ package.
+
+The following three step process will enable translations/i18n for a basic application:
+
+1. Install Flask-BabelEx::
+
+    pip install flask-babelex
+
+2. Configure Flask-Security to use the correct I18N_DOMAIN::
+
+    app.config['SECURITY_I18N_DOMAIN'] = 'flask_security'
+
+Please refer to the :doc:`configuration <configuration>` documentation for more information.
+
+3. Initialize Flask-BabelEx and create a locale selector function::
+
+    from flask_babelex import Babel
+
+    # Create app
+    app = Flask(__name__)
+
+    # Initialize Flask-BabelEx
+    babel = Babel(app)
+    app.babel = babel
+
+    @babel.localeselector
+    def get_locale():
+        # Add your locale selection logic here
+        return 'de_De'
