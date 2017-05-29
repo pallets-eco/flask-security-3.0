@@ -7,6 +7,7 @@ Quick Start
 -  `Basic MongoEngine Application <#basic-mongoengine-application>`_
 -  `Basic Peewee Application <#basic-peewee-application>`_
 -  `Mail Configuration <#mail-configuration>`_
+-  `Proxy Configuration <#proxy-configuration>`_
 
 Basic SQLAlchemy Application
 =============================
@@ -367,3 +368,19 @@ the basic application code in the previous section::
 To learn more about the various Flask-Mail settings to configure it to
 work with your particular email server configuration, please see the
 `Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_.
+
+Proxy Configuration
+===================
+
+The user tracking features need an additional configuration
+in HTTP proxy environment. The following code illustrates a setup
+with a single HTTP proxy in front of the web application::
+
+    # At top of file
+    from werkzeug.config.fixers import ProxyFix
+
+    # After 'Create app'
+    app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
+
+To learn more about the ``ProxyFix`` middleware, please see the
+`Werkzeug documentation <http://werkzeug.pocoo.org/docs/latest/contrib/fixers/#werkzeug.contrib.fixers.ProxyFix>`_.
