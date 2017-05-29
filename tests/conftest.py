@@ -59,10 +59,12 @@ def app(request):
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
-    babel = Babel(app)
+    if 'babel' not in request.keywords or \
+            request.keywords['babel'].args[0]:
+        babel = Babel(app)
+        app.babel = babel
     app.json_encoder = JSONEncoder
     app.mail = mail
-    app.babel = babel
 
     @app.route('/')
     def index():
