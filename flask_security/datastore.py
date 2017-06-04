@@ -116,9 +116,13 @@ class UserDatastore(object):
         self.user_model = user_model
         self.role_model = role_model
 
-    def _prepare_role_modify_args(self, user, role):
+    def _prepare_user_modify_args(self, user):
         if isinstance(user, string_types):
             user = self.find_user(email=user)
+        return user
+
+    def _prepare_role_modify_args(self, user, role):
+        user = self._prepare_user_modify_args(user)
         if isinstance(role, string_types):
             role = self.find_role(role)
         return user, role
@@ -174,6 +178,7 @@ class UserDatastore(object):
 
     def toggle_active(self, user):
         """Toggles a user's active status. Always returns True."""
+        user = self._prepare_user_modify_args(user)
         user.active = not user.active
         return True
 
@@ -182,6 +187,7 @@ class UserDatastore(object):
 
         :param user: The user to deactivate
         """
+        user = self._prepare_user_modify_args(user)
         if user.active:
             user.active = False
             return True
@@ -192,6 +198,7 @@ class UserDatastore(object):
 
         :param user: The user to activate
         """
+        user = self._prepare_user_modify_args(user)
         if not user.active:
             user.active = True
             return True
@@ -221,6 +228,7 @@ class UserDatastore(object):
 
         :param user: The user to delete
         """
+        user = self._prepare_user_modify_args(user)
         self.delete(user)
 
 
