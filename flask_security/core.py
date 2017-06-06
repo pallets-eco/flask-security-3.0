@@ -226,9 +226,9 @@ def _request_loader(request):
     args_key = _security.token_authentication_key
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
-    if request.get_json(silent=True):
-        if isinstance(request.json, dict):
-            token = request.json.get(args_key, token)
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        token = data.get(args_key, token)
 
     try:
         data = _security.remember_token_serializer.loads(
