@@ -68,7 +68,9 @@ Forms
 
 All forms can be overridden. For each form used, you can specify a
 replacement class. This allows you to add extra fields to the
-register form or override validators::
+register form or override validators, make sure to inherit from the
+correct class when you have set SECURITY_CONFIRMABLE and/or 
+SECURITY_RETYPABLE to ``True``::
 
     from flask_security.forms import RegisterForm
 
@@ -78,6 +80,18 @@ register form or override validators::
 
     security = Security(app, user_datastore,
              register_form=ExtendedRegisterForm)
+
+Another example with SECURITY_CONFIRMABLE and 
+SECURITY_RETYPABLE set to ``True``.
+
+    from flask_security.forms import ConfirmRetypeRegisterForm
+
+    class ExtendedRegisterForm(ConfirmRetypeRegisterForm):
+        first_name = StringField('First Name', [Required()])
+        last_name = StringField('Last Name', [Required()])
+
+    security = Security(app, user_datastore,
+             cnfrm_retyp_register_form=ExtendedRegisterForm)
 
 For the ``register_form`` and ``confirm_register_form``, each field is
 passed to the user model (as kwargs) when a user is created. In the
@@ -96,6 +110,8 @@ The following is a list of all the available form overrides:
 * ``login_form``: Login form
 * ``confirm_register_form``: Confirmable register form
 * ``register_form``: Register form
+* ``retype_register_form``: Register form with confirm password field
+* ``cnfrm_retyp_register_form: Confirm registration + confirm password field
 * ``forgot_password_form``: Forgot password form
 * ``reset_password_form``: Reset password form
 * ``change_password_form``: Change password form

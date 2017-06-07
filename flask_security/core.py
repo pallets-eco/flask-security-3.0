@@ -27,7 +27,8 @@ from werkzeug.local import LocalProxy
 
 from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
-    ResetPasswordForm, SendConfirmationForm
+    RetypeRegisterForm, ConfirmRetypeRegisterForm, ResetPasswordForm, \
+    SendConfirmationForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
     url_for_security, verify_hash
@@ -71,6 +72,7 @@ _default_config = {
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
     'CONFIRMABLE': False,
+    'RETYPABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
@@ -208,6 +210,8 @@ _default_messages = {
 _default_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
+    'retype_register_form': RetypeRegisterForm,
+    'cnfrm_retyp_register_form': ConfirmRetypeRegisterForm,
     'register_form': RegisterForm,
     'forgot_password_form': ForgotPasswordForm,
     'reset_password_form': ResetPasswordForm,
@@ -473,7 +477,8 @@ class Security(object):
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
-                 anonymous_user=None):
+                 anonymous_user=None, retype_register_form=None,
+                 cnfrm_retyp_register_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -501,7 +506,10 @@ class Security(object):
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form,
-                           anonymous_user=anonymous_user)
+                           anonymous_user=anonymous_user,
+                           retype_register_form=retype_register_form,
+                           cnfrm_retyp_register_form=cnfrm_retyp_register_form
+                          )
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))

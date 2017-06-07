@@ -102,13 +102,12 @@ def logout():
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable or request.json:
+    if (_security.confirmable and _security.retypable is False) or request.json:
         form_class = _security.confirm_register_form
-    else:
-        form_class = _security.register_form
-
-    if request.json:
-        form_data = MultiDict(request.json)
+    elif _security.confirmable is False and _security.retypable:
+        form_class = _security.retype_register_form
+    elif _security.confirmable and _security.retypable:
+        form_class = _security.confirm_retype_register_form
     else:
         form_data = request.form
 
