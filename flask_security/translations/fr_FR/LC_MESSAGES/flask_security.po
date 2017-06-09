@@ -287,7 +287,7 @@ msgstr "Renvoyer les instructions de confirmation"
 
 #: flask_security/templates/security/email/change_notice.html:1
 msgid "Your password has been changed."
-msgstr "Votre mot de passe a été changé"
+msgstr "Votre mot de passe a été changé."
 
 #: flask_security/templates/security/email/change_notice.html:3
 msgid "If you did not change your password,"
