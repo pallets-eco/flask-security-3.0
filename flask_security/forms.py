@@ -220,7 +220,7 @@ class LoginForm(Form, NextFormMixin):
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
         if current_app.extensions['security'].recoverable and \
                 not self.password.description:
-            html = Markup('<a href="{url}">{message}</a>'.format(
+            html = Markup(u'<a href="{url}">{message}</a>'.format(
                 url=url_for_security("forgot_password"),
                 message=get_message("FORGOT_PASSWORD")[0],
             ))
