@@ -180,7 +180,7 @@ msgstr "Vous êtes bien connecté."
 
 #: flask_security/core.py:193
 msgid "Forgot password?"
-msgstr "Mot de passe oublié ?"
+msgstr "Mot de passe oublié&thinsp;?"
 
 #: flask_security/core.py:195
 msgid ""
@@ -299,7 +299,7 @@ msgstr "cliquez ici pour le réinitialiser"
 
 #: flask_security/templates/security/email/confirmation_instructions.html:1
 msgid "Please confirm your email through the link below:"
-msgstr "Merci de confirmer votre adresse email via le lien ci-dessous :"
+msgstr "Merci de confirmer votre adresse email via le lien ci-dessous&thinsp;:"
 
 #: flask_security/templates/security/email/confirmation_instructions.html:3
 #: flask_security/templates/security/email/welcome.html:6
@@ -310,11 +310,11 @@ msgstr "Confirmer mon compte"
 #: flask_security/templates/security/email/welcome.html:1
 #, python-format
 msgid "Welcome %(email)s!"
-msgstr "Bienvenue %(email)s !"
+msgstr "Bienvenue %(email)s&thinsp;!"
 
 #: flask_security/templates/security/email/login_instructions.html:3
 msgid "You can log into your account through the link below:"
-msgstr "Vous pouvez vous connecter via le lien ci-dessous :"
+msgstr "Vous pouvez vous connecter via le lien ci-dessous&thinsp;:"
 
 #: flask_security/templates/security/email/login_instructions.html:5
 msgid "Login now"
@@ -326,4 +326,4 @@ msgstr "Cliquez pour réinitialiser votre mot de passe"
 
 #: flask_security/templates/security/email/welcome.html:4
 msgid "You can confirm your email through the link below:"
-msgstr "Vous pouvez confirmer votre votre adresse email via le lien ci-dessous :"
+msgstr "Vous pouvez confirmer votre votre adresse email via le lien ci-dessous&thinsp;:"
