@@ -218,11 +218,14 @@ def confirm_email(token):
     if not user or invalid:
         invalid = True
         do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
-    if expired:
+
+    already_confirmed = user is not None and user.confirmed_at is not None
+
+    if expired and not already_confirmed:
         send_confirmation_instructions(user)
         do_flash(*get_message('CONFIRMATION_EXPIRED', email=user.email,
                               within=_security.confirm_email_within))
-    if invalid or expired:
+    if invalid or (expired and not already_confirmed):
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
 

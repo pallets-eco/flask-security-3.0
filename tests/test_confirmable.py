@@ -13,6 +13,7 @@ from flask import Flask
 from utils import authenticate, logout
 
 from flask_security.core import UserMixin
+from flask_security.confirmable import generate_confirmation_token
 from flask_security.signals import confirm_instructions_sent, user_confirmed
 from flask_security.utils import capture_registrations, string_types
 
@@ -82,6 +83,16 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     # Test already confirmed
     response = client.get('/confirm/' + token, follow_redirects=True)
     assert get_message('ALREADY_CONFIRMED') in response.data
+    assert len(recorded_instructions_sent) == 2
+
+    # Test already confirmed and expired token
+    app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '-1 days'
+    with app.app_context():
+        user = registrations[0]['user']
+        expired_token = generate_confirmation_token(user)
+    response = client.get('/confirm/' + expired_token, follow_redirects=True)
+    assert get_message('ALREADY_CONFIRMED') in response.data
+    assert len(recorded_instructions_sent) == 2
 
     # Test already confirmed when asking for confirmation instructions
     logout(client)
