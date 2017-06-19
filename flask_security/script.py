@@ -62,7 +62,7 @@ class CreateUserCommand(Command):
         from flask_security.forms import ConfirmRegisterForm
         from werkzeug.datastructures import MultiDict
 
-        form = ConfirmRegisterForm(MultiDict(kwargs), csrf_enabled=False)
+        form = ConfirmRegisterForm(MultiDict(kwargs), meta={'csrf': False})
 
         if form.validate():
             kwargs['password'] = hash_password(kwargs['password'])
