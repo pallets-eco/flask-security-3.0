@@ -189,7 +189,8 @@ def test_confirmation_different_user_when_logged_in(client, get_message):
 
     response = client.get('/confirm/' + token2, follow_redirects=True)
     assert get_message('EMAIL_CONFIRMED') in response.data
-    assert b'Hello lady@lp.com' in response.data
+    assert b'Hello lady@lp.com' not in response.data
+    assert b'Hello dude@lp.com' not in response.data
 
 
 @pytest.mark.registerable()

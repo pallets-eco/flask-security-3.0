@@ -231,7 +231,6 @@ def confirm_email(token):
 
     if user != current_user:
         logout_user()
-        login_user(user)
 
     if confirm_user(user):
         after_this_request(_commit)
