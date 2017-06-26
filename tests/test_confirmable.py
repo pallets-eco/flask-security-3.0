@@ -194,6 +194,35 @@ def test_confirmation_different_user_when_logged_in(client, get_message):
 
 
 @pytest.mark.registerable()
+def test_confirm_redirect(client, get_message):
+    with capture_registrations() as registrations:
+        data = dict(email='jane@lp.com', password='password', next='')
+        client.post('/register', data=data, follow_redirects=True)
+
+    token = registrations[0]['confirm_token']
+
+    response = client.get('/confirm/' + token)
+    assert 'location' in response.headers
+    assert '/login' in response.location
+
+    response = client.get(response.location)
+    assert get_message('EMAIL_CONFIRMED') in response.data
+
+
+@pytest.mark.registerable()
+@pytest.mark.settings(post_confirm_view='/post_confirm')
+def test_confirm_redirect_to_post_confirm(client, get_message):
+    with capture_registrations() as registrations:
+        data = dict(email='john@lp.com', password='password', next='')
+        client.post('/register', data=data, follow_redirects=True)
+
+    token = registrations[0]['confirm_token']
+
+    response = client.get('/confirm/' + token, follow_redirects=True)
+    assert b'Post Confirm' in response.data
+
+
+@pytest.mark.registerable()
 @pytest.mark.settings(recoverable=True)
 def test_cannot_reset_password_when_email_is_not_confirmed(
         client,
