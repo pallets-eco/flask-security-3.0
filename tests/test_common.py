@@ -133,6 +133,25 @@ def test_unauthorized_access(client, get_message):
     assert get_message('UNAUTHORIZED') in response.data
 
 
+def test_unauthorized_access_with_referrer(client, get_message):
+    authenticate(client, 'joe@lp.com')
+    response = client.get('/admin', headers={'referer': '/admin'})
+    assert response.headers['Location'] != '/admin'
+    client.get(response.headers['Location'])
+
+    response = client.get(
+        '/admin?a=b',
+        headers={'referer': 'http://localhost/admin?x=y'}
+    )
+    assert response.headers['Location'] == 'http://localhost/'
+    client.get(response.headers['Location'])
+
+    response = client.get('/admin',
+                          headers={'referer': '/admin'},
+                          follow_redirects=True)
+    assert response.data.count(get_message('UNAUTHORIZED')) == 1
+
+
 def test_roles_accepted(client):
     for user in ("matt@lp.com", "joe@lp.com"):
         authenticate(client, user)
