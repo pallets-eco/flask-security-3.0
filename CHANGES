@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Flask-Security release.
 Version 3.0.0
 -------------
 
-Released TBD
+Released May 29th 2017
 
 - Fixed a bug when user clicking confirmation link after confirmation
   and expiration causes confirmation email to resend. (see #556)
