@@ -22,7 +22,7 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, \
     localize_callback, url_for_security, validate_redirect_url, \
-    verify_and_update_password
+    verify_and_update_password, encrypt_password
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -234,9 +234,13 @@ class LoginForm(Form, NextFormMixin):
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            # Reduce timing variation between existing and non-existung users
+            encrypt_password(self.password.data)
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
+            # Reduce timing variation between existing and non-existung users
+            encrypt_password(self.password.data)
             return False
         if not verify_and_update_password(self.password.data, self.user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
