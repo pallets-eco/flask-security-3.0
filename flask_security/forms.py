@@ -20,9 +20,9 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
 
 from .confirmable import requires_confirmation
-from .utils import _, _datastore, config_value, get_message, \
-    localize_callback, url_for_security, validate_redirect_url, \
-    verify_and_update_password, encrypt_password
+from .utils import _, _datastore, config_value, encrypt_password, \
+    get_message, localize_callback, url_for_security, validate_redirect_url, \
+    verify_and_update_password
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
