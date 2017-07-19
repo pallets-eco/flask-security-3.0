@@ -229,7 +229,7 @@ def _request_loader(request):
     if request.is_json:
         data = request.get_json(silent=True) or {}
         if isinstance(data, list):
-            data = {}        
+            data = {}
         token = data.get(args_key, token)
 
     try:
