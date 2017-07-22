@@ -274,7 +274,6 @@ def sqlalchemy_session_datastore(request, app, tmpdir):
         Base.metadata.create_all(bind=engine)
 
     def tear_down():
-        db_session.commit()
         db_session.close()
         os.close(f)
         os.remove(path)
