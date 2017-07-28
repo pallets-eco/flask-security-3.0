@@ -118,7 +118,8 @@ class UserDatastore(object):
 
     def _prepare_role_modify_args(self, user, role):
         if isinstance(user, string_types):
-            user = self.find_user(email=user)
+            user_kwargs = {attr: user for attr in get_identity_attributes()}
+            user = self.find_user(**user_kwargs)
         if isinstance(role, string_types):
             role = self.find_role(role)
         return user, role
