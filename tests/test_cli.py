@@ -121,6 +121,72 @@ def test_cli_addremove_role(script_info):
     assert result.exit_code == 0
 
 
+def test_cli_addremove_role_username(username_script_info):
+    """Test add/remove role, for username-only model"""
+    runner = CliRunner()
+    script_info = username_script_info
+
+    # Create a user and a role
+    result = runner.invoke(
+        users_create,
+        ['alice', '--password', '123456'],
+        obj=script_info
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(roles_create, ['superuser'], obj=script_info)
+    assert result.exit_code == 0
+
+    # User not found
+    result = runner.invoke(
+        roles_add, ['inval', 'superuser'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    # Add:
+    result = runner.invoke(
+        roles_add, ['alice', 'invalid'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    result = runner.invoke(
+        roles_remove, ['inval', 'superuser'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    # Remove:
+    result = runner.invoke(
+        roles_remove, ['alice', 'invalid'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    result = runner.invoke(
+        roles_remove, ['bob', 'superuser'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    result = runner.invoke(
+        roles_remove, ['alice', 'superuser'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    # Add:
+    result = runner.invoke(roles_add,
+                           ['alice', 'superuser'],
+                           obj=script_info)
+    assert result.exit_code == 0
+    result = runner.invoke(
+        roles_add,
+        ['alice', 'superuser'],
+        obj=script_info)
+    assert result.exit_code != 0
+
+    # Remove:
+    result = runner.invoke(
+        roles_remove, ['alice', 'superuser'],
+        obj=script_info)
+    assert result.exit_code == 0
+
+
 def test_cli_activate_deactivate(script_info):
     """Test create user CLI."""
     runner = CliRunner()
