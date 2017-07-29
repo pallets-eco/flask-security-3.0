@@ -10,7 +10,6 @@
 """
 
 import os
-import copy
 import tempfile
 import time
 from datetime import datetime
@@ -38,8 +37,7 @@ class JSONEncoder(BaseEncoder):
         return BaseEncoder.default(self, o)
 
 
-@pytest.fixture()
-def default_app(request):
+def create_fixture_app(keywords, identity_attrs):
     app = Flask(__name__)
     app.response_class = Response
     app.debug = True
@@ -48,20 +46,20 @@ def default_app(request):
     app.config['LOGIN_DISABLED'] = False
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["SECURITY_USER_IDENTITY_ATTRIBUTES"] = identity_attrs
 
     app.config['SECURITY_PASSWORD_SALT'] = 'salty'
 
     for opt in ['changeable', 'recoverable', 'registerable',
                 'trackable', 'passwordless', 'confirmable']:
-        app.config['SECURITY_' + opt.upper()] = opt in request.keywords
+        app.config['SECURITY_' + opt.upper()] = opt in keywords
 
-    if 'settings' in request.keywords:
-        for key, value in request.keywords['settings'].kwargs.items():
+    if 'settings' in keywords:
+        for key, value in keywords['settings'].kwargs.items():
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
-    if 'babel' not in request.keywords or \
-            request.keywords['babel'].args[0]:
+    if 'babel' not in keywords or keywords['babel'].args[0]:
         babel = Babel(app)
         app.babel = babel
     app.json_encoder = JSONEncoder
@@ -137,19 +135,13 @@ def default_app(request):
 
 
 @pytest.fixture()
-def username_app(default_app):
-    app = copy.copy(default_app)
-    app.config = copy.copy(default_app.config)
-    app.config["SECURITY_USER_IDENTITY_ATTRIBUTES"] = ["username"]
-    return app
+def username_app(request):
+    return create_fixture_app(request.keywords, ["username"])
 
 
 @pytest.fixture()
-def email_app(default_app):
-    app = copy.copy(default_app)
-    app.config = copy.copy(default_app.config)
-    app.config["SECURITY_USER_IDENTITY_ATTRIBUTES"] = ["email"]
-    return app
+def email_app(request):
+    return create_fixture_app(request.keywords, ["email"])
 
 
 @pytest.fixture()

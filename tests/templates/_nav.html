@@ -1,6 +1,8 @@
-{%- if current_user.is_authenticated -%}
-  <p>Hello {{ current_user.email }}</p>
-{%- endif %}
+{%- if config.SECURITY_USER_IDENTITY_ATTRIBUTES == ["email"] -%}
+  {% include "_current_user_email.html" %}
+{%- else -%}
+  {% include "_current_user_username.html" %}
+{%- endif -%}
 <ul>
   <li><a href="{{ url_for('index') }}">Index</a></li>
   <li><a href="{{ url_for('profile') }}">Profile</a></li>

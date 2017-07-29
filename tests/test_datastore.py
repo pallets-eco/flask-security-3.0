@@ -81,10 +81,10 @@ def test_activate_returns_false_if_already_true():
     assert not datastore.activate_user(user)
 
 
-def test_get_user(app, datastore):
-    init_app_with_options(app, datastore, **{
-        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
-    })
+def test_get_user_by_email(email_app, email_datastore):
+    app = email_app
+    datastore = email_datastore
+    init_app_with_options(app, datastore)
 
     with app.app_context():
         user_id = datastore.find_user(email='matt@lp.com').id
@@ -95,12 +95,24 @@ def test_get_user(app, datastore):
         user = datastore.get_user('matt@lp.com')
         assert user is not None
 
-        user = datastore.get_user('matt')
-        assert user is not None
-
         # Regression check
         user = datastore.get_user('%lp.com')
         assert user is None
+
+
+def test_get_user_by_username(username_app, username_datastore):
+    app = username_app
+    datastore = username_datastore
+    init_app_with_options(app, datastore)
+
+    with app.app_context():
+        user_id = datastore.find_user(username='matt').id
+
+        user = datastore.get_user(user_id)
+        assert user is not None
+
+        user = datastore.get_user('matt')
+        assert user is not None
 
 
 def test_find_role(app, datastore):

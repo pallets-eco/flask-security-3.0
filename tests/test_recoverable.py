@@ -21,7 +21,8 @@ from flask_security.utils import capture_reset_password_requests, string_types
 pytestmark = pytest.mark.recoverable()
 
 
-def test_recoverable_flag(app, client, get_message):
+def test_recoverable_flag(email_app, client, get_message):
+    app = email_app
     recorded_resets = []
     recorded_instructions_sent = []
 
@@ -75,8 +76,8 @@ def test_recoverable_flag(app, client, get_message):
     # Test logging in with the new password
     response = authenticate(
         client,
-        'joe@lp.com',
-        'newpassword',
+        email='joe@lp.com',
+        password='newpassword',
         follow_redirects=True)
     assert b'Hello joe@lp.com' in response.data
 
