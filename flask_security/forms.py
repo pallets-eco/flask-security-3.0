@@ -28,6 +28,7 @@ lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
 _default_field_labels = {
     'email': _('Email Address'),
+    'username': _('Username'),
     'password': _('Password'),
     'remember_me': _('Remember Me'),
     'login': _('Login'),
@@ -61,12 +62,18 @@ class Email(ValidatorMixin, validators.Email):
     pass
 
 
+class Regexp(ValidatorMixin, validators.Regexp):
+    pass
+
+
 class Length(ValidatorMixin, validators.Length):
     pass
 
 
 email_required = Required(message='EMAIL_NOT_PROVIDED')
 email_validator = Email(message='INVALID_EMAIL_ADDRESS')
+username_required = Required(message='USERNAME_NOT_PROVIDED')
+username_validator = Regexp(r"[A-Za-z0-9_]+", message='INVALID_USERNAME')
 password_required = Required(message='PASSWORD_NOT_PROVIDED')
 password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
@@ -81,10 +88,19 @@ def unique_user_email(form, field):
         raise ValidationError(msg)
 
 
+def unique_user_username(form, field):
+    if _datastore.get_user(field.data) is not None:
+        msg = get_message('USERNAME_ALREADY_IN_USE', username=field.data)[0]
+        raise ValidationError(msg)
+
+
 def valid_user_email(form, field):
     form.user = _datastore.get_user(field.data)
     if form.user is None:
         raise ValidationError(get_message('USER_DOES_NOT_EXIST')[0])
+
+
+valid_user_username = valid_user_email
 
 
 class Form(BaseForm):
@@ -92,6 +108,12 @@ class Form(BaseForm):
         if current_app.testing:
             self.TIME_LIMIT = None
         super(Form, self).__init__(*args, **kwargs)
+
+
+class IdentifierForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(IdentifierForm, self).__init__(*args, **kwargs)
+        setattr(self, "identifier", getattr(self, self.identifier_field))
 
 
 class EmailFormMixin():
@@ -105,12 +127,41 @@ class UserEmailFormMixin():
     email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, valid_user_email])
+    identifier_field = "email"
 
 
 class UniqueEmailFormMixin():
     email = StringField(
         get_form_field_label('email'),
         validators=[email_required, email_validator, unique_user_email])
+    identifier_field = "email"
+
+
+class UsernameFormMixin():
+    username = StringField(
+        get_form_field_label('username'),
+        validators=[username_required, username_validator])
+
+
+class UserUsernameFormMixin():
+    user = None
+    username = StringField(
+        get_form_field_label('username'),
+        validators=[
+            username_required, username_validator, valid_user_username
+        ]
+    )
+    identifier_field = "username"
+
+
+class UniqueUsernameFormMixin():
+    username = StringField(
+        get_form_field_label('username'),
+        validators=[
+            username_required, username_validator, unique_user_username
+        ]
+    )
+    identifier_field = "username"
 
 
 class PasswordFormMixin():
@@ -150,11 +201,12 @@ class RegisterFormMixin():
                 hasattr(_datastore.user_model, member.name)
 
         fields = inspect.getmembers(form, is_field_and_user_attr)
-        return dict((key, value.data) for key, value in fields)
+        return dict((key, value.data) for key, value in fields
+                    if key != "identifier")
 
 
 class SendConfirmationForm(Form, UserEmailFormMixin):
-    """The default forgot password form"""
+    """The default send confirmation form"""
 
     submit = SubmitField(get_form_field_label('send_confirmation'))
 
@@ -172,18 +224,32 @@ class SendConfirmationForm(Form, UserEmailFormMixin):
         return True
 
 
-class ForgotPasswordForm(Form, UserEmailFormMixin):
+class AbstractForgotPasswordForm(IdentifierForm):
     """The default forgot password form"""
 
     submit = SubmitField(get_form_field_label('recover_password'))
 
     def validate(self):
-        if not super(ForgotPasswordForm, self).validate():
+        if not super(AbstractForgotPasswordForm, self).validate():
             return False
         if requires_confirmation(self.user):
-            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            self.identifier.errors.append(
+                get_message('CONFIRMATION_REQUIRED')[0]
+            )
             return False
         return True
+
+
+class EmailForgotPasswordForm(AbstractForgotPasswordForm, UserEmailFormMixin):
+    pass
+
+
+class UsernameForgotPasswordForm(AbstractForgotPasswordForm,
+                                 UserUsernameFormMixin):
+    pass
+
+
+ForgotPasswordForm = EmailForgotPasswordForm
 
 
 class PasswordlessLoginForm(Form, UserEmailFormMixin):
@@ -203,18 +269,16 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return True
 
 
-class LoginForm(Form, NextFormMixin):
+class AbstractLoginForm(IdentifierForm, NextFormMixin):
     """The default login form"""
 
-    email = StringField(get_form_field_label('email'),
-                        validators=[Required(message='EMAIL_NOT_PROVIDED')])
     password = PasswordField(get_form_field_label('password'),
                              validators=[password_required])
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
 
     def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
+        super(AbstractLoginForm, self).__init__(*args, **kwargs)
         if not self.next.data:
             self.next.data = request.args.get('next', '')
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
@@ -227,40 +291,75 @@ class LoginForm(Form, NextFormMixin):
             self.password.description = html
 
     def validate(self):
-        if not super(LoginForm, self).validate():
+        if not super(AbstractLoginForm, self).validate():
             return False
 
-        self.user = _datastore.get_user(self.email.data)
+        self.user = _datastore.get_user(self.identifier.data)
 
         if self.user is None:
-            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            self.identifier.errors.append(
+                get_message('USER_DOES_NOT_EXIST')[0]
+            )
             return False
         if not self.user.password:
-            self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
+            self.identifier.errors.append(get_message('PASSWORD_NOT_SET')[0])
             return False
         if not verify_and_update_password(self.password.data, self.user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
-            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            self.identifier.errors.append(
+                get_message('CONFIRMATION_REQUIRED')[0]
+            )
             return False
         if not self.user.is_active:
-            self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            self.identifier.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
 
 
-class ConfirmRegisterForm(Form, RegisterFormMixin,
-                          UniqueEmailFormMixin, NewPasswordFormMixin):
+class EmailLoginForm(AbstractLoginForm, UserEmailFormMixin):
     pass
 
 
-class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
-                   NextFormMixin):
+class UsernameLoginForm(AbstractLoginForm, UserUsernameFormMixin):
+    pass
+
+
+LoginForm = EmailLoginForm
+
+
+class EmailConfirmRegisterForm(IdentifierForm, RegisterFormMixin,
+                               UniqueEmailFormMixin, NewPasswordFormMixin):
+    pass
+
+
+class UsernameConfirmRegisterForm(IdentifierForm, RegisterFormMixin,
+                                  UniqueUsernameFormMixin,
+                                  NewPasswordFormMixin):
+    pass
+
+
+ConfirmRegisterForm = EmailConfirmRegisterForm
+
+
+class EmailRegisterForm(EmailConfirmRegisterForm, PasswordConfirmFormMixin,
+                        NextFormMixin):
     def __init__(self, *args, **kwargs):
-        super(RegisterForm, self).__init__(*args, **kwargs)
+        super(EmailRegisterForm, self).__init__(*args, **kwargs)
         if not self.next.data:
             self.next.data = request.args.get('next', '')
+
+
+class UsernameRegisterForm(UsernameConfirmRegisterForm,
+                           PasswordConfirmFormMixin, NextFormMixin):
+    def __init__(self, *args, **kwargs):
+        super(UsernameRegisterForm, self).__init__(*args, **kwargs)
+        if not self.next.data:
+            self.next.data = request.args.get('next', '')
+
+
+RegisterForm = EmailRegisterForm
 
 
 class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):

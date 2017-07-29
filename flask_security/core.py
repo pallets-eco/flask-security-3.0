@@ -25,8 +25,10 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .forms import ChangePasswordForm, ConfirmRegisterForm, \
-    ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
+from .forms import ChangePasswordForm, \
+    EmailConfirmRegisterForm, UsernameConfirmRegisterForm, \
+    ForgotPasswordForm, EmailLoginForm, UsernameLoginForm, \
+    PasswordlessLoginForm, EmailRegisterForm, UsernameRegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
@@ -142,6 +144,8 @@ _default_messages = {
         _('Invalid confirmation token.'), 'error'),
     'EMAIL_ALREADY_ASSOCIATED': (
         _('%(email)s is already associated with an account.'), 'error'),
+    'USERNAME_ALREADY_IN_USE': (
+        _('%(username)s is already in use.'), 'error'),
     'PASSWORD_MISMATCH': (
         _('Password does not match'), 'error'),
     'RETYPE_PASSWORD_MISMATCH': (
@@ -177,6 +181,10 @@ _default_messages = {
         _('Email not provided'), 'error'),
     'INVALID_EMAIL_ADDRESS': (
         _('Invalid email address'), 'error'),
+    'USERNAME_NOT_PROVIDED': (
+        _('Username not provided'), 'error'),
+    'INVALID_USERNAME': (
+        _('Invalid username'), 'error'),
     'PASSWORD_NOT_PROVIDED': (
         _('Password not provided'), 'error'),
     'PASSWORD_NOT_SET': (
@@ -205,10 +213,21 @@ _default_messages = {
         _('Please reauthenticate to access this page.'), 'info'),
 }
 
-_default_forms = {
-    'login_form': LoginForm,
-    'confirm_register_form': ConfirmRegisterForm,
-    'register_form': RegisterForm,
+_default_email_forms = {
+    'login_form': EmailLoginForm,
+    'confirm_register_form': EmailConfirmRegisterForm,
+    'register_form': EmailRegisterForm,
+    'forgot_password_form': ForgotPasswordForm,
+    'reset_password_form': ResetPasswordForm,
+    'change_password_form': ChangePasswordForm,
+    'send_confirmation_form': SendConfirmationForm,
+    'passwordless_login_form': PasswordlessLoginForm,
+}
+
+_default_username_forms = {
+    'login_form': UsernameLoginForm,
+    'confirm_register_form': UsernameConfirmRegisterForm,
+    'register_form': UsernameRegisterForm,
     'forgot_password_form': ForgotPasswordForm,
     'reset_password_form': ResetPasswordForm,
     'change_password_form': ChangePasswordForm,
@@ -342,7 +361,16 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         _unauthorized_callback=None
     ))
 
-    for key, value in _default_forms.items():
+    ident_attrs = app.config.get(
+        "SECURITY_USER_IDENTITY_ATTRIBUTES",
+        ["email"],
+    )
+    if ident_attrs == ["email"]:
+        default_forms = _default_email_forms
+    else:
+        default_forms = _default_username_forms
+
+    for key, value in default_forms.items():
         if key not in kwargs or not kwargs[key]:
             kwargs[key] = value
 
