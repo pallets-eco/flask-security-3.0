@@ -741,44 +741,48 @@ def get_message(app):
 
 @pytest.fixture(params=['sqlalchemy', 'sqlalchemy-session', 'mongoengine',
                         'peewee', 'pony'])
+def datastore_backend_name(request):
+    return request.param
+
+
+@pytest.fixture()
 def email_datastore(
-        request,
+        datastore_backend_name,
         sqlalchemy_email_datastore,
         sqlalchemy_session_email_datastore,
         mongoengine_email_datastore,
         peewee_email_datastore,
         pony_email_datastore):
-    if request.param == 'sqlalchemy':
+    if datastore_backend_name == 'sqlalchemy':
         rv = sqlalchemy_email_datastore
-    elif request.param == 'sqlalchemy-session':
+    elif datastore_backend_name == 'sqlalchemy-session':
         rv = sqlalchemy_session_email_datastore
-    elif request.param == 'mongoengine':
+    elif datastore_backend_name == 'mongoengine':
         rv = mongoengine_email_datastore
-    elif request.param == 'peewee':
+    elif datastore_backend_name == 'peewee':
         rv = peewee_email_datastore
-    elif request.param == 'pony':
+    elif datastore_backend_name == 'pony':
         rv = pony_email_datastore
     return rv
 
 
-@pytest.fixture(params=['sqlalchemy', 'sqlalchemy-session', 'mongoengine',
-                        'peewee', 'pony'])
+@pytest.fixture()
 def username_datastore(
-        request,
+        datastore_backend_name,
         sqlalchemy_username_datastore,
         sqlalchemy_session_username_datastore,
         mongoengine_username_datastore,
         peewee_username_datastore,
         pony_username_datastore):
-    if request.param == 'sqlalchemy':
+    if datastore_backend_name == 'sqlalchemy':
         rv = sqlalchemy_username_datastore
-    elif request.param == 'sqlalchemy-session':
+    elif datastore_backend_name == 'sqlalchemy-session':
         rv = sqlalchemy_session_username_datastore
-    elif request.param == 'mongoengine':
+    elif datastore_backend_name == 'mongoengine':
         rv = mongoengine_username_datastore
-    elif request.param == 'peewee':
+    elif datastore_backend_name == 'peewee':
         rv = peewee_username_datastore
-    elif request.param == 'pony':
+    elif datastore_backend_name == 'pony':
         rv = pony_username_datastore
     return rv
 
