@@ -1,0 +1,20 @@
+<head>
+    {% block head %}
+        <meta charset="UTF-8">
+        <title>
+            {% block title %}
+                Base page
+            {% endblock %}
+        </title>
+        {% block styles %}
+        {% endblock %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+    {% block content %}
+    {% endblock %}
+    {% block scripts %}
+    {% endblock %}
+{% endblock %}
+</body>
