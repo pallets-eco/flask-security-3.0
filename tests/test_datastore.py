@@ -166,3 +166,20 @@ def test_access_datastore_from_factory(app, datastore):
 
     assert security.datastore is not None
     assert security.app is not None
+
+
+def test_access_datastore_from_app_factory_pattern(app, datastore):
+    security = Security(datastore=datastore)
+    security.init_app(app)
+
+    assert security.datastore is not None
+    assert security.app is not None
+
+
+def test_init_app_kwargs_override_constructor_kwargs(app, datastore):
+    security = Security(datastore=datastore, login_form='__init__login_form',
+                        register_form='__init__register_form')
+    security.init_app(app, login_form='init_app_login_form')
+
+    assert security.login_form == 'init_app_login_form'
+    assert security.register_form == '__init__register_form'
