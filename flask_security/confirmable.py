@@ -60,7 +60,7 @@ def requires_confirmation(user):
     """Returns `True` if the user requires confirmation."""
     return (_security.confirmable and
             not _security.login_without_confirmation and
-            user.confirmed_at is None)
+            user.confirmed_at is None and user.active is False)
 
 
 def confirm_email_token_status(token):
