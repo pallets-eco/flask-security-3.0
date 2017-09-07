@@ -81,9 +81,11 @@ def login():
 
     if request.json:
         return _render_json(form, include_auth_token=True)
+    
+    SERVER_LOCATION = current_app.config['SERVER_LOCATION']
 
     return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
-                                     login_user_form=form,
+                                     login_user_form=form, SERVER_LOCATION=SERVER_LOCATION,
                                      **_ctx('login'))
 
 
