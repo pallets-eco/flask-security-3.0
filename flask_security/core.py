@@ -59,12 +59,12 @@ _default_config = {
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
-    'CONFIRMABLE': False,
-    'REGISTERABLE': False,
-    'RECOVERABLE': False,
-    'TRACKABLE': False,
+    'CONFIRMABLE': True,
+    'REGISTERABLE': True,
+    'RECOVERABLE': True,
+    'TRACKABLE': True,
     'PASSWORDLESS': False,
-    'CHANGEABLE': False,
+    'CHANGEABLE': True,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
     'SEND_PASSWORD_RESET_NOTICE_EMAIL': True,
@@ -83,7 +83,7 @@ _default_config = {
     'REMEMBER_SALT': 'remember-salt',
     'DEFAULT_REMEMBER_ME': False,
     'DEFAULT_HTTP_AUTH_REALM': 'Login Required',
-    'EMAIL_SUBJECT_REGISTER': 'Welcome',
+    'EMAIL_SUBJECT_REGISTER': 'Welcome to Simright Family',
     'EMAIL_SUBJECT_CONFIRM': 'Please confirm your email',
     'EMAIL_SUBJECT_PASSWORDLESS': 'Login instructions',
     'EMAIL_SUBJECT_PASSWORD_NOTICE': 'Your password has been reset',
@@ -229,7 +229,7 @@ def _get_login_manager(app, anonymous_user):
     lm.token_loader(_token_loader)
 
     if cv('FLASH_MESSAGES', app=app):
-        lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
+        lm.login_message, lm.login_message_category = None, None
         lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
             'MSG_REFRESH', app=app)
     else:
