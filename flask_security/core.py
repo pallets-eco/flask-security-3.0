@@ -229,7 +229,7 @@ def _get_login_manager(app, anonymous_user):
     lm.token_loader(_token_loader)
 
     if cv('FLASH_MESSAGES', app=app):
-        lm.login_message, lm.login_message_category = cv('MSG_LOGIN', app=app)
+        lm.login_message, lm.login_message_category = None, None
         lm.needs_refresh_message, lm.needs_refresh_message_category = cv(
             'MSG_REFRESH', app=app)
     else:
