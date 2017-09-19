@@ -87,7 +87,7 @@ def login_user(user, remember=None):
 def logout_user():
     """Logs out the current. This will also clean up the remember me cookie if it exists."""
 
-    for key in ('identity.name', 'identity.auth_type', 'identity_id', 'identity_auth_type'):
+    for key in ('identity.name', 'identity.auth_type', 'identity_id', 'identity_auth_type', 'identifier'):
         session.pop(key, None)
     identity_changed.send(current_app._get_current_object(),
                           identity=AnonymousIdentity())
