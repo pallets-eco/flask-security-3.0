@@ -119,26 +119,26 @@ def register():
         form_data = request.form
 
     form = form_class(form_data)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = register_user(**form.to_dict())
+            form.user = user
 
-    if form.validate_on_submit():
-        user = register_user(**form.to_dict())
-        form.user = user
+            if not _security.confirmable or _security.login_without_confirmation:
+                after_this_request(_commit)
+                login_user(user)
 
-        if not _security.confirmable or _security.login_without_confirmation:
-            after_this_request(_commit)
-            login_user(user)
+            if not request.json:
+                if 'next' in form:
+                    redirect_url = get_post_register_redirect(form.next.data)
+                else:
+                    redirect_url = get_post_register_redirect()
 
-        if not request.json:
-            if 'next' in form:
-                redirect_url = get_post_register_redirect(form.next.data)
-            else:
-                redirect_url = get_post_register_redirect()
+                return redirect(redirect_url)
+            return _render_json(form, include_auth_token=True)
 
-            return redirect(redirect_url)
-        return _render_json(form, include_auth_token=True)
-
-    if request.json:
-        return _render_json(form)
+        if request.json:
+            return _render_json(form)
 
     return _security.render_template(config_value('REGISTER_USER_TEMPLATE'),
                                      register_user_form=form,
