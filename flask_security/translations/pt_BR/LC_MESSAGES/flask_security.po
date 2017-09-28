@@ -217,7 +217,7 @@ msgstr "Lembre de mim"
 #: flask_security/templates/security/login_user.html:3
 #: flask_security/templates/security/send_login.html:3
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 #: flask_security/forms.py:34 flask_security/templates/security/_menu.html:6
 #: flask_security/templates/security/register_user.html:3
@@ -254,7 +254,7 @@ msgstr "Enviar link de login"
 
 #: flask_security/templates/security/_menu.html:2
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: flask_security/templates/security/_menu.html:9
 msgid "Forgot password"
