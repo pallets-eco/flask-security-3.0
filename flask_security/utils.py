@@ -450,17 +450,16 @@ def get_identity_attributes(app=None):
 
 def use_double_hash(password_hash=None):
     """Return a bool indicating whether a password should be hashed twice."""
-    single_hash = config_value('PASSWORD_SINGLE_HASH')
-    if single_hash and _security.password_salt:
-        raise RuntimeError('You may not specify a salt with '
-                           'SECURITY_PASSWORD_SINGLE_HASH')
+    # Default to plaintext for backward compatibility with
+    # SECURITY_PASSWORD_SINGLE_HASH = False
+    single_hash = config_value('PASSWORD_SINGLE_HASH') or {'plaintext'}
 
     if password_hash is None:
-        is_plaintext = _security.password_hash == 'plaintext'
+        scheme = _security.password_hash
     else:
-        is_plaintext = _pwd_context.identify(password_hash) == 'plaintext'
+        scheme = _pwd_context.identify(password_hash)
 
-    return not (is_plaintext or single_hash)
+    return not (single_hash is True or scheme in single_hash)
 
 
 @contextmanager

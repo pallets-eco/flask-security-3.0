@@ -48,7 +48,17 @@ _default_config = {
     'I18N_DOMAIN': 'flask_security',
     'PASSWORD_HASH': 'bcrypt',
     'PASSWORD_SALT': None,
-    'PASSWORD_SINGLE_HASH': False,
+    'PASSWORD_SINGLE_HASH': set([
+        'django_argon2',
+        'django_bcrypt_sha256',
+        'django_pbkdf2_sha256',
+        'django_pbkdf2_sha1',
+        'django_bcrypt',
+        'django_salted_md5',
+        'django_salted_sha1',
+        'django_des_crypt',
+        'plaintext'
+    ]),
     'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
