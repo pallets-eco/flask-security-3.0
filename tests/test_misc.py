@@ -21,15 +21,15 @@ from flask_security.utils import capture_reset_password_requests, \
 
 
 @pytest.mark.recoverable()
-def test_async_email_task(app, client):
-    app.mail_sent = False
+def test_async_email_task(email_app, client):
+    email_app.mail_sent = False
 
-    @app.security.send_mail_task
+    @email_app.security.send_mail_task
     def send_email(msg):
-        app.mail_sent = True
+        email_app.mail_sent = True
 
     client.post('/reset', data=dict(email='matt@lp.com'))
-    assert app.mail_sent is True
+    assert email_app.mail_sent is True
 
 
 def test_register_blueprint_flag(app, sqlalchemy_datastore):
@@ -138,13 +138,12 @@ def test_passwordless_custom_form(app, sqlalchemy_datastore):
     assert b'My Passwordless Email Address Field' in response.data
 
 
-def test_addition_identity_attributes(app, sqlalchemy_datastore):
-    init_app_with_options(app, sqlalchemy_datastore, **{
-        'SECURITY_USER_IDENTITY_ATTRIBUTES': ('email', 'username')
-    })
-    client = app.test_client()
-    response = authenticate(client, email='matt', follow_redirects=True)
-    assert b'Hello matt@lp.com' in response.data
+def test_username_identity_attribute(username_app,
+                                     sqlalchemy_username_datastore):
+    init_app_with_options(username_app, sqlalchemy_username_datastore)
+    client = username_app.test_client()
+    response = authenticate(client, username='matt', follow_redirects=True)
+    assert b'Hello matt' in response.data
 
 
 def test_flash_messages_off(app, sqlalchemy_datastore, get_message):
@@ -234,7 +233,7 @@ def test_password_unicode_password_salt(client):
     response = authenticate(client)
     assert response.status_code == 302
     response = authenticate(client, follow_redirects=True)
-    assert b'Hello matt@lp.com' in response.data
+    assert b'Hello matt' in response.data
 
 
 def test_set_unauthorized_handler(app, client):

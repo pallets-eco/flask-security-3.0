@@ -18,10 +18,18 @@ _missing = object
 def authenticate(
         client,
         email="matt@lp.com",
+        username="matt",
         password="password",
         endpoint=None,
         **kwargs):
-    data = dict(email=email, password=password, remember='y')
+    identity_attrs = (
+        client.application.config["SECURITY_USER_IDENTITY_ATTRIBUTES"]
+    )
+    data = dict(password=password, remember='y')
+    if identity_attrs == ["email"]:
+        data["email"] = email
+    else:
+        data["username"] = username
     return client.post(endpoint or '/login', data=data, **kwargs)
 
 
@@ -47,7 +55,7 @@ def create_roles(ds):
     ds.commit()
 
 
-def create_users(ds, count=None):
+def create_users_email(ds, count=None):
     users = [('matt@lp.com', 'matt', 'password', ['admin'], True),
              ('joe@lp.com', 'joe', 'password', ['editor'], True),
              ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True),
@@ -73,11 +81,40 @@ def create_users(ds, count=None):
         ds.commit()
 
 
+def create_users_username(ds, count=None):
+    users = [('matt', 'password', ['admin'], True),
+             ('joe', 'password', ['editor'], True),
+             ('dave', 'password', ['admin', 'editor'], True),
+             ('jill', 'password', ['author'], True),
+             ('tiya', 'password', [], False),
+             ('jess', None, [], True)]
+    count = count or len(users)
+
+    for u in users[:count]:
+        pw = u[1]
+        if pw is not None:
+            pw = encrypt_password(pw)
+        roles = [ds.find_or_create_role(rn) for rn in u[2]]
+        ds.commit()
+        user = ds.create_user(
+            username=u[0],
+            password=pw,
+            active=u[3])
+        ds.commit()
+        for role in roles:
+            ds.add_role_to_user(user, role)
+        ds.commit()
+
+
 def populate_data(app, user_count=None):
     ds = app.security.datastore
+    identity_attrs = app.config["SECURITY_USER_IDENTITY_ATTRIBUTES"]
     with app.app_context():
         create_roles(ds)
-        create_users(ds, user_count)
+        if identity_attrs == ["email"]:
+            create_users_email(ds, user_count)
+        else:
+            create_users_username(ds, user_count)
 
 
 class Response(BaseResponse):  # pragma: no cover
