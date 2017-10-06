@@ -128,7 +128,7 @@ registered. They can be completely disabled or their names can be changed.
 Run ``flask --help`` and look for users and roles.
 
 
-.. _Click: http://packages.python.org/Click/
+.. _Click: http://click.pocoo.org/
 .. _Flask-Login: https://flask-login.readthedocs.org/en/latest/
 .. _alternative token: https://flask-login.readthedocs.io/en/latest/#alternative-tokens
 .. _Flask-Principal: http://packages.python.org/Flask-Principal/
