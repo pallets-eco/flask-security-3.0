@@ -108,7 +108,6 @@ and models.py. You can also do the models a folder and spread your tables there.
 
 - app.py ::
 
-    import uuid
     from flask import Flask, render_template_string
     from flask_security import Security, current_user, login_required, \
          SQLAlchemySessionUserDatastore
@@ -120,7 +119,7 @@ and models.py. You can also do the models a folder and spread your tables there.
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'super-secret'
     # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
-    app.config['SECURITY_PASSWORD_SALT'] = uuid.uuid4().hex
+    app.config['SECURITY_PASSWORD_SALT'] = 'super-secret-random-salt'
 
     # Setup Flask-Security
     user_datastore = SQLAlchemySessionUserDatastore(db_session,
