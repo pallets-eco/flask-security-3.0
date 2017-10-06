@@ -17,8 +17,7 @@ import warnings
 from contextlib import contextmanager
 from datetime import timedelta
 
-from flask import current_app, flash, render_template, request, session, \
-    url_for
+from flask import current_app, flash, request, session, url_for
 from flask_login import login_user as _login_user
 from flask_login import logout_user as _logout_user
 from flask_mail import Message
@@ -389,9 +388,9 @@ def send_mail(subject, recipient, template, **context):
 
     ctx = ('security/email', template)
     if config_value('EMAIL_PLAINTEXT'):
-        msg.body = render_template('%s/%s.txt' % ctx, **context)
+        msg.body = _security.render_template('%s/%s.txt' % ctx, **context)
     if config_value('EMAIL_HTML'):
-        msg.html = render_template('%s/%s.html' % ctx, **context)
+        msg.html = _security.render_template('%s/%s.html' % ctx, **context)
 
     if _security._send_mail_task:
         _security._send_mail_task(msg)
