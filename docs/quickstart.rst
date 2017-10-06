@@ -106,7 +106,7 @@ possible using `SQLAlchemy in a declarative way
 We are gonna split the application at least in three files: app.py, database.py
 and models.py. You can also do the models a folder and spread your tables there.
 
-- app.py:
+- app.py
 
 ::
 
