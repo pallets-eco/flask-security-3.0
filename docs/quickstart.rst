@@ -107,7 +107,9 @@ We are gonna split the application at least in three files: app.py, database.py
 and models.py. You can also do the models a folder and spread your tables there.
 
 - app.py
+
 ::
+
     from flask import Flask
     from flask_security import Security, login_required, \
          SQLAlchemySessionUserDatastore
@@ -141,7 +143,9 @@ and models.py. You can also do the models a folder and spread your tables there.
         app.run()
 
 - database.py
+
 ::
+
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session, sessionmaker
     from sqlalchemy.ext.declarative import declarative_base
@@ -162,7 +166,9 @@ and models.py. You can also do the models a folder and spread your tables there.
         Base.metadata.create_all(bind=engine)
 
 - models.py
+
 ::
+
     from database import Base
     from flask_security import UserMixin, RoleMixin
     from sqlalchemy import create_engine
