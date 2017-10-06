@@ -108,8 +108,8 @@ and models.py. You can also do the models a folder and spread your tables there.
 
 - app.py ::
 
-    from flask import Flask
-    from flask_security import Security, login_required, \
+    from flask import Flask, render_template_string
+    from flask_security import Security, current_user, login_required, \
          SQLAlchemySessionUserDatastore
     from database import db_session, init_db
     from models import User, Role
@@ -118,6 +118,8 @@ and models.py. You can also do the models a folder and spread your tables there.
     app = Flask(__name__)
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'super-secret'
+    # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
+    app.config['SECURITY_PASSWORD_SALT'] = 'super-secret-random-salt'
 
     # Setup Flask-Security
     user_datastore = SQLAlchemySessionUserDatastore(db_session,
@@ -135,7 +137,7 @@ and models.py. You can also do the models a folder and spread your tables there.
     @app.route('/')
     @login_required
     def home():
-        return render('Here you go!')
+        return render_template_string('Hello {{email}} !', email=current_user.email)
 
     if __name__ == '__main__':
         app.run()
