@@ -285,15 +285,30 @@ def reset_password(token):
     if invalid or expired:
         return redirect(url_for('forgot_password'))
 
-    form = _security.reset_password_form()
+    form_class = _security.reset_password_form
+
+    is_api = False  # whether this view is trigger by restful api call or form
+    if request.json:
+        form = form_class(MultiDict(request.json))
+        is_api = True
+    else:
+        form = form_class()
 
     if form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user)
-        return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.post_login_view))
+        if not is_api:
+            do_flash(*get_message('PASSWORD_RESET'))
+            login_user(user)
+            return redirect(get_url(_security.post_reset_view) or
+                            get_url(_security.post_login_view))
+        else:
+            return _render_json(form, False)
+
+    # not valid
+    if is_api:
+        form.errors = "Not valid token"
+        return _render_json(form, False)
 
     return _security.render_template(
         config_value('RESET_PASSWORD_TEMPLATE'),
