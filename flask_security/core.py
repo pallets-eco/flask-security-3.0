@@ -487,20 +487,15 @@ class Security(object):
         self.app = app
         self._datastore = datastore
         self._register_blueprint = register_blueprint
-        self._kwargs = dict(login_form=None,
-                            register_form=None,
-                            confirm_register_form=None,
-                            forgot_password_form=None,
-                            reset_password_form=None,
-                            change_password_form=None,
-                            send_confirmation_form=None,
-                            passwordless_login_form=None,
-                            anonymous_user=None)
-        self._kwargs.update(kwargs)
+        self._kwargs = kwargs
 
         self._state = None  # set by init_app
         if app is not None and datastore is not None:
-            self._state = self.init_app(app, datastore, **self._kwargs)
+            self._state = self.init_app(
+                app,
+                datastore,
+                register_blueprint=register_blueprint,
+                **kwargs)
 
     def init_app(self, app, datastore=None, register_blueprint=None, **kwargs):
         """Initializes the Flask-Security extension for the specified
@@ -511,11 +506,15 @@ class Security(object):
         :param register_blueprint: to register the Security blueprint or not.
         """
         self.app = app
+
         if datastore is None:
             datastore = self._datastore
+
         if register_blueprint is None:
             register_blueprint = self._register_blueprint
-        self._kwargs.update(kwargs)
+
+        for key, value in self._kwargs.items():
+            kwargs.setdefault(key, value)
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
@@ -525,7 +524,7 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        self._state = state = _get_state(app, datastore, **self._kwargs)
+        self._state = state = _get_state(app, datastore, **kwargs)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
