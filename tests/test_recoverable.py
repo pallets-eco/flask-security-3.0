@@ -69,6 +69,7 @@ def test_recoverable_flag(app, client, get_message):
 
     assert get_message('PASSWORD_RESET') in response.data
     assert len(recorded_resets) == 1
+    assert b'Hello joe@lp.com' not in response.data
 
     logout(client)
 
@@ -182,6 +183,46 @@ def test_used_reset_token(client, get_message):
 
     msg = get_message('INVALID_RESET_PASSWORD_TOKEN')
     assert msg in response2.data
+
+
+def test_reset_token_redirect(client, get_message):
+    with capture_reset_password_requests() as requests:
+        client.post(
+            '/reset',
+            data=dict(
+                email='joe@lp.com'),
+            follow_redirects=True)
+
+    token = requests[0]['token']
+
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    })
+
+    assert 'location' in response.headers
+    assert '/login' in response.location
+
+    response = client.get(response.location)
+    assert get_message('PASSWORD_RESET') in response.data
+
+
+@pytest.mark.settings(post_reset_view='/post_reset')
+def test_reset_token_redirect_to_post_reset(client, get_message):
+    with capture_reset_password_requests() as requests:
+        client.post(
+            '/reset',
+            data=dict(
+                email='joe@lp.com'),
+            follow_redirects=True)
+
+    token = requests[0]['token']
+
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    }, follow_redirects=True)
+    assert b'Post Reset' in response.data
 
 
 def test_reset_passwordless_user(client, get_message):
