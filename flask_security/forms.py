@@ -203,7 +203,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = StringField(get_form_field_label('email'))
+    account = StringField(get_form_field_label('account'))
     password = PasswordField(get_form_field_label('password'))
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
@@ -218,18 +218,18 @@ class LoginForm(Form, NextFormMixin):
         if not super(LoginForm, self).validate():
             return False
 
-        if self.email.data.strip() == '':
-            self.email.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
+        if self.account.data.strip() == '':
+            self.account.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
             return False
 
         if self.password.data.strip() == '':
             self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
 
-        self.user = _datastore.get_user(self.email.data)
+        self.user = _datastore.get_user(self.account.data)
 
         if self.user is None:
-            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            self.account.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
@@ -238,16 +238,15 @@ class LoginForm(Form, NextFormMixin):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
-            self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
+            self.account.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
             return False
         if not self.user.is_active:
-            self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
+            self.account.errors.append(get_message('DISABLED_ACCOUNT')[0])
             return False
         return True
 
 
-class ConfirmRegisterForm(Form, RegisterFormMixin,
-                          UniqueEmailFormMixin, NewPasswordFormMixin):
+class ConfirmRegisterForm(Form, RegisterFormMixin, UniqueEmailFormMixin, NewPasswordFormMixin):
     pass
 
 
