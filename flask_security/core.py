@@ -337,7 +337,6 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
     kwargs.update(dict(
         app=app,
         datastore=datastore,
-        login_manager=_get_login_manager(app, anonymous_user),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
         hashing_context=_get_hashing_context(app),
@@ -350,6 +349,10 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         _send_mail_task=None,
         _unauthorized_callback=None
     ))
+
+    if 'login_manager' not in kwargs:
+        kwargs['login_manager'] = _get_login_manager(
+            app, anonymous_user)
 
     for key, value in _default_forms.items():
         if key not in kwargs or not kwargs[key]:
