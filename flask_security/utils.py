@@ -432,6 +432,9 @@ def get_token_status(token, serializer, max_age=None, return_data=False):
 
     expired = expired and (user is not None)
 
+    if user is None:
+        invalid = True
+
     if return_data:
         return expired, invalid, user, data
     else:
