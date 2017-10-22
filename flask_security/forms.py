@@ -154,7 +154,7 @@ class RegisterFormMixin():
 
 
 class SendConfirmationForm(Form, UserEmailFormMixin):
-    """The default forgot password form"""
+    """The default send confirmation form"""
 
     submit = SubmitField(get_form_field_label('send_confirmation'))
 
