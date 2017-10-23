@@ -53,7 +53,7 @@ def create_users(ds, count=None):
              ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True),
              ('jill@lp.com', 'jill', 'password', ['author'], True),
              ('tiya@lp.com', 'tiya', 'password', [], False),
-             ('gene@lp.com', 'gene', 'password', [], False),
+             ('gene@lp.com', 'gene', 'password', [], True),
              ('jess@lp.com', 'jess', None, [], True)]
     count = count or len(users)
 
