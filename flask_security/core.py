@@ -24,7 +24,7 @@ from .utils import config_value as cv, get_config, md5, url_for_security, string
 from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
-    SendConfirmationForm, PasswordlessLoginForm
+    SendConfirmationForm, PasswordlessLoginForm, ResendRegisterEmailForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -46,6 +46,7 @@ _default_config = {
     'CONFIRM_URL': '/confirm',
     'POST_LOGIN_VIEW': '/',
     'POST_LOGOUT_VIEW': '/',
+    'RESEND_EMAIL_URL': '/resend_email',
     'CONFIRM_ERROR_VIEW': None,
     'POST_REGISTER_VIEW': None,
     'POST_CONFIRM_VIEW': None,
@@ -58,6 +59,7 @@ _default_config = {
     'RESET_PASSWORD_TEMPLATE': 'security/reset_password.html',
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
+    'RESEND_EMAIL_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
@@ -180,6 +182,7 @@ _default_messages = {
 _default_forms = {
     'login_form': LoginForm,
     'confirm_register_form': ConfirmRegisterForm,
+    'resend_register_email_form': ResendRegisterEmailForm,
     'register_form': RegisterForm,
     'forgot_password_form': ForgotPasswordForm,
     'reset_password_form': ResetPasswordForm,
@@ -415,7 +418,7 @@ class Security(object):
                  register_form=None, forgot_password_form=None,
                  reset_password_form=None, change_password_form=None,
                  send_confirmation_form=None, passwordless_login_form=None,
-                 anonymous_user=None):
+                 anonymous_user=None, resend_register_email_form=None):
         """Initializes the Flask-Security extension for the specified
         application and datastore implentation.
 
@@ -442,7 +445,8 @@ class Security(object):
                            change_password_form=change_password_form,
                            send_confirmation_form=send_confirmation_form,
                            passwordless_login_form=passwordless_login_form,
-                           anonymous_user=anonymous_user)
+                           anonymous_user=anonymous_user,
+                           resend_register_email_form=resend_register_email_form)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))

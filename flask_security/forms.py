@@ -250,6 +250,10 @@ class ConfirmRegisterForm(Form, RegisterFormMixin, UniqueEmailFormMixin, NewPass
     pass
 
 
+class ResendRegisterEmailForm(Form, RegisterFormMixin, UniqueEmailFormMixin, NewPasswordFormMixin):
+    pass
+
+
 class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
                    NextFormMixin):
     def __init__(self, *args, **kwargs):
