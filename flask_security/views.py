@@ -275,8 +275,10 @@ def reset_password(token):
 
     expired, invalid, user = reset_password_token_status(token)
 
-    if invalid:
+    if not user or invalid:
+        invalid = True
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+
     if expired:
         send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,

@@ -73,7 +73,7 @@ def reset_password_token_status(token):
     expired, invalid, user, data = get_token_status(
         token, 'reset', 'RESET_PASSWORD', return_data=True
     )
-    if not invalid:
+    if not invalid and user:
         if user.password:
             if not verify_hash(data[1], user.password):
                 invalid = True

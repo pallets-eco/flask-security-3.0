@@ -155,6 +155,32 @@ def test_expired_reset_token(client, get_message):
     assert msg in response.data
 
 
+def test_reset_token_deleted_user(app, client, get_message,
+                                  sqlalchemy_datastore):
+    with capture_reset_password_requests() as requests:
+        client.post(
+            '/reset',
+            data=dict(
+                email='gene@lp.com'),
+            follow_redirects=True)
+
+    user = requests[0]['user']
+    token = requests[0]['token']
+
+    # Delete user
+    with app.app_context():
+        sqlalchemy_datastore.delete(user)
+        sqlalchemy_datastore.commit()
+
+    response = client.post('/reset/' + token, data={
+        'password': 'newpassword',
+        'password_confirm': 'newpassword'
+    }, follow_redirects=True)
+
+    msg = get_message('INVALID_RESET_PASSWORD_TOKEN')
+    assert msg in response.data
+
+
 def test_used_reset_token(client, get_message):
     with capture_reset_password_requests() as requests:
         client.post(
