@@ -1,16 +1,17 @@
 Quick Start
 ===========
 
--  `Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_
--  `Basic SQLAlchemy Application with session
-   <#basic-sqlalchemy-application-with-session>`_
--  `Basic MongoEngine Application <#basic-mongoengine-application>`_
--  `Basic Peewee Application <#basic-peewee-application>`_
--  `Mail Configuration <#mail-configuration>`_
--  `Proxy Configuration <#proxy-configuration>`_
+* :ref:`basic-sqlalchemy-application`
+* :ref:`basic-sqlalchemy-application-with-session`
+* :ref:`basic-mongoengine-application`
+* :ref:`basic-peewee-application`
+* :ref:`mail-configuration`
+* :ref:`proxy-configuration`
+
+.. _basic-sqlalchemy-application:
 
 Basic SQLAlchemy Application
-=============================
+============================
 
 SQLAlchemy Install requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +82,8 @@ possible using SQLAlchemy:
 
     if __name__ == '__main__':
         app.run()
+
+.. _basic-sqlalchemy-application-with-session:
 
 Basic SQLAlchemy Application with session
 =========================================
@@ -200,8 +203,10 @@ and models.py. You can also do the models a folder and spread your tables there.
         roles = relationship('Role', secondary='roles_users',
                              backref=backref('users', lazy='dynamic'))
 
+.. _basic-mongoengine-application:
+
 Basic MongoEngine Application
-==============================
+=============================
 
 MongoEngine Install requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,6 +271,8 @@ possible using MongoEngine:
     if __name__ == '__main__':
         app.run()
 
+
+.. _basic-peewee-application:
 
 Basic Peewee Application
 ========================
@@ -345,8 +352,10 @@ possible using Peewee:
         app.run()
 
 
+.. _mail-configuration:
+
 Mail Configuration
-===================
+==================
 
 Flask-Security integrates with Flask-Mail to handle all email
 communications between user and site, so it's important to configure
@@ -370,6 +379,8 @@ the basic application code in the previous section::
 To learn more about the various Flask-Mail settings to configure it to
 work with your particular email server configuration, please see the
 `Flask-Mail documentation <http://packages.python.org/Flask-Mail/>`_.
+
+.. _proxy-configuration:
 
 Proxy Configuration
 ===================
