@@ -1,5 +1,5 @@
-Welcome {{ user.email }}!
+{{ _('Welcome %(email)s!', email=user.email) }}
 
-You can log into your through the link below:
+{{ _('You can log into your account through the link below:') }}
 
 {{ login_link }}

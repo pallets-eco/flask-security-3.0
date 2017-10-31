@@ -1,0 +1,330 @@
+# Danish (Denmark) translations for Flask-Security.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the Flask-Security
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 2.1.0\n"
+"Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
+"POT-Creation-Date: 2017-06-06 13:23+0200\n"
+"PO-Revision-Date: 2017-03-23 14:04+0100\n"
+"Last-Translator: Leonhard Printz <leonhardprintz@protonmail.ch>\n"
+"Language: da_DK\n"
+"Language-Team: da_DK <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: flask_security/core.py:99
+msgid "Login Required"
+msgstr "Login påkræveet"
+
+#: flask_security/core.py:100
+msgid "Welcome"
+msgstr "Velkommen"
+
+#: flask_security/core.py:101
+msgid "Please confirm your email"
+msgstr "Bekræft venligst din email"
+
+#: flask_security/core.py:102
+msgid "Login instructions"
+msgstr "Logininstruktioner"
+
+#: flask_security/core.py:103
+#: flask_security/templates/security/email/reset_notice.html:1
+msgid "Your password has been reset"
+msgstr "Din adgangskode er blevet nulstillet"
+
+#: flask_security/core.py:104
+msgid "Your password has been changed"
+msgstr "Din adgangskode er blevet ændret"
+
+#: flask_security/core.py:106
+msgid "Password reset instructions"
+msgstr "Instruktioner til nulstilling af adganskode"
+
+#: flask_security/core.py:132
+msgid "You do not have permission to view this resource."
+msgstr "Du har ikke adgang til denne resource."
+
+#: flask_security/core.py:134
+#, python-format
+msgid "Thank you. Confirmation instructions have been sent to %(email)s."
+msgstr "Mange tak. Bekræftelsesinstruktioner er blevet sendt til %(email)s."
+
+#: flask_security/core.py:138
+msgid "Thank you. Your email has been confirmed."
+msgstr "Mange Tak. Din email er blevet bekræftet."
+
+#: flask_security/core.py:140
+msgid "Your email has already been confirmed."
+msgstr "Din email er allerede blevet bekræftet."
+
+#: flask_security/core.py:142
+msgid "Invalid confirmation token."
+msgstr "Ugyldig bekræftigelsestoken."
+
+#: flask_security/core.py:144
+#, python-format
+msgid "%(email)s is already associated with an account."
+msgstr "%(email)s er allerede brugt af en anden konto."
+
+#: flask_security/core.py:146
+msgid "Password does not match"
+msgstr "Adgangskode passer ikke"
+
+#: flask_security/core.py:148
+msgid "Passwords do not match"
+msgstr "Adgangskoderne passer ikke"
+
+#: flask_security/core.py:150
+msgid "Redirections outside the domain are forbidden"
+msgstr "Omdirigering udenfor domænet er forbudt"
+
+#: flask_security/core.py:152
+#, python-format
+msgid "Instructions to reset your password have been sent to %(email)s."
+msgstr ""
+"Instruktioner til nulstilling af din adgangskode er blevet sendt til "
+"%(email)s."
+
+#: flask_security/core.py:155
+#, python-format
+msgid ""
+"You did not reset your password within %(within)s. New instructions have "
+"been sent to %(email)s."
+msgstr ""
+"Du har ikke nulstillet din adgangskode indenfor %(within)s. Nye "
+"instruktioner er sendt til %(email)s."
+
+#: flask_security/core.py:158
+msgid "Invalid reset password token."
+msgstr "Ugyldig nulstillingstoken."
+
+#: flask_security/core.py:160
+msgid "Email requires confirmation."
+msgstr "Email kræver bekræftigelse."
+
+#: flask_security/core.py:162
+#, python-format
+msgid "Confirmation instructions have been sent to %(email)s."
+msgstr "Bekræftigelsesinstruktioner er blevet sendt til %(email)s."
+
+#: flask_security/core.py:164
+#, python-format
+msgid ""
+"You did not confirm your email within %(within)s. New instructions to "
+"confirm your email have been sent to %(email)s."
+msgstr ""
+"Du har ikke bekræftet din email indenfor %(within)s. Nye instruktioner er"
+" blevet sendt til %(email)s."
+
+#: flask_security/core.py:168
+#, python-format
+msgid ""
+"You did not login within %(within)s. New instructions to login have been "
+"sent to %(email)s."
+msgstr ""
+"Du har ikke logget in indenfor %(within)s. Nye logininstruktioner er "
+"blevet sendt til %(email)s."
+
+#: flask_security/core.py:171
+#, python-format
+msgid "Instructions to login have been sent to %(email)s."
+msgstr "Logininstruktioner er blevet sendt til %(email)s."
+
+#: flask_security/core.py:173
+msgid "Invalid login token."
+msgstr "Ugyldig logintoken."
+
+#: flask_security/core.py:175
+msgid "Account is disabled."
+msgstr "Kontoen er deaktiveret."
+
+#: flask_security/core.py:177
+msgid "Email not provided"
+msgstr "Email ikke angivet"
+
+#: flask_security/core.py:179
+msgid "Invalid email address"
+msgstr "Ugyldig email adresse"
+
+#: flask_security/core.py:181
+msgid "Password not provided"
+msgstr "Adgangskode ikke angivet"
+
+#: flask_security/core.py:183
+msgid "No password is set for this user"
+msgstr "Denne bruger har ingen adganskode"
+
+#: flask_security/core.py:185
+msgid "Password must be at least 6 characters"
+msgstr "Adgangskoden skal indeholde mindst 6 tegn"
+
+#: flask_security/core.py:187
+msgid "Specified user does not exist"
+msgstr "Denne bruger findes ikke"
+
+#: flask_security/core.py:189
+msgid "Invalid password"
+msgstr "Ugyldig adgangskode"
+
+#: flask_security/core.py:191
+msgid "You have successfully logged in."
+msgstr "Du er hermed blevet logget ind."
+
+#: flask_security/core.py:193
+msgid "Forgot password?"
+msgstr "Glemt adgangskode?"
+
+#: flask_security/core.py:195
+msgid ""
+"You successfully reset your password and you have been logged in "
+"automatically."
+msgstr ""
+"Du har hermed nulstillet din adgangskode og er blevet automatisk logget "
+"ind."
+
+#: flask_security/core.py:198
+msgid "Your new password must be different than your previous password."
+msgstr "Din nye adgangskode skal være anderledes end din tidligere adgangskode."
+
+#: flask_security/core.py:201
+msgid "You successfully changed your password."
+msgstr "Du har hermed ændret din adgangskode."
+
+#: flask_security/core.py:203
+msgid "Please log in to access this page."
+msgstr "Log in for at få adgang til denne side."
+
+#: flask_security/core.py:205
+msgid "Please reauthenticate to access this page."
+msgstr "Bekræft identitet for at få adgang til denne side."
+
+#: flask_security/forms.py:30
+msgid "Email Address"
+msgstr "Email adresse"
+
+#: flask_security/forms.py:31
+msgid "Password"
+msgstr "Adgangskode"
+
+#: flask_security/forms.py:32
+msgid "Remember Me"
+msgstr "Husk"
+
+#: flask_security/forms.py:33 flask_security/templates/security/_menu.html:4
+#: flask_security/templates/security/login_user.html:3
+#: flask_security/templates/security/send_login.html:3
+msgid "Login"
+msgstr "Login"
+
+#: flask_security/forms.py:34 flask_security/templates/security/_menu.html:6
+#: flask_security/templates/security/register_user.html:3
+msgid "Register"
+msgstr "Registrer"
+
+#: flask_security/forms.py:35
+msgid "Resend Confirmation Instructions"
+msgstr "Gensend bekræftelsesinstruktioner"
+
+#: flask_security/forms.py:36
+msgid "Recover Password"
+msgstr "Genopret adgangskode"
+
+#: flask_security/forms.py:37
+msgid "Reset Password"
+msgstr "Nulstil adgangskode"
+
+#: flask_security/forms.py:38
+msgid "Retype Password"
+msgstr "Gentast adgangskode"
+
+#: flask_security/forms.py:39
+msgid "New Password"
+msgstr "Ny adgangskode"
+
+#: flask_security/forms.py:40
+msgid "Change Password"
+msgstr "Ændre adgangskode"
+
+#: flask_security/forms.py:41
+msgid "Send Login Link"
+msgstr "Send login link"
+
+#: flask_security/templates/security/_menu.html:2
+msgid "Menu"
+msgstr "Menu"
+
+#: flask_security/templates/security/_menu.html:9
+msgid "Forgot password"
+msgstr "Glemt din adgangskode"
+
+#: flask_security/templates/security/_menu.html:12
+msgid "Confirm account"
+msgstr "Bekræft konto"
+
+#: flask_security/templates/security/change_password.html:3
+msgid "Change password"
+msgstr "Ændre adgangskode"
+
+#: flask_security/templates/security/forgot_password.html:3
+msgid "Send password reset instructions"
+msgstr "Send adgangskode nulstillingsinstruktioner"
+
+#: flask_security/templates/security/reset_password.html:3
+msgid "Reset password"
+msgstr "Nulstil adgangskode"
+
+#: flask_security/templates/security/send_confirmation.html:3
+msgid "Resend confirmation instructions"
+msgstr "Gensend bekræftelsesinstruktioner"
+
+#: flask_security/templates/security/email/change_notice.html:1
+msgid "Your password has been changed."
+msgstr "Din adgangskode er blevet ændret."
+
+#: flask_security/templates/security/email/change_notice.html:3
+msgid "If you did not change your password,"
+msgstr "Hvis du ikke har ændret din adgangskode,"
+
+#: flask_security/templates/security/email/change_notice.html:3
+msgid "click here to reset it"
+msgstr "klik her for at ændre den"
+
+#: flask_security/templates/security/email/confirmation_instructions.html:1
+msgid "Please confirm your email through the link below:"
+msgstr "Bekræft venligst din email gennem nedenstående link:"
+
+#: flask_security/templates/security/email/confirmation_instructions.html:3
+#: flask_security/templates/security/email/welcome.html:6
+msgid "Confirm my account"
+msgstr "Bekræft ny konto"
+
+#: flask_security/templates/security/email/login_instructions.html:1
+#: flask_security/templates/security/email/welcome.html:1
+#, python-format
+msgid "Welcome %(email)s!"
+msgstr "Velkommen %(email)s!"
+
+#: flask_security/templates/security/email/login_instructions.html:3
+msgid "You can log into your account through the link below:"
+msgstr "Du kan logge ind gennem nedenstående link:"
+
+#: flask_security/templates/security/email/login_instructions.html:5
+msgid "Login now"
+msgstr "Login"
+
+#: flask_security/templates/security/email/reset_instructions.html:1
+msgid "Click here to reset your password"
+msgstr "Klik her for at nulstille din adgangskode"
+
+#: flask_security/templates/security/email/welcome.html:4
+msgid "You can confirm your email through the link below:"
+msgstr "Bekræft venligst din email gennem nedenstående link:"
+

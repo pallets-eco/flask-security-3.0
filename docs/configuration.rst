@@ -12,27 +12,58 @@ Core
 ``SECURITY_BLUEPRINT_NAME``              Specifies the name for the
                                          Flask-Security blueprint. Defaults to
                                          ``security``.
+``SECURITY_CLI_USERS_NAME``              Specifies the name for the command
+                                         managing users. Disable by setting
+                                         ``False``. Defaults to ``users``.
+``SECURITY_CLI_ROLES_NAME``              Specifies the name for the command
+                                         managing roles. Disable by setting
+                                         ``False``. Defaults to ``roles``.
 ``SECURITY_URL_PREFIX``                  Specifies the URL prefix for the
+                                         Flask-Security blueprint. Defaults to
+                                         ``None``.
+``SECURITY_SUBDOMAIN``                   Specifies the subdomain for the
                                          Flask-Security blueprint. Defaults to
                                          ``None``.
 ``SECURITY_FLASH_MESSAGES``              Specifies whether or not to flash
                                          messages during security procedures.
                                          Defaults to ``True``.
+``SECURITY_I18N_DOMAIN``                 Specifies the name for domain
+                                         used for translations.
+                                         Defaults to ``flask_security``.
 ``SECURITY_PASSWORD_HASH``               Specifies the password hash algorithm to
-                                         use when encrypting and decrypting
-                                         passwords. Recommended values for
-                                         production systems are ``bcrypt``,
-                                         ``sha512_crypt``, or ``pbkdf2_sha512``.
-                                         Defaults to ``plaintext``. Note:
-                                         ``bcrypt>=2.0.0`` is not currently
-                                         supported. If ``bcrypt`` is preferred,
-                                         please use ``bcrypt<2.0``.
+                                         use when hashing passwords. Recommended
+                                         values for production systems are
+                                         ``bcrypt``, ``sha512_crypt``, or
+                                         ``pbkdf2_sha512``. Defaults to
+                                         ``bcrypt``.
 ``SECURITY_PASSWORD_SALT``               Specifies the HMAC salt. This is only
                                          used if the password hash type is set
                                          to something other than plain text.
                                          Defaults to ``None``.
+``SECURITY_PASSWORD_SINGLE_HASH``        Specifies that passwords should only be
+                                         hashed once. By default, passwords are
+                                         hashed twice, first with
+                                         ``SECURITY_PASSWORD_SALT``, and then
+                                         with a random salt. May be useful for
+                                         integrating with other applications.
+                                         It can also be a set of scheme that
+                                         should not be hashed twice.
+                                         Default to a list of known schemes
+                                         not working with double hashing
+                                         (`django_{digest}`, `plaintext`).
+                                         Defaults to ``False``.
+``SECURITY_HASHING_SCHEMES``             List of algorithms used for
+                                         creating and validating tokens.
+                                         Defaults to ``sha256_crypt``.
+``SECURITY_DEPRECATED_HASHING_SCHEMES``  List of deprecated algorithms used for
+                                         creating and validating tokens.
+                                         Defaults to ``hex_md5``.
+``SECURITY_PASSWORD_HASH_OPTIONS``       Specifies additional options to be passed
+                                         to the hashing method.
 ``SECURITY_EMAIL_SENDER``                Specifies the email address to send
-                                         emails as. Defaults to
+                                         emails as. Defaults to value set
+                                         to ``MAIL_DEFAULT_SENDER`` if
+                                         Flask-Mail is used otherwise
                                          ``no-reply@localhost``.
 ``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query string parameter to
                                          read when using token authentication.
@@ -166,8 +197,8 @@ Feature Flags
                           option. Defaults to ``False``.
 ``SECURITY_TRACKABLE``    Specifies if Flask-Security should track basic user
                           login statistics. If set to ``True``, ensure your
-                          models have the required fields/attribues. Be sure to
-                          use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>` if you are using a proxy. Defaults to
+                          models have the required fields/attributes. Be sure to
+                          use `ProxyFix <http://flask.pocoo.org/docs/0.10/deploying/wsgi-standalone/#proxy-setups>`_ if you are using a proxy. Defaults to
                           ``False``
 ``SECURITY_PASSWORDLESS`` Specifies if Flask-Security should enable the
                           passwordless login feature. If set to ``True``, users
@@ -208,6 +239,12 @@ Email
                                                   confirmation message. Defaults
                                                   to ``Please confirm your
                                                   email``
+``SECURITY_EMAIL_PLAINTEXT``                      Sends email as plaintext using
+                                                  ``*.txt`` template. Defaults
+                                                  to ``True``.
+``SECURITY_EMAIL_HTML``                           Sends email as HTML using
+                                                  ``*.html`` template. Defaults
+                                                  to ``True``.
 ================================================= ==============================
 
 Miscellaneous
@@ -216,10 +253,16 @@ Miscellaneous
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
 ============================================= ==================================
+``SECURITY_USER_IDENTITY_ATTRIBUTES``         Specifies which attributes of the
+                                              user object can be used for login.
+                                              Defaults to ``['email']``.
 ``SECURITY_SEND_REGISTER_EMAIL``              Specifies whether registration
                                               email is sent. Defaults to
                                               ``True``.
 ``SECURITY_SEND_PASSWORD_CHANGE_EMAIL``       Specifies whether password change
+                                              email is sent. Defaults to
+                                              ``True``.
+``SECURITY_SEND_PASSWORD_RESET_EMAIL``        Specifies whether password reset
                                               email is sent. Defaults to
                                               ``True``.
 ``SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL`` Specifies whether password reset
@@ -268,9 +311,54 @@ Miscellaneous
 ``SECURITY_DEFAULT_REMEMBER_ME``              Specifies the default "remember
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
+``SECURITY_DATETIME_FACTORY``                 Specifies the default datetime
+                                              factory. Defaults to
+                                              ``datetime.datetime.utcnow``.
 ``POST_LOGIN_ALLOW_REDIRECT_DOMAIN``          Specifies domain allowed to be
                                               redirected to after login. You can
                                               use wildcard patterns like 
                                               ``*.doumail.com``. Defaults to the
                                               host of the login view.
 ============================================= ==================================
+
+Messages
+-------------
+
+The following are the messages Flask-Security uses.  They are tuples; the first
+element is the message and the second element is the error level.
+
+The default messages and error levels can be found in ``core.py``.
+
+* ``SECURITY_MSG_ALREADY_CONFIRMED``
+* ``SECURITY_MSG_CONFIRMATION_EXPIRED``
+* ``SECURITY_MSG_CONFIRMATION_REQUEST``
+* ``SECURITY_MSG_CONFIRMATION_REQUIRED``
+* ``SECURITY_MSG_CONFIRM_REGISTRATION``
+* ``SECURITY_MSG_DISABLED_ACCOUNT``
+* ``SECURITY_MSG_EMAIL_ALREADY_ASSOCIATED``
+* ``SECURITY_MSG_EMAIL_CONFIRMED``
+* ``SECURITY_MSG_EMAIL_NOT_PROVIDED``
+* ``SECURITY_MSG_FORGOT_PASSWORD``
+* ``SECURITY_MSG_INVALID_CONFIRMATION_TOKEN``
+* ``SECURITY_MSG_INVALID_EMAIL_ADDRESS``
+* ``SECURITY_MSG_INVALID_LOGIN_TOKEN``
+* ``SECURITY_MSG_INVALID_PASSWORD``
+* ``SECURITY_MSG_INVALID_REDIRECT``
+* ``SECURITY_MSG_INVALID_RESET_PASSWORD_TOKEN``
+* ``SECURITY_MSG_LOGIN``
+* ``SECURITY_MSG_LOGIN_EMAIL_SENT``
+* ``SECURITY_MSG_LOGIN_EXPIRED``
+* ``SECURITY_MSG_PASSWORDLESS_LOGIN_SUCCESSFUL``
+* ``SECURITY_MSG_PASSWORD_CHANGE``
+* ``SECURITY_MSG_PASSWORD_INVALID_LENGTH``
+* ``SECURITY_MSG_PASSWORD_IS_THE_SAME``
+* ``SECURITY_MSG_PASSWORD_MISMATCH``
+* ``SECURITY_MSG_PASSWORD_NOT_PROVIDED``
+* ``SECURITY_MSG_PASSWORD_NOT_SET``
+* ``SECURITY_MSG_PASSWORD_RESET``
+* ``SECURITY_MSG_PASSWORD_RESET_EXPIRED``
+* ``SECURITY_MSG_PASSWORD_RESET_REQUEST``
+* ``SECURITY_MSG_REFRESH``
+* ``SECURITY_MSG_RETYPE_PASSWORD_MISMATCH``
+* ``SECURITY_MSG_UNAUTHORIZED``
+* ``SECURITY_MSG_USER_DOES_NOT_EXIST``

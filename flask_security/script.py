@@ -10,19 +10,25 @@
 """
 from __future__ import print_function
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import re
+import warnings
 
 from flask import current_app
 from flask_script import Command, Option
 from werkzeug.local import LocalProxy
 
-from .utils import encrypt_password
+from .utils import hash_password
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+warnings.warn(
+    'Please use flask_security.cli instead of flask_security.script. '
+    'Support for Flask-Script will be removed in 2.1.',
+    DeprecationWarning
+)
 
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
@@ -56,10 +62,10 @@ class CreateUserCommand(Command):
         from flask_security.forms import ConfirmRegisterForm
         from werkzeug.datastructures import MultiDict
 
-        form = ConfirmRegisterForm(MultiDict(kwargs), csrf_enabled=False)
+        form = ConfirmRegisterForm(MultiDict(kwargs), meta={'csrf': False})
 
         if form.validate():
-            kwargs['password'] = encrypt_password(kwargs['password'])
+            kwargs['password'] = hash_password(kwargs['password'])
             _datastore.create_user(**kwargs)
             print('User created successfully.')
             kwargs['password'] = '****'
@@ -96,7 +102,8 @@ class AddRoleCommand(_RoleCommand):
     @commit
     def run(self, user_identifier, role_name):
         _datastore.add_role_to_user(user_identifier, role_name)
-        print("Role '%s' added to user '%s' successfully" % (role_name, user_identifier))
+        print("Role '%s' added to user '%s' successfully" % (
+            role_name, user_identifier))
 
 
 class RemoveRoleCommand(_RoleCommand):
@@ -105,7 +112,8 @@ class RemoveRoleCommand(_RoleCommand):
     @commit
     def run(self, user_identifier, role_name):
         _datastore.remove_role_from_user(user_identifier, role_name)
-        print("Role '%s' removed from user '%s' successfully" % (role_name, user_identifier))
+        print("Role '%s' removed from user '%s' successfully" % (
+            role_name, user_identifier))
 
 
 class _ToggleActiveCommand(Command):
@@ -115,7 +123,7 @@ class _ToggleActiveCommand(Command):
 
 
 class DeactivateUserCommand(_ToggleActiveCommand):
-    """Deactive a user"""
+    """Deactivate a user"""
 
     @commit
     def run(self, user_identifier):

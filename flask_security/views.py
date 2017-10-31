@@ -9,24 +9,25 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app, redirect, request, jsonify, \
-    after_this_request, Blueprint
+from flask import Blueprint, after_this_request, current_app, jsonify, \
+    redirect, request
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-from .confirmable import send_confirmation_instructions, \
-    confirm_user, confirm_email_token_status
-from .decorators import login_required, anonymous_user_required
-from .passwordless import send_login_instructions, \
-    login_token_status
+from .changeable import change_user_password
+from .confirmable import confirm_email_token_status, confirm_user, \
+    send_confirmation_instructions
+from .decorators import anonymous_user_required, login_required
+from .passwordless import login_token_status, send_login_instructions
 from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
-from .changeable import change_user_password
 from .registerable import register_user
-from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
-    get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, slash_url_suffix
+from .utils import url_for_security as url_for
+from .utils import config_value, do_flash, get_message, \
+    get_post_login_redirect, get_post_logout_redirect, \
+    get_post_register_redirect, get_url, login_user, logout_user, \
+    slash_url_suffix
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -44,12 +45,13 @@ def _render_json(form, include_user=True, include_auth_token=False):
         code = 200
         response = dict()
         if include_user:
-            response['user'] = dict(id=str(form.user.id))
+            response['user'] = form.user.get_security_payload()
+
         if include_auth_token:
             token = form.user.get_auth_token()
             response['user']['authentication_token'] = token
 
-    return jsonify(dict(meta=dict(code=code), response=response))
+    return jsonify(dict(meta=dict(code=code), response=response)), code
 
 
 def _commit(response=None):
@@ -67,19 +69,19 @@ def login():
 
     form_class = _security.login_form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
     else:
-        form = form_class()
+        form = form_class(request.form)
 
     if form.validate_on_submit():
         login_user(form.user, remember=form.remember.data)
         after_this_request(_commit)
 
-        if not request.json:
+        if not request.is_json:
             return redirect(get_post_login_redirect(form.next.data))
 
-    if request.json:
+    if request.is_json:
         return _render_json(form, include_auth_token=True)
 
     return _security.render_template(config_value('LOGIN_USER_TEMPLATE'),
@@ -90,24 +92,23 @@ def login():
 def logout():
     """View function which handles a logout request."""
 
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         logout_user()
 
-    return redirect(request.args.get('next', None) or
-                    get_url(_security.post_logout_view))
+    return redirect(get_post_logout_redirect())
 
 
 @anonymous_user_required
 def register():
     """View function which handles a registration request."""
 
-    if _security.confirmable or request.json:
+    if _security.confirmable or request.is_json:
         form_class = _security.confirm_register_form
     else:
         form_class = _security.register_form
 
-    if request.json:
-        form_data = MultiDict(request.json)
+    if request.is_json:
+        form_data = MultiDict(request.get_json())
     else:
         form_data = request.form
 
@@ -121,7 +122,7 @@ def register():
             after_this_request(_commit)
             login_user(user)
 
-        if not request.json:
+        if not request.is_json:
             if 'next' in form:
                 redirect_url = get_post_register_redirect(form.next.data)
             else:
@@ -130,7 +131,7 @@ def register():
             return redirect(redirect_url)
         return _render_json(form, include_auth_token=True)
 
-    if request.json:
+    if request.is_json:
         return _render_json(form)
 
     return _security.render_template(config_value('REGISTER_USER_TEMPLATE'),
@@ -143,17 +144,17 @@ def send_login():
 
     form_class = _security.passwordless_login_form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
     else:
         form = form_class()
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
-        if request.json is None:
+        if not request.is_json:
             do_flash(*get_message('LOGIN_EMAIL_SENT', email=form.user.email))
 
-    if request.json:
+    if request.is_json:
         return _render_json(form)
 
     return _security.render_template(config_value('SEND_LOGIN_TEMPLATE'),
@@ -188,22 +189,25 @@ def send_confirmation():
 
     form_class = _security.send_confirmation_form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
     else:
         form = form_class()
 
     if form.validate_on_submit():
         send_confirmation_instructions(form.user)
-        if request.json is None:
-            do_flash(*get_message('CONFIRMATION_REQUEST', email=form.user.email))
+        if not request.is_json:
+            do_flash(*get_message('CONFIRMATION_REQUEST',
+                     email=form.user.email))
 
-    if request.json:
+    if request.is_json:
         return _render_json(form)
 
-    return _security.render_template(config_value('SEND_CONFIRMATION_TEMPLATE'),
-                                     send_confirmation_form=form,
-                                     **_ctx('send_confirmation'))
+    return _security.render_template(
+        config_value('SEND_CONFIRMATION_TEMPLATE'),
+        send_confirmation_form=form,
+        **_ctx('send_confirmation')
+    )
 
 
 def confirm_email(token):
@@ -214,17 +218,19 @@ def confirm_email(token):
     if not user or invalid:
         invalid = True
         do_flash(*get_message('INVALID_CONFIRMATION_TOKEN'))
-    if expired:
+
+    already_confirmed = user is not None and user.confirmed_at is not None
+
+    if expired and not already_confirmed:
         send_confirmation_instructions(user)
         do_flash(*get_message('CONFIRMATION_EXPIRED', email=user.email,
                               within=_security.confirm_email_within))
-    if invalid or expired:
+    if invalid or (expired and not already_confirmed):
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
 
     if user != current_user:
         logout_user()
-        login_user(user)
 
     if confirm_user(user):
         after_this_request(_commit)
@@ -235,7 +241,7 @@ def confirm_email(token):
     do_flash(*get_message(msg))
 
     return redirect(get_url(_security.post_confirm_view) or
-                    get_url(_security.post_login_view))
+                    get_url(_security.login_url))
 
 
 @anonymous_user_required
@@ -244,17 +250,18 @@ def forgot_password():
 
     form_class = _security.forgot_password_form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
     else:
         form = form_class()
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
-        if request.json is None:
-            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+        if not request.is_json:
+            do_flash(*get_message('PASSWORD_RESET_REQUEST',
+                     email=form.user.email))
 
-    if request.json:
+    if request.is_json:
         return _render_json(form, include_user=False)
 
     return _security.render_template(config_value('FORGOT_PASSWORD_TEMPLATE'),
@@ -268,9 +275,12 @@ def reset_password(token):
 
     expired, invalid, user = reset_password_token_status(token)
 
-    if invalid:
+    if not user or invalid:
+        invalid = True
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+
     if expired:
+        send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
     if invalid or expired:
@@ -282,14 +292,15 @@ def reset_password(token):
         after_this_request(_commit)
         update_password(user, form.password.data)
         do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user)
         return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.post_login_view))
+                        get_url(_security.login_url))
 
-    return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
-                                     reset_password_form=form,
-                                     reset_password_token=token,
-                                     **_ctx('reset_password'))
+    return _security.render_template(
+        config_value('RESET_PASSWORD_TEMPLATE'),
+        reset_password_form=form,
+        reset_password_token=token,
+        **_ctx('reset_password')
+    )
 
 
 @login_required
@@ -298,26 +309,29 @@ def change_password():
 
     form_class = _security.change_password_form
 
-    if request.json:
-        form = form_class(MultiDict(request.json))
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
     else:
         form = form_class()
 
     if form.validate_on_submit():
         after_this_request(_commit)
-        change_user_password(current_user, form.new_password.data)
-        if request.json is None:
+        change_user_password(current_user._get_current_object(),
+                             form.new_password.data)
+        if not request.is_json:
             do_flash(*get_message('PASSWORD_CHANGE'))
             return redirect(get_url(_security.post_change_view) or
                             get_url(_security.post_login_view))
 
-    if request.json:
+    if request.is_json:
         form.user = current_user
         return _render_json(form)
 
-    return _security.render_template(config_value('CHANGE_PASSWORD_TEMPLATE'),
-                                     change_password_form=form,
-                                     **_ctx('change_password'))
+    return _security.render_template(
+        config_value('CHANGE_PASSWORD_TEMPLATE'),
+        change_password_form=form,
+        **_ctx('change_password')
+    )
 
 
 def create_blueprint(state, import_name):
@@ -334,7 +348,8 @@ def create_blueprint(state, import_name):
         bp.route(state.login_url,
                  methods=['GET', 'POST'],
                  endpoint='login')(send_login)
-        bp.route(state.login_url + slash_url_suffix(state.login_url, '<token>'),
+        bp.route(state.login_url + slash_url_suffix(state.login_url,
+                                                    '<token>'),
                  endpoint='token_login')(token_login)
     else:
         bp.route(state.login_url,
@@ -350,7 +365,8 @@ def create_blueprint(state, import_name):
         bp.route(state.reset_url,
                  methods=['GET', 'POST'],
                  endpoint='forgot_password')(forgot_password)
-        bp.route(state.reset_url + slash_url_suffix(state.reset_url, '<token>'),
+        bp.route(state.reset_url + slash_url_suffix(state.reset_url,
+                                                    '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='reset_password')(reset_password)
 
@@ -363,7 +379,8 @@ def create_blueprint(state, import_name):
         bp.route(state.confirm_url,
                  methods=['GET', 'POST'],
                  endpoint='send_confirmation')(send_confirmation)
-        bp.route(state.confirm_url + slash_url_suffix(state.confirm_url, '<token>'),
+        bp.route(state.confirm_url + slash_url_suffix(state.confirm_url,
+                                                      '<token>'),
                  methods=['GET', 'POST'],
                  endpoint='confirm_email')(confirm_email)
 

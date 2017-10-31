@@ -9,7 +9,6 @@
 import base64
 
 import pytest
-
 from utils import authenticate, logout
 
 

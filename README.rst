@@ -1,30 +1,28 @@
 Flask-Security
-==============
+===================
 
-.. image:: https://secure.travis-ci.org/mattupstate/flask-security.png?branch=develop
+.. image:: https://img.shields.io/travis/mattupstate/flask-security.svg
+    :target: https://travis-ci.org/mattupstate/flask-security
 
-.. image:: https://pypip.in/v/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi/Flask-Security/
-    :alt: Latest Version
-
-.. image:: https://coveralls.io/repos/mattupstate/flask-security/badge.png?branch=develop
+.. image:: https://img.shields.io/coveralls/mattupstate/flask-security.svg
     :target: https://coveralls.io/r/mattupstate/flask-security
 
-.. image:: https://pypip.in/d/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi//Flask-Security/
+.. image:: https://img.shields.io/github/tag/mattupstate/flask-security.svg
+    :target: https://github.com/mattupstate/flask-security/releases
+
+.. image:: https://img.shields.io/pypi/dm/flask-security.svg
+    :target: https://pypi.python.org/pypi/flask-security
     :alt: Downloads
 
-.. image:: https://pypip.in/license/Flask-Security/badge.png
-    :target: https://pypi.python.org/pypi/Flask-Security/
+.. image:: https://img.shields.io/github/license/mattupstate/flask-security.svg
+    :target: https://github.com/mattupstate/flask-security/blob/master/LICENSE
     :alt: License
 
-Flask-Security quickly adds security features to your Flask application.
+It quickly adds security features to your Flask application.
 
 Resources
 ---------
 
-- `Documentation <http://packages.python.org/Flask-Security/>`_
-- `Issue Tracker <http://github.com/mattupstate/flask-security/issues>`_
-- `Code <http://github.com/mattupstate/flask-security/>`_
-- `Development Version
-  <http://github.com/mattupstate/flask-security/zipball/develop#egg=Flask-Security-dev>`_
+- `Documentation <https://flask-security.readthedocs.io/>`_
+- `Issue Tracker <https://github.com/mattupstate/flask-security/issues>`_
+- `Code <https://github.com/mattupstate/flask-security/>`_

@@ -3,6 +3,72 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 3.0.0
+-------------
+
+Released May 29th 2017
+
+- Fixed a bug when user clicking confirmation link after confirmation
+  and expiration causes confirmation email to resend. (see #556)
+- Added support for I18N.
+- Added options `SECURITY_EMAIL_PLAINTEXT` and `SECURITY_EMAIL_HTML`
+  for sending respecively plaintext and HTML version of email.
+- Fixed validation when missing login information.
+- Fixed condition for token extraction from JSON body.
+- Better support for universal bdist wheel.
+- Added port of CLI using Click configurable using options
+  `SECURITY_CLI_USERS_NAME` and `SECURITY_CLI_ROLES_NAME`.
+- Added new configuration option `SECURITY_DATETIME_FACTORY` which can
+  be used to force default timezone for newly created datetimes.
+  (see mattupstate/flask-security#466)
+- Better IP tracking if using Flask 0.12.
+- Renamed deprecated Flask-WFT base form class.
+- Added tests for custom forms configured using app config.
+- Added validation and tests for next argument in logout endpoint. (see #499)
+- Bumped minimal required versions of several packages.
+- Extended test matric on Travis CI for minimal and released package versions.
+- Added of .editorconfig and forced tests for code style.
+- Fixed a security bug when validating a confirmation token, also checks
+  if the email that the token was created with matches the user's current email.
+- Replaced token loader with request loader.
+- Changed trackable behavior of `login_user` when IP can not be detected from a request from 'untrackable' to `None` value.
+- Use ProxyFix instead of inspecting X-Forwarded-For header.
+- Fix identical problem with app as with datastore.
+- Removed always-failing assertion.
+- Fixed failure of init_app to set self.datastore.
+- Changed to new style flask imports.
+- Added proper error code when returning JSON response.
+- Changed obsolette Required validator from WTForms to DataRequired. Bumped Flask-WTF to 0.13.
+- Fixed missing `SECURITY_SUBDOMAIN` in config docs.
+- Added cascade delete in PeeweeDatastore.
+- Added notes to docs about `SECURITY_USER_IDENTITY_ATTRIBUTES`.
+- Inspect value of `SECURITY_UNAUTHORIZED_VIEW`.
+- Send password reset instructions if an attempt has expired.
+- Added "Forgot password?" link to LoginForm description.
+- Upgraded passlib, and removed bcrypt version restriction.
+- Removed a duplicate line ('retype_password': 'Retype Password') in forms.py.
+- Various documentation improvement.
+
+Version 1.7.5
+-------------
+
+Released December 2nd 2015
+
+- Added `SECURITY_TOKEN_MAX_AGE` configuration setting
+- Fixed calls to `SQLAlchemyUserDatastore.get_user(None)` (this now returns `False` instead of raising a `TypeError`
+- Fixed URL generation adding extra slashes in some cases (see GitHub #343)
+- Fixed handling of trackable IP addresses when the `X-Forwarded-For` header contains multiple values
+- Include WWW-Authenticate headers in `@auth_required` authentication checks
+- Fixed error when `check_token` function is used with a json list
+- Added support for custom `AnonymousUser` classes
+- Restricted `forgot_password` endpoint to anonymous users
+- Allowed unauthorized callback to be overridden
+- Fixed issue where passwords cannot be reset if currently set to `None`
+- Ensured that password reset tokens are invalidated after use
+- Updated `is_authenticated` and `is_active` functions to support Flask-Login changes
+- Various documentation improvements
+
+
 Version 1.7.4
 -------------
 

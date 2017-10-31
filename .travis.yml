@@ -1,25 +1,72 @@
+notifications:
+  email: false
+
 language: python
 
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
-  - "3.4"
+  - "3.5"
+  - "3.6"
   - "pypy"
 
-install:
-  - pip install -r requirements.txt -r requirements-dev.txt -e .
-  - pip install coverage coveralls
-  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib; fi"
+addons:
+  apt:
+    packages:
+      - libenchant-dev
+
+matrix:
+  allow_failures:
+    - python: pypy
+
+sudo: false
+
+cache:
+  - apt
+  - pip
 
 services:
   - mongodb
 
-script: py.test --cov flask_security --cov-report term-missing --pep8 --flakes
+env:
+  - REQUIREMENTS=lowest
+  - REQUIREMENTS=release
+
+before_install:
+  - "travis_retry pip install --upgrade pip setuptools"
+  - "travis_retry pip install twine wheel coveralls requirements-builder"
+  - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
+  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
+  - |
+      if [ "$TRAVIS_PYTHON_VERSION" = "pypy" ]; then
+        export PYENV_ROOT="$HOME/.pyenv"
+        if [ -f "$PYENV_ROOT/bin/pyenv" ]; then
+          cd "$PYENV_ROOT" && git pull
+        else
+          rm -rf "$PYENV_ROOT" && git clone --depth 1 https://github.com/yyuu/pyenv.git "$PYENV_ROOT"
+        fi
+        export PYPY_VERSION="4.0.1"
+        "$PYENV_ROOT/bin/pyenv" install "pypy-$PYPY_VERSION"
+        virtualenv --python="$PYENV_ROOT/versions/pypy-$PYPY_VERSION/bin/python" "$HOME/virtualenvs/pypy-$PYPY_VERSION"
+        source "$HOME/virtualenvs/pypy-$PYPY_VERSION/bin/activate"
+      fi
+
+install:
+  - "pip install -r .travis-${REQUIREMENTS}-requirements.txt"
+  - "pip install -e .[all]"
+
+script: python setup.py test
 
 after_script:
   - coveralls
 
-branches:
-  only:
-    - develop
+deploy:
+  provider: pypi
+  user: jirikuncar
+  password:
+    secure: T3MDbWnfl5wauHxd8hyKcBLCTPKLiBX8aK0iq99ExswN3WrwQrpxYWmC9oiDh7uF+d5u7n3e6t0566R6eV2kXd3juwc89ZwPJEY6T+B7nAEl9Qn+N/f5g47dq66dwwmAm44po8zUN+Q2lt0neCwF9Mv1SDV5vg+jpFGpvARapdY=
+  distributions: "compile_catalog sdist bdist_wheel"
+  on:
+    repo: mattupstate/flask-security
+    tags: true
+    python: "2.7"
+    condition: $REQUIREMENTS = release

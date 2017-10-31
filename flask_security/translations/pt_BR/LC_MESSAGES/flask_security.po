@@ -1,0 +1,324 @@
+# Translations template for Flask-Security.
+# Copyright (C) 2017 CERN
+# This file is distributed under the same license as the Flask-Security
+# project.
+# José Neto <josenetodino@gmail.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 2.0.1\n"
+"Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
+"POT-Creation-Date: 2017-06-06 13:23+0200\n"
+"PO-Revision-Date: 2017-09-27 23:39-0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+"Last-Translator: José Neto <josenetodino@gmail.com>\n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"X-Generator: Poedit 1.8.12\n"
+
+#: flask_security/core.py:99
+msgid "Login Required"
+msgstr "Login obrigatório"
+
+#: flask_security/core.py:100
+msgid "Welcome"
+msgstr "Bem-vindo"
+
+#: flask_security/core.py:101
+msgid "Please confirm your email"
+msgstr "Por favor, confirme seu email"
+
+#: flask_security/core.py:102
+msgid "Login instructions"
+msgstr "Instruções de login"
+
+#: flask_security/core.py:103
+#: flask_security/templates/security/email/reset_notice.html:1
+msgid "Your password has been reset"
+msgstr "Sua senha foi redefinida"
+
+#: flask_security/core.py:104
+msgid "Your password has been changed"
+msgstr "Sua senha foi alterada"
+
+#: flask_security/core.py:106
+msgid "Password reset instructions"
+msgstr "Instruções para redfinir a senha"
+
+#: flask_security/core.py:132
+msgid "You do not have permission to view this resource."
+msgstr "Você não tem permissão para ver este recurso"
+
+#: flask_security/core.py:134
+#, python-format
+msgid "Thank you. Confirmation instructions have been sent to %(email)s."
+msgstr "Obrigado. As instruções para a confirmação foram enviadas para %(email)s."
+
+#: flask_security/core.py:138
+msgid "Thank you. Your email has been confirmed."
+msgstr "Obrigado. Seu email foi confirmado."
+
+#: flask_security/core.py:140
+msgid "Your email has already been confirmed."
+msgstr "Seu email já foi confirmado."
+
+#: flask_security/core.py:142
+msgid "Invalid confirmation token."
+msgstr "Token de confirmação inválido."
+
+#: flask_security/core.py:144
+#, python-format
+msgid "%(email)s is already associated with an account."
+msgstr "%(email)s já está associado a uma conta."
+
+#: flask_security/core.py:146
+msgid "Password does not match"
+msgstr "Senha não confere"
+
+#: flask_security/core.py:148
+msgid "Passwords do not match"
+msgstr "Senhas não conferem"
+
+#: flask_security/core.py:150
+msgid "Redirections outside the domain are forbidden"
+msgstr "Redirecionamentos para fora do domínio são proibidos"
+
+#: flask_security/core.py:152
+#, python-format
+msgid "Instructions to reset your password have been sent to %(email)s."
+msgstr "As instruções para redefinir sua senha foram enviadas para %(email)s."
+
+#: flask_security/core.py:155
+#, python-format
+msgid ""
+"You did not reset your password within %(within)s. New instructions have been "
+"sent to %(email)s."
+msgstr ""
+"Você não redefiniu sua senha dentro de %(within)s. Novas instruções foram "
+"enviadas para %(email)s."
+
+#: flask_security/core.py:158
+msgid "Invalid reset password token."
+msgstr "Token de redefinição de senha inválido."
+
+#: flask_security/core.py:160
+msgid "Email requires confirmation."
+msgstr "O email requer confirmação."
+
+#: flask_security/core.py:162
+#, python-format
+msgid "Confirmation instructions have been sent to %(email)s."
+msgstr "As instruções de confirmaç foram enviadas para %(email)s."
+
+#: flask_security/core.py:164
+#, python-format
+msgid ""
+"You did not confirm your email within %(within)s. New instructions to confirm "
+"your email have been sent to %(email)s."
+msgstr ""
+"Você não confirmou seu email dentro de %(within)s. Novas instruções foram "
+"enviadas para %(email)s."
+
+#: flask_security/core.py:168
+#, python-format
+msgid ""
+"You did not login within %(within)s. New instructions to login have been sent "
+"to %(email)s."
+msgstr ""
+"Você não logou dentro de %(within)s. Novas instruções para logar foram enviadas "
+"para %(email)s."
+
+#: flask_security/core.py:171
+#, python-format
+msgid "Instructions to login have been sent to %(email)s."
+msgstr "Instruções para logar foram enviadas para %(email)s."
+
+#: flask_security/core.py:173
+msgid "Invalid login token."
+msgstr "Token de login inválido."
+
+#: flask_security/core.py:175
+msgid "Account is disabled."
+msgstr "Conta desabilitada."
+
+#: flask_security/core.py:177
+msgid "Email not provided"
+msgstr "Email não informado"
+
+#: flask_security/core.py:179
+msgid "Invalid email address"
+msgstr "Endereço de email inválido"
+
+#: flask_security/core.py:181
+msgid "Password not provided"
+msgstr "Senha não informada"
+
+#: flask_security/core.py:183
+msgid "No password is set for this user"
+msgstr "Nenhuma senha definida para este usuário"
+
+#: flask_security/core.py:185
+msgid "Password must be at least 6 characters"
+msgstr "A senha deve ter pelo menos 6 caracteres"
+
+#: flask_security/core.py:187
+msgid "Specified user does not exist"
+msgstr "Usuário não existe"
+
+#: flask_security/core.py:189
+msgid "Invalid password"
+msgstr "Senha inválida"
+
+#: flask_security/core.py:191
+msgid "You have successfully logged in."
+msgstr "Você logou com sucesso."
+
+#: flask_security/core.py:193
+msgid "Forgot password?"
+msgstr "Esqueceu a senha?"
+
+#: flask_security/core.py:195
+msgid ""
+"You successfully reset your password and you have been logged in automatically."
+msgstr "Você redefiniu sua senha com sucesso e foi logado automaticamente."
+
+#: flask_security/core.py:198
+msgid "Your new password must be different than your previous password."
+msgstr "Sua nova senha deve ser diferente da sua senha anterior."
+
+#: flask_security/core.py:201
+msgid "You successfully changed your password."
+msgstr "Você alterou sua senha com sucesso."
+
+#: flask_security/core.py:203
+msgid "Please log in to access this page."
+msgstr "Por favor, logue para acessar esta página."
+
+#: flask_security/core.py:205
+msgid "Please reauthenticate to access this page."
+msgstr "Por favor, reautentique-se para acessar esta página."
+
+#: flask_security/forms.py:30
+msgid "Email Address"
+msgstr "Endereço de email"
+
+#: flask_security/forms.py:31
+msgid "Password"
+msgstr "Senha"
+
+#: flask_security/forms.py:32
+msgid "Remember Me"
+msgstr "Lembre de mim"
+
+#: flask_security/forms.py:33 flask_security/templates/security/_menu.html:4
+#: flask_security/templates/security/login_user.html:3
+#: flask_security/templates/security/send_login.html:3
+msgid "Login"
+msgstr "Login"
+
+#: flask_security/forms.py:34 flask_security/templates/security/_menu.html:6
+#: flask_security/templates/security/register_user.html:3
+msgid "Register"
+msgstr "Registro"
+
+#: flask_security/forms.py:35
+msgid "Resend Confirmation Instructions"
+msgstr "Reenviar instruções de confirmação"
+
+#: flask_security/forms.py:36
+msgid "Recover Password"
+msgstr "Recuperar senha"
+
+#: flask_security/forms.py:37
+msgid "Reset Password"
+msgstr "Redefinir senha"
+
+#: flask_security/forms.py:38
+msgid "Retype Password"
+msgstr "Reescreva a senha"
+
+#: flask_security/forms.py:39
+msgid "New Password"
+msgstr "Nova senha"
+
+#: flask_security/forms.py:40
+msgid "Change Password"
+msgstr "Alterar senha"
+
+#: flask_security/forms.py:41
+msgid "Send Login Link"
+msgstr "Enviar link de login"
+
+#: flask_security/templates/security/_menu.html:2
+msgid "Menu"
+msgstr "Menu"
+
+#: flask_security/templates/security/_menu.html:9
+msgid "Forgot password"
+msgstr "Esqueceu a senha"
+
+#: flask_security/templates/security/_menu.html:12
+msgid "Confirm account"
+msgstr "Confirmar conta"
+
+#: flask_security/templates/security/change_password.html:3
+msgid "Change password"
+msgstr "Alterar senha"
+
+#: flask_security/templates/security/forgot_password.html:3
+msgid "Send password reset instructions"
+msgstr "Enviar instruções para redefinir a senha"
+
+#: flask_security/templates/security/reset_password.html:3
+msgid "Reset password"
+msgstr "Redefinir senha"
+
+#: flask_security/templates/security/send_confirmation.html:3
+msgid "Resend confirmation instructions"
+msgstr "Reenviar instruções de confirmação"
+
+#: flask_security/templates/security/email/change_notice.html:1
+msgid "Your password has been changed."
+msgstr "Sua senha foi alterada."
+
+#: flask_security/templates/security/email/change_notice.html:3
+msgid "If you did not change your password,"
+msgstr "Se você não alterou sua senha,"
+
+#: flask_security/templates/security/email/change_notice.html:3
+msgid "click here to reset it"
+msgstr "clique aqui para resetar"
+
+#: flask_security/templates/security/email/confirmation_instructions.html:1
+msgid "Please confirm your email through the link below:"
+msgstr "Por favor, confirme seu email através do link abaixo:"
+
+#: flask_security/templates/security/email/confirmation_instructions.html:3
+#: flask_security/templates/security/email/welcome.html:6
+msgid "Confirm my account"
+msgstr "Confirmar minha conta"
+
+#: flask_security/templates/security/email/login_instructions.html:1
+#: flask_security/templates/security/email/welcome.html:1
+#, python-format
+msgid "Welcome %(email)s!"
+msgstr "Bem-vindo %(email)s!"
+
+#: flask_security/templates/security/email/login_instructions.html:3
+msgid "You can log into your account through the link below:"
+msgstr "Você pode logar na sua conta através do link abaixo:"
+
+#: flask_security/templates/security/email/login_instructions.html:5
+msgid "Login now"
+msgstr "Logar agora"
+
+#: flask_security/templates/security/email/reset_instructions.html:1
+msgid "Click here to reset your password"
+msgstr "Clique aqui para redefinir sua senha"
+
+#: flask_security/templates/security/email/welcome.html:4
+msgid "You can confirm your email through the link below:"
+msgstr "Você pode confirmar seu email através do link abaixo:"

@@ -10,11 +10,11 @@
     :copyright: (c) 2011 by Armin Ronacher.
     :license: BSD, see LICENSE for more details.
 """
-import sys
 import os
 import re
-from datetime import datetime, date
-from subprocess import Popen, PIPE
+import sys
+from datetime import date, datetime
+from subprocess import PIPE, Popen
 
 _date_clean_re = re.compile(r'(\d+)(st|nd|rd|th)')
 
@@ -39,9 +39,10 @@ def parse_changelog():
             version = match.group(1).strip()
 
             if lineiter.next().count('-') != len(line.strip()):
-                fail('Invalid hyphen count below version line: %s', line.strip())
+                fail('Invalid hyphen count below version line: %s',
+                     line.strip())
 
-            while 1:
+            while True:
                 released = lineiter.next().strip()
                 if released:
                     break
@@ -105,7 +106,8 @@ def set_docs_version(version):
 
 
 def build_and_upload():
-    Popen([sys.executable, 'setup.py', 'sdist', 'build_sphinx', 'upload', 'upload_sphinx']).wait()
+    Popen([sys.executable, 'setup.py', 'sdist',
+           'build_sphinx', 'upload', 'upload_sphinx']).wait()
 
 
 def fail(message, *args):
@@ -118,7 +120,8 @@ def info(message, *args):
 
 
 def get_git_tags():
-    return set(Popen(['git', 'tag'], stdout=PIPE).communicate()[0].splitlines())
+    return set(Popen(['git', 'tag'], stdout=PIPE).communicate()[
+               0].splitlines())
 
 
 def git_is_clean():
@@ -142,7 +145,8 @@ def update_version(version):
 
 
 def get_branches():
-    return set(Popen(['git', 'branch'], stdout=PIPE).communicate()[0].splitlines())
+    return set(Popen(['git', 'branch'], stdout=PIPE).communicate()[
+               0].splitlines())
 
 
 def branch_is(branch):
