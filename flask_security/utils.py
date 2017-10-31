@@ -15,7 +15,8 @@ import hmac
 import sys
 import warnings
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
+from fnmatch import fnmatch
 
 from flask import current_app, flash, request, session, url_for
 from flask_login import login_user as _login_user
@@ -272,9 +273,10 @@ def validate_redirect_url(url):
         return False
     url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
-    if (url_next.netloc or url_next.scheme) and \
-            url_next.netloc != url_base.netloc:
-        return False
+    allow_domain = config_value('POST_LOGIN_ALLOW_REDIRECT_DOMAIN') or url_base.netloc
+    if url_next.netloc or url_next.scheme:
+        if not fnmatch(url_next.netloc, allow_domain):
+            return False
     return True
 
 

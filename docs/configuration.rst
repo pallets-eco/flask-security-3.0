@@ -314,6 +314,11 @@ Miscellaneous
 ``SECURITY_DATETIME_FACTORY``                 Specifies the default datetime
                                               factory. Defaults to
                                               ``datetime.datetime.utcnow``.
+``POST_LOGIN_ALLOW_REDIRECT_DOMAIN``          Specifies domain allowed to be
+                                              redirected to after login. You can
+                                              use wildcard patterns like 
+                                              ``*.doumail.com``. Defaults to the
+                                              host of the login view.
 ============================================= ==================================
 
 Messages
