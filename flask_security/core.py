@@ -30,7 +30,7 @@ from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
-    url_for_security, verify_hash
+    url_for_security, verify_hash, send_mail
 from .views import create_blueprint
 
 # Convenient references
@@ -539,6 +539,7 @@ class Security(object):
                 app.jinja_env.globals['_'] = state.i18n_domain.gettext
 
         state.render_template = self.render_template
+        state.send_mail = self.send_mail
         app.extensions['security'] = state
 
         if hasattr(app, 'cli'):
@@ -552,6 +553,9 @@ class Security(object):
 
     def render_template(self, *args, **kwargs):
         return render_template(*args, **kwargs)
+
+    def send_mail(self, *args, **kwargs):
+        return send_mail(*args, **kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)

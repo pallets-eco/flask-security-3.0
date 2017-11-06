@@ -161,7 +161,7 @@ decorator like so::
         send_security_email.delay(msg)
 
 If factory method is going to be used for initialization, use ``_SecurityState``
-object returned by ``init_app`` method to initialize Celery tasks intead of using
+object returned by ``init_app`` method to initialize Celery tasks instead of using
 ``security.send_mail_task`` directly like so::
 
     from flask import Flask
@@ -192,7 +192,7 @@ object returned by ``init_app`` method to initialize Celery tasks intead of usin
         def delay_flask_security_mail(msg):
             send_flask_mail.delay(msg)
 
-        # A shortcurt.
+        # A shortcut.
         security_ctx.send_mail_task(send_flask_mail.delay)
 
         return app
@@ -211,6 +211,44 @@ Celery. The practical way with custom serialization may look like so::
                               html=msg.html)
 
 .. _Celery: http://www.celeryproject.org/
+
+
+Custom send_mail method
+-----------------------
+
+It's also possible to completely override the ``security.send_mail`` method to
+implement your own logic.
+
+For example, you might want to use an alternative email library like `Flask-Emails`:
+
+    from flask import Flask
+    from flask_security import Security, SQLAlchemyUserDatastore
+    from flask_emails import Message
+
+    security = Security()
+
+    def create_app(config):
+        """Initialize Flask instance."""
+
+        app = Flask(__name__)
+        app.config.from_object(config)
+
+        def custom_send_mail(subject, recipient, template, **context):
+            ctx = ('security/email', template)
+            message = Message(
+                subject=subject,
+                html=_security.render_template('%s/%s.html' % ctx, **context))
+            message.send(mail_to=[recipient])
+
+        datastore = SQLAlchemyUserDatastore(db, User, Role)
+        security_ctx.send_mail = custom_send_mail
+
+        return app
+
+.. note::
+
+    The above ``security.send_mail_task`` override will be useless if you
+    override the entire ``send_mail`` method.
 
 
 Authorization with OAuth2

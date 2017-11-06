@@ -14,7 +14,7 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import confirm_instructions_sent, user_confirmed
-from .utils import config_value, get_token_status, hash_data, send_mail, \
+from .utils import config_value, get_token_status, hash_data, \
     url_for_security, verify_hash
 
 # Convenient references
@@ -39,9 +39,9 @@ def send_confirmation_instructions(user):
 
     confirmation_link, token = generate_confirmation_link(user)
 
-    send_mail(config_value('EMAIL_SUBJECT_CONFIRM'), user.email,
-              'confirmation_instructions', user=user,
-              confirmation_link=confirmation_link)
+    _security.send_mail(config_value('EMAIL_SUBJECT_CONFIRM'), user.email,
+                        'confirmation_instructions', user=user,
+                        confirmation_link=confirmation_link)
 
     confirm_instructions_sent.send(app._get_current_object(), user=user,
                                    token=token)
