@@ -220,13 +220,9 @@ It's also possible to completely override the ``security.send_mail`` method to
 implement your own logic, like so:
 
     from flask import Flask
-    from flask_mail import Mail
     from flask_security import Security, SQLAlchemyUserDatastore
-    from celery import Celery
 
-    mail = Mail()
     security = Security()
-    celery = Celery()
 
     def create_app(config):
         """Initialize Flask instance."""
@@ -238,7 +234,6 @@ implement your own logic, like so:
             # implement your own logic here
             pass
 
-        mail.init_app(app)
         datastore = SQLAlchemyUserDatastore(db, User, Role)
         security_ctx.send_mail = custom_send_mail
 
