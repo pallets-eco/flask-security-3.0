@@ -161,7 +161,7 @@ decorator like so::
         send_security_email.delay(msg)
 
 If factory method is going to be used for initialization, use ``_SecurityState``
-object returned by ``init_app`` method to initialize Celery tasks intead of using
+object returned by ``init_app`` method to initialize Celery tasks instead of using
 ``security.send_mail_task`` directly like so::
 
     from flask import Flask
@@ -192,7 +192,7 @@ object returned by ``init_app`` method to initialize Celery tasks intead of usin
         def delay_flask_security_mail(msg):
             send_flask_mail.delay(msg)
 
-        # A shortcurt.
+        # A shortcut.
         security_ctx.send_mail_task(send_flask_mail.delay)
 
         return app
@@ -211,6 +211,41 @@ Celery. The practical way with custom serialization may look like so::
                               html=msg.html)
 
 .. _Celery: http://www.celeryproject.org/
+
+
+Custom send_mail method
+-----------------------
+
+It's also possible to completely override the ``security.send_mail`` method to
+implement your own logic, like so:
+
+    from flask import Flask
+    from flask_mail import Mail
+    from flask_security import Security, SQLAlchemyUserDatastore
+    from celery import Celery
+
+    mail = Mail()
+    security = Security()
+    celery = Celery()
+
+    def create_app(config):
+        """Initialize Flask instance."""
+
+        app = Flask(__name__)
+        app.config.from_object(config)
+
+        def custom_send_mail(subject, recipient, template, **context):
+            # implement your own logic here
+            pass
+
+        mail.init_app(app)
+        datastore = SQLAlchemyUserDatastore(db, User, Role)
+        security_ctx.send_mail = custom_send_mail
+
+        return app
+
+Note that the above ``security.send_mail_task`` override will be useless if you
+override the entire ``send_mail`` method.
 
 
 Authorization with OAuth2
