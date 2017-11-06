@@ -217,10 +217,13 @@ Custom send_mail method
 -----------------------
 
 It's also possible to completely override the ``security.send_mail`` method to
-implement your own logic, like so:
+implement your own logic.
+
+For example, you might want to use an alternative email library like `Flask-Emails`:
 
     from flask import Flask
     from flask_security import Security, SQLAlchemyUserDatastore
+    from flask.ext.emails import Message
 
     security = Security()
 
@@ -231,16 +234,21 @@ implement your own logic, like so:
         app.config.from_object(config)
 
         def custom_send_mail(subject, recipient, template, **context):
-            # implement your own logic here
-            pass
+            ctx = ('security/email', template)
+            message = Message(
+                subject=subject,
+                html=_security.render_template('%s/%s.html' % ctx, **context))
+            message.send(mail_to=[recipient])
 
         datastore = SQLAlchemyUserDatastore(db, User, Role)
         security_ctx.send_mail = custom_send_mail
 
         return app
 
-Note that the above ``security.send_mail_task`` override will be useless if you
-override the entire ``send_mail`` method.
+.. note::
+
+    The above ``security.send_mail_task`` override will be useless if you
+    override the entire ``send_mail`` method.
 
 
 Authorization with OAuth2
