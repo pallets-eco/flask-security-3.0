@@ -223,7 +223,7 @@ For example, you might want to use an alternative email library like `Flask-Emai
 
     from flask import Flask
     from flask_security import Security, SQLAlchemyUserDatastore
-    from flask.ext.emails import Message
+    from flask_emails import Message
 
     security = Security()
 
