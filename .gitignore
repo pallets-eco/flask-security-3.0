@@ -44,3 +44,4 @@ Session.vim
 *~
 
 .eggs/README.txt
+.venv/
