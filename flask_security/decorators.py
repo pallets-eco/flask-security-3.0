@@ -76,7 +76,9 @@ def _check_token():
 
 def _check_http_auth():
     auth = request.authorization or BasicAuth(username=None, password=None)
-    user = _security.datastore.find_user(email=auth.username)
+    if not auth.username:
+        return False
+    user = _security.datastore.get_user(auth.username)
 
     if user and utils.verify_and_update_password(auth.password, user):
         _security.datastore.commit()
@@ -90,7 +92,6 @@ def _check_http_auth():
 
 def http_auth_required(realm):
     """Decorator that protects endpoints using Basic HTTP authentication.
-    The username should be set to the user's email address.
 
     :param realm: optional realm name"""
 
