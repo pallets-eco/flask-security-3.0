@@ -23,8 +23,8 @@ tests_require = [
     'pytest-cov>=2.4.0',
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
-    'pytest-translations>=1.0.4',
-    'pytest>=3.0.5',
+    'pytest-translations>=2.0.0',
+    'pytest>=3.3.0',
     'sqlalchemy>=0.8.0',
 ]
 
