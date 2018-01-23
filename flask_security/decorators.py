@@ -80,7 +80,7 @@ def _check_http_auth():
         return False
     user = _security.datastore.get_user(auth.username)
 
-    if user and utils.verify_and_update_password(auth.password, user):
+    if user and user.verify_and_update_password(auth.password):
         _security.datastore.commit()
         app = current_app._get_current_object()
         _request_ctx_stack.top.user = user

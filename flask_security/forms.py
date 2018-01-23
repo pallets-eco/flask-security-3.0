@@ -21,8 +21,7 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
 
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
-    localize_callback, url_for_security, validate_redirect_url, \
-    verify_and_update_password
+    localize_callback, url_for_security, validate_redirect_url
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -242,7 +241,7 @@ class LoginForm(Form, NextFormMixin):
             # Reduce timing variation between existing and non-existung users
             hash_password(self.password.data)
             return False
-        if not verify_and_update_password(self.password.data, self.user):
+        if not self.user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
@@ -292,7 +291,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if not super(ChangePasswordForm, self).validate():
             return False
 
-        if not verify_and_update_password(self.password.data, current_user):
+        if not current_user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if self.password.data == self.new_password.data:
