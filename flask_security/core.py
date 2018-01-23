@@ -30,7 +30,7 @@ from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
-    url_for_security, verify_hash, send_mail
+    url_for_security, verify_hash, send_mail, verify_and_update_password
 from .views import create_blueprint
 
 # Convenient references
@@ -406,6 +406,10 @@ class UserMixin(BaseUserMixin):
     def get_security_payload(self):
         """Serialize user object as response payload."""
         return {'id': str(self.id)}
+
+    def verify_and_update_password(self, password):
+        """Verify and update user password using configured hash."""
+        return verify_and_update_password(password, self)
 
 
 class AnonymousUser(AnonymousUserMixin):
