@@ -30,6 +30,10 @@ Core
 ``SECURITY_I18N_DOMAIN``                 Specifies the name for domain
                                          used for translations.
                                          Defaults to ``flask_security``.
+``SECURITY_I18N_DOMAIN``                 Specifies the directory containing the
+                                         ``MO`` files used for translations.
+                                         Defaults to
+                                         ``[PATH_LIB]/flask_security/translations``.
 ``SECURITY_PASSWORD_HASH``               Specifies the password hash algorithm to
                                          use when hashing passwords. Recommended
                                          values for production systems are
