@@ -22,7 +22,7 @@ from flask_login import login_user as _login_user
 from flask_login import logout_user as _logout_user
 from flask_mail import Message
 from flask_principal import AnonymousIdentity, Identity, identity_changed
-from itsdangerous import BadSignature, SignatureExpired
+from itsdangerous import BadSignature, SignatureExpired, want_bytes
 from werkzeug.local import LocalProxy
 
 from .signals import login_instructions_sent, \
@@ -32,7 +32,6 @@ try:
     from urlparse import urlsplit
 except ImportError:  # pragma: no cover
     from urllib.parse import urlsplit
-
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -273,7 +272,7 @@ def validate_redirect_url(url):
     url_next = urlsplit(url)
     url_base = urlsplit(request.host_url)
     if (url_next.netloc or url_next.scheme) and \
-            url_next.netloc != url_base.netloc:
+        url_next.netloc != url_base.netloc:
         return False
     return True
 
@@ -404,7 +403,8 @@ def send_mail(subject, recipient, template, **context):
     mail.send(msg)
 
 
-def get_token_status(token, serializer, max_age=None, return_data=False):
+def get_token_status(token, serializer, max_age=None, return_data=False,
+                     salt=None):
     """Get the status of a token.
 
     :param token: The token to check
@@ -413,14 +413,19 @@ def get_token_status(token, serializer, max_age=None, return_data=False):
     :param max_age: The name of the max age config option. Can be on of
                     the following: ``CONFIRM_EMAIL``, ``LOGIN``,
                     ``RESET_PASSWORD``
+    :param salt: The salt used sign before
     """
+
     serializer = getattr(_security, serializer + '_serializer')
     max_age = get_max_age(max_age)
     user, data = None, None
     expired, invalid = False, False
 
+    if salt:
+        salt = serializer.salt + want_bytes(salt)
+
     try:
-        data = serializer.loads(token, max_age=max_age)
+        data = serializer.loads(token, max_age=max_age, salt=salt)
     except SignatureExpired:
         d, data = serializer.loads_unsafe(token)
         expired = True

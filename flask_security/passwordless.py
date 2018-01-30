@@ -13,7 +13,7 @@ from flask import current_app as app
 from werkzeug.local import LocalProxy
 
 from .signals import login_instructions_sent
-from .utils import config_value, get_token_status, url_for_security
+from .utils import config_value, get_token_status, url_for_security, want_bytes
 
 # Convenient references
 _security = LocalProxy(lambda: app.extensions['security'])
@@ -37,20 +37,27 @@ def send_login_instructions(user):
                                  login_token=token)
 
 
-def generate_login_token(user):
+def generate_login_token(user, salt=None):
     """Generates a unique login token for the specified user.
 
     :param user: The user the token belongs to
+    :param salt: The salt for sign
     """
-    return _security.login_serializer.dumps([str(user.id)])
+
+    if salt:
+        salt = _security.login_serializer.salt + want_bytes(salt)
+
+    return _security.login_serializer.dumps([str(user.id)], salt=salt)
 
 
-def login_token_status(token):
+def login_token_status(token, salt=None):
     """Returns the expired status, invalid status, and user of a login token.
     For example::
 
         expired, invalid, user = login_token_status('...')
 
     :param token: The login token
+    :param salt: The salt used sign before
+
     """
-    return get_token_status(token, 'login', 'LOGIN')
+    return get_token_status(token, 'login', 'LOGIN', salt=salt)
