@@ -46,8 +46,8 @@ _default_config = {
     'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
     'I18N_DOMAIN': 'flask_security',
-    'I18N_DIRNAME': pkg_resources.resource_filename('flask_security', \
-        'translations'),
+    'I18N_DIRNAME': pkg_resources.resource_filename(
+        'flask_security', 'translations'),
     'PASSWORD_HASH': 'bcrypt',
     'PASSWORD_SALT': None,
     'PASSWORD_SINGLE_HASH': {
