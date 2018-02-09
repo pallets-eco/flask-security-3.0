@@ -249,7 +249,7 @@ def _request_loader(request):
         user = _security.datastore.find_user(id=data[0])
         if user:
             return user
-    except Exception as e:
+    except:
         pass
     return _security.login_manager.anonymous_user()
 
