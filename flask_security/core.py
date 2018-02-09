@@ -30,7 +30,7 @@ from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ResetPasswordForm, SendConfirmationForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
-    url_for_security, verify_hash, send_mail
+    url_for_security, send_mail
 from .views import create_blueprint
 
 # Convenient references
@@ -247,9 +247,9 @@ def _request_loader(request):
         data = _security.remember_token_serializer.loads(
             token, max_age=_security.token_max_age)
         user = _security.datastore.find_user(id=data[0])
-        if user and verify_hash(data[1], user.password):
+        if user:
             return user
-    except:
+    except Exception as e:
         pass
     return _security.login_manager.anonymous_user()
 
