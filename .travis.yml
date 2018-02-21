@@ -13,6 +13,14 @@ addons:
   apt:
     packages:
       - libenchant-dev
+      - aspell-en
+      - aspell-da
+      - aspell-de
+      - aspell-es
+      - aspell-fr
+      - aspell-nl
+      - aspell-pt
+      - aspell-ru
 
 matrix:
   allow_failures:
