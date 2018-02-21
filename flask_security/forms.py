@@ -44,8 +44,10 @@ _default_field_labels = {
 
 class ValidatorMixin(object):
     def __call__(self, form, field):
+        # This is a fix that avoids the API being changed.
         if self.message and self.message.isupper():
-            self.message = get_message(self.message)[0]
+            self.message_key = self.message
+        self.message = get_message(self.message_key)[0]
         return super(ValidatorMixin, self).__call__(form, field)
 
 
