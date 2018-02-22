@@ -136,6 +136,7 @@ _default_config = {
     ],
     'DEPRECATED_HASHING_SCHEMES': ['hex_md5'],
     'DATETIME_FACTORY': datetime.utcnow,
+    'USER_ACTIVE_BY_DEFAULT': True,
 }
 
 #: Default Flask-Security messages
