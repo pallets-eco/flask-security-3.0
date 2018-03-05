@@ -14,7 +14,7 @@ import inspect
 
 from flask import Markup, current_app, flash, request
 from flask_login import current_user
-from flask_wtf import FlaskForm as BaseForm
+from flask_wtf import FlaskForm as BaseForm, RecaptchaField
 from speaklater import make_lazy_gettext
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
@@ -22,7 +22,7 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
     localize_callback, url_for_security, validate_redirect_url, \
-    verify_and_update_password
+    verify_and_update_password, register_login_attempt, login_attempts_exceeded
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -131,6 +131,10 @@ class PasswordConfirmFormMixin():
                     password_required])
 
 
+class RecaptchaFormMixin():
+    recaptcha = HiddenField()
+
+
 class NextFormMixin():
     next = HiddenField()
 
@@ -203,7 +207,7 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
         return True
 
 
-class LoginForm(Form, NextFormMixin):
+class LoginForm(Form, NextFormMixin, RecaptchaFormMixin):
     """The default login form"""
 
     email = StringField(get_form_field_label('email'),
@@ -234,14 +238,20 @@ class LoginForm(Form, NextFormMixin):
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
-            # Reduce timing variation between existing and non-existung users
+            # Reduce timing variation between existing and non-existing users
             hash_password(self.password.data)
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
-            # Reduce timing variation between existing and non-existung users
+            # Reduce timing variation between existing and non-existing users
             hash_password(self.password.data)
             return False
+        if current_app.extensions['security'].recaptcha:
+            register_login_attempt(self.user)
+            if login_attempts_exceeded(self.user):
+                LoginForm.recaptcha = RecaptchaField()
+            else:
+                LoginForm.recaptcha = HiddenField()
         if not verify_and_update_password(self.password.data, self.user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
