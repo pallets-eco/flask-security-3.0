@@ -32,6 +32,10 @@ from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
     url_for_security, verify_hash, send_mail
 from .views import create_blueprint
+from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
+    ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
+    SendConfirmationForm, PasswordlessLoginForm, TwoFactorVerifyCodeForm, \
+    TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, TwoFactorRescueForm
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -82,25 +86,34 @@ _default_config = {
     'CHANGE_PASSWORD_TEMPLATE': 'security/change_password.html',
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
+    'TWO_FACTOR_VERIFY_CODE_TEMPLATE': 'security/two_factor_verify_code.html',
+    'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE': 'security/two_factor_choose_method.html',
+    'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
+        'security/two_factor_change_method_password_confimration.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
     'TRACKABLE': False,
     'PASSWORDLESS': False,
     'CHANGEABLE': False,
+    'TWO_FACTOR': False,
     'SEND_REGISTER_EMAIL': True,
     'SEND_PASSWORD_CHANGE_EMAIL': True,
     'SEND_PASSWORD_RESET_EMAIL': True,
     'SEND_PASSWORD_RESET_NOTICE_EMAIL': True,
     'LOGIN_WITHIN': '1 days',
+    'TWO_FACTOR_GOOGLE_AUTH_VALIDITY': 0,
+    'TWO_FACTOR_MAIL_VALIDITY': 1,
+    'TWO_FACTOR_SMS_VALIDITY': 5,
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
     'EMAIL_SENDER': LocalProxy(lambda: current_app.config.get(
         'MAIL_DEFAULT_SENDER', 'no-reply@localhost'
     )),
+    'TWO_FACTOR_RESCUE_MAIL': 'no-reply@localhost',
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
-    'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
+    'TOKEN_AUTHENTICATION_HEADER': _('Authentication-Token'),
     'TOKEN_MAX_AGE': None,
     'CONFIRM_SALT': 'confirm-salt',
     'RESET_SALT': 'reset-salt',
@@ -116,6 +129,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': _(
                                     'Your password has been changed'),
     'EMAIL_SUBJECT_PASSWORD_RESET': _('Password reset instructions'),
+    'EMAIL_SUBJECT_TWO_FACTOR': _('Two Factor Login'),
+    'EMAIL_SUBJECT_TWO_FACTOR_RESCUE': _('Two Factor Rescue'),
     'EMAIL_PLAINTEXT': True,
     'EMAIL_HTML': True,
     'USER_IDENTITY_ATTRIBUTES': ['email'],
@@ -129,13 +144,21 @@ _default_config = {
         # And always last one...
         'plaintext'
     ],
-    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
     'HASHING_SCHEMES': [
         'sha256_crypt',
         'hex_md5',
     ],
     'DEPRECATED_HASHING_SCHEMES': ['hex_md5'],
     'DATETIME_FACTORY': datetime.utcnow,
+    'DEPRECATED_PASSWORD_SCHEMES': ['auto'],
+    'TWO_FACTOR_ENABLED_METHODS': ['mail', 'google_authenticator', 'sms', 'off'],
+    'TWO_FACTOR_URI_SERVICE_NAME': 'service_name',
+    'TWO_FACTOR_SMS_SERVICE': 'Dummy',
+    'TWO_FACTOR_SMS_SERVICE_CONFIG': {
+        'ACCOUNT_SID': None,
+        'AUTH_TOKEN': None,
+        'PHONE_NUMBER': None,
+    }
 }
 
 #: Default Flask-Security messages
@@ -215,6 +238,20 @@ _default_messages = {
         _('Please log in to access this page.'), 'info'),
     'REFRESH': (
         _('Please reauthenticate to access this page.'), 'info'),
+    'TWO_FACTOR_INVALID_TOKEN': (
+        _('Invalid Token'), 'error'),
+    'TWO_FACTOR_LOGIN_SUCCESSFUL': (
+        _('Your token has been confirmed'), 'success'),
+    'TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL': (
+        _('You successfully changed your two factor method.'), 'success'),
+    'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
+        _('You successfully confirmed password'), 'success'),
+    'TWO_FACTOR_PASSWORD_CONFIRMATION_NEEDED': (
+        _('Password confirmation is needed in order to access page'), 'error'),
+    'TWO_FACTOR_PERMISSION_DENIED': (
+        _('You currently do not have permissions to access this page'), 'error'),
+    'TWO_FACTOR_METHOD_NOT_AVAILABLE': (
+        _('Marked method is not valid'), 'error'),
 }
 
 _default_forms = {
@@ -226,6 +263,10 @@ _default_forms = {
     'change_password_form': ChangePasswordForm,
     'send_confirmation_form': SendConfirmationForm,
     'passwordless_login_form': PasswordlessLoginForm,
+    'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
+    'two_factor_setup_form': TwoFactorSetupForm,
+    'two_factor_change_method_verify_password_form': TwoFactorChangeMethodVerifyPasswordForm,
+    'two_factor_rescue_form': TwoFactorRescueForm
 }
 
 
@@ -550,6 +591,21 @@ class Security(object):
                 app.cli.add_command(users, state.cli_users_name)
             if state.cli_roles_name:
                 app.cli.add_command(roles, state.cli_roles_name)
+
+        # configuration mismatch check
+        if cv('TWO_FACTOR', app=app) is True and len(cv('TWO_FACTOR_ENABLED_METHODS', app=app))\
+                < 1:
+            raise ValueError()
+
+        flag = False
+        try:
+            from twilio.rest import TwilioRestClient
+            flag = True
+        except:
+            pass
+
+        if flag is False and cv('TWO_FACTOR_SMS_SERVICE', app=app) == 'Twilio':
+            raise ValueError()
 
         return state
 

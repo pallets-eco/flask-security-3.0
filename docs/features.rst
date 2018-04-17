@@ -61,6 +61,17 @@ Thus if the user changes his or her password their existing authentication token
 will become invalid. A new token will need to be retrieved using the user's new
 password.
 
+Two Factor Authentication
+-------------------------
+Two factor authentication is enabled by generating time-based one time passwords
+(Tokens). The tokens are generated using the users totp secret, which is unique
+per user, and is generated both on first login, and when changing the two-factor
+method.(Doing this causes the previous totp secret to become invalid) The token
+is provided by one of 3 methods - email, sms (service is not provided), or
+Google Authenticator. By default, tokens provided by google authenticator are
+valid for 30 seconds, tokens sent by mail for up to 1 minute and tokens sent by
+sms for up to 3 minutes. The QR code used to supply Google Authenticator with
+the secret is generated using the PyQRCode library.
 
 Email Confirmation
 ------------------
@@ -118,7 +129,8 @@ JSON is supported for the following operations:
 * Confirmation requests
 * Forgot password requests
 * Passwordless login requests
-
+* Two factor login requests
+* Change two factor method requests
 
 Command Line Interface
 ----------------------
@@ -135,3 +147,5 @@ Run ``flask --help`` and look for users and roles.
 .. _documentation on this topic: http://packages.python.org/Flask-Principal/#granular-resource-protection
 .. _passlib: http://packages.python.org/passlib/
 .. _bcrypt: https://en.wikipedia.org/wiki/Bcrypt
+.. _onetimepass: https://pypi.python.org/pypi/onetimepass/
+.. _PyQRCode: https://pypi.python.org/pypi/PyQRCode/

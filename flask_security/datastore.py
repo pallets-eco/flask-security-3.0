@@ -234,17 +234,12 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
 
     def get_user(self, identifier):
         from sqlalchemy import func as alchemyFn
-        user_model_query = self.user_model.query
-        if hasattr(self.user_model, 'roles'):
-            from sqlalchemy.orm import joinedload
-            user_model_query = user_model_query.options(joinedload('roles'))
-
         if self._is_numeric(identifier):
-            return user_model_query.get(identifier)
+            return self.user_model.query.get(identifier)
         for attr in get_identity_attributes():
             query = alchemyFn.lower(getattr(self.user_model, attr)) \
-                == alchemyFn.lower(identifier)
-            rv = user_model_query.filter(query).first()
+                    == alchemyFn.lower(identifier)
+            rv = self.user_model.query.filter(query).first()
             if rv is not None:
                 return rv
 
@@ -256,12 +251,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         return True
 
     def find_user(self, **kwargs):
-        query = self.user_model.query
-        if hasattr(self.user_model, 'roles'):
-            from sqlalchemy.orm import joinedload
-            query = query.options(joinedload('roles'))
-
-        return query.filter_by(**kwargs).first()
+        return self.user_model.query.filter_by(**kwargs).first()
 
     def find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()

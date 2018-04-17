@@ -14,6 +14,7 @@ Flask application. They include:
 8. User registration (optional)
 9. Login tracking (optional)
 10. JSON/Ajax Support
+11. Two factor authentication (optional)
 
 Many of these features are made possible by integrating various Flask extensions
 and libraries. They include:
@@ -24,6 +25,8 @@ and libraries. They include:
 4. `Flask-WTF <http://packages.python.org/Flask-WTF/>`_
 5. `itsdangerous <http://packages.python.org/itsdangerous/>`_
 6. `passlib <http://packages.python.org/passlib/>`_
+8. `onetimepass <https://pypi.python.org/pypi/onetimepass/>`_
+9. `PyQRCode <https://pypi.python.org/pypi/PyQRCode/>`_
 
 Additionally, it assumes you'll be using a common library for your database
 connections and model definitions. Flask-Security supports the following Flask

@@ -48,13 +48,17 @@ def create_roles(ds):
 
 
 def create_users(ds, count=None):
-    users = [('matt@lp.com', 'matt', 'password', ['admin'], True),
-             ('joe@lp.com', 'joe', 'password', ['editor'], True),
-             ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True),
-             ('jill@lp.com', 'jill', 'password', ['author'], True),
-             ('tiya@lp.com', 'tiya', 'password', [], False),
+    users = [('matt@lp.com', 'matt', 'password', ['admin'], True, None, None),
+             ('joe@lp.com', 'joe', 'password', ['editor'], True, None, None),
+             ('dave@lp.com', 'dave', 'password', ['admin', 'editor'], True, None, None),
+             ('jill@lp.com', 'jill', 'password', ['author'], True, None, None),
+             ('tiya@lp.com', 'tiya', 'password', [], False, None, None),
              ('gene@lp.com', 'gene', 'password', [], True),
-             ('jess@lp.com', 'jess', None, [], True)]
+             ('jess@lp.com', 'jess', None, [], True, None, None),
+             ('gal@lp.com', 'gal', 'password', ['admin'], True, 'sms', u'RCTE75AP2GWLZIFR'),
+             ('gal2@lp.com', 'gal2', 'password', ['admin'], True, 'google_authenticator',
+              u'RCTE75AP2GWLZIFR'),
+             ('gal3@lp.com', 'gal3', 'password', ['admin'], True, 'mail', u'RCTE75AP2GWLZIFR')]
     count = count or len(users)
 
     for u in users[:count]:
@@ -67,7 +71,9 @@ def create_users(ds, count=None):
             email=u[0],
             username=u[1],
             password=pw,
-            active=u[4])
+            active=u[4],
+            two_factor_primary_method=u[5],
+            totp_secret=u[6])
         ds.commit()
         for role in roles:
             ds.add_role_to_user(user, role)

@@ -54,6 +54,8 @@ install_requires = [
     'Flask-BabelEx>=0.9.3',
     'itsdangerous>=0.21',
     'passlib>=1.7',
+    'pyqrcode>=1.2.1',
+    'onetimepass>=1.0.1',
 ]
 
 packages = find_packages()
