@@ -15,7 +15,7 @@ import hmac
 import sys
 import warnings
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from flask import current_app, flash, request, session, url_for
 from flask_login import login_user as _login_user
@@ -515,3 +515,24 @@ def capture_reset_password_requests(reset_password_sent_at=None):
         yield reset_requests
     finally:
         reset_password_instructions_sent.disconnect(_on)
+
+
+def login_attempts_exceeded(user):
+    """Determine whether user has exceeded login attempts"""
+    return user.login_attempts >= _security.recaptcha_max_attempts
+
+
+def register_login_attempt(user):
+    """Registers login attempts for a user
+
+    User's login attempts are reset if they have not attempted to
+    login again within SECURITY_RECAPTCHA_TIMEOUT.
+
+    """
+    if datetime.utcnow() > user.last_login_attempt_at \
+            + timedelta(milliseconds=_security.recaptcha_timeout):
+        user.login_attempts = 0
+
+    user.login_attempts = user.login_attempts + 1 if user.login_attempts else 1
+    user.last_login_attempt_at = datetime.utcnow()
+    _datastore.put(user)

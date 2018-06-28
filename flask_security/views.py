@@ -81,6 +81,9 @@ def login():
         if not request.is_json:
             return redirect(get_post_login_redirect(form.next.data))
 
+    elif _security.recaptcha:
+        after_this_request(_commit)
+
     if request.is_json:
         return _render_json(form, include_auth_token=True)
 
