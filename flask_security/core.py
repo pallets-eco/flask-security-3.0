@@ -16,8 +16,9 @@ from datetime import datetime
 import pkg_resources
 from flask import current_app, render_template
 from flask_babelex import Domain
+from flask_login import AnonymousUserMixin, LoginManager
 from flask_login import UserMixin as BaseUserMixin
-from flask_login import AnonymousUserMixin, LoginManager, current_user
+from flask_login import current_user
 from flask_principal import Identity, Principal, RoleNeed, UserNeed, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
@@ -28,9 +29,10 @@ from werkzeug.local import LocalProxy
 from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
     ResetPasswordForm, SendConfirmationForm
+from .utils import _
 from .utils import config_value as cv
-from .utils import _, get_config, hash_data, localize_callback, string_types, \
-    url_for_security, verify_hash, send_mail, verify_and_update_password
+from .utils import get_config, hash_data, localize_callback, send_mail, \
+    string_types, url_for_security, verify_and_update_password, verify_hash
 from .views import create_blueprint
 
 # Convenient references
