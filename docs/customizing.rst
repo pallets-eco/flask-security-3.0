@@ -71,10 +71,12 @@ replacement class. This allows you to add extra fields to the
 register form or override validators::
 
     from flask_security.forms import RegisterForm
+    from wtforms import StringField
+    from wtforms.validators import DataRequired
 
     class ExtendedRegisterForm(RegisterForm):
-        first_name = StringField('First Name', [Required()])
-        last_name = StringField('Last Name', [Required()])
+        first_name = StringField('First Name', [DataRequired()])
+        last_name = StringField('Last Name', [DataRequired()])
 
     security = Security(app, user_datastore,
              register_form=ExtendedRegisterForm)
