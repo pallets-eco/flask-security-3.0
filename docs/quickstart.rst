@@ -390,7 +390,7 @@ in HTTP proxy environment. The following code illustrates a setup
 with a single HTTP proxy in front of the web application::
 
     # At top of file
-    from werkzeug.config.fixers import ProxyFix
+    from werkzeug.contrib.fixers import ProxyFix
 
     # After 'Create app'
     app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
