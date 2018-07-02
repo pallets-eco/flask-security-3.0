@@ -383,8 +383,10 @@ def send_mail(subject, recipient, template, **context):
     context.setdefault('security', _security)
     context.update(_security._run_ctx_processor('mail'))
 
+    email_sender = str(_security.email_sender)
+
     msg = Message(subject,
-                  sender=_security.email_sender,
+                  sender=email_sender,
                   recipients=[recipient])
 
     ctx = ('security/email', template)
