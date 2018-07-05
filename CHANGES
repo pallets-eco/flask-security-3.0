@@ -3,6 +3,53 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 3.1.0
+-------------
+
+Released TBD
+
+- 8919828 i18n: added Japanese translation
+- 7b66dea core: make the User model check the password
+- d8ec54f core: sorted imports
+- 7b52097 i18n: add Portuguese (Portugal) translation
+- d764909 docs: fixed proxy import
+- 9067994 docs: add missing imports
+- 3e15d06 i18n: fix missing space
+- d92a422 i18n: configurable the dirname domain
+- 79545a9 Update login_user.html
+- 6b8e924 tests: improved translations checks
+- 3f9b75b HTTP Auth respects SECURITY_USER_IDENTITY_ATTRIBUTES
+- db9d04b Customizable send_mail (#730)
+- 68a556c Docs for OAauth2-based custom login manager
+- 53c6547 Allow custom login_manager to be passed in to Flask-Security
+- 1508fa5 docs: fix anchor links and typos
+- 4f94d90 Fix password recovery confirmation on deleted user
+- 51f27d0 Remove automatic login on email confirmation
+- e3e2782 core: simplified keyword arguments
+- c657f32 bugfix: support application factory pattern
+- 7ab7f5c Use {} instead of set([])
+- 8adb5a5 Make SECURITY_PASSWORD_SINGLE_HASH a list of scheme ignoring double hash
+- 4cba256 Add base template to security templates
+- 241acf2 utils: fix incorrect email sender type
+- a6479be Fix AttributeError in _request_loader
+- 2cbdba8 docs: add password salt to SQLAlchemy app example
+- 52e66df i18n: add Portuguese (Brazilian) translation
+- 3950267 Use Security.render_template in mails too
+- f062c87 Fixed broken Click link
+- 0ccc7e2 Spanish translation
+- f7c4117 Initialized spanish translations
+- 153813c i18n: improvements of German translations
+- 59c0fb7 Fix timing attack on login form
+- 6de4753 Force sender address in send_mail() to be a str
+- ed7fdc4 Close db connection after running tests
+- 1913c01 Fix array JSON requests
+- f254c96 Make `roles` in user model query optimization "optional".
+- fd29734 Optimize DB accesses by using an SQL JOIN when retrieving a user.
+- 4555e42 Fix referrer loop in _get_unauthorized_view().
+- 633d753 docs: release date and block fixes
+- 015ae7b docs: fix RTFD builds
+- 4f8dd11 `csrf_enabled` deprecation fix
+
 Version 3.0.0
 -------------
 
