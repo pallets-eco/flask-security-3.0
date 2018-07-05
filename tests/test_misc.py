@@ -274,3 +274,9 @@ def test_custom_forms_via_config(app, sqlalchemy_datastore):
 
     response = client.get('/register')
     assert b'My Register Email Address Field' in response.data
+
+
+@pytest.mark.babel(False)
+def test_without_babel(client):
+    response = client.get('/login')
+    assert b'Login' in response.data

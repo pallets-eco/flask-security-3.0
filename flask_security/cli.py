@@ -60,7 +60,7 @@ def users_create(identity, password, active):
     kwargs.update(**{'password': password, 'active': 'y' if active else ''})
 
     form = _security.confirm_register_form(
-        MultiDict(kwargs), csrf_enabled=False
+        MultiDict(kwargs), meta={'csrf': False}
     )
 
     if form.validate():

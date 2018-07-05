@@ -71,10 +71,12 @@ replacement class. This allows you to add extra fields to the
 register form or override validators::
 
     from flask_security.forms import RegisterForm
+    from wtforms import StringField
+    from wtforms.validators import DataRequired
 
     class ExtendedRegisterForm(RegisterForm):
-        first_name = StringField('First Name', [Required()])
-        last_name = StringField('Last Name', [Required()])
+        first_name = StringField('First Name', [DataRequired()])
+        last_name = StringField('Last Name', [DataRequired()])
 
     security = Security(app, user_datastore,
              register_form=ExtendedRegisterForm)
@@ -161,7 +163,7 @@ decorator like so::
         send_security_email.delay(msg)
 
 If factory method is going to be used for initialization, use ``_SecurityState``
-object returned by ``init_app`` method to initialize Celery tasks intead of using
+object returned by ``init_app`` method to initialize Celery tasks instead of using
 ``security.send_mail_task`` directly like so::
 
     from flask import Flask
@@ -192,7 +194,7 @@ object returned by ``init_app`` method to initialize Celery tasks intead of usin
         def delay_flask_security_mail(msg):
             send_flask_mail.delay(msg)
 
-        # A shortcurt.
+        # A shortcut.
         security_ctx.send_mail_task(send_flask_mail.delay)
 
         return app
@@ -211,3 +213,114 @@ Celery. The practical way with custom serialization may look like so::
                               html=msg.html)
 
 .. _Celery: http://www.celeryproject.org/
+
+
+Custom send_mail method
+-----------------------
+
+It's also possible to completely override the ``security.send_mail`` method to
+implement your own logic.
+
+For example, you might want to use an alternative email library like `Flask-Emails`:
+
+    from flask import Flask
+    from flask_security import Security, SQLAlchemyUserDatastore
+    from flask_emails import Message
+
+    security = Security()
+
+    def create_app(config):
+        """Initialize Flask instance."""
+
+        app = Flask(__name__)
+        app.config.from_object(config)
+
+        def custom_send_mail(subject, recipient, template, **context):
+            ctx = ('security/email', template)
+            message = Message(
+                subject=subject,
+                html=_security.render_template('%s/%s.html' % ctx, **context))
+            message.send(mail_to=[recipient])
+
+        datastore = SQLAlchemyUserDatastore(db, User, Role)
+        security_ctx.send_mail = custom_send_mail
+
+        return app
+
+.. note::
+
+    The above ``security.send_mail_task`` override will be useless if you
+    override the entire ``send_mail`` method.
+
+
+Authorization with OAuth2
+-------------------------
+
+Flask-Security can be set up to co-operate with `Flask-OAuthlib`_,
+by implementing a custom request loader that authorizes a user based
+either on a `Bearer` token in the HTTP `Authorization` header, or on the
+Flask-Security standard authorization logic::
+
+    from flask_oauthlib.provider import OAuth2Provider
+    from flask_security import AnonymousUser
+    from flask_security.core import (
+        _user_loader as _flask_security_user_loader,
+        _request_loader as _flask_security_request_loader)
+    from flask_security.utils import config_value as security_config_value
+
+    oauth = OAuth2Provider(app)
+
+    def _request_loader(request):
+        """
+        Load user from OAuth2 Authentication header or using
+        Flask-Security's request loader.
+        """
+        user = None
+
+        if hasattr(request, 'oauth'):
+            user = request.oauth.user
+        else:
+            # Need this try stmt in case oauthlib sometimes throws:
+            # AttributeError: dict object has no attribute startswith
+            try:
+                is_valid, oauth_request = oauth.verify_request(scopes=[])
+                if is_valid:
+                    user = oauth_request.user
+            except AttributeError:
+                pass
+
+        if not user:
+            user = _flask_security_request_loader(request)
+
+        return user
+
+    def _get_login_manager(app, anonymous_user):
+        """Prepare a login manager for Flask-Security to use."""
+        login_manager = LoginManager()
+
+        login_manager.anonymous_user = anonymous_user or AnonymousUser
+        login_manager.login_view = '{0}.login'.format(
+            security_config_value('BLUEPRINT_NAME', app=app))
+        login_manager.user_loader(_flask_security_user_loader)
+        login_manager.request_loader(_request_loader)
+
+        if security_config_value('FLASH_MESSAGES', app=app):
+            (login_manager.login_message,
+             login_manager.login_message_category) = (
+                security_config_value('MSG_LOGIN', app=app))
+            (login_manager.needs_refresh_message,
+             login_manager.needs_refresh_message_category) = (
+                security_config_value('MSG_REFRESH', app=app))
+        else:
+            login_manager.login_message = None
+            login_manager.needs_refresh_message = None
+
+        login_manager.init_app(app)
+        return login_manager
+
+    security = Security(
+        app, user_datastore,
+        login_manager=_get_login_manager(app, anonymous_user=None))
+
+
+.. _Flask-OAuthlib: https://flask-oauthlib.readthedocs.io/

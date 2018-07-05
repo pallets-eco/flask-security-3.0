@@ -13,6 +13,7 @@ from flask import Flask
 from utils import authenticate, logout
 
 from flask_security.core import UserMixin
+from flask_security.confirmable import generate_confirmation_token
 from flask_security.signals import confirm_instructions_sent, user_confirmed
 from flask_security.utils import capture_registrations, string_types
 
@@ -82,6 +83,16 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     # Test already confirmed
     response = client.get('/confirm/' + token, follow_redirects=True)
     assert get_message('ALREADY_CONFIRMED') in response.data
+    assert len(recorded_instructions_sent) == 2
+
+    # Test already confirmed and expired token
+    app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '-1 days'
+    with app.app_context():
+        user = registrations[0]['user']
+        expired_token = generate_confirmation_token(user)
+    response = client.get('/confirm/' + expired_token, follow_redirects=True)
+    assert get_message('ALREADY_CONFIRMED') in response.data
+    assert len(recorded_instructions_sent) == 2
 
     # Test already confirmed when asking for confirmation instructions
     logout(client)
@@ -178,7 +189,37 @@ def test_confirmation_different_user_when_logged_in(client, get_message):
 
     response = client.get('/confirm/' + token2, follow_redirects=True)
     assert get_message('EMAIL_CONFIRMED') in response.data
-    assert b'Hello lady@lp.com' in response.data
+    assert b'Hello lady@lp.com' not in response.data
+    assert b'Hello dude@lp.com' not in response.data
+
+
+@pytest.mark.registerable()
+def test_confirm_redirect(client, get_message):
+    with capture_registrations() as registrations:
+        data = dict(email='jane@lp.com', password='password', next='')
+        client.post('/register', data=data, follow_redirects=True)
+
+    token = registrations[0]['confirm_token']
+
+    response = client.get('/confirm/' + token)
+    assert 'location' in response.headers
+    assert '/login' in response.location
+
+    response = client.get(response.location)
+    assert get_message('EMAIL_CONFIRMED') in response.data
+
+
+@pytest.mark.registerable()
+@pytest.mark.settings(post_confirm_view='/post_confirm')
+def test_confirm_redirect_to_post_confirm(client, get_message):
+    with capture_registrations() as registrations:
+        data = dict(email='john@lp.com', password='password', next='')
+        client.post('/register', data=data, follow_redirects=True)
+
+    token = registrations[0]['confirm_token']
+
+    response = client.get('/confirm/' + token, follow_redirects=True)
+    assert b'Post Confirm' in response.data
 
 
 @pytest.mark.registerable()

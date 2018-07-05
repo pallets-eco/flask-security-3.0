@@ -50,7 +50,7 @@ copyright = u'2012, Matt Wright'
 # built documents.
 #
 # The short X.Y version.
-version = '2.0.1'
+version = '3.0.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 

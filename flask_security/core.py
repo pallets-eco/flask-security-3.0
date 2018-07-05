@@ -14,11 +14,11 @@
 from datetime import datetime
 
 import pkg_resources
-
 from flask import current_app, render_template
 from flask_babelex import Domain
+from flask_login import AnonymousUserMixin, LoginManager
 from flask_login import UserMixin as BaseUserMixin
-from flask_login import AnonymousUserMixin, LoginManager, current_user
+from flask_login import current_user
 from flask_principal import Identity, Principal, RoleNeed, UserNeed, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
@@ -29,9 +29,10 @@ from werkzeug.local import LocalProxy
 from .forms import ChangePasswordForm, ConfirmRegisterForm, \
     ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
     ResetPasswordForm, SendConfirmationForm
+from .utils import _
 from .utils import config_value as cv
-from .utils import _, get_config, hash_data, string_types, url_for_security, \
-    verify_hash
+from .utils import get_config, hash_data, localize_callback, send_mail, \
+    string_types, url_for_security, verify_and_update_password, verify_hash
 from .views import create_blueprint
 
 # Convenient references
@@ -47,9 +48,21 @@ _default_config = {
     'SUBDOMAIN': None,
     'FLASH_MESSAGES': True,
     'I18N_DOMAIN': 'flask_security',
+    'I18N_DIRNAME': pkg_resources.resource_filename(
+        'flask_security', 'translations'),
     'PASSWORD_HASH': 'bcrypt',
     'PASSWORD_SALT': None,
-    'PASSWORD_SINGLE_HASH': False,
+    'PASSWORD_SINGLE_HASH': {
+        'django_argon2',
+        'django_bcrypt_sha256',
+        'django_pbkdf2_sha256',
+        'django_pbkdf2_sha1',
+        'django_bcrypt',
+        'django_salted_md5',
+        'django_salted_sha1',
+        'django_des_crypt',
+        'plaintext',
+    },
     'LOGIN_URL': '/login',
     'LOGOUT_URL': '/logout',
     'REGISTER_URL': '/register',
@@ -85,7 +98,9 @@ _default_config = {
     'CONFIRM_EMAIL_WITHIN': '5 days',
     'RESET_PASSWORD_WITHIN': '5 days',
     'LOGIN_WITHOUT_CONFIRMATION': False,
-    'EMAIL_SENDER': 'no-reply@localhost',
+    'EMAIL_SENDER': LocalProxy(lambda: current_app.config.get(
+        'MAIL_DEFAULT_SENDER', 'no-reply@localhost'
+    )),
     'TOKEN_AUTHENTICATION_KEY': 'auth_token',
     'TOKEN_AUTHENTICATION_HEADER': 'Authentication-Token',
     'TOKEN_MAX_AGE': None,
@@ -225,9 +240,10 @@ def _request_loader(request):
     args_key = _security.token_authentication_key
     header_token = request.headers.get(header_key, None)
     token = request.args.get(args_key, header_token)
-    if request.get_json(silent=True):
-        if isinstance(request.json, dict):
-            token = request.json.get(args_key, token)
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        if isinstance(data, dict):
+            token = data.get(args_key, token)
 
     try:
         data = _security.remember_token_serializer.loads(
@@ -259,6 +275,7 @@ def _on_identity_loaded(sender, identity):
 def _get_login_manager(app, anonymous_user):
     lm = LoginManager()
     lm.anonymous_user = anonymous_user or AnonymousUser
+    lm.localize_callback = localize_callback
     lm.login_view = '%s.login' % cv('BLUEPRINT_NAME', app=app)
     lm.user_loader(_user_loader)
     lm.request_loader(_request_loader)
@@ -298,7 +315,7 @@ def _get_pwd_context(app):
 
 def _get_i18n_domain(app):
     return Domain(
-        pkg_resources.resource_filename('flask_security', 'translations'),
+        dirname=cv('I18N_DIRNAME', app=app),
         domain=cv('I18N_DOMAIN', app=app)
     )
 
@@ -324,7 +341,6 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
     kwargs.update(dict(
         app=app,
         datastore=datastore,
-        login_manager=_get_login_manager(app, anonymous_user),
         principal=_get_principal(app),
         pwd_context=_get_pwd_context(app),
         hashing_context=_get_hashing_context(app),
@@ -337,6 +353,10 @@ def _get_state(app, datastore, anonymous_user=None, **kwargs):
         _send_mail_task=None,
         _unauthorized_callback=None
     ))
+
+    if 'login_manager' not in kwargs:
+        kwargs['login_manager'] = _get_login_manager(
+            app, anonymous_user)
 
     for key, value in _default_forms.items():
         if key not in kwargs or not kwargs[key]:
@@ -384,6 +404,14 @@ class UserMixin(BaseUserMixin):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles
+
+    def get_security_payload(self):
+        """Serialize user object as response payload."""
+        return {'id': str(self.id)}
+
+    def verify_and_update_password(self, password):
+        """Verify and update user password using configured hash."""
+        return verify_and_update_password(password, self)
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -453,30 +481,51 @@ class Security(object):
 
     :param app: The application.
     :param datastore: An instance of a user datastore.
+    :param register_blueprint: to register the Security blueprint or not.
+    :param login_form: set form for the login view
+    :param register_form: set form for the register view
+    :param confirm_register_form: set form for the confirm register view
+    :param forgot_password_form: set form for the forgot password view
+    :param reset_password_form: set form for the reset password view
+    :param change_password_form: set form for the change password view
+    :param send_confirmation_form: set form for the send confirmation view
+    :param passwordless_login_form: set form for the passwordless login view
+    :param anonymous_user: class to use for anonymous user
     """
 
-    def __init__(self, app=None, datastore=None, **kwargs):
+    def __init__(self, app=None, datastore=None, register_blueprint=True,
+                 **kwargs):
         self.app = app
-        self.datastore = datastore
+        self._datastore = datastore
+        self._register_blueprint = register_blueprint
+        self._kwargs = kwargs
 
+        self._state = None  # set by init_app
         if app is not None and datastore is not None:
-            self._state = self.init_app(app, datastore, **kwargs)
+            self._state = self.init_app(
+                app,
+                datastore,
+                register_blueprint=register_blueprint,
+                **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=True,
-                 login_form=None, confirm_register_form=None,
-                 register_form=None, forgot_password_form=None,
-                 reset_password_form=None, change_password_form=None,
-                 send_confirmation_form=None, passwordless_login_form=None,
-                 anonymous_user=None):
+    def init_app(self, app, datastore=None, register_blueprint=None, **kwargs):
         """Initializes the Flask-Security extension for the specified
-        application and datastore implentation.
+        application and datastore implementation.
 
         :param app: The application.
         :param datastore: An instance of a user datastore.
         :param register_blueprint: to register the Security blueprint or not.
         """
         self.app = app
-        self.datastore = datastore
+
+        if datastore is None:
+            datastore = self._datastore
+
+        if register_blueprint is None:
+            register_blueprint = self._register_blueprint
+
+        for key, value in self._kwargs.items():
+            kwargs.setdefault(key, value)
 
         for key, value in _default_config.items():
             app.config.setdefault('SECURITY_' + key, value)
@@ -486,22 +535,19 @@ class Security(object):
 
         identity_loaded.connect_via(app)(_on_identity_loaded)
 
-        state = _get_state(app, self.datastore,
-                           login_form=login_form,
-                           confirm_register_form=confirm_register_form,
-                           register_form=register_form,
-                           forgot_password_form=forgot_password_form,
-                           reset_password_form=reset_password_form,
-                           change_password_form=change_password_form,
-                           send_confirmation_form=send_confirmation_form,
-                           passwordless_login_form=passwordless_login_form,
-                           anonymous_user=anonymous_user)
+        self._state = state = _get_state(app, datastore, **kwargs)
 
         if register_blueprint:
             app.register_blueprint(create_blueprint(state, __name__))
             app.context_processor(_context_processor)
 
+        @app.before_first_request
+        def _register_i18n():
+            if '_' not in app.jinja_env.globals:
+                app.jinja_env.globals['_'] = state.i18n_domain.gettext
+
         state.render_template = self.render_template
+        state.send_mail = self.send_mail
         app.extensions['security'] = state
 
         if hasattr(app, 'cli'):
@@ -515,6 +561,9 @@ class Security(object):
 
     def render_template(self, *args, **kwargs):
         return render_template(*args, **kwargs)
+
+    def send_mail(self, *args, **kwargs):
+        return send_mail(*args, **kwargs)
 
     def __getattr__(self, name):
         return getattr(self._state, name, None)

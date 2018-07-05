@@ -10,14 +10,14 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import current_app as app
+from flask import current_app
 from werkzeug.local import LocalProxy
 
 from .signals import password_changed
-from .utils import config_value, hash_password, send_mail
+from .utils import config_value, hash_password
 
 # Convenient references
-_security = LocalProxy(lambda: app.extensions['security'])
+_security = LocalProxy(lambda: current_app.extensions['security'])
 
 _datastore = LocalProxy(lambda: _security.datastore)
 
@@ -29,7 +29,7 @@ def send_password_changed_notice(user):
     """
     if config_value('SEND_PASSWORD_CHANGE_EMAIL'):
         subject = config_value('EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE')
-        send_mail(subject, user.email, 'change_notice', user=user)
+        _security.send_mail(subject, user.email, 'change_notice', user=user)
 
 
 def change_user_password(user, password):
@@ -41,5 +41,5 @@ def change_user_password(user, password):
     user.password = hash_password(password)
     _datastore.put(user)
     send_password_changed_notice(user)
-    password_changed.send(app._get_current_object(),
-                          user=user._get_current_object())
+    password_changed.send(current_app._get_current_object(),
+                          user=user)

@@ -15,16 +15,15 @@ import inspect
 from flask import Markup, current_app, flash, request
 from flask_login import current_user
 from flask_wtf import FlaskForm as BaseForm
-from werkzeug.local import LocalProxy
+from speaklater import make_lazy_gettext
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators
 
 from .confirmable import requires_confirmation
-from .utils import _, config_value, get_message, url_for_security, \
-    validate_redirect_url, verify_and_update_password
+from .utils import _, _datastore, config_value, get_message, hash_password, \
+    localize_callback, url_for_security, validate_redirect_url
 
-# Convenient reference
-_datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
+lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
 _default_field_labels = {
     'email': _('Email Address'),
@@ -72,7 +71,7 @@ password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
 
 
 def get_form_field_label(key):
-    return _default_field_labels.get(key, '')
+    return lazy_gettext(_default_field_labels.get(key, ''))
 
 
 def unique_user_email(form, field):
@@ -127,7 +126,8 @@ class NewPasswordFormMixin():
 class PasswordConfirmFormMixin():
     password_confirm = PasswordField(
         get_form_field_label('retype_password'),
-        validators=[EqualTo('password', message='RETYPE_PASSWORD_MISMATCH')])
+        validators=[EqualTo('password', message='RETYPE_PASSWORD_MISMATCH'),
+                    password_required])
 
 
 class NextFormMixin():
@@ -153,7 +153,7 @@ class RegisterFormMixin():
 
 
 class SendConfirmationForm(Form, UserEmailFormMixin):
-    """The default forgot password form"""
+    """The default send confirmation form"""
 
     submit = SubmitField(get_form_field_label('send_confirmation'))
 
@@ -205,8 +205,10 @@ class PasswordlessLoginForm(Form, UserEmailFormMixin):
 class LoginForm(Form, NextFormMixin):
     """The default login form"""
 
-    email = StringField(get_form_field_label('email'))
-    password = PasswordField(get_form_field_label('password'))
+    email = StringField(get_form_field_label('email'),
+                        validators=[Required(message='EMAIL_NOT_PROVIDED')])
+    password = PasswordField(get_form_field_label('password'),
+                             validators=[password_required])
     remember = BooleanField(get_form_field_label('remember_me'))
     submit = SubmitField(get_form_field_label('login'))
 
@@ -217,7 +219,7 @@ class LoginForm(Form, NextFormMixin):
         self.remember.default = config_value('DEFAULT_REMEMBER_ME')
         if current_app.extensions['security'].recoverable and \
                 not self.password.description:
-            html = Markup('<a href="{url}">{message}</a>'.format(
+            html = Markup(u'<a href="{url}">{message}</a>'.format(
                 url=url_for_security("forgot_password"),
                 message=get_message("FORGOT_PASSWORD")[0],
             ))
@@ -227,24 +229,19 @@ class LoginForm(Form, NextFormMixin):
         if not super(LoginForm, self).validate():
             return False
 
-        if not self.email.data or self.email.data.strip() == '':
-            self.email.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
-            return False
-
-        if not self.password.data or self.password.data.strip() == '':
-            self.password.errors.append(
-                get_message('PASSWORD_NOT_PROVIDED')[0])
-            return False
-
         self.user = _datastore.get_user(self.email.data)
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            # Reduce timing variation between existing and non-existung users
+            hash_password(self.password.data)
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
+            # Reduce timing variation between existing and non-existung users
+            hash_password(self.password.data)
             return False
-        if not verify_and_update_password(self.password.data, self.user):
+        if not self.user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
         if requires_confirmation(self.user):
@@ -285,7 +282,8 @@ class ChangePasswordForm(Form, PasswordFormMixin):
     new_password_confirm = PasswordField(
         get_form_field_label('retype_password'),
         validators=[EqualTo('new_password',
-                            message='RETYPE_PASSWORD_MISMATCH')])
+                            message='RETYPE_PASSWORD_MISMATCH'),
+                    password_required])
 
     submit = SubmitField(get_form_field_label('change_password'))
 
@@ -293,10 +291,10 @@ class ChangePasswordForm(Form, PasswordFormMixin):
         if not super(ChangePasswordForm, self).validate():
             return False
 
-        if not verify_and_update_password(self.password.data, current_user):
+        if not current_user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
-        if self.password.data.strip() == self.new_password.data.strip():
+        if self.password.data == self.new_password.data:
             self.password.errors.append(get_message('PASSWORD_IS_THE_SAME')[0])
             return False
         return True

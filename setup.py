@@ -23,7 +23,8 @@ tests_require = [
     'pytest-cov>=2.4.0',
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
-    'pytest>=3.0.5',
+    'pytest-translations>=2.0.0',
+    'pytest>=3.3.0',
     'sqlalchemy>=0.8.0',
 ]
 
@@ -45,7 +46,7 @@ setup_requires = [
 ]
 
 install_requires = [
-    'Flask>=0.10',
+    'Flask>=0.11',
     'Flask-Login>=0.3.0',
     'Flask-Mail>=0.7.3',
     'Flask-Principal>=0.3.3',
@@ -59,7 +60,7 @@ packages = find_packages()
 
 setup(
     name='Flask-Security',
-    version='2.0.1',
+    version='3.0.0',
     description=__doc__,
     long_description=readme,
     keywords='flask security',
@@ -86,8 +87,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Development Status :: 4 - Beta',
