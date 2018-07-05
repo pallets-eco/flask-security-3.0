@@ -43,8 +43,7 @@ _default_field_labels = {
 
 class ValidatorMixin(object):
     def __call__(self, form, field):
-        if self.message and self.message.isupper():
-            self.message = get_message(self.message)[0]
+        set_validator_message(self)
         return super(ValidatorMixin, self).__call__(form, field)
 
 
@@ -74,6 +73,11 @@ def get_form_field_label(key):
     return lazy_gettext(_default_field_labels.get(key, ''))
 
 
+def set_validator_message(validator):
+    if hasattr(validator, 'message') and validator.message.isupper():
+        validator.message = get_message(validator.message)[0]
+
+
 def unique_user_email(form, field):
     if _datastore.get_user(field.data) is not None:
         msg = get_message('EMAIL_ALREADY_ASSOCIATED', email=field.data)[0]
@@ -91,6 +95,9 @@ class Form(BaseForm):
         if current_app.testing:
             self.TIME_LIMIT = None
         super(Form, self).__init__(*args, **kwargs)
+        for field in self._fields.values():
+            for validator in field.validators:
+                set_validator_message(validator)
 
 
 class EmailFormMixin():
