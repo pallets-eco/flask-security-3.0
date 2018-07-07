@@ -280,3 +280,15 @@ def test_custom_forms_via_config(app, sqlalchemy_datastore):
 def test_without_babel(client):
     response = client.get('/login')
     assert b'Login' in response.data
+
+
+def test_getattr_with_app_constructor(app, sqlalchemy_datastore):
+    security = Security(app=app, datastore=sqlalchemy_datastore)
+    assert security.flash_messages is True
+
+
+def test_getattr_with_default_constructor(app, sqlalchemy_datastore):
+    security = Security(datastore=sqlalchemy_datastore)
+    security.init_app(app)
+    with app.app_context():
+        assert security.flash_messages is True
