@@ -89,7 +89,7 @@ def login_user(user, remember=None):
         user.current_login_at = new_current_login
         user.last_login_ip = old_current_ip
         user.current_login_ip = new_current_ip
-        user.login_count = user.login_count + 1 if user.login_count else 1
+        user.login_count = int(user.login_count) + 1 if int(user.login_count) else 1
 
         _datastore.put(user)
 
