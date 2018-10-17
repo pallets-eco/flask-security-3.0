@@ -124,7 +124,7 @@ class UserDatastore(object):
         return user, role
 
     def _prepare_create_user_args(self, **kwargs):
-        kwargs.setdefault('active', config_value('USER_ACTIVE_BY_DEFAULT'))
+        kwargs.setdefault('active', not config_value('MANUAL_USER_ACTIVATION'))
         roles = kwargs.get('roles', [])
         for i, role in enumerate(roles):
             rn = role.name if isinstance(role, self.role_model) else role
