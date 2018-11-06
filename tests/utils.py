@@ -10,7 +10,7 @@ from flask import Response as BaseResponse
 from flask import json
 
 from flask_security import Security
-from flask_security.utils import encrypt_password
+from flask_security.utils import hash_password
 
 _missing = object
 
@@ -60,7 +60,7 @@ def create_users(ds, count=None):
     for u in users[:count]:
         pw = u[2]
         if pw is not None:
-            pw = encrypt_password(pw)
+            pw = hash_password(pw)
         roles = [ds.find_or_create_role(rn) for rn in u[3]]
         ds.commit()
         user = ds.create_user(
