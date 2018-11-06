@@ -26,6 +26,7 @@ tests_require = [
     'pytest-translations>=1.0.4',
     'pytest>=3.0.5',
     'sqlalchemy>=0.8.0',
+    'mongomock>=3.13.0',
 ]
 
 extras_require = {
