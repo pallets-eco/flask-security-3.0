@@ -150,7 +150,7 @@ def mongoengine_datastore(app):
     db_name = 'flask_security_test_%s' % str(time.time()).replace('.', '_')
     app.config['MONGODB_SETTINGS'] = {
         'db': db_name,
-        'host': 'localhost',
+        'host': 'mongomock://localhost',
         'port': 27017,
         'alias': db_name
     }
