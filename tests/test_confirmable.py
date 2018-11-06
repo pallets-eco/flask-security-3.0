@@ -7,7 +7,6 @@
 """
 
 import time
-import os
 
 import pytest
 from flask import Flask
@@ -254,9 +253,6 @@ def test_optional_token_in_welcome_email(app, client):
         with app.mail.record_messages() as outbox:
             data = dict(email='token@lp.com', password='password', next='')
             response = client.post('/register', data=data, follow_redirects=True)
-
-            user = registrations[0]['user']
-            token = registrations[0]['confirm_token']
 
     assert response.status_code == 200
 
