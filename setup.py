@@ -8,7 +8,7 @@ readme = open('README.rst').read()
 
 tests_require = [
     'Flask-CLI>=0.4.0',
-    'Flask-Mongoengine>=0.9.0',
+    'Flask-Mongoengine>=0.9.5',
     'Flask-Peewee>=0.6.5',
     'Flask-SQLAlchemy>=1.0',
     'bcrypt>=1.0.2',
@@ -24,10 +24,13 @@ tests_require = [
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
     'pytest-translations>=1.0.4',
+    'pymongo==3.7.2',
     'pytest>=3.0.5',
     'sqlalchemy>=0.8.0',
     'mongomock>=3.13.0',
+    'pytest-mongo==1.2.1'
 ]
+
 
 extras_require = {
     'docs': [
