@@ -7,6 +7,7 @@
 """
 
 import time
+import os
 
 import pytest
 from flask import Flask
@@ -41,11 +42,17 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     # Test login before confirmation
     email = 'dude@lp.com'
 
-    with capture_registrations() as registrations:
-        data = dict(email=email, password='password', next='')
-        response = client.post('/register', data=data)
+    with app.mail.record_messages() as outbox:
+        with capture_registrations() as registrations:
+            data = dict(email=email, password='password', next='')
+            response = client.post('/register', data=data)
 
     assert response.status_code == 302
+
+    # Test email contains Token information
+    with app.test_request_context():
+        print("Message: {}".format(outbox[0].as_string()))
+        assert registrations[0]['confirm_token'] in outbox[0].as_string()
 
     response = authenticate(client, email=email)
     assert get_message('CONFIRMATION_REQUIRED') in response.data
@@ -238,3 +245,22 @@ def test_cannot_reset_password_when_email_is_not_confirmed(
             email=email),
         follow_redirects=True)
     assert get_message('CONFIRMATION_REQUIRED') in response.data
+
+
+@pytest.mark.registerable()
+@pytest.mark.settings(send_register_email=True)
+def test_optional_token_in_welcome_email(app, client):
+    with capture_registrations() as registrations:
+        with app.mail.record_messages() as outbox:
+            data = dict(email='token@lp.com', password='password', next='')
+            response = client.post('/register', data=data, follow_redirects=True)
+
+            user = registrations[0]['user']
+            token = registrations[0]['confirm_token']
+
+    assert response.status_code == 200
+
+    # Test email contains Token information
+    with app.test_request_context():
+        assert registrations[0]['confirm_token'] in outbox[0].as_string()
+
