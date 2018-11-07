@@ -252,8 +252,8 @@ def test_optional_token_in_welcome_email(app, client):
     with capture_registrations() as registrations:
         with app.mail.record_messages() as outbox:
             data = dict(email='token@lp.com', password='password', next='')
-            response = client.post('/register', 
-                                   data=data, 
+            response = client.post('/register',
+                                   data=data,
                                    follow_redirects=True)
 
     assert response.status_code == 200
