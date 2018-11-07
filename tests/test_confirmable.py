@@ -41,10 +41,9 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
     # Test login before confirmation
     email = 'dude@lp.com'
 
-    with app.mail.record_messages() as outbox:
-        with capture_registrations() as registrations:
-            data = dict(email=email, password='password', next='')
-            response = client.post('/register', data=data)
+    with capture_registrations() as registrations:
+        data = dict(email=email, password='password', next='')
+        response = client.post('/register', data=data)
 
     assert response.status_code == 302
 
