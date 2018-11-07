@@ -254,4 +254,4 @@ def test_optional_token_in_welcome_email(app, client):
 
     # Test email contains Token information
     with app.test_request_context():
-        assert registrations[0]['confirm_token'] in str(outbox[0].as_string())
+        assert registrations[0]['confirm_token'] in outbox[0].body
