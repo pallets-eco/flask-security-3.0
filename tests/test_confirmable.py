@@ -48,11 +48,6 @@ def test_confirmable_flag(app, client, sqlalchemy_datastore, get_message):
 
     assert response.status_code == 302
 
-    # Test email contains Token information
-    with app.test_request_context():
-        print("Message: {}".format(outbox[0].as_string()))
-        assert registrations[0]['confirm_token'] in outbox[0].as_string()
-
     response = authenticate(client, email=email)
     assert get_message('CONFIRMATION_REQUIRED') in response.data
 
