@@ -1,8 +1,7 @@
-# Translations template for Flask-Security.
-# Copyright (C) 2017 CERN
+# Turkish translation for Flask-Security.
+# Copyright (C) 2019 Ecmel B. Canlıer <me@ecmelberk.com>
 # This file is distributed under the same license as the Flask-Security
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 msgid ""
 msgstr ""
