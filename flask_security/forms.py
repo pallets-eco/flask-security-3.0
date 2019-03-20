@@ -236,7 +236,7 @@ class LoginForm(Form, NextFormMixin):
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
-            logger.warning("LoginError: "+self.email.data+ " USER_DOES_NOT_EXIST")
+            logger.warning("LoginError: " + self.email.data + " USER_DOES_NOT_EXIST")
             # Reduce timing variation between existing and non-existung users
             hash_password(self.password.data)
             return False
@@ -248,7 +248,7 @@ class LoginForm(Form, NextFormMixin):
             return False
         if not self.user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
-            logger.warning("LoginError: "+self.email.data+ " INVALID_PASSWORD")
+            logger.warning("LoginError: " + self.email.data + " INVALID_PASSWORD")
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
@@ -256,7 +256,7 @@ class LoginForm(Form, NextFormMixin):
             return False
         if not self.user.is_active:
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
-            logger.warning("LoginError: "+self.email.data+ " DISABLED_ACCOUNT")
+            logger.warning("LoginError: " + self.email.data + " DISABLED_ACCOUNT")
             return False
         logger.info("LoginSuccess: " + self.email.data + " SUCCESSFUL_LOGIN")
         return True
