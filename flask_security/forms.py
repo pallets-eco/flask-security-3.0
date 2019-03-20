@@ -32,7 +32,7 @@ handler = RotatingFileHandler(log_location + 'audit.log', maxBytes=50000000, bac
 formatter = logging.Formatter('[%(asctime)s] - %(name)s %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger = logging.getLogger("AUDIT")
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 _default_field_labels = {
