@@ -29,8 +29,8 @@ lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
 log_location = './'
 handler = RotatingFileHandler(log_location + 'audit.log', maxBytes=50000000, backupCount=5)
-handler.setLevel(logging.DEBUG)
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 _default_field_labels = {
