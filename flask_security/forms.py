@@ -27,13 +27,7 @@ from .utils import _, _datastore, config_value, get_message, hash_password, \
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
-log_location = './'
-handler = RotatingFileHandler(log_location + 'audit.log', maxBytes=50000000, backupCount=5)
-formatter = logging.Formatter('[%(asctime)s] - %(name)s %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger = logging.getLogger("AUDIT")
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+logger = logging.getLogger("FlaskSecurityAuditLogs")
 
 _default_field_labels = {
     'email': _('Email Address'),
