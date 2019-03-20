@@ -13,7 +13,6 @@
 import inspect
 import logging
 
-from logging.handlers import RotatingFileHandler
 from flask import Markup, current_app, flash, request
 from flask_login import current_user
 from flask_wtf import FlaskForm as BaseForm
