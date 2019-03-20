@@ -29,8 +29,10 @@ lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
 log_location = './'
 handler = RotatingFileHandler(log_location + 'audit.log', maxBytes=50000000, backupCount=5)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+formatter = logging.Formatter('[%(asctime)s] - %(name)s %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger = logging.getLogger("AUDIT")
+logger.setLevel(logging.WARNING)
 logger.addHandler(handler)
 
 _default_field_labels = {
@@ -241,27 +243,27 @@ class LoginForm(Form, NextFormMixin):
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
-            logger.info("LoginError: "+self.email.data+ " USER_DOES_NOT_EXIST")
+            logger.warning("LoginError: "+self.email.data+ " USER_DOES_NOT_EXIST")
             # Reduce timing variation between existing and non-existung users
             hash_password(self.password.data)
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
-            logger.info("LoginError: " + self.email.data + " PASSWORD_NOT_SET")
+            logger.warning("LoginError: " + self.email.data + " PASSWORD_NOT_SET")
             # Reduce timing variation between existing and non-existung users
             hash_password(self.password.data)
             return False
         if not self.user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
-            logger.info("LoginError: "+self.email.data+ " INVALID_PASSWORD")
+            logger.warning("LoginError: "+self.email.data+ " INVALID_PASSWORD")
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
-            logger.info("LoginError: " + self.email.data + " CONFIRMATION_REQUIRED")
+            logger.warning("LoginError: " + self.email.data + " CONFIRMATION_REQUIRED")
             return False
         if not self.user.is_active:
             self.email.errors.append(get_message('DISABLED_ACCOUNT')[0])
-            logger.info("LoginError: "+self.email.data+ " DISABLED_ACCOUNT")
+            logger.warning("LoginError: "+self.email.data+ " DISABLED_ACCOUNT")
             return False
         logger.info("LoginSuccess: " + self.email.data + " SUCCESSFUL_LOGIN")
         return True
