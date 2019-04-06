@@ -31,7 +31,7 @@ def parse_changelog():
     with open('CHANGES') as f:
         lineiter = iter(f)
         for line in lineiter:
-            match = re.search('^Version\s+(.*)', line.strip())
+            match = re.search(r'^Version\s+(.*)', line.strip())
 
             if match is None:
                 continue
@@ -111,12 +111,12 @@ def build_and_upload():
 
 
 def fail(message, *args):
-    print >> sys.stderr, 'Error:', message % args
+    sys.stderr.write('Error: %s\n' % (message % args))
     sys.exit(1)
 
 
 def info(message, *args):
-    print >> sys.stderr, message % args
+    sys.stderr.write('%s\n' % (message % args))
 
 
 def get_git_tags():
