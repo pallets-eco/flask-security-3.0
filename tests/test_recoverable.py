@@ -21,9 +21,22 @@ from flask_security.utils import capture_reset_password_requests, string_types
 pytestmark = pytest.mark.recoverable()
 
 
-def test_recoverable_flag(app, client, get_message):
+@pytest.mark.parametrize('is_json', (
+    False,
+    True,
+))
+def test_recoverable_flag(app, client, get_message, is_json):
     recorded_resets = []
     recorded_instructions_sent = []
+
+    if is_json:
+        def client_post(url, data):
+            response = client.post(url, json=data)
+            assert response.headers['Content-Type'] == 'application/json'
+            return response
+    else:
+        def client_post(url, data):
+            return client.post(url, data=data, follow_redirects=True)
 
     @password_reset.connect_via(app)
     def on_password_reset(app, user):
@@ -36,25 +49,21 @@ def test_recoverable_flag(app, client, get_message):
         assert isinstance(token, string_types)
         recorded_instructions_sent.append(user)
 
-    # Test the reset view
     response = client.get('/reset')
     assert b'<h1>Send password reset instructions</h1>' in response.data
 
     # Test submitting email to reset password creates a token and sends email
     with capture_reset_password_requests() as requests:
         with app.mail.record_messages() as outbox:
-            response = client.post(
-                '/reset',
-                data=dict(
-                    email='joe@lp.com'),
-                follow_redirects=True)
+            response = client_post('/reset', {'email': 'joe@lp.com'})
 
     assert len(recorded_instructions_sent) == 1
     assert len(outbox) == 1
     assert response.status_code == 200
-    assert get_message(
-        'PASSWORD_RESET_REQUEST',
-        email='joe@lp.com') in response.data
+    if not is_json:
+        assert get_message(
+            'PASSWORD_RESET_REQUEST',
+            email='joe@lp.com') in response.data
     token = requests[0]['token']
 
     # Test view for reset token
@@ -62,12 +71,13 @@ def test_recoverable_flag(app, client, get_message):
     assert b'<h1>Reset password</h1>' in response.data
 
     # Test submitting a new password
-    response = client.post('/reset/' + token, data={
+    response = client_post('/reset/' + token, {
         'password': 'newpassword',
         'password_confirm': 'newpassword'
-    }, follow_redirects=True)
+    })
 
-    assert get_message('PASSWORD_RESET') in response.data
+    if not is_json:
+        assert get_message('PASSWORD_RESET') in response.data
     assert len(recorded_resets) == 1
     assert b'Hello joe@lp.com' not in response.data
 
@@ -83,30 +93,17 @@ def test_recoverable_flag(app, client, get_message):
 
     logout(client)
 
-    # Test submitting JSON
-    response = client.post('/reset', data='{"email": "joe@lp.com"}', headers={
-        'Content-Type': 'application/json'
-    })
-    assert response.headers['Content-Type'] == 'application/json'
-    assert 'user' not in response.jdata['response']
-
-    logout(client)
-
     # Test invalid email
-    response = client.post(
-        '/reset',
-        data=dict(
-            email='bogus@lp.com'),
-        follow_redirects=True)
+    response = client_post('/reset', {'email': 'bogus@lp.com'})
     assert get_message('USER_DOES_NOT_EXIST') in response.data
 
     logout(client)
 
     # Test invalid token
-    response = client.post('/reset/bogus', data={
+    response = client_post('/reset/bogus', {
         'password': 'newpassword',
         'password_confirm': 'newpassword'
-    }, follow_redirects=True)
+    })
     assert get_message('INVALID_RESET_PASSWORD_TOKEN') in response.data
 
     # Test mangled token
@@ -114,10 +111,10 @@ def test_recoverable_flag(app, client, get_message):
         "WyIxNjQ2MzYiLCIxMzQ1YzBlZmVhM2VhZjYwODgwMDhhZGU2YzU0MzZjMiJd."
         "BZEw_Q.lQyo3npdPZtcJ_sNHVHP103syjM"
         "&url_id=fbb89a8328e58c181ea7d064c2987874bc54a23d")
-    response = client.post('/reset/' + token, data={
+    response = client_post('/reset/' + token, {
         'password': 'newpassword',
         'password_confirm': 'newpassword'
-    }, follow_redirects=True)
+    })
     assert get_message('INVALID_RESET_PASSWORD_TOKEN') in response.data
 
 
