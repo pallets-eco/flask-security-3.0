@@ -267,6 +267,7 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         return self.role_model.query.filter_by(name=role).first()
 
 
+
 class SQLAlchemySessionUserDatastore(SQLAlchemyUserDatastore,
                                      SQLAlchemyDatastore):
     """A SQLAlchemy datastore implementation for Flask-Security that assumes the

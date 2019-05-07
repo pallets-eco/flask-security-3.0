@@ -44,3 +44,9 @@ Session.vim
 *~
 
 .eggs/README.txt
+
+# Pycharm files
+.idea/
+
+# VScode
+.vscode/

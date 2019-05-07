@@ -26,18 +26,15 @@ from passlib.context import CryptContext
 from werkzeug.datastructures import ImmutableList
 from werkzeug.local import LocalProxy
 
-from .forms import ChangePasswordForm, ConfirmRegisterForm, \
-    ForgotPasswordForm, LoginForm, PasswordlessLoginForm, RegisterForm, \
-    ResetPasswordForm, SendConfirmationForm
-from .utils import _
-from .utils import config_value as cv
-from .utils import get_config, hash_data, localize_callback, send_mail, \
-    string_types, url_for_security, verify_and_update_password, verify_hash
-from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm, TwoFactorVerifyCodeForm, \
     TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, TwoFactorRescueForm
+from .utils import config_value as cv
+from .utils import _, get_config, hash_data, localize_callback, string_types, \
+    url_for_security, verify_hash, send_mail
+from .views import create_blueprint
+
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -605,12 +602,12 @@ class Security(object):
 
         flag = False
         try:
-            from twilio.rest import TwilioRestClient
-            flag = True
+            import importlib.util as import_util
+            flag = import_util.find_spec('twilio')
         except:
             pass
 
-        if flag is False and cv('TWO_FACTOR_SMS_SERVICE', app=app) == 'Twilio':
+        if not flag and cv('TWO_FACTOR_SMS_SERVICE', app=app) == 'Twilio':
             raise ValueError()
 
         return state
