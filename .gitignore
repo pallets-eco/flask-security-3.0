@@ -47,3 +47,6 @@ Session.vim
 
 # Pycharm files
 .idea/
+
+# VScode
+.vscode/
