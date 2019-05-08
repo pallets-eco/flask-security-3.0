@@ -308,10 +308,11 @@ class ChangePasswordForm(Form, PasswordFormMixin):
 class TwoFactorSetupForm(Form, UserEmailFormMixin):
     """The Two Factor token validation form"""
 
-    setup = RadioField('Available Methods', choices=[('mail', 'Set Up Using Mail'),
-                                                     ('google_authenticator',
-                                                      'Set Up Using Google Authenticator'),
-                                                     ('sms', 'Set Up Using SMS')])
+    setup = RadioField('Available Methods',
+                       choices=[('mail', 'Set Up Using Mail'),
+                                ('google_authenticator',
+                                 'Set Up Using Google Authenticator'),
+                                ('sms', 'Set Up Using SMS')])
     phone = StringField(get_form_field_label('phone'))
     submit = SubmitField(get_form_field_label('sumbit'))
 
@@ -354,7 +355,8 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
             return False
 
         # verify entered token with user's totp secret
-        if not verify_totp(token=self.code.data, totp_secret=session['totp_secret'],
+        if not verify_totp(token=self.code.data,
+                           totp_secret=session['totp_secret'],
                            window=self.window):
             flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
             return False
@@ -368,7 +370,8 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
     submit = SubmitField(get_form_field_label('verify_password'))
 
     def validate(self):
-        if not super(TwoFactorChangeMethodVerifyPasswordForm, self).validate():
+        if not super(TwoFactorChangeMethodVerifyPasswordForm,
+                     self).validate():
             flash(*get_message('INVALID_PASSWORD'))
             return False
         if 'email' in session:
@@ -377,7 +380,8 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
             self.user = current_user
         else:
             abort(403)
-        if not self.user.verify_and_update_password(self.password.data, current_user):
+        if not self.user.verify_and_update_password(self.password.data,
+                                                    current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
 
@@ -388,8 +392,10 @@ class TwoFactorRescueForm(Form, UserEmailFormMixin):
     """The Two Factor Rescue validation form"""
 
     help_setup = RadioField('Trouble Accessing Your Account?',
-                            choices=[('lost_device', 'Can not access mobile device?'),
-                                     ('no_mail_access', 'Can not access mail account?')])
+                            choices=[('lost_device',
+                                      'Can not access mobile device?'),
+                                     ('no_mail_access',
+                                      'Can not access mail account?')])
     submit = SubmitField(get_form_field_label('submit'))
 
     def __init__(self, *args, **kwargs):
