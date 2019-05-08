@@ -32,7 +32,7 @@ from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     TwoFactorSetupForm, TwoFactorChangeMethodVerifyPasswordForm, TwoFactorRescueForm
 from .utils import config_value as cv
 from .utils import _, get_config, hash_data, localize_callback, string_types, \
-    url_for_security, verify_hash, send_mail
+    url_for_security, verify_hash, send_mail, verify_and_update_password
 from .views import create_blueprint
 
 
