@@ -25,7 +25,8 @@ from .recoverable import reset_password_token_status, \
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for, slash_url_suffix, send_mail
+    url_for_security as url_for, slash_url_suffix, send_mail,\
+    get_post_logout_redirect
 from .twofactor import send_security_token, generate_totp, generate_qrcode, \
     complete_two_factor_process
 
@@ -200,7 +201,7 @@ def send_confirmation():
         send_confirmation_instructions(form.user)
         if not request.is_json:
             do_flash(*get_message('CONFIRMATION_REQUEST',
-                     email=form.user.email))
+                                  email=form.user.email))
 
     if request.is_json:
         return _render_json(form)
@@ -261,7 +262,7 @@ def forgot_password():
         send_reset_password_instructions(form.user)
         if not request.is_json:
             do_flash(*get_message('PASSWORD_RESET_REQUEST',
-                     email=form.user.email))
+                                  email=form.user.email))
 
     if request.is_json:
         return _render_json(form, include_user=False)
@@ -408,7 +409,8 @@ def two_factor_setup_function():
         return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
                                          two_factor_setup_form=form,
                                          two_factor_verify_code_form=code_form,
-                                         choices=config_value('TWO_FACTOR_ENABLED_METHODS'),
+                                         choices=config_value(
+                                             'TWO_FACTOR_ENABLED_METHODS'),
                                          chosen_method=session['primary_method'],
                                          **_ctx('two_factor_setup_function'))
 
@@ -419,7 +421,8 @@ def two_factor_setup_function():
     return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
                                      two_factor_setup_form=form,
                                      two_factor_verify_code_form=code_form,
-                                     choices=config_value('TWO_FACTOR_ENABLED_METHODS'),
+                                     choices=config_value(
+                                         'TWO_FACTOR_ENABLED_METHODS'),
                                      **_ctx('two_factor_setup_function'))
 
 
@@ -445,9 +448,9 @@ def two_factor_token_validation():
         form = form_class()
 
     if form.validate_on_submit():
-            complete_two_factor_process(form.user)
-            after_this_request(_commit)
-            return redirect(get_post_login_redirect())
+        complete_two_factor_process(form.user)
+        after_this_request(_commit)
+        return redirect(get_post_login_redirect())
 
     if request.json:
         return _render_json(form, include_user=False)
@@ -458,7 +461,8 @@ def two_factor_token_validation():
         return _security.render_template(config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
                                          two_factor_setup_form=setup_form,
                                          two_factor_verify_code_form=form,
-                                         choices=config_value('TWO_FACTOR_ENABLED_METHODS'),
+                                         choices=config_value(
+                                             'TWO_FACTOR_ENABLED_METHODS'),
                                          **_ctx('two_factor_setup_function'))
     # if we were trying to validate an existing method
     else:
@@ -495,7 +499,8 @@ def two_factor_rescue_function():
         problem = form.data['help_setup']
         # if the problem is that user can't access his device, we send him code through mail
         if problem == 'lost_device':
-            send_security_token(user=form.user, method='mail', totp_secret=form.user.totp_secret)
+            send_security_token(user=form.user, method='mail',
+                                totp_secret=form.user.totp_secret)
         # send app provider a mail message regarding trouble
         elif problem == 'no_mail_access':
             send_mail(config_value('EMAIL_SUBJECT_TWO_FACTOR_RESCUE'),
@@ -510,7 +515,8 @@ def two_factor_rescue_function():
     return _security.render_template(config_value('TWO_FACTOR_VERIFY_CODE_TEMPLATE'),
                                      two_factor_verify_code_form=code_form,
                                      two_factor_rescue_form=form,
-                                     rescue_mail=config_value('TWO_FACTOR_RESCUE_MAIL'),
+                                     rescue_mail=config_value(
+                                         'TWO_FACTOR_RESCUE_MAIL'),
                                      problem=str(problem),
                                      **_ctx('two_factor_token_validation'))
 
@@ -579,8 +585,8 @@ def create_blueprint(state, import_name):
                  endpoint='two_factor_rescue_function')(two_factor_rescue_function)
         bp.route(state.change_url + slash_url_suffix(
             state.change_url, 'two_factor_password_confirmation'),
-                 methods=['GET', 'POST'],
-                 endpoint='two_factor_password_confirmation')(two_factor_password_confirmation)
+            methods=['GET', 'POST'],
+            endpoint='two_factor_password_confirmation')(two_factor_password_confirmation)
 
     else:
         bp.route(state.login_url,
