@@ -43,10 +43,10 @@ _default_field_labels = {
     'retype_password': _('Retype Password'),
     'new_password': _('New Password'),
     'change_password': _('Change Password'),
-    'send_login_link': _('Send Login Link')
-    'verify_password': 'Verify Method'
-    'change_method': 'Change Method',
-    'phone': 'Phone Number',
+    'send_login_link': _('Send Login Link'),
+    'verify_password': _('Verify Method'),
+    'change_method': _('Change Method'),
+    'phone': _('Phone Number'),
 }
 
 
