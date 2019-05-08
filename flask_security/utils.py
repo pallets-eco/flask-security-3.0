@@ -550,8 +550,10 @@ try:
 
     class TwilioSmsSender(SmsSenderBaseClass):
         def __init__(self):
-            self.account_sid = config_value('TWO_FACTOR_SMS_SERVICE_CONFIG')['ACCOUNT_SID']
-            self.auth_token = config_value('TWO_FACTOR_SMS_SERVICE_CONFIG')['AUTH_TOKEN']
+            self.account_sid = config_value(
+                'TWO_FACTOR_SMS_SERVICE_CONFIG')['ACCOUNT_SID']
+            self.auth_token = config_value(
+                'TWO_FACTOR_SMS_SERVICE_CONFIG')['AUTH_TOKEN']
 
         def send_sms(self, from_number, to_number, msg):
             client = TwilioRestClient(self.account_sid, self.auth_token)
