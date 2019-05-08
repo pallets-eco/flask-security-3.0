@@ -26,6 +26,7 @@ tests_require = [
     'pytest-translations>=2.0.0',
     'pytest>=3.3.0',
     'sqlalchemy>=0.8.0',
+
 ]
 
 extras_require = {
@@ -54,6 +55,8 @@ install_requires = [
     'Flask-BabelEx>=0.9.3',
     'itsdangerous>=0.21',
     'passlib>=1.7',
+    'pyqrcode>=1.2',
+    'onetimepass>=1.0.1',
 ]
 
 packages = find_packages()
