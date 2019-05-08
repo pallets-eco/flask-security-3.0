@@ -11,18 +11,14 @@
 """
 
 import inspect
-import os
 
 from flask import Markup, current_app, flash, request
-from flask import request, session, abort
-from flask_wtf import Form as BaseForm
-from wtforms import StringField, PasswordField, validators, \
-    SubmitField, HiddenField, BooleanField, ValidationError, Field, RadioField
+from flask import session, abort
+from wtforms import BooleanField, Field, HiddenField, PasswordField, \
+    StringField, SubmitField, ValidationError, validators, RadioField
 from flask_login import current_user
 from flask_wtf import FlaskForm as BaseForm
 from speaklater import make_lazy_gettext
-from wtforms import BooleanField, Field, HiddenField, PasswordField, \
-    StringField, SubmitField, ValidationError, validators
 
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
