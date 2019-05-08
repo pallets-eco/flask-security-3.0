@@ -546,7 +546,7 @@ class SmsSenderFactory(object):
 
 
 try:
-    from twilio.rest import TwilioRestClient
+    from twilio.rest import Client
 
     class TwilioSmsSender(SmsSenderBaseClass):
         def __init__(self):
@@ -556,7 +556,7 @@ try:
                 'TWO_FACTOR_SMS_SERVICE_CONFIG')['AUTH_TOKEN']
 
         def send_sms(self, from_number, to_number, msg):
-            client = TwilioRestClient(self.account_sid, self.auth_token)
+            client = Client(self.account_sid, self.auth_token)
             client.messages.create(
                 to=to_number,
                 from_=from_number,
