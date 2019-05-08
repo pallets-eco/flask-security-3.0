@@ -35,11 +35,15 @@ SmsSenderFactory.senders['test'] = SmsTestSender
 
 class TestMail():
 
-    def __init__(self):
-        self.count = 0
-        self.msg = ""
+    # def __init__(self):
+    #     self.count = 0
+    #     self.msg = ""
 
     def send(self, msg):
+        if not self.msg:
+            self.msg=""
+        if not self.count:
+            self.count=0
         self.msg = msg
         self.count += 1
 
@@ -148,6 +152,8 @@ def test_two_factor_flag(app, client):
     # change method (from sms to mail)
     setup_data = dict(setup='mail')
     testMail = TestMail()
+    testMail.msg=""
+    testMail.count=0
     app.extensions['mail'] = testMail
     response = client.post('/two_factor_setup_function/', data=setup_data, follow_redirects=True)
     assert 'To complete logging in, please enter the code sent to your mail' in response.data
