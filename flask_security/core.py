@@ -87,9 +87,9 @@ _default_config = {
     'SEND_CONFIRMATION_TEMPLATE': 'security/send_confirmation.html',
     'SEND_LOGIN_TEMPLATE': 'security/send_login.html',
     'TWO_FACTOR_VERIFY_CODE_TEMPLATE':
-     'security/two_factor_verify_code.html',
+        'security/two_factor_verify_code.html',
     'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE':
-    'security/two_factor_choose_method.html',
+        'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
         'security/two_factor_change_method_password_confimration.html',
     'CONFIRMABLE': False,
@@ -129,7 +129,7 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORDLESS': _('Login instructions'),
     'EMAIL_SUBJECT_PASSWORD_NOTICE': _('Your password has been reset'),
     'EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE': _(
-                                    'Your password has been changed'),
+        'Your password has been changed'),
     'EMAIL_SUBJECT_PASSWORD_RESET': _('Password reset instructions'),
     'EMAIL_PLAINTEXT': True,
     'EMAIL_HTML': True,
@@ -267,7 +267,8 @@ _default_forms = {
     'passwordless_login_form': PasswordlessLoginForm,
     'two_factor_verify_code_form': TwoFactorVerifyCodeForm,
     'two_factor_setup_form': TwoFactorSetupForm,
-    'two_factor_change_method_verify_password_form': TwoFactorChangeMethodVerifyPasswordForm,
+    'two_factor_change_method_verify_password_form':
+        TwoFactorChangeMethodVerifyPasswordForm,
     'two_factor_rescue_form': TwoFactorRescueForm
 }
 
@@ -534,8 +535,12 @@ class Security(object):
     :param anonymous_user: class to use for anonymous user
     """
 
-    def __init__(self, app=None, datastore=None, register_blueprint=True,
+    def __init__(self,
+                 app=None,
+                 datastore=None,
+                 register_blueprint=True,
                  **kwargs):
+
         self.app = app
         self._datastore = datastore
         self._register_blueprint = register_blueprint
@@ -549,7 +554,10 @@ class Security(object):
                 register_blueprint=register_blueprint,
                 **kwargs)
 
-    def init_app(self, app, datastore=None, register_blueprint=None, **kwargs):
+    def init_app(self,
+                 app, datastore=None,
+                 register_blueprint=None,
+                 **kwargs):
         """Initializes the Flask-Security extension for the specified
         application and datastore implementation.
 
@@ -600,7 +608,8 @@ class Security(object):
 
         # configuration mismatch check
         if cv('TWO_FACTOR', app=app) is True and\
-             len(cv('TWO_FACTOR_ENABLED_METHODS', app=app))< 1:
+                len(cv('TWO_FACTOR_ENABLED_METHODS', app=app)) < 1:
+
             raise ValueError()
 
         flag = False
@@ -610,7 +619,8 @@ class Security(object):
         except:
             pass
 
-        if not flag and cv('TWO_FACTOR_SMS_SERVICE', app=app) == 'Twilio':
+        if not flag and cv('TWO_FACTOR_SMS_SERVICE', app=app)\
+                == 'Twilio':
             raise ValueError()
 
         return state

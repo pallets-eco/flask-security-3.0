@@ -10,14 +10,15 @@
 
 import os
 import base64
+
 import pyqrcode
 import onetimepass
-
 from flask import current_app as app, session, abort
 from flask_login import current_user
 from werkzeug.local import LocalProxy
 
-from .utils import send_mail, config_value, get_message, do_flash, SmsSenderFactory, login_user
+from .utils import send_mail, config_value, get_message, do_flash,\
+    SmsSenderFactory, login_user
 from .signals import user_two_factored, two_factor_method_changed
 
 # Convenient references
@@ -34,17 +35,23 @@ def send_security_token(user, method, totp_secret):
     """
     token_to_be_sent = get_totp_password(totp_secret)
     if method == 'mail':
-        send_mail(config_value('EMAIL_SUBJECT_TWO_FACTOR'), user.email,
-                  'two_factor_instructions', user=user, token=token_to_be_sent)
+        send_mail(config_value('EMAIL_SUBJECT_TWO_FACTOR'),
+                  user.email,
+                  'two_factor_instructions',
+                  user=user,
+                  token=token_to_be_sent)
     elif method == 'sms':
         msg = "Use this code to log in: %s" % token_to_be_sent
-        from_number = config_value('TWO_FACTOR_SMS_SERVICE_CONFIG')['PHONE_NUMBER']
+        from_number = config_value('TWO_FACTOR_SMS_SERVICE_CONFIG')[
+            'PHONE_NUMBER']
         if 'phone_number' in session:
             to_number = session['phone_number']
         else:
             to_number = user.phone_number
-        sms_sender = SmsSenderFactory.createSender(config_value('TWO_FACTOR_SMS_SERVICE'))
-        sms_sender.send_sms(from_number=from_number, to_number=to_number, msg=msg)
+        sms_sender = SmsSenderFactory.createSender(
+            config_value('TWO_FACTOR_SMS_SERVICE'))
+        sms_sender.send_sms(from_number=from_number,
+                            to_number=to_number, msg=msg)
 
     elif method == 'google_authenticator':
         # password are generated automatically in the google authenticator app
@@ -58,7 +65,7 @@ def get_totp_uri(username, totp_secret):
     :return:
     """
     service_name = config_value('TWO_FACTOR_URI_SERVICE_NAME')
-    
+
     return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'\
         .format(service_name, username, totp_secret)
 
@@ -88,17 +95,17 @@ def generate_totp():
 def generate_qrcode():
     """generate the qrcode for the two factor authentication process"""
     if 'google_authenticator' not in\
-         config_value('TWO_FACTOR_ENABLED_METHODS'):
+            config_value('TWO_FACTOR_ENABLED_METHODS'):
         return abort(404)
     if 'primary_method' not in session or\
-         session['primary_method'] != 'google_authenticator' \
+        session['primary_method'] != 'google_authenticator' \
             or 'totp_secret' not in session:
         return abort(404)
 
     if 'email' in session:
-            email = session['email']
+        email = session['email']
     elif 'password_confirmed' in session:
-            email = current_user.email
+        email = current_user.email
     else:
         return abort(404)
 
@@ -121,7 +128,8 @@ def complete_two_factor_process(user):
     :param user - user's to update in database and log in if necessary
     """
     totp_secret_changed = user.totp_secret != session['totp_secret']
-    if totp_secret_changed or user.two_factor_primary_method != session['primary_method']:
+    if totp_secret_changed or user.two_factor_primary_method\
+            != session['primary_method']:
         user.totp_secret = session['totp_secret']
         user.two_factor_primary_method = session['primary_method']
 
@@ -138,7 +146,8 @@ def complete_two_factor_process(user):
     if 'password_confirmed' in session:
         del session['password_confirmed']
         do_flash(*get_message('TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL'))
-        two_factor_method_changed.send(app._get_current_object(), user=user)
+        two_factor_method_changed.send(app._get_current_object(),
+                                       user=user)
 
     # if we are logging in for the first time
     else:
