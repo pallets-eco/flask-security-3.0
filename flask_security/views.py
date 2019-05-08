@@ -486,7 +486,7 @@ def two_factor_token_validation():
 
 @anonymous_user_required
 def two_factor_rescue_function():
-    """ Function that handles a situation where user can't 
+    """ Function that handles a situation where user can't
     enter his two factor validation code"""
     # user's email&password yet to be approved
     if 'email' not in session:
