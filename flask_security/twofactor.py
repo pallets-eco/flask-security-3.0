@@ -58,8 +58,9 @@ def get_totp_uri(username, totp_secret):
     :return:
     """
     service_name = config_value('TWO_FACTOR_URI_SERVICE_NAME')
-    return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'.format(service_name, username,
-                                                                 totp_secret)
+    
+    return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'\
+        .format(service_name, username, totp_secret)
 
 
 def verify_totp(token, totp_secret, window=0):
@@ -86,9 +87,11 @@ def generate_totp():
 
 def generate_qrcode():
     """generate the qrcode for the two factor authentication process"""
-    if 'google_authenticator' not in config_value('TWO_FACTOR_ENABLED_METHODS'):
+    if 'google_authenticator' not in\
+         config_value('TWO_FACTOR_ENABLED_METHODS'):
         return abort(404)
-    if 'primary_method' not in session or session['primary_method'] != 'google_authenticator' \
+    if 'primary_method' not in session or\
+         session['primary_method'] != 'google_authenticator' \
             or 'totp_secret' not in session:
         return abort(404)
 

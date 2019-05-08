@@ -14,7 +14,7 @@ import inspect
 import os
 
 from flask import Markup, current_app, flash, request
-from flask import request, current_app, flash, session
+from flask import request, session, abort
 from flask_wtf import Form as BaseForm
 from wtforms import StringField, PasswordField, validators, \
     SubmitField, HiddenField, BooleanField, ValidationError, Field, RadioField
@@ -325,7 +325,7 @@ class TwoFactorSetupForm(Form, UserEmailFormMixin):
     def validate(self):
         if 'setup' not in self.data or self.data['setup']\
                 not in config_value('TWO_FACTOR_ENABLED_METHODS'):
-            do_flash(*get_message('TWO_FACTOR_METHOD_NOT_AVAILABLE'))
+            flash(*get_message('TWO_FACTOR_METHOD_NOT_AVAILABLE'))
             return False
 
         return True
@@ -346,7 +346,7 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
         elif 'password_confirmed' in session:
             self.user = current_user
         else:
-            os.abort()
+            abort(403)
         # codes sent by sms or mail will be valid for another window cycle
         if session['primary_method'] == 'google_authenticator':
             self.window = config_value('TWO_FACTOR_GOOGLE_AUTH_VALIDITY')
@@ -360,7 +360,7 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
         # verify entered token with user's totp secret
         if not verify_totp(token=self.code.data, totp_secret=session['totp_secret'],
                            window=self.window):
-            do_flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
+            flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
             return False
 
         return True
@@ -373,10 +373,15 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
 
     def validate(self):
         if not super(TwoFactorChangeMethodVerifyPasswordForm, self).validate():
-            do_flash(*get_message('INVALID_PASSWORD'))
+            flash(*get_message('INVALID_PASSWORD'))
             return False
-
-        if not verify_and_update_password(self.password.data, current_user):
+        if 'email' in session:
+            self.user = _datastore.find_user(email=session['email'])
+        elif 'password_confirmed' in session:
+            self.user = current_user
+        else:
+            abort(403)
+        if not self.user.verify_and_update_password(self.password.data, current_user):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
 
@@ -399,7 +404,7 @@ class TwoFactorRescueForm(Form, UserEmailFormMixin):
         self.user = _datastore.find_user(email=session['email'])
 
         if 'primary_method' not in session or 'totp_secret' not in session:
-            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
             return False
 
         return True
