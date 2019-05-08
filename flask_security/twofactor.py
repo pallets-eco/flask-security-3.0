@@ -30,7 +30,8 @@ _datastore = LocalProxy(lambda: _security.datastore)
 def send_security_token(user, method, totp_secret):
     """Sends the security token via email for the specified user.
     :param user: The user to send the code to
-    :param method: The method in which the code will be sent ('mail' or 'sms') at the moment
+    :param method: The method in which the code will be sent
+                ('mail' or 'sms') at the moment
     :param totp_secret: a unique shared secret of the user
     """
     token_to_be_sent = get_totp_password(totp_secret)
@@ -59,7 +60,8 @@ def send_security_token(user, method, totp_secret):
 
 
 def get_totp_uri(username, totp_secret):
-    """ Generate provisioning url for use with the qrcode scanner built into the app
+    """ Generate provisioning url for use with the qrcode
+            scanner built into the app
     :param username: username of the current user
     :param totp_secret: a unique shared secret of the user
     :return:
@@ -74,8 +76,9 @@ def verify_totp(token, totp_secret, window=0):
     """ Verifies token for specific user_totp
     :param token - token to be check against user's secret
     :param totp_secret - a unique shared secret of the user
-    :param window - optional, compensate for clock skew, number of intervals to check on
-        each side of the current time. (default is 0 - only check the current clock time)
+    :param window - optional, compensate for clock skew, number of
+        intervals to check on each side of the current time.
+        (default is 0 - only check the current clock time)
     :return:
     """
     return onetimepass.valid_totp(token, totp_secret, window=window)
