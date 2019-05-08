@@ -29,4 +29,5 @@ password_changed = signals.signal("password-changed")
 
 two_factor_method_changed = signals.signal("two-factor-method-changed")
 
-reset_password_instructions_sent = signals.signal("password-reset-instructions-sent")
+reset_password_instructions_sent = signals.signal(
+    "password-reset-instructions-sent")
