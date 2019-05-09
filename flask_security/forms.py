@@ -12,7 +12,7 @@
 
 import inspect
 
-from flask import Markup, current_app, flash, request
+from flask import Markup, current_app, request
 from flask import session, abort
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators, RadioField
@@ -22,7 +22,7 @@ from speaklater import make_lazy_gettext
 
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
-    localize_callback, url_for_security, validate_redirect_url
+    localize_callback, url_for_security, validate_redirect_url, do_flash
 from .twofactor import verify_totp
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
@@ -141,7 +141,7 @@ class NextFormMixin():
     def validate_next(self, field):
         if field.data and not validate_redirect_url(field.data):
             field.data = ''
-            flash(*get_message('INVALID_REDIRECT'))
+            do_flash(*get_message('INVALID_REDIRECT'))
             raise ValidationError(get_message('INVALID_REDIRECT')[0])
 
 
@@ -322,7 +322,7 @@ class TwoFactorSetupForm(Form, UserEmailFormMixin):
     def validate(self):
         if 'setup' not in self.data or self.data['setup']\
                 not in config_value('TWO_FACTOR_ENABLED_METHODS'):
-            flash(*get_message('TWO_FACTOR_METHOD_NOT_AVAILABLE'))
+            do_flash(*get_message('TWO_FACTOR_METHOD_NOT_AVAILABLE'))
             return False
 
         return True
@@ -358,7 +358,7 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
         if not verify_totp(token=self.code.data,
                            totp_secret=session['totp_secret'],
                            window=self.window):
-            flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
+            do_flash(*get_message('TWO_FACTOR_INVALID_TOKEN'))
             return False
 
         return True
@@ -372,7 +372,7 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
     def validate(self):
         if not super(TwoFactorChangeMethodVerifyPasswordForm,
                      self).validate():
-            flash(*get_message('INVALID_PASSWORD'))
+            do_flash(*get_message('INVALID_PASSWORD'))
             return False
         if 'email' in session:
             self.user = _datastore.find_user(email=session['email'])
@@ -406,7 +406,7 @@ class TwoFactorRescueForm(Form, UserEmailFormMixin):
         self.user = _datastore.find_user(email=session['email'])
 
         if 'primary_method' not in session or 'totp_secret' not in session:
-            flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
             return False
 
         return True

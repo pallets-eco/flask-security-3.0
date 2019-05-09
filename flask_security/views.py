@@ -361,7 +361,8 @@ def two_factor_login():
             session['has_two_factor'] = True
             session['primary_method'] = user.two_factor_primary_method
             session['totp_secret'] = user.totp_secret
-            send_security_token(user=user, method=user.two_factor_primary_method,
+            send_security_token(user=user,
+                                method=user.two_factor_primary_method,
                                 totp_secret=user.totp_secret)
             return redirect(url_for('two_factor_token_validation'))
 
