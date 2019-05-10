@@ -47,13 +47,13 @@ setup_requires = [
 ]
 
 install_requires = [
-    'Flask>=0.11',
-    'Flask-Login>=0.3.0',
-    'Flask-Mail>=0.7.3',
-    'Flask-Principal>=0.3.3',
-    'Flask-WTF>=0.13.1',
+    'Flask>=1.0.2',
+    'Flask-Login>=0.4.1',
+    'Flask-Mail>=0.9.1',
+    'Flask-Principal>=0.4.0',
+    'Flask-WTF>=0.14.2',
     'Flask-BabelEx>=0.9.3',
-    'itsdangerous>=0.21',
+    'itsdangerous>=1.1.0',
     'passlib>=1.7',
     'pyqrcode>=1.2',
     'onetimepass>=1.0.1',
