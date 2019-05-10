@@ -33,8 +33,8 @@ possible using SQLAlchemy:
 ::
 
     from flask import Flask, current_app, render_template
-    from flask.ext.sqlalchemy import SQLAlchemy
-    from flask.ext.security import Security, SQLAlchemyUserDatastore, \
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_security import Security, SQLAlchemyUserDatastore, \
         UserMixin, RoleMixin, login_required
 
 
