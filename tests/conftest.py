@@ -55,13 +55,19 @@ def app(request):
                 'trackable', 'passwordless', 'confirmable', 'two_factor']:
         app.config['SECURITY_' + opt.upper()] = opt in request.keywords
 
-    if 'settings' in request.keywords:
-        for key, value in request.keywords['settings'].kwargs.items():
+    pytest_major = int(pytest.__version__.split('.')[0])
+    if pytest_major >= 4:
+        marker_getter = request.node.get_closest_marker
+    else:
+        marker_getter = request.keywords.get
+    settings = marker_getter('settings')
+    babel = marker_getter('babel')
+    if settings is not None:
+        for key, value in settings.kwargs.items():
             app.config['SECURITY_' + key.upper()] = value
 
     mail = Mail(app)
-    if 'babel' not in request.keywords or \
-            request.keywords['babel'].args[0]:
+    if babel is None or babel.args[0]:
         babel = Babel(app)
         app.babel = babel
     app.json_encoder = JSONEncoder
@@ -278,6 +284,9 @@ def sqlalchemy_session_datastore(request, app, tmpdir):
         password = Column(String(255))
         last_login_at = Column(DateTime())
         current_login_at = Column(DateTime())
+        two_factor_primary_method = Column(String(255), nullable=True)
+        totp_secret = Column(String(255), nullable=True)
+        phone_number = Column(String(255), nullable=True)
         last_login_ip = Column(String(100))
         current_login_ip = Column(String(100))
         login_count = Column(Integer)
@@ -336,13 +345,14 @@ def peewee_datastore(request, app, tmpdir):
     class UserRoles(db.Model):
         """ Peewee does not have built-in many-to-many support, so we have to
         create this mapping class to link users to roles."""
-        user = ForeignKeyField(User, related_name='roles')
-        role = ForeignKeyField(Role, related_name='users')
+        user = ForeignKeyField(User, backref='roles')
+        role = ForeignKeyField(Role, backref='users')
         name = property(lambda self: self.role.name)
         description = property(lambda self: self.role.description)
 
     with app.app_context():
         for Model in (Role, User, UserRoles):
+            Model.drop_table()
             Model.create_table()
 
     def tear_down():
@@ -374,6 +384,9 @@ def pony_datastore(request, app, tmpdir):
         password = Optional(str, nullable=True)
         last_login_at = Optional(datetime)
         current_login_at = Optional(datetime)
+        two_factor_primary_method = Optional(str, nullable=True)
+        totp_secret = Optional(str, nullable=True)
+        phone_number = Optional(str, nullable=True)
         last_login_ip = Optional(str)
         current_login_ip = Optional(str)
         login_count = Optional(int)

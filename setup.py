@@ -8,24 +8,24 @@ readme = open('README.rst').read()
 
 tests_require = [
     'Flask-CLI>=0.4.0',
-    'Flask-Mongoengine>=0.7.0',
+    'Flask-Mongoengine>=0.9.5',
     'Flask-Peewee>=0.6.5',
     'Flask-SQLAlchemy>=2.4',
-    'bcrypt>=1.0.2',
+    'bcrypt>=3.1',
+    'msgcheck>=2.9',
     'check-manifest>=0.25',
     'coverage>=4.0',
     'isort>=4.2.2',
     'mock>=1.3.0',
-    'mongoengine>=0.10.0',
-    'pony>=0.7.1',
+    'mongoengine>=0.12.0',
+    'pony>=0.7.4',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=2.4.0',
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
-    'pytest-translations>=2.0.0',
     'pytest>=3.3.0',
-    'sqlalchemy>=0.8.0',
+    'sqlalchemy>=1.1.0',
 
 ]
 
@@ -92,6 +92,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Development Status :: 4 - Beta',

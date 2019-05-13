@@ -13,7 +13,7 @@
 import inspect
 
 from flask import Markup, current_app, request
-from flask import session, abort
+from flask import session
 from wtforms import BooleanField, Field, HiddenField, PasswordField, \
     StringField, SubmitField, ValidationError, validators, RadioField
 from flask_login import current_user
@@ -343,7 +343,7 @@ class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
         elif 'password_confirmed' in session:
             self.user = current_user
         else:
-            abort(403)
+            return False
         # codes sent by sms or mail will be valid for another window cycle
         if session['primary_method'] == 'google_authenticator':
             self.window = config_value('TWO_FACTOR_GOOGLE_AUTH_VALIDITY')
@@ -374,14 +374,8 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
                      self).validate():
             do_flash(*get_message('INVALID_PASSWORD'))
             return False
-        if 'email' in session:
-            self.user = _datastore.find_user(email=session['email'])
-        elif 'password_confirmed' in session:
-            self.user = current_user
-        else:
-            abort(403)
-        if not self.user.verify_and_update_password(self.password.data,
-                                                    current_user):
+        self.user = current_user
+        if not self.user.verify_and_update_password(self.password.data):
             self.password.errors.append(get_message('INVALID_PASSWORD')[0])
             return False
 

@@ -112,22 +112,13 @@ def build_and_upload():
 
 def fail(message, *args):
     import sys
-    version = sys.version_info[0] >= 3
-    if not version:
-        print >> sys.stderr, 'Error:', message % args  # pragma: no flakes
-    else:
-        print('Error' + message % args, file=sys.stderr)
-
+    sys.stderr.write('Error:' + message % args)
     sys.exit(1)
 
 
 def info(message, *args):
     import sys
-    version = sys.version_info[0] >= 3
-    if not version:
-        print >> sys.stderr, message % args  # pragma: no flakes
-    else:
-        print('Error' + message % args, file=sys.stderr)
+    sys.stderr.write('Error:' + message % args)
 
 
 def get_git_tags():

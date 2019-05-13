@@ -91,7 +91,7 @@ _default_config = {
     'TWO_FACTOR_CHOOSE_METHOD_TEMPLATE':
         'security/two_factor_choose_method.html',
     'TWO_FACTOR_CHANGE_METHOD_PASSWORD_CONFIRMATION_TEMPLATE':
-        'security/two_factor_change_method_password_confimration.html',
+        'security/two_factor_change_method_password_confirmation.html',
     'CONFIRMABLE': False,
     'REGISTERABLE': False,
     'RECOVERABLE': False,
@@ -239,21 +239,24 @@ _default_messages = {
     'LOGIN': (
         _('Please log in to access this page.'), 'info'),
     'REFRESH': (
-        'Please reauthenticate to access this page.', 'info'),
+        _('Please reauthenticate to access this page.'), 'info'),
     'TWO_FACTOR_INVALID_TOKEN': (
-        'Invalid Token', 'error'),
+        _('Invalid Token'), 'error'),
     'TWO_FACTOR_LOGIN_SUCCESSFUL': (
-        'Your token has been confirmed', 'success'),
+        _('Your token has been confirmed'), 'success'),
     'TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL': (
-        'You successfully changed your two factor method.', 'success'),
+        _('You successfully changed your two factor method.'),
+        'success'),
     'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
-        'You successfully confirmed password', 'success'),
+        _('You successfully confirmed password'), 'success'),
     'TWO_FACTOR_PASSWORD_CONFIRMATION_NEEDED': (
-        'Password confirmation is needed in order to access page', 'error'),
+        _('Password confirmation is needed in order to access page'),
+        'error'),
     'TWO_FACTOR_PERMISSION_DENIED': (
-        'You currently do not have permissions to access this page', 'error'),
+        _('You currently do not have permissions to access this page'),
+        'error'),
     'TWO_FACTOR_METHOD_NOT_AVAILABLE': (
-        'Marked method is not valid', 'error'),
+        _('Marked method is not valid'), 'error'),
 }
 
 _default_forms = {

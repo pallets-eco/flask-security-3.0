@@ -21,7 +21,7 @@ following is a list of view templates:
 * `security/change_password.html`
 * `security/send_confirmation.html`
 * `security/send_login.html`
-* `security/two_factor_change_method_password_confimration.html`
+* `security/two_factor_change_method_password_confirmation.html`
 * `security/two_factor_choose_method.html`
 * `security/two_factor_verify_code.html`
 
