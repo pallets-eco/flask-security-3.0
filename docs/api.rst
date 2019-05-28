@@ -141,12 +141,12 @@ sends the following signals.
 
 .. data:: user_two_factored
 
-    Sent when a user performs two factor authentication login on the site. In
+    Sent when a user performs two-factor authentication login on the site. In
     addition to the app (which is the sender), it is passed `user` argument
 
 .. data:: two_factor_method_changed
 
-  Sent when two factor is used and user logs in. In addition to the app
+  Sent when two-factor is used and user logs in. In addition to the app
   (which is the sender), it is passed `user` argument.
 
 .. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/

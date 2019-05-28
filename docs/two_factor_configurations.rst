@@ -1,14 +1,14 @@
-Two Factor Configurations
+Two-factor Configurations
 =========================
 
-Two factor authentication provides a second layer of security to any type of
+Two-factor authentication provides a second layer of security to any type of
 login, requiring extra information or a secondary device to log in, in addition
 to ones login credentials. The added feature includes the ability to add a
 secondary authentication method using either via email, sms message, or Google
 Authenticator.
 
 The following code sample illustrates how to get started as quickly as
-possible using SQLAlchemy and two factor feature:
+possible using SQLAlchemy and two-factor feature:
 
 -  `Basic SQLAlchemy Application <#basic-sqlalchemy-application>`_
 
@@ -24,7 +24,7 @@ SQLAlchemy Install requirements
      $ pip install flask-security flask-sqlalchemy
 
 
-Two Factor Application
+Two-factor Application
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The following code sample illustrates how to get started as quickly as

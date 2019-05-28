@@ -133,8 +133,8 @@ _default_config = {
     'EMAIL_SUBJECT_PASSWORD_RESET': _('Password reset instructions'),
     'EMAIL_PLAINTEXT': True,
     'EMAIL_HTML': True,
-    'EMAIL_SUBJECT_TWO_FACTOR': 'Two Factor Login',
-    'EMAIL_SUBJECT_TWO_FACTOR_RESCUE': 'Two Factor Rescue',
+    'EMAIL_SUBJECT_TWO_FACTOR': 'Two-factor Login',
+    'EMAIL_SUBJECT_TWO_FACTOR_RESCUE': 'Two-factor Rescue',
     'USER_IDENTITY_ATTRIBUTES': ['email'],
     'PASSWORD_SCHEMES': [
         'bcrypt',
@@ -245,7 +245,7 @@ _default_messages = {
     'TWO_FACTOR_LOGIN_SUCCESSFUL': (
         _('Your token has been confirmed'), 'success'),
     'TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL': (
-        _('You successfully changed your two factor method.'),
+        _('You successfully changed your two-factor method.'),
         'success'),
     'TWO_FACTOR_PASSWORD_CONFIRMATION_DONE': (
         _('You successfully confirmed password'), 'success'),

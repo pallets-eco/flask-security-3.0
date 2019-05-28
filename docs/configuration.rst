@@ -71,7 +71,7 @@ Core
                                          ``no-reply@localhost``.
 ``SECURITY_TWO_FACTOR_RESCUE_MAIL``      Specifies the email address users send
                                          mail to when they can't complete the
-                                         two factor authentication login.
+                                         two-factor authentication login.
                                          Defaults to ``no-reply@localhost``.
 ``SECURITY_TOKEN_AUTHENTICATION_KEY``    Specifies the query string parameter to
                                          read when using token authentication.
@@ -180,21 +180,18 @@ Template Paths
                                                passwordless logins. Defaults to
                                                ``security/send_login.html``.
 ``SECURITY_TWO_FACTOR_VERIFY_CODE_TEMPLATE``   Specifies the path to the template for
-                                               the verify code page for the two factor
+                                               the verify code page for the two-factor
                                                authentication process. Defaults to
-                                               ``security/two_factor_verify_code
-                                               .html``.
+                                               ``security/two_factor_verify_code.html``.
 
 ``SECURITY_TWO_FACTOR_CHOOSE_METHOD_TEMPLATE``   Specifies the path to the template for
                                                the choose method page for the two
                                                factor authentication process. Defaults
-                                               to ``security/two_factor_choose_method
-                                               .html``
+                                               to ``security/two_factor_choose_method.html``
 ``SECURITY_TWO_FACTOR_CHANGE_METHOD_TEMPLATE`` Specifies the path to the template for
                                                the change method page for the two
                                                factor authentication process. Defaults
-                                               to ``security/two_factor_change_method_
-                                               password_confirmation.html``.
+                                               to ``security/two_factor_change_method_password_confirmation.html``.
 
 ============================================== =======================================
 
@@ -236,7 +233,7 @@ Feature Flags
                           specified by the ``SECURITY_CHANGE_URL`` configuration
                           option. Defaults to ``False``.
 ``SECURITY_TWO_FACTOR``   Specifies if Flask-Security should enable the
-                          two factor login feature. If set to ``True``, in
+                          two-factor login feature. If set to ``True``, in
                           addition to their passwords, users will be required to
                           enter a code that is sent to them. The added feature
                           includes the ability to send it either via email, sms
@@ -281,10 +278,10 @@ Email
                                                   to ``True``.
 ``SECURITY_EMAIL_SUBJECT_TWO_FACTOR``             Sets the subject for the two
                                                   factor feature. Defaults to
-                                                  ``Two Factor Login``
+                                                  ``Two-factor Login``
 ``SECURITY_EMAIL_SUBJECT_TWO_FACTOR_RESCUE``      Sets the subject for the two
                                                   factor help function. Defaults
-                                                  to ``Two Factor Rescue``
+                                                  to ``Two-factor Rescue``
 ================================================= ==============================
 
 Miscellaneous
@@ -374,7 +371,7 @@ Miscellaneous
                                               me" value used when logging in
                                               a user. Defaults to ``False``.
 ``SECURITY_TWO_FACTOR_ENABLED_METHODS``       Specifies the default enabled
-                                              methods for two factor
+                                              methods for two-factor
                                               authentication. defaults to
                                               ``['mail', 'google_authenticator',
                                               'sms']`` which are the only

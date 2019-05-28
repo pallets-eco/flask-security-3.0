@@ -306,7 +306,7 @@ class ChangePasswordForm(Form, PasswordFormMixin):
 
 
 class TwoFactorSetupForm(Form, UserEmailFormMixin):
-    """The Two Factor token validation form"""
+    """The Two-factor token validation form"""
 
     setup = RadioField('Available Methods',
                        choices=[('mail', 'Set Up Using Mail'),
@@ -329,7 +329,7 @@ class TwoFactorSetupForm(Form, UserEmailFormMixin):
 
 
 class TwoFactorVerifyCodeForm(Form, UserEmailFormMixin):
-    """The Two Factor token validation form"""
+    """The Two-factor token validation form"""
 
     code = StringField(get_form_field_label('code'))
     submit = SubmitField(get_form_field_label('submit code'))
@@ -383,7 +383,7 @@ class TwoFactorChangeMethodVerifyPasswordForm(Form, PasswordFormMixin):
 
 
 class TwoFactorRescueForm(Form, UserEmailFormMixin):
-    """The Two Factor Rescue validation form"""
+    """The Two-factor Rescue validation form"""
 
     help_setup = RadioField('Trouble Accessing Your Account?',
                             choices=[('lost_device',

@@ -339,7 +339,7 @@ def change_password():
 
 @anonymous_user_required
 def two_factor_login():
-    """View function for two factor authentication login"""
+    """View function for two-factor authentication login"""
     # if we already validated email&password, there is no need to do it again
     form_class = _security.login_form
 
@@ -352,11 +352,11 @@ def two_factor_login():
     if form.validate_on_submit():
         user = form.user
         session['email'] = user.email
-        # if user's two factor properties are not configured
+        # if user's two-factor properties are not configured
         if user.two_factor_primary_method is None or user.totp_secret is None:
             session['has_two_factor'] = False
             return redirect(url_for('two_factor_setup_function'))
-        # if user's two factor properties are configured
+        # if user's two-factor properties are configured
         else:
             session['has_two_factor'] = True
             session['primary_method'] = user.two_factor_primary_method
@@ -376,7 +376,7 @@ def two_factor_login():
 
 
 def two_factor_setup_function():
-    """View function for two factor setup during login process"""
+    """View function for two-factor setup during login process"""
 
     # user's email&password not approved or we are
     # logged in and didn't validate password
@@ -386,7 +386,7 @@ def two_factor_setup_function():
             return redirect(get_url(_security.login_url))
 
         # user's email&password approved and
-        # two factor properties were configured before
+        # two-factor properties were configured before
         if session['has_two_factor'] is True:
             do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
             return redirect(url_for('two_factor_token_validation'))
@@ -434,8 +434,8 @@ def two_factor_setup_function():
 
 
 def two_factor_token_validation():
-    """View function for two factor token validation during login process"""
-    # if we are in login process and not changing current two factor method
+    """View function for two-factor token validation during login process"""
+    # if we are in login process and not changing current two-factor method
     if 'password_confirmed' not in session:
         # user's email&password not approved or we are logged in
         # and didn't validate password
@@ -443,7 +443,7 @@ def two_factor_token_validation():
             do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
             return redirect(get_url(_security.login_url))
 
-    # make sure user has or has chosen a two factor
+    # make sure user has or has chosen a two-factor
     # method before we try to validate
     if 'totp_secret' not in session or 'primary_method' not in session:
         do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
@@ -488,13 +488,13 @@ def two_factor_token_validation():
 @anonymous_user_required
 def two_factor_rescue_function():
     """ Function that handles a situation where user can't
-    enter his two factor validation code"""
+    enter his two-factor validation code"""
     # user's email&password yet to be approved
     if 'email' not in session:
         do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
         return abort(404)
 
-    # user's email&password approved and two factor properties
+    # user's email&password approved and two-factor properties
     # were not configured
     if 'totp_secret' not in session or 'primary_method' not in session:
         do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
@@ -540,7 +540,7 @@ def two_factor_rescue_function():
 
 @login_required
 def two_factor_password_confirmation():
-    """View function which handles a change two factor method request."""
+    """View function which handles a change two-factor method request."""
     form_class = _security.two_factor_change_method_verify_password_form
 
     if request.is_json:

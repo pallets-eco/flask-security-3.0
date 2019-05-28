@@ -79,7 +79,7 @@ serializable object:
 Two_Factor
 ^^^^^^^^^^
 
-If you enable two factor by setting your application's `TWO_FACTOR`
+If you enable two-factor by setting your application's `TWO_FACTOR`
 configuration value to `True`, your `User` model will require the following
 additional fields:
 

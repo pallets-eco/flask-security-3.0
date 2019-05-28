@@ -96,7 +96,7 @@ def generate_totp():
 
 
 def generate_qrcode():
-    """generate the qrcode for the two factor authentication process"""
+    """generate the qrcode for the two-factor authentication process"""
     if 'google_authenticator' not in\
             config_value('TWO_FACTOR_ENABLED_METHODS'):
         return abort(404)
@@ -126,7 +126,7 @@ def generate_qrcode():
 
 
 def complete_two_factor_process(user):
-    """clean session according to process (login or changing two factor method)
+    """clean session according to process (login or changing two-factor method)
      and perform action accordingly
     :param user - user's to update in database and log in if necessary
     """
@@ -145,7 +145,7 @@ def complete_two_factor_process(user):
     del session['primary_method']
     del session['totp_secret']
 
-    # if we are changing two factor method
+    # if we are changing two-factor method
     if 'password_confirmed' in session:
         del session['password_confirmed']
         do_flash(*get_message('TWO_FACTOR_CHANGE_METHOD_SUCCESSFUL'))

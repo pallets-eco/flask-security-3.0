@@ -61,9 +61,9 @@ Thus if the user changes his or her password their existing authentication token
 will become invalid. A new token will need to be retrieved using the user's new
 password.
 
-Two Factor Authentication
+Two-factor Authentication
 -------------------------
-Two factor authentication is enabled by generating time-based one time passwords
+Two-factor authentication is enabled by generating time-based one time passwords
 (Tokens). The tokens are generated using the users totp secret, which is unique
 per user, and is generated both on first login, and when changing the two-factor
 method.(Doing this causes the previous totp secret to become invalid) The token
@@ -129,8 +129,8 @@ JSON is supported for the following operations:
 * Confirmation requests
 * Forgot password requests
 * Passwordless login requests
-* Two factor login requests
-* Change two factor method requests
+* Two-factor login requests
+* Change two-factor method requests
 
 
 Command Line Interface

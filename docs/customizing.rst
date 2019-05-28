@@ -106,10 +106,10 @@ The following is a list of all the available form overrides:
 * ``change_password_form``: Change password form
 * ``send_confirmation_form``: Send confirmation form
 * ``passwordless_login_form``: Passwordless login form
-* ``two_factor_verify_code_form``: Two factor code form
-* ``two_factor_setup_form``: Two factor setup form
-* ``two_factor_change_method_verify_password_form``: Two factor password form
-* ``two_factor_rescue_form``: Two factor help user form
+* ``two_factor_verify_code_form``: Two-factor code form
+* ``two_factor_setup_form``: Two-factor setup form
+* ``two_factor_change_method_verify_password_form``: Two-factor password form
+* ``two_factor_rescue_form``: Two-factor help user form
 
 Emails
 ------

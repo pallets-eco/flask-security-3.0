@@ -11,7 +11,7 @@ Flask application. They include:
 5. Token based authentication
 6. Token based account activation (optional)
 7. Token based password recovery / resetting (optional)
-8. Two factor authentication (optional)
+8. Two-factor authentication (optional)
 9. User registration (optional)
 10. Login tracking (optional)
 11. JSON/Ajax Support
