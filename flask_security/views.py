@@ -353,18 +353,19 @@ def two_factor_login():
         user = form.user
         session['email'] = user.email
         # if user's two-factor properties are not configured
-        if user.two_factor_primary_method is None or user.totp_secret is None:
-            session['has_two_factor'] = False
-            return redirect(url_for('two_factor_setup_function'))
-        # if user's two-factor properties are configured
-        else:
-            session['has_two_factor'] = True
-            session['primary_method'] = user.two_factor_primary_method
-            session['totp_secret'] = user.totp_secret
-            send_security_token(user=user,
-                                method=user.two_factor_primary_method,
-                                totp_secret=user.totp_secret)
-            return redirect(url_for('two_factor_token_validation'))
+        if not request.is_json:
+            if user.two_factor_primary_method is None or user.totp_secret is None:
+                session['has_two_factor'] = False
+                return redirect(url_for('two_factor_setup_function'))
+            # if user's two-factor properties are configured
+            else:
+                session['has_two_factor'] = True
+                session['primary_method'] = user.two_factor_primary_method
+                session['totp_secret'] = user.totp_secret
+                send_security_token(user=user,
+                                    method=user.two_factor_primary_method,
+                                    totp_secret=user.totp_secret)
+                return redirect(url_for('two_factor_token_validation'))
 
     if request.is_json:
         form.user = current_user
@@ -380,20 +381,22 @@ def two_factor_setup_function():
 
     # user's email&password not approved or we are
     # logged in and didn't validate password
-    if 'password_confirmed' not in session:
-        if 'email' not in session or 'has_two_factor' not in session:
-            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-            return redirect(get_url(_security.login_url))
+    if not request.is_json:
+        if 'password_confirmed' not in session:
+            if 'email' not in session or 'has_two_factor' not in session:
+                do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+                return redirect(get_url(_security.login_url))
 
-        # user's email&password approved and
-        # two-factor properties were configured before
-        if session['has_two_factor'] is True:
-            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-            return redirect(url_for('two_factor_token_validation'))
+            # user's email&password approved and
+            # two-factor properties were configured before
+            if session['has_two_factor'] is True:
+                do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+                return redirect(url_for('two_factor_token_validation'))
 
-        user = _datastore.find_user(email=session['email'])
-    else:
-        user = current_user
+            user = _datastore.find_user(email=session['email'])
+        else:
+            user = current_user
+
     form_class = _security.two_factor_setup_form
 
     if request.is_json:
@@ -411,43 +414,36 @@ def two_factor_setup_function():
         send_security_token(user=user, method=session['primary_method'],
                             totp_secret=session['totp_secret'])
         code_form = _security.two_factor_verify_code_form()
-        return _security.render_template(
-            config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
-            two_factor_setup_form=form,
-            two_factor_verify_code_form=code_form,
-            choices=config_value(
-                'TWO_FACTOR_ENABLED_METHODS'),
-            chosen_method=session['primary_method'],
-            **_ctx('two_factor_setup_function'))
+        if not request.is_json:
+            return _security.render_template(
+                config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
+                two_factor_setup_form=form,
+                two_factor_verify_code_form=code_form,
+                choices=config_value(
+                    'TWO_FACTOR_ENABLED_METHODS'),
+                chosen_method=session['primary_method'],
+                **_ctx('two_factor_setup_function'))
 
     if request.is_json:
         return _render_json(form, include_user=False)
-
-    code_form = _security.two_factor_verify_code_form()
-    return _security.render_template(
-        config_value('TWO_FACTOR_CHOOSE_METHOD_TEMPLATE'),
-        two_factor_setup_form=form,
-        two_factor_verify_code_form=code_form,
-        choices=config_value(
-            'TWO_FACTOR_ENABLED_METHODS'),
-        **_ctx('two_factor_setup_function'))
 
 
 def two_factor_token_validation():
     """View function for two-factor token validation during login process"""
     # if we are in login process and not changing current two-factor method
-    if 'password_confirmed' not in session:
-        # user's email&password not approved or we are logged in
-        # and didn't validate password
-        if 'has_two_factor' not in session:
-            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-            return redirect(get_url(_security.login_url))
+    if not request.is_json:
+        if 'password_confirmed' not in session:
+            # user's email&password not approved or we are logged in
+            # and didn't validate password
+            if 'has_two_factor' not in session:
+                do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+                return redirect(get_url(_security.login_url))
 
-    # make sure user has or has chosen a two-factor
-    # method before we try to validate
-    if 'totp_secret' not in session or 'primary_method' not in session:
-        do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-        return redirect(url_for('two_factor_setup_function'))
+        # make sure user has or has chosen a two-factor
+        # method before we try to validate
+        if 'totp_secret' not in session or 'primary_method' not in session:
+            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            return redirect(url_for('two_factor_setup_function'))
 
     form_class = _security.two_factor_verify_code_form
 
@@ -490,15 +486,16 @@ def two_factor_rescue_function():
     """ Function that handles a situation where user can't
     enter his two-factor validation code"""
     # user's email&password yet to be approved
-    if 'email' not in session:
-        do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-        return abort(404)
+    if not request.is_json:
+        if 'email' not in session:
+            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            return redirect(get_url(_security.login_url))
 
-    # user's email&password approved and two-factor properties
-    # were not configured
-    if 'totp_secret' not in session or 'primary_method' not in session:
-        do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
-        return abort(404)
+        # user's email&password approved and two-factor properties
+        # were not configured
+        if 'totp_secret' not in session or 'primary_method' not in session:
+            do_flash(*get_message('TWO_FACTOR_PERMISSION_DENIED'))
+            return redirect(get_url(_security.login_url))
 
     form_class = _security.two_factor_rescue_form
 
@@ -550,8 +547,9 @@ def two_factor_password_confirmation():
 
     if form.validate_on_submit():
         session['password_confirmed'] = True
-        do_flash(get_message('TWO_FACTOR_PASSWORD_CONFIRMATION_DONE'))
-        return redirect(url_for('two_factor_setup_function'))
+        if not request.is_json:
+            do_flash(get_message('TWO_FACTOR_PASSWORD_CONFIRMATION_DONE'))
+            return redirect(url_for('two_factor_setup_function'))
 
     if request.is_json:
         form.user = current_user

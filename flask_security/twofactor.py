@@ -10,6 +10,7 @@
 
 import os
 import base64
+from passlib.totp import TOTP, generate_secret
 
 import pyqrcode
 import onetimepass
@@ -66,10 +67,9 @@ def get_totp_uri(username, totp_secret):
     :param totp_secret: a unique shared secret of the user
     :return:
     """
+    tp = TOTP(totp_secret)
     service_name = config_value('TWO_FACTOR_URI_SERVICE_NAME')
-
-    return 'otpauth://totp/{0}:{1}?secret={2}&issuer={0}'\
-        .format(service_name, username, totp_secret)
+    tp.to_uri(username + '@' + service_name, service_name)
 
 
 def verify_totp(token, totp_secret, window=0):
@@ -92,7 +92,7 @@ def get_totp_password(totp_secret):
 
 
 def generate_totp():
-    return base64.b32encode(os.urandom(10)).decode('utf-8')
+    return generate_secret()
 
 
 def generate_qrcode():
