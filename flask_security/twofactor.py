@@ -10,12 +10,10 @@
 
 import os
 import base64
-from passlib.totp import TOTP, generate_secret
+from passlib.totp import TOTP
 
-import pyqrcode
 import onetimepass
-from flask import current_app as app, session, abort
-from flask_login import current_user
+from flask import current_app as app, session
 from werkzeug.local import LocalProxy
 
 from .utils import send_mail, config_value, get_message, do_flash,\
@@ -69,7 +67,7 @@ def get_totp_uri(username, totp_secret):
     """
     tp = TOTP(totp_secret)
     service_name = config_value('TWO_FACTOR_URI_SERVICE_NAME')
-    tp.to_uri(username + '@' + service_name, service_name)
+    return tp.to_uri(username + '@' + service_name, service_name)
 
 
 def verify_totp(token, totp_secret, window=0):
@@ -92,37 +90,7 @@ def get_totp_password(totp_secret):
 
 
 def generate_totp():
-    return generate_secret()
-
-
-def generate_qrcode():
-    """generate the qrcode for the two-factor authentication process"""
-    if 'google_authenticator' not in\
-            config_value('TWO_FACTOR_ENABLED_METHODS'):
-        return abort(404)
-    if 'primary_method' not in session or\
-        session['primary_method'] != 'google_authenticator' \
-            or 'totp_secret' not in session:
-        return abort(404)
-
-    if 'email' in session:
-        email = session['email']
-    elif 'password_confirmed' in session:
-        email = current_user.email
-    else:
-        return abort(404)
-
-    name = email.split('@')[0]
-    totp = session['totp_secret']
-    url = pyqrcode.create(get_totp_uri(name, totp))
-    from io import BytesIO
-    stream = BytesIO()
-    url.svg(stream, scale=3)
-    return stream.getvalue(), 200, {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'}
+    return base64.b32encode(os.urandom(10)).decode('utf-8')
 
 
 def complete_two_factor_process(user):

@@ -131,7 +131,7 @@ def test_two_factor_flag(app, client):
     response = client.post('/login', data=json_data,
                            headers={'Content-Type': 'application/json'},
                            follow_redirects=True)
-    assert b'Please enter your authentication code' in response.data
+    assert b'"code": 200' in response.data
     assert sms_sender.get_count() == 1
 
     code = sms_sender.messages[0].split()[-1]
@@ -199,7 +199,7 @@ def test_two_factor_flag(app, client):
     setup_data = dict(setup='google_authenticator')
     response = client.post('/two_factor_setup_function/',
                            data=setup_data, follow_redirects=True)
-    print(response.data)
+
     assert b'Open Google Authenticator on your device' in response.data
     qrcode_page_response = client.get('/two_factor_qrcode/', data=setup_data,
                                       follow_redirects=True)
@@ -238,9 +238,10 @@ def test_two_factor_flag(app, client):
     response = client.post('/two_factor_setup_function/',
                            data=setup_data, follow_redirects=True)
     assert b'Open Google Authenticator on your device' in response.data
-    print(response.data)
+
     qrcode_page_response = client.get('/two_factor_qrcode/', data=setup_data,
                                       follow_redirects=True)
+    print(qrcode_page_response)
     assert b'svg' in qrcode_page_response.data
 
     # check appearence of setup page when sms picked and phone number entered
@@ -264,7 +265,7 @@ def test_two_factor_flag(app, client):
     response = client.post('/two_factor_rescue_function/',
                            data=rescue_data_json,
                            headers={'Content-Type': 'application/json'})
-    assert response.status_code == 404
+    assert b'"code": 400' in response.data
 
     # check when two_factor_rescue function should appear
     data = dict(email="gal2@lp.com", password="password")
