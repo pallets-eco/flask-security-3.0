@@ -185,7 +185,7 @@ Template Paths
                                                ``security/two_factor_verify_code
                                                .html``.
 
-``SECURITY_TWO_FACTOR_CHOOSE_METHOD_TEMPLT``   Specifies the path to the template for
+``SECURITY_TWO_FACTOR_CHOOSE_METHOD_TEMPLATE``   Specifies the path to the template for
                                                the choose method page for the two
                                                factor authentication process. Defaults
                                                to ``security/two_factor_choose_method
