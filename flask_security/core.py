@@ -12,6 +12,7 @@
 """
 
 from datetime import datetime
+import sys
 
 import pkg_resources
 from flask import current_app, render_template
@@ -653,7 +654,6 @@ class Security(object):
                              .format(module, config_name, config_value))
 
         return module_exists
-        return state
 
     def render_template(self, *args, **kwargs):
         return render_template(*args, **kwargs)
