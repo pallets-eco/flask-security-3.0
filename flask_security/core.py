@@ -611,21 +611,48 @@ class Security(object):
 
         # configuration mismatch check
         if cv('TWO_FACTOR', app=app) is True and\
-                len(cv('TWO_FACTOR_ENABLED_METHODS', app=app)) < 1:
+                len(cv('TWO_FACTOR_ENABLED_METHODS',
+                       app=app)) < 1:  # pragma: no cover
 
             raise ValueError()
 
-        flag = False
-        try:
-            import importlib.util as import_util
-            flag = import_util.find_spec('twilio')
-        except:
-            pass
+        config_value = cv('TWO_FACTOR', app=app)
+        if config_value:  # pragma: no cover
+            self.check_two_factor_modules('onetimepass',
+                                          'TWO_FACTOR', config_value)
+            self.check_two_factor_modules('pyqrcode',
+                                          'TWO_FACTOR', config_value)
 
-        if not flag and cv('TWO_FACTOR_SMS_SERVICE', app=app)\
-                == 'Twilio':
-            raise ValueError()
+        config_value = cv('TWO_FACTOR_SMS_SERVICE', app=app)
 
+        if config_value == 'Twilio':  # pragma: no cover
+            self.check_two_factor_modules('twilio',
+                                          'TWO_FACTOR_SMS_SERVICE',
+                                          config_value)
+
+        return state
+
+    def check_two_factor_modules(self, module,
+                                 config_name,
+                                 config_value):  # pragma: no cover
+        PY3 = sys.version_info[0] == 3
+        if PY3:
+            from importlib.util import find_spec
+            module_exists = find_spec(module)
+
+        else:
+            import imp
+            try:
+                imp.find_module(module)
+                module_exists = True
+            except ImportError:
+                module_exists = False
+
+        if not module_exists:
+            raise ValueError('{} is required for {} = {}'
+                             .format(module, config_name, config_value))
+
+        return module_exists
         return state
 
     def render_template(self, *args, **kwargs):

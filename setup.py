@@ -18,6 +18,7 @@ tests_require = [
     'isort>=4.2.2',
     'mock>=1.3.0',
     'mongoengine>=0.12.0',
+    'onetimepass>=1.0.1',
     'pony>=0.7.4',
     'pydocstyle>=1.0.0',
     'pytest-cache>=1.0',
@@ -25,6 +26,7 @@ tests_require = [
     'pytest-flakes>=1.0.1',
     'pytest-pep8>=1.0.6',
     'pytest>=3.3.0',
+    'pyqrcode>=1.2',
     'sqlalchemy>=1.1.0',
 
 ]
