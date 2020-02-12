@@ -63,7 +63,7 @@ def _get_unauthorized_view():
 
 
 def _check_token():
-    user = _security.login_manager.request_callback(request)
+    user = _security.login_manager.request_loader(request)
 
     if user and user.is_authenticated:
         app = current_app._get_current_object()
