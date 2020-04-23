@@ -1,3 +1,6 @@
+.. note::
+   This project is non maintained anymore. Consider the `Flask-Security-Too <https://flask-security-too.readthedocs.io/en/stable/>`_ project as an alternative.
+   
 Flask-Security
 ===================
 
