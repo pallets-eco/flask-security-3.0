@@ -273,27 +273,48 @@ def forgot_password():
 def reset_password(token):
     """View function that handles a reset password request."""
 
+    form_class = _security.reset_password_form
+
+    if request.is_json:
+        form = form_class(MultiDict(request.get_json()))
+    else:
+        form = form_class()
+
     expired, invalid, user = reset_password_token_status(token)
 
     if not user or invalid:
         invalid = True
-        do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
+        invalid_message = get_message('INVALID_RESET_PASSWORD_TOKEN')
+        if request.is_json:
+            form.errors['invalid'] = [invalid_message[0]]
+        else:
+            do_flash(*invalid_message)
 
     if expired:
         send_reset_password_instructions(user)
-        do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
-                              within=_security.reset_password_within))
+        expired_message = get_message('PASSWORD_RESET_EXPIRED',
+                                      email=user.email,
+                                      within=_security.reset_password_within)
+        if request.is_json:
+            form.errors['expired'] = [expired_message[0]]
+        else:
+            do_flash(*expired_message)
     if invalid or expired:
-        return redirect(url_for('forgot_password'))
+        if request.is_json:
+            return _render_json(form, include_user=False)
 
-    form = _security.reset_password_form()
+        return redirect(url_for('forgot_password'))
 
     if form.validate_on_submit():
         after_this_request(_commit)
         update_password(user, form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
-        return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.login_url))
+        if not request.is_json:
+            do_flash(*get_message('PASSWORD_RESET'))
+            return redirect(get_url(_security.post_reset_view) or
+                            get_url(_security.login_url))
+
+    if request.is_json:
+        return _render_json(form, include_user=False)
 
     return _security.render_template(
         config_value('RESET_PASSWORD_TEMPLATE'),

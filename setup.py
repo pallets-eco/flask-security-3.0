@@ -7,10 +7,11 @@ from setuptools import find_packages, setup
 readme = open('README.rst').read()
 
 tests_require = [
+    'Flask>=1.0',
     'Flask-CLI>=0.4.0',
     'Flask-Mongoengine>=0.7.0',
     'Flask-Peewee>=0.6.5',
-    'Flask-SQLAlchemy>=1.0',
+    'Flask-SQLAlchemy>=2.1',
     'bcrypt>=1.0.2',
     'check-manifest>=0.25',
     'coverage>=4.0',

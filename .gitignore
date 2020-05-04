@@ -47,3 +47,4 @@ Session.vim
 
 # Pycharm files
 .idea/
+venv/
