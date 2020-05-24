@@ -1,0 +1,278 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-08 11:12+0800\n"
+"PO-Revision-Date: 2017-05-08 13:12+0800\n"
+"Last-Translator: \n"
+"Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#: ../../features.rst:2
+msgid "Features"
+msgstr "特性"
+
+#: ../../features.rst:4
+msgid ""
+"Flask-Security allows you to quickly add common security mechanisms to "
+"your Flask application. They include:"
+msgstr ""
+"Flask-Security 让你能够快捷的为你的 Flask 应用添加一些通用安全机制. 它们"
+"包括:"
+
+#: ../../features.rst:9
+msgid "Session Based Authentication"
+msgstr "基于会话的身份验证"
+
+#: ../../features.rst:11
+msgid ""
+"Session based authentication is fulfilled entirely by the `Flask-Login`_ "
+"extension. Flask-Security handles the configuration of Flask-Login "
+"automatically based on a few of its own configuration values and uses "
+"Flask-Login's `alternative token`_ feature for remembering users when "
+"their session has expired."
+msgstr ""
+"基于会话的身份验证由 `Flask-Login`_ 扩展完全实现. \n"
+"Flask-Security 会自动处理 Flask-Login 的配置,基于它的少数配置参数, \n"
+"同时使用Flask-Login 的 `可选令牌`_ 特性去记住用户,当它们的会话过期."
+
+#: ../../features.rst:19
+msgid "Role/Identity Based Access"
+msgstr "基于角色/身份的权限管理"
+
+#: ../../features.rst:21
+msgid ""
+"Flask-Security implements very basic role management out of the box. "
+"This means that you can associate a high level role or multiple roles to "
+"any user. For instance, you may assign roles such as `Admin`, `Editor`, "
+"`SuperUser`, or a combination of said roles to a user. Access control is "
+"based on the role name and all roles should be uniquely named. This "
+"feature is implemented using the `Flask-Principal`_ extension. If you'd "
+"like to implement more granular access control, you can refer to the "
+"Flask-Principal `documentation on this topic`_."
+msgstr ""
+"Flask-Security 开箱即用的实现了非常基础的角色管理系统.\n"
+"这意味着你可以将一个高等级角色或多个角色关联于任何用户.\n"
+"例如, 你可以分配 `管理员`, `编辑`, `超级用户` 这些角色或者它们的组合给一"
+"个用户.\n"
+"权限控制基于角色名, 所有角色需要一个独一无二的名称. \n"
+"这个特性的实现通过使用 `Flask-Principal`_ 扩展. \n"
+"如果你想实现更细腻的权限控制,你可以参考 Flask-Principal `关于这一主题的文"
+"档`_."
+
+#: ../../features.rst:31
+msgid "Password Hashing"
+msgstr "密码哈希"
+
+#: ../../features.rst:33
+msgid ""
+"Password hashing is enabled with `passlib`_. Passwords are hashed with "
+"the `bcrypt`_ function by default but you can easily configure the "
+"hashing algorithm. You should **always use an hashing algorithm** in "
+"your production environment. You may also specify to use HMAC with a "
+"configured salt value in addition to the algorithm chosen. Bear in mind "
+"passlib does not assume which algorithm you will choose and may require "
+"additional libraries to be installed."
+msgstr ""
+"密码哈希通过激活 `passlib`_  实现. 一般情况下, 密码使用 `bcrypt`_ 方法进"
+"行哈希 ,\n"
+"不过你可以简便的配置哈希算法. \n"
+"你应该在生产环境中 **永远使用一个加密算法**.\n"
+"除了加密算法,你也可以指定使用 HMAC 加上配置的盐. \n"
+"记住 passlib 不假定你将使用的算法, 同时可能需要安装额外的库."
+
+#: ../../features.rst:42
+msgid "Basic HTTP Authentication"
+msgstr "基础 HTTP 身份验证"
+
+#: ../../features.rst:44
+msgid ""
+"Basic HTTP authentication is achievable using a simple view method "
+"decorator. This feature expects the incoming authentication information "
+"to identify a user in the system. This means that the username must be "
+"equal to their email address."
+msgstr ""
+"基础 HTTP 身份验证 通过使用一个视图方法装饰器实现.\n"
+"这个特性期望通过给予的身份验证信息,去认定为系统中的一个用户.\n"
+"这意味着, 用户名必须和邮件地址一样."
+
+#: ../../features.rst:50
+msgid "Token Authentication"
+msgstr "基于令牌的身份验证"
+
+#: ../../features.rst:52
+msgid ""
+"Token based authentication is enabled by retrieving the user auth token "
+"by performing an HTTP POST with the authentication details as JSON data "
+"against the authentication endpoint. A successful call to this endpoint "
+"will return the user's ID and their authentication token. This token can "
+"be used in subsequent requests to protected resources. The auth token is "
+"supplied in the request through an HTTP header or query string "
+"parameter. By default the HTTP header name is `Authentication-Token` and "
+"the default query string parameter name is `auth_token`. Authentication "
+"tokens are generated using the user's password. Thus if the user changes "
+"his or her password their existing authentication token will become "
+"invalid. A new token will need to be retrieved using the user's new "
+"password."
+msgstr ""
+"基于令牌的身份验证是通过向 身份验证端点(endpoint),发送一个包含身份验证详"
+"细信息\n"
+"的 JSON 数据的 HTTP POST 请求,来获取用户认证令牌实现的.\n"
+"成功的调用这个端点,将返回用户的 ID 和身份验证令牌.\n"
+"这个令牌可用于之后对于受保护资源的请求. 令牌通过附于 HTTP 头或者字符串查"
+"询参数(query string parameter)中来提供.\n"
+"默认的 HTTP 头名称为 `Authentication-Token` ,字符串查询参数名称为 "
+"`auth_token`.\n"
+"身份验证令牌基于用户的密码产生. 因此,当一个用户修改了他的密码,他现存的身"
+"份验证令牌将失效.\n"
+"需要通过用户的新密码来获取一个新的令牌."
+
+#: ../../features.rst:66
+msgid "Email Confirmation"
+msgstr "邮箱验证"
+
+#: ../../features.rst:68
+msgid ""
+"If desired you can require that new users confirm their email address. "
+"Flask-Security will send an email message to any new users with a "
+"confirmation link. Upon navigating to the confirmation link, the user "
+"will be automatically logged in. There is also view for resending a "
+"confirmation link to a given email if the user happens to try to use an "
+"expired token or has lost the previous email. Confirmation links can be "
+"configured to expire after a specified amount of time."
+msgstr ""
+"如果需要的话,你可以要求新用户去验证它们的邮箱地址.\n"
+"Flask-Security 将会给任何新用户发送一封包含验证链接的邮件.\n"
+"当用户跳转到验证链接时,用户会自动登录.\n"
+"也有一个视图可供重新发送验证链接到一个指定的邮箱,当一个用户试图使用过期的"
+"令牌或者丢失了之前的邮件.\n"
+"验证链接可以配置在指定时间后过期."
+
+#: ../../features.rst:78
+msgid "Password Reset/Recovery"
+msgstr "密码重置/恢复"
+
+#: ../../features.rst:80
+msgid ""
+"Password reset and recovery is available for when a user forgets his or "
+"her password. Flask-Security sends an email to the user with a link to a "
+"view which they can reset their password. Once the password is reset "
+"they are automatically logged in and can use the new password from then "
+"on. Password reset links  can be configured to expire after a specified "
+"amount of time."
+msgstr ""
+"密码重置/恢复 为忘记密码的用户服务.\n"
+"Flask-Security 发送包含一个跳转到重置密码界面的链接.\n"
+"一旦密码被重置,用户将会自动登录,之后就可用他们的新密码了.\n"
+"密码重置链接可以配置在指定时间后过期."
+
+#: ../../features.rst:88
+msgid "User Registration"
+msgstr "用户注册"
+
+#: ../../features.rst:90
+msgid ""
+"Flask-Security comes packaged with a basic user registration view. This "
+"view is very simple and new users need only supply an email address and "
+"their password. This view can be overridden if your registration process "
+"requires more fields."
+msgstr ""
+"Flask-Security 打包了一个基础的用户注册视图\n"
+"这个视图非常简单,新用户只需要提供一个邮箱地址和密码.\n"
+"这个视图可以被重写,如果你的注册过程需要填写更多的字段."
+
+#: ../../features.rst:96
+msgid "Login Tracking"
+msgstr "登录追踪"
+
+#: ../../features.rst:98
+msgid ""
+"Flask-Security can, if configured, keep track of basic login events and "
+"statistics. They include:"
+msgstr "通过配置, Flask-Security 可以持续追踪基础登录事件和统计. 它们包括:"
+
+#: ../../features.rst:101
+msgid "Last login date"
+msgstr "上一次登录时间"
+
+#: ../../features.rst:102
+msgid "Current login date"
+msgstr "当前登录时间"
+
+#: ../../features.rst:103
+msgid "Last login IP address"
+msgstr "上一次登录 IP 地址"
+
+#: ../../features.rst:104
+msgid "Current login IP address"
+msgstr "当前登录 IP 地址"
+
+#: ../../features.rst:105
+msgid "Total login count"
+msgstr "总登录次数"
+
+#: ../../features.rst:109
+msgid "JSON/Ajax Support"
+msgstr "JSON/Ajax 支持"
+
+#: ../../features.rst:111
+msgid ""
+"Flask-Security supports JSON/Ajax requests where appropriate. Just "
+"remember that all endpoints require a CSRF token just like HTML views. "
+"More specifically JSON is supported for the following operations:"
+msgstr ""
+"在适当情况下 Flask-Security 支持 JSON/Ajax 请求. \n"
+"记住,所有的端点和 HTML 视图一样需要 CSRF 令牌.\n"
+"具体来说,以下的操作支持 JSON:"
+
+#: ../../features.rst:115
+msgid "Login requests"
+msgstr "登录请求"
+
+#: ../../features.rst:116
+msgid "Registration requests"
+msgstr "注册请求"
+
+#: ../../features.rst:117
+msgid "Change password requests"
+msgstr "修改密码请求"
+
+#: ../../features.rst:118
+msgid "Confirmation requests"
+msgstr "验证请求"
+
+#: ../../features.rst:119
+msgid "Forgot password requests"
+msgstr "忘记密码请求"
+
+#: ../../features.rst:120
+msgid "Passwordless login requests"
+msgstr "无密码登录请求"
+
+#: ../../features.rst:124
+msgid "Command Line Interface"
+msgstr "命令行接口"
+
+#: ../../features.rst:126
+msgid ""
+"Basic `Click`_ commands for managing users and roles are automatically "
+"registered. They can be completely disabled or their names can be "
+"changed. Run ``flask --help`` and look for users and roles."
+msgstr ""
+"使用基础的 `Click`_ 命令行将被自动注册去管理用户和角色. 它们可以被完全禁"
+"用, 也可以改变它们的名字. 运行 ``flask --help`` 寻找用户和角色."
+
+#~ msgid "Password Encryption"
+#~ msgstr "密码加密"

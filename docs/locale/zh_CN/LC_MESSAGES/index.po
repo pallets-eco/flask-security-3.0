@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, Matt Wright
+# This file is distributed under the same license as the Flask-Security
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask-Security 1.7.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-08 11:12+0800\n"
+"PO-Revision-Date: 2017-05-08 11:43+0800\n"
+"Last-Translator: \n"
+"Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#: ../../index.rst:2
+msgid "Flask-Security"
+msgstr "Flask-Security"
+
+#: ../../index.rst:4
+msgid ""
+"Flask-Security allows you to quickly add common security mechanisms to your "
+"Flask application. They include:"
+msgstr ""
+"Flask-Security 让你能够快捷的为你的 Flask 应用添加一些通用安全机制. 它们包括:"
+
+#: ../../index.rst:7
+msgid "Session based authentication"
+msgstr "基于会话的身份验证"
+
+#: ../../index.rst:8
+msgid "Role management"
+msgstr "角色管理"
+
+#: ../../index.rst:9
+msgid "Password hashing"
+msgstr "密码哈希"
+
+#: ../../index.rst:10
+msgid "Basic HTTP authentication"
+msgstr "基础 HTTP 身份验证"
+
+#: ../../index.rst:11
+msgid "Token based authentication"
+msgstr "基于令牌的身份验证"
+
+#: ../../index.rst:12
+msgid "Token based account activation (optional)"
+msgstr "基于令牌的账户激活 (可选)"
+
+#: ../../index.rst:13
+msgid "Token based password recovery / resetting (optional)"
+msgstr "基于令牌的密码恢复/重置 (可选)"
+
+#: ../../index.rst:14
+msgid "User registration (optional)"
+msgstr "用户注册 (可选)"
+
+#: ../../index.rst:15
+msgid "Login tracking (optional)"
+msgstr "登录追踪 (可选)"
+
+#: ../../index.rst:16
+msgid "JSON/Ajax Support"
+msgstr "JSON/Ajax 支持"
+
+#: ../../index.rst:18
+msgid ""
+"Many of these features are made possible by integrating various Flask "
+"extensions and libraries. They include:"
+msgstr "通过集成各种 Flask 的扩展和库,才得以实现上述许多功能. 它们包括:"
+
+#: ../../index.rst:21
+msgid "`Flask-Login <https://flask-login.readthedocs.org/en/latest/>`_"
+msgstr "`Flask-Login <https://flask-login.readthedocs.org/en/latest/>`_"
+
+#: ../../index.rst:22
+msgid "`Flask-Mail <http://packages.python.org/Flask-Mail/>`_"
+msgstr "`Flask-Mail <http://packages.python.org/Flask-Mail/>`_"
+
+#: ../../index.rst:23
+msgid "`Flask-Principal <http://packages.python.org/Flask-Principal/>`_"
+msgstr "`Flask-Principal <http://packages.python.org/Flask-Principal/>`_"
+
+#: ../../index.rst:24
+msgid "`Flask-WTF <http://packages.python.org/Flask-WTF/>`_"
+msgstr "`Flask-WTF <http://packages.python.org/Flask-WTF/>`_"
+
+#: ../../index.rst:25
+msgid "`itsdangerous <http://packages.python.org/itsdangerous/>`_"
+msgstr "`itsdangerous <http://packages.python.org/itsdangerous/>`_"
+
+#: ../../index.rst:26
+msgid "`passlib <http://packages.python.org/passlib/>`_"
+msgstr "`passlib <http://packages.python.org/passlib/>`_"
+
+#: ../../index.rst:28
+msgid ""
+"Additionally, it assumes you'll be using a common library for your database "
+"connections and model definitions. Flask-Security supports the following "
+"Flask extensions out of the box for data persistence:"
+msgstr ""
+"此外,我们假定你会为你的数据库链接和模型定义使用一个通用的库. Flask-Security 开"
+"箱即用的支持下列 Flask 数据持久化扩展:"
+
+#: ../../index.rst:32
+msgid "`Flask-SQLAlchemy <http://pypi.python.org/pypi/flask-sqlalchemy/>`_"
+msgstr "`Flask-SQLAlchemy <http://pypi.python.org/pypi/flask-sqlalchemy/>`_"
+
+#: ../../index.rst:33
+msgid "`Flask-MongoEngine <http://pypi.python.org/pypi/flask-mongoengine/>`_"
+msgstr "`Flask-MongoEngine <http://pypi.python.org/pypi/flask-mongoengine/>`_"
+
+#: ../../index.rst:34
+msgid "`Flask-Peewee <http://pypi.python.org/pypi/flask-peewee/>`_"
+msgstr "`Flask-Peewee <http://pypi.python.org/pypi/flask-peewee/>`_"
+
+#: ../../index.rst:35
+msgid "`PonyORM <http://pypi.python.org/pypi/pony/>`_"
+msgstr "`PonyORM <http://pypi.python.org/pypi/pony/>`_"
+
+#: ../../contents.rst.inc:2
+msgid "Contents"
+msgstr "目录"
+
+#~ msgid "Password encryption"
+#~ msgstr "密码加密"
+
+#~ msgid "`Flask-Script <http://packages.python.org/Flask-Script/>`_"
+#~ msgstr "`Flask-Script <http://packages.python.org/Flask-Script/>`_"

@@ -58,6 +58,10 @@ release = version
 # for a list of supported languages.
 # language = None
 
+# i18n
+locale_dirs = ['locale/']
+gettext_compact = False
+
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
 # today = ''
