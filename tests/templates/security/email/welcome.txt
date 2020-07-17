@@ -1,0 +1,3 @@
+templates/security/email/welcome.html CUSTOM SEND WELCOME
+{{ global }}
+Token: {{ token }}

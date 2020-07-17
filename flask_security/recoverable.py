@@ -35,7 +35,8 @@ def send_reset_password_instructions(user):
     if config_value('SEND_PASSWORD_RESET_EMAIL'):
         _security.send_mail(config_value('EMAIL_SUBJECT_PASSWORD_RESET'),
                             user.email, 'reset_instructions',
-                            user=user, reset_link=reset_link)
+                            user=user, reset_link=reset_link,
+                            token=token)
 
     reset_password_instructions_sent.send(
         app._get_current_object(), user=user, token=token

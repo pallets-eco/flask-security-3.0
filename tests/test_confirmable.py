@@ -238,3 +238,20 @@ def test_cannot_reset_password_when_email_is_not_confirmed(
             email=email),
         follow_redirects=True)
     assert get_message('CONFIRMATION_REQUIRED') in response.data
+
+
+@pytest.mark.registerable()
+@pytest.mark.settings(send_register_email=True)
+def test_optional_token_in_welcome_email(app, client):
+    with capture_registrations() as registrations:
+        with app.mail.record_messages() as outbox:
+            data = dict(email='token@lp.com', password='password', next='')
+            response = client.post('/register',
+                                   data=data,
+                                   follow_redirects=True)
+
+    assert response.status_code == 200
+
+    # Test email contains Token information
+    with app.test_request_context():
+        assert registrations[0]['confirm_token'] in outbox[0].body
