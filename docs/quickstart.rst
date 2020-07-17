@@ -170,7 +170,6 @@ and models.py. You can also do the models a folder and spread your tables there.
 
     from database import Base
     from flask_security import UserMixin, RoleMixin
-    from sqlalchemy import create_engine
     from sqlalchemy.orm import relationship, backref
     from sqlalchemy import Boolean, DateTime, Column, Integer, \
                            String, ForeignKey
